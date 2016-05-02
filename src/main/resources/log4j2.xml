@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="PID">????</Property>
+        <property name="name">bluefin-web-portal-services</property>
+    </Properties>
+    <Appenders>
+        <RollingFile name="file" fileName="logs/${name}.log"
+            filePattern="logs/${name}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout
+                pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${sys:PID} --- [%t] %c{1}(%M:%L) : %m%n%wEx" />
+            <Policies>
+                <TimeBasedTriggeringPolicy /><!-- Rotated everyday -->
+                <SizeBasedTriggeringPolicy size="100 MB" /> <!-- Or every 100 MB -->
+            </Policies>
+        </RollingFile>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout
+                pattern="%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%t]}{faint} %clr{%c{1}(%M:%L)}{cyan} %clr{:}{faint} %m%n%wEx" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.hibernate.validator.internal.util.Version"
+            level="warn" />
+        <Logger name="org.apache.coyote.http11.Http11NioProtocol" level="warn" />
+        <Logger name="org.apache.tomcat.util.net.NioSelectorPool" level="warn" />
+        <Logger name="org.apache.catalina.startup.DigesterFactory" level="error" />
+        <Logger name="org.springframework.web" level="error" />
+
+        <Root level="INFO">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="file" />
+        </Root>
+    </Loggers>
+</Configuration>
