@@ -5,3 +5,5 @@ logs/*
 .classpath
 .project
 .springBeans
+.metadata/*
+Servers/*
