@@ -13,6 +13,7 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -28,9 +29,11 @@ public final class TokenHandler {
     private static final String HMAC_ALGORITHM = "HmacSHA256";
     private static final String SEPARATOR = ".";
     private static final String SEPARATOR_SPLITTER = "\\.";
-    private static final String SECURITY_KEY = "SigningKey123!";
 
     private Mac hmac;
+
+    @Value("${bluefin.wp.services.token.secret}")
+    private String securityTokenSecret;
 
     @Autowired
     private TokenRepository tokenRepository;
@@ -39,7 +42,7 @@ public final class TokenHandler {
     public void init() {
         try {
             hmac = Mac.getInstance(HMAC_ALGORITHM);
-            hmac.init(new SecretKeySpec(SECURITY_KEY.getBytes(), HMAC_ALGORITHM));
+            hmac.init(new SecretKeySpec(securityTokenSecret.getBytes(), HMAC_ALGORITHM));
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new IllegalStateException("failed to initialize HMAC: " + e.getMessage(), e);
         }

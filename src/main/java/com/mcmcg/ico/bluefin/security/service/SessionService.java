@@ -29,7 +29,7 @@ import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 @Service
 public class SessionService {
 
-    @Value("${token.expiration}")
+    @Value("${bluefin.wp.services.token.expiration}")
     private Integer securityTokenExpiration;
 
     @Autowired

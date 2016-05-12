@@ -22,10 +22,8 @@ import com.mcmcg.ico.bluefin.security.service.SessionService;
 
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
 
-    @Value("${token.header}")
+    @Value("${bluefin.wp.services.token.header}")
     private String securityTokenHeader;
-    @Value("${token.secret}")
-    private String secret;
 
     @Autowired
     private SessionService sessionService;

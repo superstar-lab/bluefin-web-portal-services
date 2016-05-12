@@ -21,7 +21,7 @@ import com.google.common.net.HttpHeaders;
 @Component
 public class SimpleCORSFilter implements Filter {
 
-    @Value("${token.header}")
+    @Value("${bluefin.wp.services.token.header}")
     private String securityTokenHeader;
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -30,13 +30,15 @@ public class SimpleCORSFilter implements Filter {
         // Load global CORS configuration
         CorsConfiguration ccGlobal = CustomCorsRegistration.getGlobalCorsConfiguration();
 
+        // Adding custom headers
+        List<String> allowHeaders = ccGlobal.getAllowedHeaders();
+        allowHeaders.add(securityTokenHeader);
+
         HttpServletResponse response = (HttpServletResponse) res;
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                 StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedOrigins()));
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
                 StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedMethods()));
-        List<String> allowHeaders = ccGlobal.getAllowedHeaders();
-        allowHeaders.add(securityTokenHeader);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
                 StringUtils.collectionToCommaDelimitedString(allowHeaders));
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,

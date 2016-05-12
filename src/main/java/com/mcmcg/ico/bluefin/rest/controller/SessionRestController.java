@@ -29,7 +29,7 @@ public class SessionRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionRestController.class);
 
-    @Value("${token.header}")
+    @Value("${bluefin.wp.services.token.header}")
     private String securityTokenHeader;
     @Autowired
     private SessionService sessionService;
