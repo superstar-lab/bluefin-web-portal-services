@@ -21,9 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <io.springfox.version>2.2.2</io.springfox.version>
-        <endpoint.payment.wsdl.uri>http://10.100.12.165:8090/PaymentGateway/Requests</endpoint.payment.wsdl.uri>
-        <org.apache.cxf-version>3.1.6</org.apache.cxf-version>
-        <querydsl.version>3.6.0</querydsl.version>
+        <querydsl.version>3.7.2</querydsl.version>
     </properties>
 
     <!-- Profiles -->
@@ -31,36 +29,28 @@
         <profile>
             <id>local</id>
             <properties>
-                <environmentName>local</environmentName>
+                <spring.profiles.active>default</spring.profiles.active>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
         <profile>
-            <id>auto</id>
-            <properties>
-                <environmentName>auto</environmentName>
-            </properties>
-        </profile>
-        <profile>
             <id>dev</id>
             <properties>
-                <environmentName>dev</environmentName>
+                <spring.profiles.active>dev</spring.profiles.active>
             </properties>
         </profile>
         <profile>
             <id>qa</id>
             <properties>
-                <environmentName>qa</environmentName>
-                <endpoint.payment.wsdl.uri>http://phxiodpsgwd01.internal.mcmcg.com:4447/PaymentGateway/Requests</endpoint.payment.wsdl.uri>
+                <spring.profiles.active>qa</spring.profiles.active>
             </properties>
         </profile>
         <profile>
             <id>prod</id>
             <properties>
-                <environmentName>prod</environmentName>
-                <endpoint.payment.wsdl.uri>http://phxiodpsgwd01.internal.mcmcg.com:4447/PaymentGateway/Requests</endpoint.payment.wsdl.uri>
+                <spring.profiles.active>prod</spring.profiles.active>
             </properties>
         </profile>
     </profiles>
@@ -92,15 +82,32 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
         <!-- Dependency for MySql Java connector -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
+
+        <!-- Dependency for MS SQL Server Java connector -->
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>sqljdbc4</artifactId>
+            <version>4.0</version>
+        </dependency>
+
+        <!-- Provided -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- Query DSL -->
         <dependency>
             <groupId>com.mysema.querydsl</groupId>
             <artifactId>querydsl-core</artifactId>
@@ -117,8 +124,7 @@
             <version>${querydsl.version}</version>
         </dependency>
 
-
-        <!-- Libs -->
+        <!-- Swagger 2 -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -129,37 +135,17 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>${io.springfox.version}</version>
         </dependency>
+
+        <!-- Utils -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.16.6</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
-            <version>2.2.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>${org.apache.cxf-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-            <version>${org.apache.cxf-version}</version>
+            <version>1.16.8</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.0</version>
-        </dependency>
-
-        <!-- Provided -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Test -->
@@ -232,7 +218,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.3.3.RELEASE</version>
+                <version>1.3.4.RELEASE</version>
                 <executions>
                     <execution>
                         <goals>
@@ -247,48 +233,6 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-codegen-plugin</artifactId>
-                <version>${org.apache.cxf-version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
-                            <wsdlOptions>
-                                <wsdlOption>
-                                    <wsdl>${endpoint.payment.wsdl.uri}?wsdl</wsdl>
-                                </wsdlOption>
-                            </wsdlOptions>
-                        </configuration>
-                        <goals>
-                            <goal>wsdl2java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.10</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${project.build.directory}/generated-sources</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>com.mysema.maven</groupId>
