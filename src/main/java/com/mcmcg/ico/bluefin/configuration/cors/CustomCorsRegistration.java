@@ -1,16 +1,15 @@
 package com.mcmcg.ico.bluefin.configuration.cors;
 
-import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
-
-import com.mcmcg.ico.bluefin.configuration.cors.CustomCorsRegistration;
 
 public class CustomCorsRegistration extends CorsRegistration {
 
     public static final String[] REQUEST_METHOD_SUPPORTED = { "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS",
             "HEAD" };
     public static final String GLOBAL_MAPPING = "/**";
+
+    public static final String ALLOWED_HEADERS = "Origin, X-Requested-With, Content-Type, Accept, ";
 
     public CustomCorsRegistration(String pathPattern) {
         super(pathPattern);
@@ -37,7 +36,7 @@ public class CustomCorsRegistration extends CorsRegistration {
     public static CorsConfiguration getGlobalCorsConfiguration() {
         // CORS Global Configuration
         CustomCorsRegistration ccr = (CustomCorsRegistration) new CustomCorsRegistration(
-                CustomCorsRegistration.GLOBAL_MAPPING).allowedOrigins("*").allowedHeaders("")
+                CustomCorsRegistration.GLOBAL_MAPPING).allowedOrigins("*").allowedHeaders(ALLOWED_HEADERS)
                         .allowedMethods(REQUEST_METHOD_SUPPORTED).allowCredentials(true).maxAge(3600);
 
         return ccr.getCorsConfiguration();

@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.configuration.cors;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -10,15 +11,19 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
 import com.google.common.net.HttpHeaders;
-import com.mcmcg.ico.bluefin.configuration.cors.CustomCorsRegistration;
 
 @Component
 public class SimpleCORSFilter implements Filter {
+
+    @Value("${token.header}")
+    private String securitytokenHeader;
+
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
@@ -30,8 +35,10 @@ public class SimpleCORSFilter implements Filter {
                 StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedOrigins()));
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
                 StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedMethods()));
+        List<String> allowHeaders = ccGlobal.getAllowedHeaders();
+        allowHeaders.add(securitytokenHeader);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
-                StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedHeaders()));
+                StringUtils.collectionToCommaDelimitedString(allowHeaders));
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
                 String.valueOf(ccGlobal.getAllowCredentials()));
         response.setHeader(HttpHeaders.ACCESS_CONTROL_MAX_AGE, String.valueOf(ccGlobal.getMaxAge()));

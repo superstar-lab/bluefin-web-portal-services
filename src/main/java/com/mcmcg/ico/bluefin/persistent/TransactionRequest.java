@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.db.entity;
+package com.mcmcg.ico.bluefin.persistent;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -15,7 +15,7 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name = "transaction_request")
-public class TransactionRequestDBEntity {
+public class TransactionRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
