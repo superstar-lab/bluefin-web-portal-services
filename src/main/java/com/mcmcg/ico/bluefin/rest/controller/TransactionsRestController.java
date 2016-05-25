@@ -24,6 +24,7 @@ public class TransactionsRestController {
             @ApiResponse(code = 404, message = "Message not found", response = String.class),
             @ApiResponse(code = 500, message = "Failure") })
     public String getAuthorization(@PathVariable("transactionId") String transactionId) {
+        LOGGER.info("Add implementation** get authorization");
         return "Add implementation** get authorization";
     }
 

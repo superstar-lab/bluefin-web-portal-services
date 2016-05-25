@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.mcmcg.ico.bluefin.security.AuthenticationTokenFilter;
+import com.mcmcg.ico.bluefin.security.CustomAccessDeniedHandler;
 import com.mcmcg.ico.bluefin.security.EntryPointUnauthorizedHandler;
 import com.mcmcg.ico.bluefin.security.service.SecurityService;
 
@@ -27,6 +28,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private EntryPointUnauthorizedHandler unauthorizedHandler;
+
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -65,9 +69,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf().disable().exceptionHandling().authenticationEntryPoint(this.unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers("/login/**").permitAll()
+        httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)
+                .authenticationEntryPoint(this.unauthorizedHandler).and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers(HttpMethod.GET, "/").permitAll()
+                .antMatchers("/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-resources",
+                        "/v2/api-docs")
+                .permitAll()
+
+                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/session").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/session").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/rest/bluefin/users/{username}",
                         "/api/rest/bluefin/users/{username}/")
                 .authenticated().antMatchers(HttpMethod.GET, "/api/rest/bluefin/users").hasAuthority("register")
@@ -76,8 +87,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users").hasAuthority("register")
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").hasAuthority("void")
                 .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/users/**").hasAuthority("void")
-
-                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/sessions").permitAll()
 
                 .antMatchers(HttpMethod.GET, "/api/rest/bluefin/roles").hasAuthority("void")
                 .antMatchers(HttpMethod.POST, "/api/rest/bluefin/roles").hasAuthority("void")

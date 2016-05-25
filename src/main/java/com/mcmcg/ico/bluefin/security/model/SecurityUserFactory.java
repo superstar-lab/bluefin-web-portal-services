@@ -14,13 +14,17 @@ public class SecurityUserFactory {
 
     public static SecurityUser create(User user) {
         return new SecurityUser(user.getUserId(), user.getUsername(), user.getPassword(), user.getEmail(),
-                user.getLastPasswordReset(), getRoles(user.getRoles()));
+                getRoles(user.getRoles()));
     }
 
     public static Collection<? extends GrantedAuthority> getRoles(Collection<Role> roles) {
         List<SimpleGrantedAuthority> result = new ArrayList<SimpleGrantedAuthority>();
-        for (Role role : roles) {
-            result.add(new SimpleGrantedAuthority(role.getRoleName()));
+        if (roles == null) {
+            return null;
+        } else {
+            for (Role role : roles) {
+                result.add(new SimpleGrantedAuthority(role.getRoleName()));
+            }
         }
         return result;
     }

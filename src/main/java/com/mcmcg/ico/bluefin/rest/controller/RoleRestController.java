@@ -25,6 +25,7 @@ public class RoleRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
     public String getRoles() throws Exception {
+        LOGGER.info("Add implementation** get all roles");
         return "Add implementation** get all roles"; 
     }
 
@@ -33,6 +34,7 @@ public class RoleRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
     public String createNewRole(@RequestBody RoleResource role) throws Exception {
+        LOGGER.info("Add implementation** create new role");
         return "Add implementation** create new role";
     }
 
@@ -41,6 +43,7 @@ public class RoleRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
     public String deleteRole(@PathVariable String roleName) throws Exception {
+        LOGGER.info("Add implementation** delete role");
         return "Add implementation** delete role";
     }
 

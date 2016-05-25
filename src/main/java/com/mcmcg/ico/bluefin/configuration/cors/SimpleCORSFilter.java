@@ -22,7 +22,7 @@ import com.google.common.net.HttpHeaders;
 public class SimpleCORSFilter implements Filter {
 
     @Value("${token.header}")
-    private String securitytokenHeader;
+    private String securityTokenHeader;
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
@@ -36,7 +36,7 @@ public class SimpleCORSFilter implements Filter {
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
                 StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedMethods()));
         List<String> allowHeaders = ccGlobal.getAllowedHeaders();
-        allowHeaders.add(securitytokenHeader);
+        allowHeaders.add(securityTokenHeader);
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
                 StringUtils.collectionToCommaDelimitedString(allowHeaders));
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,

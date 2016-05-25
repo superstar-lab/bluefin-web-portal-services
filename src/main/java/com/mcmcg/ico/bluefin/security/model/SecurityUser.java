@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties({ "password", "lastPasswordReset", "accountNonExpired", "accountNonLocked",
-        "credentialsNonExpired", "enabled" })
+@JsonIgnoreProperties({ "password", "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled",
+        "email", "authorities" })
 public class SecurityUser implements UserDetails {
 
     private static final long serialVersionUID = 1680188661109204234L;
@@ -20,24 +20,23 @@ public class SecurityUser implements UserDetails {
     private String username;
     private String password;
     private String email;
-    private Date lastPasswordReset;
     private Collection<? extends GrantedAuthority> authorities;
     private Boolean accountNonExpired = true;
     private Boolean accountNonLocked = true;
     private Boolean credentialsNonExpired = true;
     private Boolean enabled = true;
+    private Date expires;
 
     public SecurityUser() {
         super();
     }
 
-    public SecurityUser(Integer id, String username, String password, String email, Date lastPasswordReset,
+    public SecurityUser(Integer id, String username, String password, String email,
             Collection<? extends GrantedAuthority> authorities) {
         this.setId(id);
         this.setUsername(username);
         this.setPassword(password);
         this.setEmail(email);
-        this.setLastPasswordReset(lastPasswordReset);
         this.setAuthorities(authorities);
     }
 

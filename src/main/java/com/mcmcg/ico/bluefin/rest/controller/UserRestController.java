@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.AccountResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 
@@ -24,23 +25,26 @@ public class UserRestController {
     RoleRepository roleRepository;
     @Autowired
     UserRepository userRepository;
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);
+
     @ApiOperation(value = "getUser", nickname = "getUser")
     @RequestMapping(method = RequestMethod.GET, value = "/{username}")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
     public String getUserAccount(@PathVariable String username) throws Exception {
-        return "Add implementation** get user account"; 
+        LOGGER.info("Add implementation** get user account");
+        return "Add implementation** get user account";
     }
-    
+
     @ApiOperation(value = "getUsers", nickname = "getUsers")
     @RequestMapping(method = RequestMethod.GET)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
     public String getUserAccounts() throws Exception {
-        return "Add implementation** get user accounts"; 
+        LOGGER.info("Add implementation** get user accounts");
+        return "Add implementation** get user accounts";
     }
 
     @ApiOperation(value = "createUser", nickname = "createUser")
@@ -49,6 +53,7 @@ public class UserRestController {
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
     public String registerUserAccount(@RequestBody AccountResource account) throws Exception {
+        LOGGER.info("Add implementation** register user account");
         return "Add implementation** register user account";
     }
 
@@ -60,7 +65,7 @@ public class UserRestController {
     public String updateUserAccount(@RequestBody AccountResource account) throws Exception {
         return "Add implementation** update user account";
     }
-    
+
     @ApiOperation(value = "assignRole", nickname = "assignRole")
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
@@ -69,7 +74,7 @@ public class UserRestController {
     public String assignRoleToUser(@PathVariable String username, @RequestBody String role) throws Exception {
         return "Add implementation** assign role to user";
     }
-    
+
     @ApiOperation(value = "deleteUser", nickname = "deleteUser")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{username}")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),

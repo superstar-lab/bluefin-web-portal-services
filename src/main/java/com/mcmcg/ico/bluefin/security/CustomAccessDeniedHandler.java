@@ -10,20 +10,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EntryPointUnauthorizedHandler implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntryPointUnauthorizedHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomAccessDeniedHandler.class);
 
     @Override
-    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-            AuthenticationException e) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse httpServletResponse, AccessDeniedException e)
+            throws IOException, ServletException {
         httpServletResponse.setContentType("application/json");
-        httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
         httpServletResponse.getOutputStream()
                 .println("{ \"uniqueErrorId\": \"" + logException(e) + "\",\"timestamp\": \""
                         + Calendar.getInstance().getTimeInMillis() + "\", \"message\": \"" + e.getMessage()

@@ -93,7 +93,7 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <!-- Dependency for MS SQL Server Java connector-->
+        <!-- Dependency for MS SQL Server Java connector -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>sqljdbc4</artifactId>
@@ -111,11 +111,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.4</version>
         </dependency>
 
         <!-- Query DSL -->
