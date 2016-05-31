@@ -26,6 +26,16 @@ public class TransactionsService {
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)(\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}|[\\w\\s|\\d+(?:\\.\\d+)?]+),";
     private static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
 
+    public TransactionView getTransactionInformation(String transactionId) {
+        TransactionView result = transactionRepository.findByTransactionId(transactionId);
+
+        if (result == null) {
+            throw new CustomNotFoundException("Transaction not found: " + transactionId);
+        }
+
+        return result;
+    }
+
     public Iterable<TransactionView> getTransactions(String search, Integer page, Integer size, String sort) {
         TransactionPredicatesBuilder builder = new TransactionPredicatesBuilder();
 
