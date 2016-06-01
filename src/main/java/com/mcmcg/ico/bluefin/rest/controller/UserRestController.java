@@ -3,16 +3,18 @@ package com.mcmcg.ico.bluefin.rest.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.AccountResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.service.UserService;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -21,30 +23,28 @@ import io.swagger.annotations.ApiResponses;
 @RestController
 @RequestMapping(value = "/api/rest/bluefin/users")
 public class UserRestController {
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    UserRepository userRepository;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);
+    @Autowired
+    private UserService userService;
 
     @ApiOperation(value = "getUser", nickname = "getUser")
     @RequestMapping(method = RequestMethod.GET, value = "/{username}")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = UserResource.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public String getUserAccount(@PathVariable String username) throws Exception {
-        LOGGER.info("Add implementation** get user account");
-        return "Add implementation** get user account";
-    }
-
-    @ApiOperation(value = "getUsers", nickname = "getUsers")
-    @RequestMapping(method = RequestMethod.GET)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public String getUserAccounts() throws Exception {
-        LOGGER.info("Add implementation** get user accounts");
-        return "Add implementation** get user accounts";
+    public UserResource getUserAccount(@PathVariable String username, Authentication authentication)
+            throws Exception {
+        LOGGER.info("Getting user information: {}", username);
+        if (username.equals("me")) {
+            username = authentication.getName();
+        } else {
+            if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
+                throw new CustomUnauthorizedException(
+                        "User doesn't have permission to get information from other users");
+            }
+        }
+        return userService.getUserInfomation(username);
     }
 
     @ApiOperation(value = "createUser", nickname = "createUser")

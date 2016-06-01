@@ -76,15 +76,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-resources",
                         "/v2/api-docs")
                 .permitAll()
-                
+
                 .antMatchers(HttpMethod.GET, "/api/rest/bluefin/transactions/**").permitAll()
 
                 .antMatchers(HttpMethod.POST, "/api/rest/bluefin/session").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/session").authenticated()
+
                 .antMatchers(HttpMethod.GET, "/api/rest/bluefin/users/{username}",
                         "/api/rest/bluefin/users/{username}/")
-                .authenticated().antMatchers(HttpMethod.GET, "/api/rest/bluefin/users").hasAuthority("register")
-                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/users/").hasAuthority("register")
+                .authenticated()
+
                 .antMatchers(HttpMethod.POST, "/api/rest/bluefin/users").hasAuthority("void")
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users").hasAuthority("register")
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").hasAuthority("void")
