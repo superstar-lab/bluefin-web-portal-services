@@ -86,7 +86,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                         "/api/rest/bluefin/users/{username}/")
                 .authenticated()
 
-                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/users").hasAuthority("void")
+                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/users/", "/api/rest/bluefin/users").permitAll()
+
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users").hasAuthority("register")
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").hasAuthority("void")
                 .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/users/**").hasAuthority("void")

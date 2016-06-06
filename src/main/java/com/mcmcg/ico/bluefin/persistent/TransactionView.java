@@ -18,6 +18,8 @@ import lombok.Data;
 @Data
 @Entity
 public class TransactionView {
+
+    private static final String CARD_MASK = "XXXX-XXXX-XXXX-";
     @Id
     @JsonIgnore
     private long id;
@@ -38,5 +40,9 @@ public class TransactionView {
 
     public StatusCode getTransactionStatusCode() {
         return StatusCode.valueOf(transactionStatusCode);
+    }
+
+    public String getCardNumberLast4Char() {
+        return CARD_MASK + cardNumberLast4Char;
     }
 }

@@ -14,8 +14,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Type;
-
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 
 import lombok.Data;
@@ -35,8 +33,6 @@ public class User {
     private String password;
     private String language;
     private String title;
-    @Type(type = "org.hibernate.type.NumericBooleanType")
-    private boolean enabled;
 
     @ManyToMany
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))

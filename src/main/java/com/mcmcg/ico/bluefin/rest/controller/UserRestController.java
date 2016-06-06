@@ -1,17 +1,22 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.Errors;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
-import com.mcmcg.ico.bluefin.rest.resource.AccountResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
@@ -33,8 +38,7 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = UserResource.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public UserResource getUserAccount(@PathVariable String username, Authentication authentication)
-            throws Exception {
+    public UserResource getUserAccount(@PathVariable String username, Authentication authentication) throws Exception {
         LOGGER.info("Getting user information: {}", username);
         if (username.equals("me")) {
             username = authentication.getName();
@@ -52,9 +56,15 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public String registerUserAccount(@RequestBody AccountResource account) throws Exception {
-        LOGGER.info("Add implementation** register user account");
-        return "Add implementation** register user account";
+    public UserResource registerUserAccount(@Validated @RequestBody UserResource newUser, Errors errors)
+            throws Exception {
+        if (errors.hasErrors()) {
+            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            throw new CustomBadRequestException(errorDescription);
+        }
+        LOGGER.info("Creating new account for user: {}", newUser.getUsername());
+        return userService.registerNewUserAccount(newUser);
     }
 
     @ApiOperation(value = "updateUser", nickname = "updateUser")
@@ -62,7 +72,7 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public String updateUserAccount(@RequestBody AccountResource account) throws Exception {
+    public String updateUserAccount(@RequestBody UserResource account) throws Exception {
         return "Add implementation** update user account";
     }
 

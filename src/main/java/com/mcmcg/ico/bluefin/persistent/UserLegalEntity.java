@@ -22,7 +22,7 @@ import lombok.Data;
 public class UserLegalEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long paymentProcessorMechantId;
+    private long userLegalEntityAppId;
 
     @ManyToOne
     @JoinColumn(name = "legal_entity_app_id")
