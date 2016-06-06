@@ -92,6 +92,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").hasAuthority("void")
                 .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/users/**").hasAuthority("void")
 
+                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities/").hasRole("ADMIN")
+
                 .antMatchers(HttpMethod.GET, "/api/rest/bluefin/roles").hasAuthority("void")
                 .antMatchers(HttpMethod.POST, "/api/rest/bluefin/roles").hasAuthority("void")
                 .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/roles/**").hasAuthority("void")

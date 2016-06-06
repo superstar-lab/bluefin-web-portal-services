@@ -23,11 +23,13 @@ public class PaymentProcessor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long paymentProcessorId;
+    private Integer paymentProcessorId;
+
+    private String processorName;
+    
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private Date createdDate;
-    private String processorName;
 
     @OneToMany(mappedBy = "paymentProcessor")
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
