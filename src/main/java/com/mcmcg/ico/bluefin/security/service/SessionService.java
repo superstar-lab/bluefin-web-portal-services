@@ -11,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.persistent.Permission;
-import com.mcmcg.ico.bluefin.persistent.Role;
+import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.Token;
 import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.TokenRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -39,8 +38,6 @@ public class SessionService {
     private UserDetailsServiceImpl userDetailsServiceImpl;
     @Autowired
     private TokenHandler tokenHandler;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     private static final String AUTHENTICATION_TOKEN_TYPE = "authentication";
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
@@ -49,9 +46,6 @@ public class SessionService {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new BadCredentialsException("Username doesn't exists: " + username);
-        }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Incorrect password for user: " + username);
         }
         return new UsernamePasswordAuthenticationToken(username, password);
     }
@@ -81,7 +75,7 @@ public class SessionService {
         return tokenHandler.validateToken(token);
     }
 
-    public String getCurrentTokenIfValid(Integer userId) {
+    public String getCurrentTokenIfValid(long userId) {
         Token token = tokenRepository.findByUserIdAndType(userId, AUTHENTICATION_TOKEN_TYPE);
         return tokenHandler.validateToken(token);
     }
@@ -107,9 +101,9 @@ public class SessionService {
         response.setUsername(username);
 
         List<String> permissionsResult = new ArrayList<String>();
-        for (Role role : user.getRoles()) {
-            for (Permission permission : role.getPermissions()) {
-                permissionsResult.add(permission.getPermissionName());
+        for (UserRole role : user.getUserRoles()) {
+            for (RolePermission permission : role.getRole().getRolePermissions()) {
+                permissionsResult.add(permission.getPermission().getPermissionName());
             }
         }
         response.setPermissions(permissionsResult);

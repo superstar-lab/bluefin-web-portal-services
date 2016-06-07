@@ -16,7 +16,7 @@ import lombok.Data;
 public class SecurityUser implements UserDetails {
 
     private static final long serialVersionUID = 1680188661109204234L;
-    private Integer id;
+    private long id;
     private String username;
     private String password;
     private String email;
@@ -31,7 +31,7 @@ public class SecurityUser implements UserDetails {
         super();
     }
 
-    public SecurityUser(Integer id, String username, String password, String email,
+    public SecurityUser(long id, String username, String password, String email,
             Collection<? extends GrantedAuthority> authorities) {
         this.setId(id);
         this.setUsername(username);

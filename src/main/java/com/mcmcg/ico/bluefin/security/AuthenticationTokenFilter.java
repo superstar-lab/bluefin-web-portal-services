@@ -28,21 +28,25 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
     @Autowired
     private SessionService sessionService;
     @Autowired
-    private UserDetailsService userDetailsService;
-    @Autowired
     private TokenHandler tokenHandler;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authToken = httpRequest.getHeader(this.securityTokenHeader);
+
+        // TODO:remove these lines when integrate with Okta
+        if (authToken == null)
+            authToken = sessionService.getCurrentTokenIfValid(1);
+        ///////////////////////////////////////
+
         if (authToken != null) {
             SecurityUser securityUser = tokenHandler.parseUserFromToken(authToken);
-
             if (securityUser != null && SecurityContextHolder.getContext().getAuthentication() == null
                     && sessionService.getCurrentTokenIfValid(authToken) != null) {
-
                 String username = securityUser.getUsername();
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -50,9 +54,8 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-
         }
         chain.doFilter(request, response);
-    }
 
+    }
 }

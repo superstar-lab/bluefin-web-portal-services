@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.security.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,44 +14,41 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.persistent.Permission;
-import com.mcmcg.ico.bluefin.persistent.Role;
+import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
+import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service("userDetailsService")
 @Transactional
 public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            return new org.springframework.security.core.userdetails.User(" ", " ", true, true, true, true,
-                    getAuthorities(Arrays.asList(roleRepository.findByRoleName("ROLE_USER"))));
+            throw new CustomNotFoundException("User not found: " + username);
         }
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), true,
-                true, true, true, getAuthorities(user.getRoles()));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), "", true, true, true, true,
+                getAuthorities(user.getUserRoles()));
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(Collection<Role> roles) {
+    private Collection<? extends GrantedAuthority> getAuthorities(Collection<UserRole> roles) {
         return getGrantedAuthorities(getPermissions(roles));
     }
 
-    private List<String> getPermissions(Collection<Role> roles) {
+    private List<String> getPermissions(Collection<UserRole> roles) {
         List<String> permissions = new ArrayList<String>();
-        List<Permission> collection = new ArrayList<Permission>();
-        for (Role role : roles) {
-            collection.addAll(role.getPermissions());
+        List<RolePermission> collection = new ArrayList<RolePermission>();
+        for (UserRole role : roles) {
+            collection.addAll(role.getRole().getRolePermissions());
         }
-        for (Permission item : collection) {
-            permissions.add(item.getPermissionName());
+        for (RolePermission item : collection) {
+            permissions.add(item.getPermission().getPermissionName());
         }
         return permissions;
     }

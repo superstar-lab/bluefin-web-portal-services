@@ -4,8 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mcmcg.ico.bluefin.persistent.Token;
 
-public interface TokenRepository extends JpaRepository<Token, Integer> {
-    public Token findByUserIdAndType(Integer id, String type);
+public interface TokenRepository extends JpaRepository<Token, Long> {
+    public Token findByUserIdAndType(long userId, String type);
 
     public Token findByToken(String token);
 }

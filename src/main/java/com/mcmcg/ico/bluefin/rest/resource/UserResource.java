@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -8,9 +9,9 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
+import com.mcmcg.ico.bluefin.persistent.UserRole;
 
 import lombok.Data;
 
@@ -23,8 +24,6 @@ public class UserResource {
     private String firstName;
     @NotEmpty(message = "lastName must not be empty")
     private String lastName;
-    private String title;
-    private String language;
     @NotEmpty(message = "email must not be empty")
     private String email;
     @Size(min = 1, message = "roleList must not be empty")
@@ -36,17 +35,18 @@ public class UserResource {
     @JsonIgnore
     private String password;
 
-    public User toUser(List<Role> roles, List<UserLegalEntity> entities) {
+    public User toUser(List<UserRole> roles, List<UserLegalEntity> entities) {
         User user = new User();
         user.setUsername(username);
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setTitle(title);
-        user.setLanguage(language);
         user.setEmail(email);
-        user.setRoles(roles);
+        user.setUserRoles(roles);
         user.setUserLegalEntities(entities);
-        user.setPassword(password);
+        Date currentDate = new Date();
+        user.setCreatedDate(currentDate);
+        user.setDateUpdated(currentDate);
+        user.setIsActive((short) 1);
         return user;
     }
 }

@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.persistent;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -20,18 +21,21 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "legal_entity_app")
+@Table(name = "LegalEntityApp_Lookup")
 public class LegalEntityApp {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO) 
-    private Integer legalEntityAppId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "LegalEntityAppID")
+    private long legalEntityAppId;
 
+    @Column(name = "LegalEntityAppName")
     private String legalEntityAppName;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated")
     private Date createdDate;
 
     @JsonIgnore

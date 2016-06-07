@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,12 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
+import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserLegalEntityRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.UserRoleRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
@@ -30,6 +33,8 @@ public class UserService {
     private RoleRepository roleRepository;
     @Autowired
     private UserLegalEntityRepository userLegalEntityRepository;
+    @Autowired
+    private UserRoleRepository userRoleRepository;
     @Autowired
     private LegalEntityAppRepository legalEntityAppRepository;
 
@@ -84,18 +89,25 @@ public class UserService {
 
     public UserResource registerNewUserAccount(UserResource userResource) throws Exception {
         String username = userResource.getUsername();
-        if(userNameExist(username)){
-            throw new CustomBadRequestException("Unable to create the account, this username already exists: " + username);
+        if (userNameExist(username)) {
+            throw new CustomBadRequestException(
+                    "Unable to create the account, this username already exists: " + username);
         }
 
         List<UserLegalEntity> userLegalEntities = getUserLegalEntityApps(userResource.getLegalEntityApps());
-        List<Role> roles = getRoles(userResource.getRoles());
+        List<UserRole> roles = getRoles(userResource.getRoles());
         User newUser = userResource.toUser(roles, userLegalEntities);
         userRepository.save(newUser);
-        for (UserLegalEntity userLegalEntity : newUser.getUserLegalEntities()){
+        newUser.getUserLegalEntities().forEach(userLegalEntity -> {
             userLegalEntity.setUser(newUser);
+            userLegalEntity.setCreatedDate(new Date());
             userLegalEntityRepository.save(userLegalEntity);
-        }
+        });
+        newUser.getUserRoles().forEach(userRole -> {
+            userRole.setUser(newUser);
+            userRole.setCreatedDate(new Date());
+            userRoleRepository.save(userRole);
+        });
         return userResource;
     }
 
@@ -106,13 +118,15 @@ public class UserService {
         }
         return false;
     }
-    
-    private List<Role> getRoles(List<String> rolesList) {
-        List<Role> result = new ArrayList<Role>();
+
+    private List<UserRole> getRoles(List<String> rolesList) {
+        List<UserRole> result = new ArrayList<UserRole>();
         for (String currentRole : rolesList) {
             Role role = roleRepository.findByRoleName(currentRole);
             if (role != null) {
-                result.add(role);
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                result.add(userRole);
             } else {
                 throw new CustomBadRequestException("The following role doesn't exist: " + currentRole);
             }

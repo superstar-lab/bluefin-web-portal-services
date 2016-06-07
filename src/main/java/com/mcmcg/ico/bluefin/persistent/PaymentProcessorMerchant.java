@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.persistent;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,24 +19,29 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "payment_processor_merchant")
+@Table(name = "PaymentProcessor_Merchant")
 public class PaymentProcessorMerchant {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "PaymentProcessorMerchantID")
     private long paymentProcessorMechantId;
 
     @ManyToOne
-    @JoinColumn(name = "legal_entity_app_id")
+    @JoinColumn(name = "LegalEntityAppID")
     private LegalEntityApp legalEntityApp;
     @ManyToOne
-    @JoinColumn(name = "payment_processor_id")
+    @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
 
+    @Column(name = "MerchantID")
     private String merchantId;
+    @Column(name = "ProcessorID")
     private String processorId;
-    private Integer testOrProd;
+    @Column(name = "TestOrProd")
+    private Short testOrProd;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated")
     private Date createdDate;
 
 }
