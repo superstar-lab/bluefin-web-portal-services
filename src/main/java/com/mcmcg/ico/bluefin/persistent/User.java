@@ -73,18 +73,18 @@ public class User {
         return userResource;
     }
 
-    private List<String> getRoleNames(Collection<UserRole> roleList) {
-        List<String> roleNames = new ArrayList<String>();
+    private List<Role> getRoleNames(Collection<UserRole> roleList) {
+        List<Role> roleNames = new ArrayList<Role>();
         for (UserRole role : roleList) {
-            roleNames.add(role.getRole().getRoleName());
+            roleNames.add(role.getRole());
         }
         return roleNames;
     }
 
-    private List<String> getLegalEntityApps(Collection<UserLegalEntity> userLegalEntityAppList) {
-        List<String> legalEntityApps = new ArrayList<String>();
+    private List<LegalEntityApp> getLegalEntityApps(Collection<UserLegalEntity> userLegalEntityAppList) {
+        List<LegalEntityApp> legalEntityApps = new ArrayList<LegalEntityApp>();
         for (UserLegalEntity userLegalEntityApp : userLegalEntityAppList) {
-            legalEntityApps.add(userLegalEntityApp.getLegalEntityApp().getLegalEntityAppName());
+            legalEntityApps.add(userLegalEntityApp.getLegalEntityApp());
         }
         return legalEntityApps;
     }

@@ -18,7 +18,7 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 import lombok.Data;
 
 @Data
-public class UserResource {
+public class RegisterUserResource {
 
     @NotEmpty(message = "username must not be empty")
     private String username;
@@ -30,13 +30,24 @@ public class UserResource {
     private String email;
     @Size(min = 1, message = "roleList must not be empty")
     @NotNull(message = "roleList must not be null")
-    private List<Role> roles;
+    private List<String> roles;
     @Size(min = 1, message = "legalEntityAppsList must not be empty")
     @NotNull(message = "legalEntityAppsList must not be null")
-    private List<LegalEntityApp> legalEntityApps;
+    private List<String> legalEntityApps;
     @JsonIgnore
     private String password;
-
+    
+    public UserResource toUserResource(List<Role> roles, List<LegalEntityApp> entities) {
+        UserResource userResource = new UserResource();
+        userResource.setUsername(username);
+        userResource.setFirstName(firstName);
+        userResource.setLastName(lastName);
+        userResource.setEmail(email);
+        userResource.setRoles(roles);
+        userResource.setLegalEntityApps(entities);
+        return userResource;
+    }
+    
     public User toUser(List<UserRole> roles, List<UserLegalEntity> entities) {
         User user = new User();
         user.setUsername(username);

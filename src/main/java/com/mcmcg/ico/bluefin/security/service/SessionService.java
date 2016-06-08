@@ -13,6 +13,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.persistent.Permission;
 import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.Token;
 import com.mcmcg.ico.bluefin.persistent.User;
@@ -100,10 +101,10 @@ public class SessionService {
         response.setLastName(user.getLastName());
         response.setUsername(username);
 
-        List<String> permissionsResult = new ArrayList<String>();
+        List<Permission> permissionsResult = new ArrayList<Permission>();
         for (UserRole role : user.getUserRoles()) {
             for (RolePermission permission : role.getRole().getRolePermissions()) {
-                permissionsResult.add(permission.getPermission().getPermissionName());
+                permissionsResult.add(permission.getPermission());
             }
         }
         response.setPermissions(permissionsResult);

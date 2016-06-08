@@ -31,8 +31,10 @@ public class Role {
 
     @Column(name = "RoleName")
     private String roleName;
+
     @Column(name = "Description")
     private String description;
+    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated")

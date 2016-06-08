@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
 
@@ -56,7 +57,7 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public UserResource registerUserAccount(@Validated @RequestBody UserResource newUser, Errors errors)
+    public UserResource registerUserAccount(@Validated @RequestBody RegisterUserResource newUser, Errors errors)
             throws Exception {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)

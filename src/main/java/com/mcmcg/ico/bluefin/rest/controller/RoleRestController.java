@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.rest.resource.RoleResource;
 import com.mcmcg.ico.bluefin.service.RoleService;
 
@@ -31,7 +32,7 @@ public class RoleRestController {
     @RequestMapping(method = RequestMethod.GET)
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = List.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public List<String> getRoles() throws Exception {
+    public List<Role> getRoles() throws Exception {
         LOGGER.info("Getting all role list");
         return roleService.getRoles(); 
     }

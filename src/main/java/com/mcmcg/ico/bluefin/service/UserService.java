@@ -22,6 +22,7 @@ import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRoleRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 
 @Service
@@ -87,7 +88,7 @@ public class UserService {
         return legalEntityApps;
     }
 
-    public UserResource registerNewUserAccount(UserResource userResource) throws Exception {
+    public UserResource registerNewUserAccount(RegisterUserResource userResource) throws Exception {
         String username = userResource.getUsername();
         if (userNameExist(username)) {
             throw new CustomBadRequestException(
@@ -108,7 +109,7 @@ public class UserService {
             userRole.setCreatedDate(new Date());
             userRoleRepository.save(userRole);
         });
-        return userResource;
+        return newUser.toUserResource();
     }
 
     private boolean userNameExist(String username) {
