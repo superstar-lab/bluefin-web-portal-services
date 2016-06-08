@@ -35,6 +35,8 @@ public class SaleResponse {
     private String approvalCode;
     @Column(name = "ProcessorTransactionID")
     private String processorTransactionId;
+    @Column(name = "MiddlewareTransactionID")
+    private String middlewareTransactionID;
     @Column(name = "rspToken")
     private String rspToken;
     @Column(name = "Processor")

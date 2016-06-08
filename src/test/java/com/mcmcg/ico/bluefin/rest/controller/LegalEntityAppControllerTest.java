@@ -26,107 +26,88 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedExcepti
 import com.mcmcg.ico.bluefin.service.LegalEntityAppService;
 
 public class LegalEntityAppControllerTest {
-    
-     MockMvc mockMvc; 
-     
-     @InjectMocks
-     private LegalEntityAppController legalEntityAppControllerMock;
-     
-     @Mock
-     private LegalEntityAppService legalEntityAppService;
- 
-     @Before
-     public void initMocks() {
 
-         MockitoAnnotations.initMocks(this);
-         mockMvc = standaloneSetup(legalEntityAppControllerMock).addFilters().build();
-     } 
-     
-     @Test
-     public void getLegalEntitiesOK() throws Exception { //200
-         
-         List<LegalEntityApp> legalEntityAppList = new ArrayList<LegalEntityApp>(); 
-         LegalEntityApp legalEntity = new LegalEntityApp();
-         legalEntity.setLegalEntityAppId(1);
-         legalEntity.setLegalEntityAppName("LegalEntity");
-         legalEntityAppList.add(legalEntity);
-         
-         Mockito.when(legalEntityAppService.findAll()).thenReturn(legalEntityAppList);
-         
-          mockMvc.perform(get("/api/rest/bluefin/legal-entities"))
-          .andExpect(status().isOk())
-         .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-         .andExpect(jsonPath("$[0].legalEntityAppId").value(1))
-         .andExpect(jsonPath("$[0].legalEntityAppName").value("LegalEntity")) ;
-          
-          Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+    MockMvc mockMvc;
 
-          Mockito.verifyNoMoreInteractions(legalEntityAppService);
-     }
-     
-     @Test 
-     public void getLegalEntitiesNotFound() throws Exception { //404
+    @InjectMocks
+    private LegalEntityAppRestController legalEntityAppControllerMock;
 
-         Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomNotFoundException(""));
-         
-         mockMvc.perform(get("/api/rest/bluefin/legal-entities"))
-         .andExpect(status().isNotFound());
-         
-         Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+    @Mock
+    private LegalEntityAppService legalEntityAppService;
 
-         Mockito.verifyNoMoreInteractions(legalEntityAppService);
-     }
-     
-     @Test 
-     public void getLegalEntitiesBadRequest() throws Exception { //400
+    @Before
+    public void initMocks() {
 
-         Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomBadRequestException(""));
-         
-         mockMvc.perform(get("/api/rest/bluefin/legal-entities"))
-         .andExpect(status().isBadRequest());
-         
-         Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+        MockitoAnnotations.initMocks(this);
+        mockMvc = standaloneSetup(legalEntityAppControllerMock).addFilters().build();
+    }
 
-         Mockito.verifyNoMoreInteractions(legalEntityAppService);
-     }
-     
-     @Test 
-     public void getLegalEntitiesUnauthorized() throws Exception { //401
+    @Test
+    public void getLegalEntitiesOK() throws Exception { // 200
 
-         Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomUnauthorizedException(""));
-         
-         mockMvc.perform(get("/api/rest/bluefin/legal-entities"))
-         .andExpect(status().isUnauthorized());
-         
-         Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+        List<LegalEntityApp> legalEntityAppList = new ArrayList<LegalEntityApp>();
+        LegalEntityApp legalEntity = new LegalEntityApp();
+        legalEntity.setLegalEntityAppId(1);
+        legalEntity.setLegalEntityAppName("LegalEntity");
+        legalEntityAppList.add(legalEntity);
 
-         Mockito.verifyNoMoreInteractions(legalEntityAppService);
-     }
-     
-     @Test 
-     public void getLegalEntitiesInternalServerError() throws Exception { //500
+        Mockito.when(legalEntityAppService.findAll()).thenReturn(legalEntityAppList);
 
-         Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomException(""));
-         
-         mockMvc.perform(get("/api/rest/bluefin/legal-entities"))
-         .andExpect(status().isInternalServerError());
-         
-         Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+        mockMvc.perform(get("/api/rest/bluefin/legal-entities")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$[0].legalEntityAppId").value(1))
+                .andExpect(jsonPath("$[0].legalEntityAppName").value("LegalEntity"));
 
-         Mockito.verifyNoMoreInteractions(legalEntityAppService);
-     }
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
 
-     /*
-     @Test 
-     public void getLegalEntitiesSendingParam() throws Exception { //401
+        Mockito.verifyNoMoreInteractions(legalEntityAppService);
+    }
 
-         Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomUnauthorizedException(""));
-         
-         mockMvc.perform(get("/api/rest/bluefin/legal-entities/{id}", 1))
-         .andExpect(status().isUnauthorized());
-         
-         //Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+    @Test
+    public void getLegalEntitiesNotFound() throws Exception { // 404
 
-         //Mockito.verifyNoMoreInteractions(legalEntityAppService);
-     }*/
+        Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomNotFoundException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/legal-entities")).andExpect(status().isNotFound());
+
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+
+        Mockito.verifyNoMoreInteractions(legalEntityAppService);
+    }
+
+    @Test
+    public void getLegalEntitiesBadRequest() throws Exception { // 400
+
+        Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomBadRequestException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/legal-entities")).andExpect(status().isBadRequest());
+
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+
+        Mockito.verifyNoMoreInteractions(legalEntityAppService);
+    }
+
+    @Test
+    public void getLegalEntitiesUnauthorized() throws Exception { // 401
+
+        Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomUnauthorizedException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/legal-entities")).andExpect(status().isUnauthorized());
+
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+
+        Mockito.verifyNoMoreInteractions(legalEntityAppService);
+    }
+
+    @Test
+    public void getLegalEntitiesInternalServerError() throws Exception { // 500
+
+        Mockito.when(legalEntityAppService.findAll()).thenThrow(new CustomException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/legal-entities")).andExpect(status().isInternalServerError());
+
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).findAll();
+
+        Mockito.verifyNoMoreInteractions(legalEntityAppService);
+    }
 }

@@ -27,22 +27,22 @@ import com.mcmcg.ico.bluefin.service.TransactionsService;
 
 public class TransactionsRestControllerTest {
 
-    MockMvc mockMvc; 
+    MockMvc mockMvc;
 
     @InjectMocks
     private TransactionsRestController transactionsRestControllerMock;
-    
+
     @Mock
     private TransactionsService transactionService;
-    
+
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
         mockMvc = standaloneSetup(transactionsRestControllerMock).addFilters().build();
     }
-    
+
     @Test
-    public void getTransactionByIdOk() throws Exception { // 200 
+    public void getTransactionByIdOk() throws Exception { // 200
         Date date = new Date(1465322756555L);
         TransactionView result = new TransactionView();
         result.setAccountNumber("67326509");
@@ -55,83 +55,80 @@ public class TransactionsRestControllerTest {
         result.setTransactionId("532673163");
         result.setTransactionStatusCode(1);
         result.setTransactionType("SALE");
-         
+
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenReturn(result);
-        
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}",1234))
-        .andExpect(status().isOk())
-        .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-        .andExpect(jsonPath("$.accountNumber").value("67326509"))
-        .andExpect(jsonPath("$.amount").value(new BigDecimal(4592.36)))
-        .andExpect(jsonPath("$.cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
-        .andExpect(jsonPath("$.createdDate").value("2016-06-07T18:05:56.555Z"))
-        .andExpect(jsonPath("$.customer").value("Natalia Quiros"))
-        .andExpect(jsonPath("$.legalEntity").value("MCM-R2K"))
-        .andExpect(jsonPath("$.processorName").value("JETPAY"))
-        .andExpect(jsonPath("$.transactionId").value("532673163"))
-        .andExpect(jsonPath("$.transactionStatusCode").value("APPROVED"))
-        .andExpect(jsonPath("$.transactionType").value("SALE"))  ;
-        
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$.accountNumber").value("67326509"))
+                .andExpect(jsonPath("$.amount").value(new BigDecimal(4592.36)))
+                .andExpect(jsonPath("$.cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
+                .andExpect(jsonPath("$.createdDate").value("2016-06-07T18:05:56.555Z"))
+                .andExpect(jsonPath("$.customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$.legalEntity").value("MCM-R2K"))
+                .andExpect(jsonPath("$.processorName").value("JETPAY"))
+                .andExpect(jsonPath("$.transactionId").value("532673163"))
+                .andExpect(jsonPath("$.transactionStatusCode").value("APPROVED"))
+                .andExpect(jsonPath("$.transactionType").value("SALE"));
+
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(transactionService);
     }
-    
-    @Test 
-    public void getLegalEntitiesNotFound() throws Exception { //404
 
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenThrow(new CustomNotFoundException(""));
-        
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}",1234))
-        .andExpect(status().isNotFound());
-        
-        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+    @Test
+    public void getLegalEntitiesNotFound() throws Exception { // 404
 
-        Mockito.verifyNoMoreInteractions(transactionService);
-    }
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+                .thenThrow(new CustomNotFoundException(""));
 
+        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isNotFound());
 
-    @Test 
-    public void getLegalEntitiesBadRequest() throws Exception { //400
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenThrow(new CustomBadRequestException(""));
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}",1234))
-        .andExpect(status().isBadRequest());
-         
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
-    @Test 
-    public void getLegalEntitiesBadRequestNoParam() throws Exception { //400
-        
-        mockMvc.perform(get("/api/rest/bluefin/transactions"))
-        .andExpect(status().isBadRequest());
-         
-    }
-    
-    @Test 
-    public void getLegalEntitiesUnauthorized() throws Exception { //401
 
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenThrow(new CustomUnauthorizedException(""));
-        
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}",1234))
-        .andExpect(status().isUnauthorized());
-        
+    @Test
+    public void getLegalEntitiesBadRequest() throws Exception { // 400
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+                .thenThrow(new CustomBadRequestException(""));
+        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isBadRequest());
+
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionService);
-    } 
-      
-     
-     @Test 
-     public void getLegalEntitiesInternalServerError() throws Exception { //500
+    }
 
-         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenThrow(new CustomException(""));
-         
-         mockMvc.perform(get("/api/rest/bluefin/transactions/{id}",1234))
-         .andExpect(status().isInternalServerError());
-         
-         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+    @Test
+    public void getLegalEntitiesBadRequestNoParam() throws Exception { // 400
 
-         Mockito.verifyNoMoreInteractions(transactionService);
-     }  
+        mockMvc.perform(get("/api/rest/bluefin/transactions")).andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    public void getLegalEntitiesUnauthorized() throws Exception { // 401
+
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+                .thenThrow(new CustomUnauthorizedException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isUnauthorized());
+
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+
+    @Test
+    public void getLegalEntitiesInternalServerError() throws Exception { // 500
+
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+                .thenThrow(new CustomException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isInternalServerError());
+
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
 }

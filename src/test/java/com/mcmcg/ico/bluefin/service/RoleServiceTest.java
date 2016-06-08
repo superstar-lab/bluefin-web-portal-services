@@ -17,20 +17,20 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.testng.Assert;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
+import com.mcmcg.ico.bluefin.persistent.Role;
+import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
-public class LegalEntityAppServiceTest {
+public class RoleServiceTest {
 
     @InjectMocks
     @Autowired
-    private LegalEntityAppService legalEntityAppService;
+    private RoleService roleService;
 
     @Mock
-    private LegalEntityAppRepository legalEntityAppRepository;
+    private RoleRepository roleRepository;
 
     @Before
     public void initMocks() {
@@ -39,29 +39,21 @@ public class LegalEntityAppServiceTest {
 
     @Test
     public void testFindAllSuccess() {
+        List<Role> roleList = new ArrayList<Role>();
+        roleList.add(new Role());
+        Mockito.when(roleRepository.findAll()).thenReturn(roleList);
+        roleList = roleService.getRoles();
 
-        List<LegalEntityApp> legalEntityAppList = new ArrayList<LegalEntityApp>();
-        legalEntityAppList.add(new LegalEntityApp());
-
-        Mockito.when(legalEntityAppRepository.findAll()).thenReturn(legalEntityAppList);
-
-        legalEntityAppList = legalEntityAppService.findAll();
-
-        Assert.assertFalse(legalEntityAppList.isEmpty());
-
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll();
-
+        Assert.assertFalse(roleList.isEmpty());
+        Mockito.verify(roleRepository, Mockito.times(1)).findAll();
     }
 
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void testFindAllFail() {
-
-        Mockito.when(legalEntityAppRepository.findAll())
+        Mockito.when(roleRepository.findAll())
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        legalEntityAppService.findAll();
-
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll();
-
+        roleService.getRoles();
+        Mockito.verify(roleRepository, Mockito.times(1)).findAll();
     }
 }

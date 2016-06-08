@@ -19,9 +19,9 @@ import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(value = "/api/rest/bluefin/legal-entities")
-public class LegalEntityAppController {
+public class LegalEntityAppRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppRestController.class);
 
     @Autowired
     private LegalEntityAppService legalEntityAppService;
