@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,8 +43,8 @@ public class TransactionsRestControllerTest {
         mockMvc = standaloneSetup(transactionsRestControllerMock).addFilters().build();
     }
 
-    @Test
-    public void getTransactionByIdOk() throws Exception { // 200
+    private TransactionView getTransactionView() {
+
         Date date = new Date(1465322756555L);
         TransactionView result = new TransactionView();
         result.setAccountNumber("67326509");
@@ -55,6 +57,15 @@ public class TransactionsRestControllerTest {
         result.setTransactionId("532673163");
         result.setTransactionStatusCode(1);
         result.setTransactionType("SALE");
+
+        return result;
+    }
+
+    @Test
+    public void getTransactionByIdOk() throws Exception { // 200
+
+        TransactionView result = getTransactionView();
+
 
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenReturn(result);
 
@@ -76,20 +87,19 @@ public class TransactionsRestControllerTest {
     }
 
     @Test
-    public void getLegalEntitiesNotFound() throws Exception { // 404
-
+    public void getTransactionByIdNotFound() throws Exception { // 404
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomNotFoundException(""));
 
         mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isNotFound());
-
+        
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
 
     @Test
-    public void getLegalEntitiesBadRequest() throws Exception { // 400
+    public void getTransactionByIdBadRequest() throws Exception { // 400
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomBadRequestException(""));
         mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isBadRequest());
@@ -100,14 +110,14 @@ public class TransactionsRestControllerTest {
     }
 
     @Test
-    public void getLegalEntitiesBadRequestNoParam() throws Exception { // 400
+    public void getTransactionByIdBadRequestNoParam() throws Exception { // 400
 
         mockMvc.perform(get("/api/rest/bluefin/transactions")).andExpect(status().isBadRequest());
 
     }
 
     @Test
-    public void getLegalEntitiesUnauthorized() throws Exception { // 401
+    public void getTransactionByIdUnauthorized() throws Exception { // 401
 
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomUnauthorizedException(""));
@@ -120,7 +130,7 @@ public class TransactionsRestControllerTest {
     }
 
     @Test
-    public void getLegalEntitiesInternalServerError() throws Exception { // 500
+    public void getTransactionByIdInternalServerError() throws Exception { // 500
 
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomException(""));
@@ -129,6 +139,156 @@ public class TransactionsRestControllerTest {
 
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+
+    /****** Starts GetTransactions ******/
+    @Test
+    public void getTransactionsOK() throws Exception { // 200
+        List<TransactionView> transactions = new ArrayList<TransactionView>();
+        transactions.add(getTransactionView());
+
+        Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString())).thenReturn(transactions);
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions").param("search", "accountNumber:67326509,amount > 4592")
+                .param("page", "1").param("size", "2")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$[0].accountNumber").value("67326509"))
+                .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
+                .andExpect(jsonPath("$[0].cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
+                .andExpect(jsonPath("$[0].createdDate").value("2016-06-07T18:05:56.555Z"))
+                .andExpect(jsonPath("$[0].customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
+                .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
+                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
+                .andExpect(jsonPath("$[0].transactionType").value("SALE"));
+
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactions(Mockito.anyObject(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+
+    @Test
+    public void getTransactionsOKAllParams() throws Exception { // 200
+        List<TransactionView> transactions = new ArrayList<TransactionView>();
+        transactions.add(getTransactionView());
+
+        Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString())).thenReturn(transactions);
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions")
+                .param("search",
+                        "accountNumber:67326509,amount > 4592,customer:Natalia Quiros,legalEntity:MCM-R2K,processorName:JETPAY,transactionId:532673163,transactionStatusCode:APPROVED,transactionType:Sale")
+                .param("page", "1").param("size", "2")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$[0].accountNumber").value("67326509"))
+                .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
+                .andExpect(jsonPath("$[0].cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
+                .andExpect(jsonPath("$[0].createdDate").value("2016-06-07T18:05:56.555Z"))
+                .andExpect(jsonPath("$[0].customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
+                .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
+                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
+                .andExpect(jsonPath("$[0].transactionType").value("SALE"));
+
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactions(Mockito.anyObject(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+    @Test
+    public void getTransactionsNoSearchParam() throws Exception { // 200
+        List<TransactionView> transactions = new ArrayList<TransactionView>();
+        transactions.add(getTransactionView());
+
+        Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString())).thenReturn(transactions);
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions").param("search", "")
+                .param("page", "1").param("size", "2")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$[0].accountNumber").value("67326509"))
+                .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
+                .andExpect(jsonPath("$[0].cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
+                .andExpect(jsonPath("$[0].createdDate").value("2016-06-07T18:05:56.555Z"))
+                .andExpect(jsonPath("$[0].customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
+                .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
+                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
+                .andExpect(jsonPath("$[0].transactionType").value("SALE"));
+
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactions(Mockito.anyObject(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+    
+    @Test
+    public void getTransactionsNoParams() throws Exception { // 400 
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions"))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+    
+    @Test
+    public void getTransactionsNoParamsButPage() throws Exception { // 400 
+        mockMvc.perform(get("/api/rest/bluefin/transactions")
+                .param("page", "1"))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+    @Test
+    public void getTransactionsNoParamsButSize() throws Exception { // 400 
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions")
+                .param("size", "2"))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+    @Test
+    public void getTransactionsNoParamsButNull() throws Exception { // 400 
+
+        mockMvc.perform(get("/api/rest/bluefin/transactions")
+                .param("page", "null")
+                .param("size", "null"))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(transactionService);
+    }
+    @Test
+    public void getTransactiosUnauthorized() throws Exception { // 401 
+        
+        Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString())).thenThrow(new CustomUnauthorizedException(""));
+        
+        mockMvc.perform(get("/api/rest/bluefin/transactions")
+                .param("search", "")
+                .param("page", "1")
+                .param("size", "2"))
+        .andExpect(status().isUnauthorized());
+    }
+    
+    @Test
+    public void getTransactionsInternalServerError() throws Exception { // 500
+        
+        Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString())).thenThrow(new CustomException(""));
+        
+        mockMvc.perform(get("/api/rest/bluefin/transactions")
+                .param("search", "")
+                .param("page", "1")
+                .param("size", "2"))
+        .andExpect(status().isInternalServerError());
+ 
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactions(Mockito.anyObject(), Mockito.anyInt(),
+                Mockito.anyInt(), Mockito.anyString());
+        
         Mockito.verifyNoMoreInteractions(transactionService);
     }
 }

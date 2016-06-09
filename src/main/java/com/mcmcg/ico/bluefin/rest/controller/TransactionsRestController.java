@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.TransactionView;
 import com.mcmcg.ico.bluefin.service.TransactionsService;
+import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -47,7 +48,7 @@ public class TransactionsRestController {
             @RequestParam(value = "page") Integer page, @RequestParam(value = "size") Integer size,
             @RequestParam(value = "sort", required = false) String sort) {
         LOGGER.info("Generating report with the following filters: {}", search);
-        return transactionService.getTransactions(search, page, size, sort);
+        return transactionService.getTransactions(QueryDSLUtil.createExpression(search), page, size, sort);
 
     }
 
