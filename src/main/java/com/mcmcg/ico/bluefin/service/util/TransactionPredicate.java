@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import com.mcmcg.ico.bluefin.persistent.TransactionView;
@@ -21,6 +23,7 @@ import com.mysema.query.types.path.StringPath;
 
 public class TransactionPredicate {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionPredicate.class);
     private SearchCriteria criteria;
     private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
@@ -45,6 +48,7 @@ public class TransactionPredicate {
         } else if (keyInstance == StatusCode.class) {
             result = getStatusCodePredicate(entityPath);
         } else {
+            LOGGER.error("Unable to filter by: {}", criteria.getKey());
             throw new CustomBadRequestException("Unable to filter by: " + criteria.getKey());
         }
         return result;
@@ -62,6 +66,8 @@ public class TransactionPredicate {
                 return path.loe(date);
             }
         }
+
+        LOGGER.error("Unable to parse date value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse date value of " + criteria.getKey());
     }
 
@@ -77,6 +83,8 @@ public class TransactionPredicate {
                 return path.loe(value);
             }
         }
+
+        LOGGER.error("Unable to parse numeric value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse numeric value of " + criteria.getKey());
     }
 
@@ -87,6 +95,8 @@ public class TransactionPredicate {
         if (value != null && criteria.getOperation().equalsIgnoreCase(":")) {
             return path.eq(value);
         }
+
+        LOGGER.error("Unable to parse the value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse the value of " + criteria.getKey());
     }
 
@@ -96,6 +106,8 @@ public class TransactionPredicate {
         if (criteria.getOperation().equalsIgnoreCase(":")) {
             return path.containsIgnoreCase(criteria.getValue().toString());
         }
+
+        LOGGER.error("Unable to parse string value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse string value of " + criteria.getKey());
     }
 
@@ -105,6 +117,7 @@ public class TransactionPredicate {
             df.setLenient(false);
             return df.parse(date);
         } catch (ParseException e) {
+            LOGGER.error("Unable to parse date value");
             return null;
         }
     }
