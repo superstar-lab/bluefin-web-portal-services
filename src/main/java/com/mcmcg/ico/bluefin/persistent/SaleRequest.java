@@ -63,7 +63,7 @@ public class SaleRequest {
     private String legalEntityApp;
     @Column(name = "AccountId")
     private String accountId;
-    @Column(name = "TransactionID")
+    @Column(name = "ApplicationTransactionID")
     private String transactionId;
     @Column(name = "MerchantID")
     private String merchantId;
