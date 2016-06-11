@@ -38,12 +38,10 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authToken = httpRequest.getHeader(this.securityTokenHeader);
 
-        // TODO:remove these lines when integrate with Okta
-        if (authToken == null)
-            authToken = sessionService.getCurrentTokenIfValid(1);
-        ///////////////////////////////////////
-
         if (authToken != null) {
+            // TODO:remove these lines when integrate with Okta
+            authToken = sessionService.getCurrentTokenIfValid(1);
+
             SecurityUser securityUser = tokenHandler.parseUserFromToken(authToken);
             if (securityUser != null && SecurityContextHolder.getContext().getAuthentication() == null
                     && sessionService.getCurrentTokenIfValid(authToken) != null) {
@@ -55,7 +53,7 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-        chain.doFilter(request, response);
 
+        chain.doFilter(request, response);
     }
 }

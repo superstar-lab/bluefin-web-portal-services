@@ -1,11 +1,236 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-<title>Secure Message Center - Rest API Services</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta charset="utf-8"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+  <title>Bluefin Web Portal Rest API Service</title>
+  <meta name="description" content=""/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="shortcut icon" href="assets/img/icon/favicon.ico"/>
+  <link rel="apple-touch-icon" href="assets/img/icon/favicon.png"/>
+  <link rel="stylesheet" href="assets/styles/theme.min.css"/>
 </head>
 <body>
-	<p th:text="'Version: ' + ${version} + '!'" />
-	<p th:text="'Date: ' + ${date} + '!'" />
+<!--[if lt IE 8]>
+  <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+<div class="main-wrapper theme-default styleguide sidebar-open" data-ref="breakpoints">
+  <!-- SIDEBAR SECTION -->
+  <div class="main-sidebar" data-ref="sidebar">
+    
+<!-- MAIN SIDEBAR SECTION -->
+<div class="inner">
+  <header class="sidebar-header">
+    <a href="/"><img class="logo" src="assets/img/bf-logo.png" alt=""/></a>
+    <button data-target="sidebar-toggle"><span></span></button>
+  </header>
+  <nav class="main-navigation">
+    <ul class="nav">
+      <li>
+        <a href="#">
+          <i class="glyphicon glyphicon-info-sign"></i>
+          <span class="title">Build Info</span>
+        </a>
+      </li>
+      <li>
+        <a href="swagger-ui.html">
+          <i class="glyphicon glyphicon-cog"></i>
+          <span class="title">Rest API Doc</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content container-fluid">
+    <nav class="main-header row">
+      <div class="header-nav-inner col-xs-12">
+</div>
+
+    </nav>
+    <div class="inner row">
+      <!-- CONTENT -->
+      <section class="content col-xs-12">
+        
+  
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="content-header">
+        <ol class="breadcrumb">
+          
+            <li><a href="/">Home</a></li>
+            <li class="active">Bluefin Web Portal Rest API Service</li>
+          
+        </ol>
+        <h1>Bluefin Web Portal Rest API Service</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT DATA -->
+  <div class="row">
+    <div class="col-xs-12">
+      <!-- Tab panes -->
+      <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="BluefinServices">
+          <h2 class="page-header" >Build Information</h2>
+          <div id="info-content" class="wrap-home">
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th>artifact</th>
+                  <td th:text="${applicationProperties.artifact}">bluefin-web-portal-services</td>
+                </tr>
+                <tr>
+                  <th>name</th>
+                  <td th:text="${applicationProperties.name}">bluefin-web-portal-services</td>
+                </tr>
+                <tr>
+                  <th>description</th>
+                  <td th:text="${applicationProperties.description}">Bluefin web portal Rest API Service</td>
+                </tr>
+                <tr>
+                  <th>version</th>
+                  <td th:text="${applicationProperties.version}">1.0.0-SNAPSHOT</td>
+                </tr>
+                <tr>
+                  <th>gitProperties</th>
+                  <td>
+                    <table class="table table-bordered table-striped">
+                      <tbody>
+                        <tr>
+                          <th>branch</th>
+                          <td th:text="${applicationProperties.gitProperties.branch}">develop</td>
+                        </tr>
+                        <tr>
+                          <th>build</th>
+                          <td>
+                            <table>
+                              <tbody>
+                                <tr>
+                                  <th>Time</th>
+                                  <td th:text="${applicationProperties.gitProperties.build.time}">09.06.2016 @ 08:44:30 CST</td>
+                                </tr>
+                                <tr>
+                                  <th>userEmail</th>
+                                  <td th:text="${applicationProperties.gitProperties.build.userEmail}">john.doe@mcmcg.com</td>
+                                </tr>
+                                <tr>
+                                  <th>userName</th>
+                                  <td th:text="${applicationProperties.gitProperties.build.userName}">John Doe</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>commit</th>
+                          <td>
+                            <table>
+                              <tbody>
+                                <tr>
+                                  <th>id</th>
+                                  <td th:text="${applicationProperties.gitProperties.commit.id}">d06ec7e8b2f082829a417198d043b112cae4bc51</td>
+                                </tr>
+                                <tr>
+                                  <th>idAbbrev</th>
+                                  <td th:text="${applicationProperties.gitProperties.commit.idAbbrev}">d06ec7e</td>
+                                </tr>
+                                <tr>
+                                  <th>shortMessage</th>
+                                  <td th:text="${applicationProperties.gitProperties.commit.shortMessage}">#6086 - Project configuration</td>
+                                </tr>
+                                <tr>
+                                  <th>time</th>
+                                  <td th:text="${applicationProperties.gitProperties.commit.time}">08.06.2016 @ 21:14:57 CST</td>
+                                </tr>
+                                <tr>
+                                  <th>userEmail</th>
+                                  <td th:text="${applicationProperties.gitProperties.commit.userEmail}">john.doe@mcmcg.com</td>
+                                </tr>
+                                <tr>
+                                  <th>userName</th>
+                                  <td th:text="${applicationProperties.gitProperties.commit.userName}">John Doe</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>dirty</th>
+                          <td th:text="${applicationProperties.gitProperties.dirty}">true</td>
+                        </tr>
+                        <tr>
+                          <th>remoteOriginUrl</th>
+                          <td th:text="${applicationProperties.gitProperties.remoteOriginUrl}"></td>
+                        </tr>
+                        <tr>
+                          <th>tags</th>
+                          <td th:text="${applicationProperties.gitProperties.tags}"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- CONTENT DATA -->
+
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer col-xs-12">
+        <div class="inner">
+  <div class="col-xs-12 col-sm-4">
+    <ul class="list-inline footer-browser-list">
+      <li class="chrome">
+        <span class="label label-default" title="Chrome 44+">44+</span>
+      </li>
+      <li class="firefox">
+        <span class="label label-default" title="Firefox 39+">39+</span>
+      </li>
+      <li class="edge">
+        <span class="label label-default" title="Edge 12+">12+</span>
+      </li>
+      <li class="explorer">
+        <span class="label label-default" title="IE 9+">9+</span>
+      </li>
+      <li class="safari">
+        <span class="label label-default" title="Safari 6+">6+</span>
+      </li>
+      <li class="opera">
+        <span class="label label-default" title="Opera 34+">34+</span>
+      </li>
+    </ul>
+  </div>
+  <div class="col-xs-12 col-sm-4 text-center">
+    <p>2016 &copy; All Rights Reserved. Powered by <a href="#">Encore</a>.</p>
+  </div>
+  <div class="col-xs-12 col-sm-4 provider-logo">
+    <img class="logo" src="assets/img/encore-logo-colorized.png" alt=""/>
+  </div>
+</div>
+
+      </footer>
+    </div>
+  </div>
+</div>
+<script type ="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script type ="text/javascript">
+//<![CDATA[
+window.jQuery || document.write('<script type ="text/javascript" src="assets/scripts/jquery.min.js"><\/script>')
+//]]>
+</script>
+<script type ="text/javascript" src="assets/scripts/theme-vendors.min.js"></script>
+<script type ="text/javascript" src="assets/scripts/theme.min.js"></script>
 </body>
 </html>

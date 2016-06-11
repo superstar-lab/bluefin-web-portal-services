@@ -38,20 +38,62 @@
         <profile>
             <id>dev</id>
             <properties>
+                <!-- Default spring profile to use -->
                 <spring.profiles.active>dev</spring.profiles.active>
+                <!-- Default environment -->
+                <environment>dev</environment>
             </properties>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>application-${spring.profiles.active}.properties</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
         </profile>
         <profile>
             <id>qa</id>
             <properties>
+                <!-- Default spring profile to use -->
                 <spring.profiles.active>qa</spring.profiles.active>
+                <!-- Default environment -->
+                <environment>qa</environment>
             </properties>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>application-${spring.profiles.active}.properties</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
         </profile>
         <profile>
             <id>prod</id>
             <properties>
+                <!-- Default spring profile to use -->
                 <spring.profiles.active>prod</spring.profiles.active>
+                <!-- Default environment -->
+                <environment>prod</environment>
             </properties>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <includes>
+                            <include>application-${spring.profiles.active}.properties</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
         </profile>
     </profiles>
 
@@ -167,6 +209,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>6.8.13</version>
@@ -180,14 +227,12 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>1.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -212,8 +257,15 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**</include>
+                    <include>application.properties</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                </excludes>
             </resource>
         </resources>
 
@@ -227,6 +279,24 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.1.13</version>
+                <!-- Ensure that the revision goal is invoked during the 
+                    initialize phase. -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- Configure the location of the .git directory. -->
+                    <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
                 </configuration>
             </plugin>
             <plugin>

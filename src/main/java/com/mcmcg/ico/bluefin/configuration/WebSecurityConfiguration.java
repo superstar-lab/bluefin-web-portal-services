@@ -69,41 +69,55 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)
-                .authenticationEntryPoint(this.unauthorizedHandler).and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers(HttpMethod.GET, "/").permitAll()
-                .antMatchers("/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-resources",
-                        "/v2/api-docs")
-                .permitAll()
+        // @formatter:off
+        httpSecurity
+            .csrf()
+                .disable()
+            .exceptionHandling()
+                .accessDeniedHandler(this.accessDeniedHandler)
+                    .authenticationEntryPoint(this.unauthorizedHandler)
+                    .and()
+                        .sessionManagement()
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                        .authorizeRequests()
+                            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                            .antMatchers(HttpMethod.GET, "/").permitAll()
+                            .antMatchers(HttpMethod.GET, "**/*.html", "**/*.css", "**/*.js", "**/*.ico", "/assets/**").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/transactions/**").permitAll()
+                            // Swagger
+                            .antMatchers("/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-resources","/v2/api-docs", 
+                                    "/configuration/**", "/images/**").permitAll()
 
-                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/session").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/session").authenticated()
+                            // Transactions
+                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/transactions/**").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/users/{username}",
-                        "/api/rest/bluefin/users/{username}/")
-                .authenticated()
+                            // Session
+                            .antMatchers(HttpMethod.POST, "/api/rest/bluefin/session").permitAll()
+                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/session").permitAll()
 
-                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/users/", "/api/rest/bluefin/users").permitAll()
+                            // Users
+                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/users/{username}", "/api/rest/bluefin/users/{username}/").permitAll()
+                            .antMatchers(HttpMethod.POST, "/api/rest/bluefin/users/", "/api/rest/bluefin/users").permitAll()
+                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users").permitAll()
+                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").permitAll()
+                            .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/users/**").permitAll()
 
-                .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users").hasAuthority("register")
-                .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").hasAuthority("void")
-                .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/users/**").hasAuthority("void")
+                            // Legal entities
+                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities").permitAll()
+                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities/").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities").hasRole("ADMIN")
-                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities/").hasRole("ADMIN")
+                            // Roles
+                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/roles").permitAll()
+                            .antMatchers(HttpMethod.POST, "/api/rest/bluefin/roles").permitAll()
+                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/roles/**").permitAll()
+                            .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/roles/**").permitAll()
 
-                .antMatchers(HttpMethod.GET, "/api/rest/bluefin/roles").hasAuthority("void")
-                .antMatchers(HttpMethod.POST, "/api/rest/bluefin/roles").hasAuthority("void")
-                .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/roles/**").hasAuthority("void")
-                .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/roles/**").hasAuthority("void").anyRequest()
-                .authenticated();
+                            .anyRequest().authenticated();
+        // @formatter:on
 
         // Custom JWT based authentication
         httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-
     }
 
 }

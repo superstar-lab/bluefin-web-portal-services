@@ -8,3 +8,4 @@ logs/*
 .metadata/*
 Servers/*
 /target/
+test-output/
