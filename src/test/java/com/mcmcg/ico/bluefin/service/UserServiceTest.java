@@ -372,7 +372,7 @@ public class UserServiceTest {
     }
 
     @Test(expected = DataAccessResourceFailureException.class)
-    public void testUpdateUserFindByRoleNameDataAccessResourceFailureException() throws Exception {
+    public void testUpdateUserFindByRoleIdDataAccessResourceFailureException() throws Exception {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(roleRepository.findByRoleId(Mockito.anyLong()))
                 .thenThrow(new DataAccessResourceFailureException(""));
@@ -459,6 +459,199 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRoleRepository);
     }
 
+    // Update user legalEntities tests
+
+    @Test
+    public void testUpdateUserLegalEntitiesOK() throws Exception {
+        List<Integer> legalEntities = createValidLegalEntityIdsList();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenReturn(expectedLegalEntityApp);
+
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenReturn(new UserLegalEntity());
+
+        UserResource result = userService.updateUserLegalEntities("userTest", legalEntities);
+
+        Assert.assertEquals("test@email.com", result.getEmail());
+        Assert.assertEquals("test", result.getFirstName());
+        Assert.assertEquals("user", result.getLastName());
+        Assert.assertEquals("userTest", result.getUsername());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(5)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(5)).save(Mockito.any(UserLegalEntity.class));
+    }
+
+    @Test
+    public void testUpdateUserLegalEntitiesInvalidLegalEntitiesBadRequest() throws Exception {
+        List<Integer> legalEntities = createValidLegalEntityIdsList();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong())).thenReturn(null);
+        expectedEx.expect(CustomBadRequestException.class);
+        expectedEx.expectMessage("The following legalEntity doesn't exist: 64");
+
+        userService.updateUserLegalEntities("userTest", legalEntities);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    public void testUpdateUserLegalEntitiesNotExistingUserBadRequest() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+        expectedEx.expect(CustomNotFoundException.class);
+        expectedEx.expectMessage("Unable to update legalEntities, this username doesn't exists: userTest");
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testUpdateUserLegalEntitiesFindByUsernameCannotCreateTransaction() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = DataAccessResourceFailureException.class)
+    public void testUpdateUserLegalEntitiesFindByUsernameDataAccessResourceFailureException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new DataAccessResourceFailureException(""));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testUpdateUserLegalEntitiesFindByUsernameJDBCConnectionException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testUpdateUserFindByLegalEntityAppIdCannotCreateTransaction() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    @Test(expected = DataAccessResourceFailureException.class)
+    public void testUpdateUserFindByLegalEntityAppNameDataAccessResourceFailureException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenThrow(new DataAccessResourceFailureException(""));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testUpdateUserLegalEntitiesFindByLegalEntityAppNameJDBCConnectionException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenThrow(new JDBCConnectionException("", null));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testUpdateUserLegalEntitiesSaveCannotCreateTransaction() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenReturn(expectedLegalEntityApp);
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+    }
+
+    @Test(expected = DataAccessResourceFailureException.class)
+    public void testUpdateUserLegalEntitiesSaveDataAccessResourceFailureException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenReturn(expectedLegalEntityApp);
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenThrow(new DataAccessResourceFailureException(""));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testUpdateUserLegalEntitiesSaveJDBCConnectionException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
+                .thenReturn(expectedLegalEntityApp);
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenThrow(new JDBCConnectionException("", null));
+
+        userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+    }
+
     private UpdateUserResource createValidUpdateResource() {
         UpdateUserResource user = new UpdateUserResource();
         user.setEmail("test@email.com");
@@ -543,6 +736,16 @@ public class UserServiceTest {
         roles.add(52);
         roles.add(16);
         roles.add(89);
+        return roles;
+    }
+
+    private List<Integer> createValidLegalEntityIdsList() {
+        List<Integer> roles = new ArrayList<Integer>();
+        roles.add(64);
+        roles.add(77);
+        roles.add(27);
+        roles.add(87);
+        roles.add(64);
         return roles;
     }
 

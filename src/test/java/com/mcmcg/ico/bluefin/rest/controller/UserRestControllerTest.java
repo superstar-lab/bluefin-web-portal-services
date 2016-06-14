@@ -259,6 +259,60 @@ public class UserRestControllerTest {
         Mockito.verifyNoMoreInteractions(userService);
     }
 
+    // Update user legalEntities tests
+
+    @Test
+    public void updateUserLegalEntitiesOK() throws Exception { // 200
+        List<Integer> legalEntities = createValidLegalEntityIdsList();
+        UserResource updatedUser = createValidUserResource();
+        Mockito.when(userService.updateUserLegalEntities("test", legalEntities)).thenReturn(updatedUser);
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").header("X-Auth-Token", "tokenTest")
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(legalEntities)))
+
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
+
+        Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserLegalEntitiesUnauthorized() throws Exception { // 401
+        List<Integer> legalEntities = createValidLegalEntityIdsList();
+
+        Mockito.when(userService.updateUserLegalEntities("test", legalEntities))
+                .thenThrow(new CustomUnauthorizedException(""));
+        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(legalEntities))).andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserLegalEntitiesBadRequestInvalidRequestBody() throws Exception { // 400
+        List<String> invalidLegalEntityIdsList = new ArrayList<String>();
+        invalidLegalEntityIdsList.add("LEGAL_ENTITY_APP_1");
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(invalidLegalEntityIdsList))).andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserLegalEntitiesInternalServerError() throws Exception { // 500
+        List<Integer> legalEntities = createValidLegalEntityIdsList();
+        Mockito.when(userService.updateUserLegalEntities("test", legalEntities)).thenThrow(new CustomException(""));
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(legalEntities))).andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Include.NON_NULL);
@@ -335,6 +389,16 @@ public class UserRestControllerTest {
         roles.add(52);
         roles.add(16);
         roles.add(89);
+        return roles;
+    }
+
+    private List<Integer> createValidLegalEntityIdsList() {
+        List<Integer> roles = new ArrayList<Integer>();
+        roles.add(64);
+        roles.add(77);
+        roles.add(27);
+        roles.add(87);
+        roles.add(64);
         return roles;
     }
 }

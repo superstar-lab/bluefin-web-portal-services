@@ -183,14 +183,14 @@ public class UserService {
         if (user == null) {
             throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
         }
-        List<UserRole> newRoles = getRolesByIds(roles);
+        List<UserRole> updatedRoles = getRolesByIds(roles);
         userRoleRepository.deleteInBatch(user.getUserRoles());
-        newRoles.forEach(userRole -> {
+        updatedRoles.forEach(userRole -> {
             userRole.setUser(user);
             userRole.setCreatedDate(new Date());
             userRoleRepository.save(userRole);
         });
-        user.setUserRoles(newRoles);
+        user.setUserRoles(updatedRoles);
         return user.toUserResource();
     }
 
@@ -211,6 +211,54 @@ public class UserService {
                 result.add(userRole);
             } else {
                 throw new CustomBadRequestException("The following role doesn't exist: " + currentRole);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Update the legalEntities of an already stored user
+     * 
+     * @param username
+     * @param legalEntities
+     * @return userResource with all the user information
+     * @throws Exception
+     */
+    public UserResource updateUserLegalEntities(String username, List<Integer> legalEntities) throws Exception {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new CustomNotFoundException(
+                    "Unable to update legalEntities, this username doesn't exists: " + username);
+        }
+        List<UserLegalEntity> updatedLegalEntities = getLegalEntitiesByIds(legalEntities);
+        userLegalEntityRepository.deleteInBatch(user.getUserLegalEntities());
+        updatedLegalEntities.forEach(userLegalEntity -> {
+            userLegalEntity.setUser(user);
+            userLegalEntity.setCreatedDate(new Date());
+            userLegalEntityRepository.save(userLegalEntity);
+        });
+        user.setUserLegalEntities(updatedLegalEntities);
+        return user.toUserResource();
+    }
+
+    /**
+     * Get all the legalEntity objects by the specified ids
+     * 
+     * @param legalEntitiesList
+     *            as list of integers
+     * @return legalEntitiesList as list of objects
+     */
+    private List<UserLegalEntity> getLegalEntitiesByIds(List<Integer> legalEntityList) throws Exception {
+        List<UserLegalEntity> result = new ArrayList<UserLegalEntity>();
+        for (Integer currentLegalEntity : legalEntityList) {
+            LegalEntityApp legalEntity = legalEntityAppRepository
+                    .findByLegalEntityAppId(currentLegalEntity.longValue());
+            if (legalEntity != null) {
+                UserLegalEntity userLegalEntity = new UserLegalEntity();
+                userLegalEntity.setLegalEntityApp(legalEntity);
+                result.add(userLegalEntity);
+            } else {
+                throw new CustomBadRequestException("The following legalEntity doesn't exist: " + currentLegalEntity);
             }
         }
         return result;

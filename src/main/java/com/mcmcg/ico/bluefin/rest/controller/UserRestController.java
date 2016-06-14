@@ -104,6 +104,17 @@ public class UserRestController {
         LOGGER.info("Updating roles for user: {}", username);
         return userService.updateUserRoles(username, roles);
     }
+    
+    @ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
+    @RequestMapping(method = RequestMethod.PUT, value = "/{username}/legal-entities")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
+    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Integer> legalEntities)
+            throws Exception {
+        LOGGER.info("Updating legalEntities for user: {}", username);
+        return userService.updateUserLegalEntities(username, legalEntities);
+    }
 
     @ApiOperation(value = "deleteUser", nickname = "deleteUser")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{username}")
