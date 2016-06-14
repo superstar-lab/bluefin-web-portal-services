@@ -65,6 +65,8 @@ public class UserServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    // Register user tests
+
     @Test
     public void testRegisterUserOK() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
@@ -169,13 +171,15 @@ public class UserServiceTest {
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
     }
 
+    // Update user tests
+
     @Test
     public void testUpdateUserOK() throws Exception {
         UpdateUserResource user = createValidUpdateResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(createValidUser());
 
-        UserResource result = userService.updateUserAccount("userTest", user);
+        UserResource result = userService.updateUserProfile("userTest", user);
 
         Assert.assertEquals("test@email.com", result.getEmail());
         Assert.assertEquals("test", result.getFirstName());
@@ -192,7 +196,7 @@ public class UserServiceTest {
         expectedEx.expect(CustomNotFoundException.class);
         expectedEx.expectMessage("Unable to update the account, this username doesn't exists: userTest");
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -203,7 +207,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -214,7 +218,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new DataAccessResourceFailureException(""));
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -225,7 +229,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -236,7 +240,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenThrow(new CannotCreateTransactionException(""));
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
@@ -249,7 +253,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenThrow(new DataAccessResourceFailureException(""));
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
@@ -261,11 +265,198 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenThrow(new JDBCConnectionException("", null));
 
-        userService.updateUserAccount("userTest", createValidUpdateResource());
+        userService.updateUserProfile("userTest", createValidUpdateResource());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
         Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    // Update user roles tests
+
+    @Test
+    public void testUpdateUserRolesOK() throws Exception {
+        List<Integer> roles = createValidRoleIdsList();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Role expectedRole = createValidRole();
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
+
+        Mockito.when(userRoleRepository.save(Mockito.any(UserRole.class))).thenReturn(new UserRole());
+
+        UserResource result = userService.updateUserRoles("userTest", roles);
+
+        Assert.assertEquals("test@email.com", result.getEmail());
+        Assert.assertEquals("test", result.getFirstName());
+        Assert.assertEquals("user", result.getLastName());
+        Assert.assertEquals("userTest", result.getUsername());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(5)).findByRoleId(Mockito.anyLong());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(userRoleRepository, Mockito.times(5)).save(Mockito.any(UserRole.class));
+    }
+
+    @Test
+    public void testUpdateUserRolesInvalidRolesBadRequest() throws Exception {
+        List<Integer> roles = createValidRoleIdsList();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(null);
+        expectedEx.expect(CustomBadRequestException.class);
+        expectedEx.expectMessage("The following role doesn't exist: 42");
+
+        userService.updateUserRoles("userTest", roles);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    public void testUpdateUserRolesNotExistingUserBadRequest() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+        expectedEx.expect(CustomNotFoundException.class);
+        expectedEx.expectMessage("Unable to update roles, this username doesn't exists: userTest");
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testUpdateUserRolesFindByUsernameCannotCreateTransaction() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = DataAccessResourceFailureException.class)
+    public void testUpdateUserRolesFindByUsernameDataAccessResourceFailureException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new DataAccessResourceFailureException(""));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testUpdateUserRolesFindByUsernameJDBCConnectionException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testUpdateUserFindByRoleNameCannotCreateTransaction() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = DataAccessResourceFailureException.class)
+    public void testUpdateUserFindByRoleNameDataAccessResourceFailureException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong()))
+                .thenThrow(new DataAccessResourceFailureException(""));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testUpdateUserRolesFindByRoleNameJDBCConnectionException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenThrow(new JDBCConnectionException("", null));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testUpdateUserRolesSaveCannotCreateTransaction() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Role expectedRole = createValidRole();
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
+        Mockito.when(userRoleRepository.save(Mockito.any(UserRole.class)))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
+    }
+
+    @Test(expected = DataAccessResourceFailureException.class)
+    public void testUpdateUserRolesSaveDataAccessResourceFailureException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Role expectedRole = createValidRole();
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
+        Mockito.when(userRoleRepository.save(Mockito.any(UserRole.class)))
+                .thenThrow(new DataAccessResourceFailureException(""));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testUpdateUserRolesSaveJDBCConnectionException() throws Exception {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Role expectedRole = createValidRole();
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
+        Mockito.when(userRoleRepository.save(Mockito.any(UserRole.class)))
+                .thenThrow(new JDBCConnectionException("", null));
+
+        userService.updateUserRoles("userTest", createValidRoleIdsList());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).deleteInBatch(Mockito.anyCollection());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
+        Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
     }
 
     private UpdateUserResource createValidUpdateResource() {
@@ -343,6 +534,16 @@ public class UserServiceTest {
         validRole.setDescription("role description");
         validRole.setRoleId(1234);
         return validRole;
+    }
+
+    private List<Integer> createValidRoleIdsList() {
+        List<Integer> roles = new ArrayList<Integer>();
+        roles.add(42);
+        roles.add(33);
+        roles.add(52);
+        roles.add(16);
+        roles.add(89);
+        return roles;
     }
 
 }

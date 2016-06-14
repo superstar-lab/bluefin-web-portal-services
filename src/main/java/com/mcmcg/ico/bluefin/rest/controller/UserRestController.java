@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -69,12 +70,12 @@ public class UserRestController {
         return userService.registerNewUserAccount(newUser);
     }
 
-    @ApiOperation(value = "updateUser", nickname = "updateUser")
+    @ApiOperation(value = "updateUserProfile", nickname = "updateUserProfile")
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public UserResource updateUserAccount(@PathVariable String username, Authentication authentication,
+    public UserResource updateUserProfile(@PathVariable String username, Authentication authentication,
             @Validated @RequestBody UpdateUserResource userToUpdate, Errors errors) throws Exception {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -90,7 +91,18 @@ public class UserRestController {
                         "User doesn't have permission to get information from other users");
             }
         }
-        return userService.updateUserAccount(username, userToUpdate);
+        return userService.updateUserProfile(username, userToUpdate);
+    }
+
+    @ApiOperation(value = "updateUserRoles", nickname = "updateUserRoles")
+    @RequestMapping(method = RequestMethod.PUT, value = "/{username}/roles")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
+    public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Integer> roles)
+            throws Exception {
+        LOGGER.info("Updating roles for user: {}", username);
+        return userService.updateUserRoles(username, roles);
     }
 
     @ApiOperation(value = "deleteUser", nickname = "deleteUser")

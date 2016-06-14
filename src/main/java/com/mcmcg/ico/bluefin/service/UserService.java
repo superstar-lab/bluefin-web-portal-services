@@ -156,10 +156,10 @@ public class UserService {
      * 
      * @param username
      * @param updateUserResource
-     * @return userResource with all the profile information
+     * @return userResource with all the user information
      * @throws Exception
      */
-    public UserResource updateUserAccount(String username, UpdateUserResource userResource) throws Exception {
+    public UserResource updateUserProfile(String username, UpdateUserResource userResource) throws Exception {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException(
@@ -168,6 +168,52 @@ public class UserService {
         user = userResource.updateUser(user);
         User updatedUser = userRepository.save(user);
         return updatedUser.toUserResource();
+    }
+
+    /**
+     * Update the roles of an already stored user
+     * 
+     * @param username
+     * @param roles
+     * @return userResource with all the user information
+     * @throws Exception
+     */
+    public UserResource updateUserRoles(String username, List<Integer> roles) throws Exception {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
+        }
+        List<UserRole> newRoles = getRolesByIds(roles);
+        userRoleRepository.deleteInBatch(user.getUserRoles());
+        newRoles.forEach(userRole -> {
+            userRole.setUser(user);
+            userRole.setCreatedDate(new Date());
+            userRoleRepository.save(userRole);
+        });
+        user.setUserRoles(newRoles);
+        return user.toUserResource();
+    }
+
+    /**
+     * Get all the role objects by the specified ids
+     * 
+     * @param rolesList
+     *            as list of integers
+     * @return rolesList as list of objects
+     */
+    private List<UserRole> getRolesByIds(List<Integer> rolesList) throws Exception {
+        List<UserRole> result = new ArrayList<UserRole>();
+        for (Integer currentRole : rolesList) {
+            Role role = roleRepository.findByRoleId(currentRole.longValue());
+            if (role != null) {
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                result.add(userRole);
+            } else {
+                throw new CustomBadRequestException("The following role doesn't exist: " + currentRole);
+            }
+        }
+        return result;
     }
 
 }

@@ -54,6 +54,8 @@ public class UserRestControllerTest {
         mockMvc = standaloneSetup(userControllerMock).addFilters().build();
     }
 
+    // Register user tests
+
     @Test
     public void registerUserOK() throws Exception { // 200
         RegisterUserResource newUser = createValidRegisterResource();
@@ -133,6 +135,8 @@ public class UserRestControllerTest {
         Mockito.verifyNoMoreInteractions(userService);
     }
 
+    // Update user tests
+
     @Test
     public void updateUserOK() throws Exception { // 200
         UpdateUserResource user = createValidUpdateResource();
@@ -140,7 +144,7 @@ public class UserRestControllerTest {
         Mockito.when(
                 userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
-        Mockito.when(userService.updateUserAccount("test", user)).thenReturn(updatedUser);
+        Mockito.when(userService.updateUserProfile("test", user)).thenReturn(updatedUser);
 
         mockMvc.perform(put("/api/rest/bluefin/users/test").header("X-Auth-Token", "tokenTest")
                 .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(user)))
@@ -150,7 +154,7 @@ public class UserRestControllerTest {
 
         Mockito.verify(userService, Mockito.times(1))
                 .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
-        Mockito.verify(userService, Mockito.times(1)).updateUserAccount("test", user);
+        Mockito.verify(userService, Mockito.times(1)).updateUserProfile("test", user);
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -181,7 +185,7 @@ public class UserRestControllerTest {
         assertThat(validationErros, containsString("email must not be empty"));
         assertThat(validationErros, containsString("firstName must not be empty"));
         assertThat(validationErros, containsString("lastName must not be empty"));
-        Mockito.verify(userService, Mockito.times(0)).updateUserAccount("test", user);
+        Mockito.verify(userService, Mockito.times(0)).updateUserProfile("test", user);
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -191,14 +195,67 @@ public class UserRestControllerTest {
         Mockito.when(
                 userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
-        Mockito.when(userService.updateUserAccount("test", user)).thenThrow(new CustomException(""));
+        Mockito.when(userService.updateUserProfile("test", user)).thenThrow(new CustomException(""));
 
         mockMvc.perform(put("/api/rest/bluefin/users/test").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(user))).andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1))
                 .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
-        Mockito.verify(userService, Mockito.times(1)).updateUserAccount("test", user);
+        Mockito.verify(userService, Mockito.times(1)).updateUserProfile("test", user);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    // Update user roles tests
+
+    @Test
+    public void updateUserRolesOK() throws Exception { // 200
+        List<Integer> roles = createValidRoleIdsList();
+        UserResource updatedUser = createValidUserResource();
+        Mockito.when(userService.updateUserRoles("test", roles)).thenReturn(updatedUser);
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").header("X-Auth-Token", "tokenTest")
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
+
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
+
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesUnauthorized() throws Exception { // 401
+        List<Integer> roles = createValidRoleIdsList();
+
+        Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new CustomUnauthorizedException(""));
+        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(roles))).andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesBadRequestInvalidRequestBody() throws Exception { // 400
+        List<String> invalidRoleIdsList = new ArrayList<String>();
+        invalidRoleIdsList.add("ROLE_TEST");
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(invalidRoleIdsList))).andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesInternalServerError() throws Exception { // 500
+        List<Integer> roles = createValidRoleIdsList();
+        Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new CustomException(""));
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(roles))).andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -269,5 +326,15 @@ public class UserRestControllerTest {
         userResource.setRoles(roles1);
         userResource.setUsername("userTest");
         return userResource;
+    }
+
+    private List<Integer> createValidRoleIdsList() {
+        List<Integer> roles = new ArrayList<Integer>();
+        roles.add(42);
+        roles.add(33);
+        roles.add(52);
+        roles.add(16);
+        roles.add(89);
+        return roles;
     }
 }
