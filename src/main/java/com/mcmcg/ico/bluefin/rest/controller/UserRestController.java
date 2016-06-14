@@ -19,6 +19,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
 
@@ -69,21 +70,27 @@ public class UserRestController {
     }
 
     @ApiOperation(value = "updateUser", nickname = "updateUser")
-    @RequestMapping(method = RequestMethod.PUT)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public String updateUserAccount(@RequestBody UserResource account) throws Exception {
-        return "Add implementation** update user account";
-    }
-
-    @ApiOperation(value = "assignRole", nickname = "assignRole")
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
             @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
-    public String assignRoleToUser(@PathVariable String username, @RequestBody String role) throws Exception {
-        return "Add implementation** assign role to user";
+    public UserResource updateUserAccount(@PathVariable String username, Authentication authentication,
+            @Validated @RequestBody UpdateUserResource userToUpdate, Errors errors) throws Exception {
+        if (errors.hasErrors()) {
+            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            throw new CustomBadRequestException(errorDescription);
+        }
+        LOGGER.info("Updating account for user: {}", username);
+        if (username.equals("me")) {
+            username = authentication.getName();
+        } else {
+            if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
+                throw new CustomUnauthorizedException(
+                        "User doesn't have permission to get information from other users");
+            }
+        }
+        return userService.updateUserAccount(username, userToUpdate);
     }
 
     @ApiOperation(value = "deleteUser", nickname = "deleteUser")

@@ -23,6 +23,7 @@ import com.mcmcg.ico.bluefin.persistent.jpa.UserRoleRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 
 @Service
@@ -148,6 +149,25 @@ public class UserService {
             }
         }
         return result;
+    }
+
+    /**
+     * Update the profile information of an already stored user
+     * 
+     * @param username
+     * @param updateUserResource
+     * @return userResource with all the profile information
+     * @throws Exception
+     */
+    public UserResource updateUserAccount(String username, UpdateUserResource userResource) throws Exception {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new CustomNotFoundException(
+                    "Unable to update the account, this username doesn't exists: " + username);
+        }
+        user = userResource.updateUser(user);
+        User updatedUser = userRepository.save(user);
+        return updatedUser.toUserResource();
     }
 
 }

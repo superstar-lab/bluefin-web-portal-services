@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -30,6 +32,7 @@ import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
 
@@ -130,6 +133,75 @@ public class UserRestControllerTest {
         Mockito.verifyNoMoreInteractions(userService);
     }
 
+    @Test
+    public void updateUserOK() throws Exception { // 200
+        UpdateUserResource user = createValidUpdateResource();
+        UserResource updatedUser = createValidUserResource();
+        Mockito.when(
+                userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
+                .thenReturn(true);
+        Mockito.when(userService.updateUserAccount("test", user)).thenReturn(updatedUser);
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test").header("X-Auth-Token", "tokenTest")
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(user)))
+
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
+
+        Mockito.verify(userService, Mockito.times(1))
+                .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).updateUserAccount("test", user);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserUnauthorized() throws Exception { // 401
+        RegisterUserResource user = createValidRegisterResource();
+        Mockito.when(
+                userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
+                .thenReturn(false);
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(user))).andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.times(1))
+                .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserBadRequestInvalidRequestBody() throws Exception { // 400
+        UpdateUserResource user = createInvalidUpdateResource();
+
+        String validationErros = mockMvc
+                .perform(put("/api/rest/bluefin/users/test").contentType(MediaType.APPLICATION_JSON)
+                        .content(convertObjectToJsonBytes(user)))
+                .andExpect(status().isBadRequest()).andReturn().getResolvedException().getMessage();
+
+        assertThat(validationErros, containsString("email must not be empty"));
+        assertThat(validationErros, containsString("firstName must not be empty"));
+        assertThat(validationErros, containsString("lastName must not be empty"));
+        Mockito.verify(userService, Mockito.times(0)).updateUserAccount("test", user);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserInternalServerError() throws Exception { // 500
+        UpdateUserResource user = createValidUpdateResource();
+        Mockito.when(
+                userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
+                .thenReturn(true);
+        Mockito.when(userService.updateUserAccount("test", user)).thenThrow(new CustomException(""));
+
+        mockMvc.perform(put("/api/rest/bluefin/users/test").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(user))).andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1))
+                .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).updateUserAccount("test", user);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Include.NON_NULL);
@@ -146,6 +218,14 @@ public class UserRestControllerTest {
         return newUser;
     }
 
+    private UpdateUserResource createInvalidUpdateResource() {
+        UpdateUserResource user = new UpdateUserResource();
+        user.setEmail(null);
+        user.setFirstName(null);
+        user.setLastName(null);
+        return user;
+    }
+
     private RegisterUserResource createValidRegisterResource() {
         RegisterUserResource newUser = new RegisterUserResource();
         newUser.setEmail("test@email.com");
@@ -159,6 +239,14 @@ public class UserRestControllerTest {
         newUser.setRoles(roles);
         newUser.setUsername("userTest");
         return newUser;
+    }
+
+    private UpdateUserResource createValidUpdateResource() {
+        UpdateUserResource user = new UpdateUserResource();
+        user.setEmail("test@email.com");
+        user.setFirstName("test");
+        user.setLastName("user");
+        return user;
     }
 
     private UserResource createValidUserResource() {
