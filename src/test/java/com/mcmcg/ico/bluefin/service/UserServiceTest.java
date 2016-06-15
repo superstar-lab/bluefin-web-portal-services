@@ -174,6 +174,236 @@ public class UserServiceTest {
         Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
     }
 
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testRegisterUserDBFailsFindUserName() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testRegisterUserDBFailsFindByLegalEntity() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testRegisterUserDBFailsFindByRoleName() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testRegisterUserDBFailsSaveNewUser() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(userRepository.save(Mockito.any(User.class)))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testRegisterUserDBFailsSaveLegalEntity() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
+
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testRegisterUserDBFailsSaveRole() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenReturn(new UserLegalEntity());
+
+        Mockito.when(userRoleRepository.save(Mockito.any(UserRole.class)))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
+        Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+        Mockito.verifyNoMoreInteractions(userRoleRepository);
+    }
+
+    @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
+    public void testRegisterUserDBFailsFindUserNameAccess() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
+    public void testRegisterUserDBFailsFindByLegalEntityAccess() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
+    public void testRegisterUserDBFailsFindByRoleNameAccess() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString()))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
+    public void testRegisterUserDBFailsSaveNewUserAccess() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(userRepository.save(Mockito.any(User.class)))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+    }
+
+    @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
+    public void testRegisterUserDBFailsSaveLegalEntityAccess() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+                .thenReturn(createValidLegalEntityApp());
+        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
+
+        Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
+        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+        Mockito.verifyNoMoreInteractions(roleRepository);
+        Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
+    }
+
     @Test
     public void testRegisterUserInvalidRolesBadRequest() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
