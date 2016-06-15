@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.rest.controller;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,16 +14,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -30,6 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
@@ -42,16 +47,139 @@ public class UserRestControllerTest {
 
     @InjectMocks
     private UserRestController userControllerMock;
-
     @Mock
     private UserService userService;
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-        mockMvc = standaloneSetup(userControllerMock).addFilters().build();
+        mockMvc = standaloneSetup(userControllerMock).build();
+    }
+
+    @After
+    public void teardown() {
+        SecurityContextHolder.clearContext();
+    }
+    
+    // Get User
+    
+    @Test
+    public void testGetUserAccountSuccessMe() throws Exception {
+        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
+        Authentication auth = new UsernamePasswordAuthenticationToken("omonge", "password", authorities);// Change authorities when set 
+
+        Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenReturn(createValidUserResource());
+
+        mockMvc.perform(
+                get("/api/rest/bluefin/users/{userName}", "me").principal(auth).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"))
+                .andExpect(jsonPath("lastName").value("user"))
+                .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppId").value(1234))
+                .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppName").value("legalEntity1"))
+                .andExpect(jsonPath("$.roles[0].roleId").value(4321))
+                .andExpect(jsonPath("$.roles[0].roleName").value("ROLE_TESTING"));
+
+    }
+
+    @Test
+    public void getUserAccountSuccess() throws Exception { // 200
+        Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
+                .thenReturn(true);
+        Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenReturn(createValidUserResource());
+
+        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"))
+                .andExpect(jsonPath("lastName").value("user"))
+                .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppId").value(1234))
+                .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppName").value("legalEntity1"))
+                .andExpect(jsonPath("$.roles[0].roleId").value(4321))
+                .andExpect(jsonPath("$.roles[0].roleName").value("ROLE_TESTING"));
+
+        Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUserAccountErrorUnAuthorized() throws Exception { // 401
+        Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
+                .thenReturn(false);
+
+        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(0)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUserAccountNotFound() throws Exception { // 404
+        Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
+                .thenReturn(true);
+        Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomNotFoundException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUserAccountErrorInternalServerErrorCheckingPermission() throws Exception { // 500
+        Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
+                .thenThrow(new CustomException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(0)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUserAccountErrorInternalServerErrorGettingUserData() throws Exception { // 500
+        Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
+                .thenReturn(true);
+        Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUserAccountError() throws Exception { // 500
+        Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
+                .thenReturn(true);
+        Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomException(""));
+
+        mockMvc.perform(get("/api/rest/bluefin/users/").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
     }
 
     // Register user tests

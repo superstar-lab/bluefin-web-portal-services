@@ -65,6 +65,74 @@ public class UserServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    // Get user info
+
+    @Test
+    public void testGetUserInfoOK() throws Exception { // 200
+
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+
+        UserResource user = userService.getUserInfomation("mytest");
+
+        Assert.assertEquals("test@test.com", user.getEmail());
+        Assert.assertEquals("test", user.getFirstName());
+        Assert.assertEquals("user", user.getLastName());
+        Assert.assertEquals("userTest", user.getUsername());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = CustomNotFoundException.class)
+    public void testGetUserInfoNotFound() throws Exception {// 404
+
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        userService.getUserInfomation("mytest");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
+    public void testFindByUsername() { // 500
+
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        userService.getUserInfomation("mytest");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+
+    }
+
+    @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
+    public void testFindByUsernameDBAccessFail() {// 500
+
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(null));
+
+        userService.getUserInfomation("mytest");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+
+    }
+
+    @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+    public void testFindByUsernameDBConnectionFail() {// 500
+
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+
+        userService.getUserInfomation("mytest");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+
+    }
+
     // Register user tests
 
     @Test
