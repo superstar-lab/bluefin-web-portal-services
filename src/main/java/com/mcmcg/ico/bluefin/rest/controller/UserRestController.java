@@ -67,6 +67,19 @@ public class UserRestController {
         return userService.getUserInfomation(username);
     }
 
+    @ApiOperation(value = "getUsers", nickname = "getUsers")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = UserResource.class, responseContainer = "List"),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public Iterable<UserResource> getUsers() {
+        LOGGER.info("Getting all users");
+        return userService.getUsers();
+    }
+
     @ApiOperation(value = "createUser", nickname = "createUser")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")

@@ -49,6 +49,15 @@ public class UserService {
         return user.toUserResource();
     }
 
+    public List<UserResource> getUsers() {
+        List<UserResource> result = new ArrayList<UserResource>();
+        List<User> users = userRepository.findAll();
+        users.forEach(user -> {
+            result.add(user.toUserResource());
+        });
+        return result;
+    }
+
     public boolean havePermissionToGetOtherUsersInformation(Authentication tokenInformation, String username) {
         for (GrantedAuthority permission : tokenInformation.getAuthorities()) {
             if (permission.getAuthority().equals("readAllUsers")) {
