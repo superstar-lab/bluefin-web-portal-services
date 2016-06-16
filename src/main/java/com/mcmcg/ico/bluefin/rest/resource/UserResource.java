@@ -8,7 +8,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
@@ -34,8 +33,6 @@ public class UserResource {
     @Size(min = 1, message = "legalEntityAppsList must not be empty")
     @NotNull(message = "legalEntityAppsList must not be null")
     private List<LegalEntityApp> legalEntityApps;
-    @JsonIgnore
-    private String password;
 
     public User toUser(List<UserRole> roles, List<UserLegalEntity> entities) {
         User user = new User();

@@ -54,7 +54,7 @@ public class LegalEntityAppControllerTest {
         Mockito.when(legalEntityAppService.getLegalEntities()).thenReturn(legalEntityAppList);
 
         mockMvc.perform(get("/api/rest/bluefin/legal-entities")).andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].legalEntityAppId").value(1))
                 .andExpect(jsonPath("$[0].legalEntityAppName").value("LegalEntity"));
 

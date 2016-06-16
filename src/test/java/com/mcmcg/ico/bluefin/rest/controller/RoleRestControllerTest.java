@@ -53,7 +53,7 @@ public class RoleRestControllerTest {
         Mockito.when(roleService.getRoles()).thenReturn(roleList);
 
         mockMvc.perform(get("/api/rest/bluefin/roles")).andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].roleId").value(1)).andExpect(jsonPath("$[0].roleName").value("ROLE_TESTING"))
                 .andExpect(jsonPath("$[0].description").value("test description"));
 

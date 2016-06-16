@@ -51,6 +51,10 @@ public class UserRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource getUserAccount(@PathVariable String username, @ApiIgnore Authentication authentication)
             throws Exception {
+        if (authentication == null) {
+            throw new CustomBadRequestException("An authorization token is required to request this resource");
+        }
+
         LOGGER.info("Getting user information: {}", username);
         if (username.equals("me")) {
             username = authentication.getName();
@@ -78,6 +82,7 @@ public class UserRestController {
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
+
         LOGGER.info("Creating new account for user: {}", newUser.getUsername());
         return new ResponseEntity<UserResource>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
     }
@@ -91,11 +96,16 @@ public class UserRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
             @Validated @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) throws Exception {
+        if (authentication == null) {
+            throw new CustomBadRequestException("An authorization token is required to request this resource");
+        }
+
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
+
         LOGGER.info("Updating account for user: {}", username);
         if (username.equals("me")) {
             username = authentication.getName();

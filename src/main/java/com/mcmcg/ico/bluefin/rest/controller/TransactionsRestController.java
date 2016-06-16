@@ -39,7 +39,6 @@ public class TransactionsRestController {
     public TransactionView getTransaction(@PathVariable("transactionId") String transactionId) {
         LOGGER.info("Getting transaction information by id: {}", transactionId);
         return transactionService.getTransactionInformation(transactionId);
-
     }
 
     @ApiOperation(value = "getTransactions", nickname = "getTransactions")
@@ -55,7 +54,6 @@ public class TransactionsRestController {
             @RequestParam(value = "sort", required = false) String sort) {
         LOGGER.info("Generating report with the following filters: {}", search);
         return transactionService.getTransactions(QueryDSLUtil.createExpression(search), page, size, sort);
-
     }
 
 }

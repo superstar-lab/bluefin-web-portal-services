@@ -8,7 +8,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
@@ -28,15 +27,13 @@ public class RegisterUserResource {
     private String lastName;
     @NotEmpty(message = "email must not be empty")
     private String email;
-    @Size(min = 1, message = "roleList must not be empty")
-    @NotNull(message = "roleList must not be null")
-    private List<String> roles;
-    @Size(min = 1, message = "legalEntityAppsList must not be empty")
-    @NotNull(message = "legalEntityAppsList must not be null")
-    private List<String> legalEntityApps;
-    @JsonIgnore
-    private String password;
-    
+    @Size(min = 1, message = "rolesIdsList must not be empty")
+    @NotNull(message = "roles must not be null")
+    private List<Integer> roles;
+    @Size(min = 1, message = "legalEntityApps must not be empty")
+    @NotNull(message = "legalEntityApps must not be null")
+    private List<Integer> legalEntityApps;
+
     public UserResource toUserResource(List<Role> roles, List<LegalEntityApp> entities) {
         UserResource userResource = new UserResource();
         userResource.setUsername(username);
@@ -47,7 +44,7 @@ public class RegisterUserResource {
         userResource.setLegalEntityApps(entities);
         return userResource;
     }
-    
+
     public User toUser(List<UserRole> roles, List<UserLegalEntity> entities) {
         User user = new User();
         user.setUsername(username);

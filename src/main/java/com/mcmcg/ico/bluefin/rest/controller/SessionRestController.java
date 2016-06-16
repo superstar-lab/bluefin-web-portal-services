@@ -55,6 +55,7 @@ public class SessionRestController {
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
+
         LOGGER.info("Authenticating user: {}", authenticationRequest.getUsername());
         Authentication authentication = this.sessionService.authenticate(authenticationRequest.getUsername(),
                 authenticationRequest.getPassword());
@@ -76,8 +77,8 @@ public class SessionRestController {
         String token = request.getHeader(securityTokenHeader);
         if (token != null) {
             return sessionService.refreshToken(token);
-        } else {
-            throw new CustomBadRequestException("An authorization token is required to request this resource");
         }
+
+        throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
 }

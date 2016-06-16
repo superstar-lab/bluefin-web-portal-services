@@ -74,7 +74,7 @@ public class UserServiceTest {
 
         UserResource user = userService.getUserInfomation("mytest");
 
-        Assert.assertEquals("test@test.com", user.getEmail());
+        Assert.assertEquals("test@email.com", user.getEmail());
         Assert.assertEquals("test", user.getFirstName());
         Assert.assertEquals("user", user.getLastName());
         Assert.assertEquals("userTest", user.getUsername());
@@ -141,10 +141,10 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
         LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(expectedLegalEntityApp);
         Role expectedRole = createValidRole();
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(expectedRole);
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
         Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
                 .thenReturn(new UserLegalEntity());
         Mockito.when(userRoleRepository.save(Mockito.any(UserRole.class))).thenReturn(new UserRole());
@@ -168,10 +168,10 @@ public class UserServiceTest {
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
-        Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
-        Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
+        Mockito.verify(legalEntityAppRepository, Mockito.times(5)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(5)).findByRoleId(Mockito.anyLong());
+        Mockito.verify(userLegalEntityRepository, Mockito.times(5)).save(Mockito.any(UserLegalEntity.class));
+        Mockito.verify(userRoleRepository, Mockito.times(5)).save(Mockito.any(UserRole.class));
     }
 
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
@@ -191,13 +191,13 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
 
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
@@ -208,17 +208,17 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
 
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString()))
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
 
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
@@ -230,17 +230,17 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(createValidRole());
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
@@ -252,9 +252,9 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(createValidRole());
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
 
         Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
@@ -263,8 +263,8 @@ public class UserServiceTest {
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
         Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
 
@@ -279,9 +279,9 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(createValidRole());
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
         Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
                 .thenReturn(new UserLegalEntity());
@@ -292,8 +292,8 @@ public class UserServiceTest {
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
         Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
         Mockito.verify(userRoleRepository, Mockito.times(1)).save(Mockito.any(UserRole.class));
@@ -321,13 +321,13 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
 
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
@@ -338,17 +338,17 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
 
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString()))
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong()))
                 .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
 
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
@@ -360,17 +360,17 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(createValidRole());
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                 .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
@@ -382,9 +382,9 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(createValidLegalEntityApp());
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(createValidRole());
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(createValidRole());
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
 
         Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
@@ -393,8 +393,8 @@ public class UserServiceTest {
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppName(Mockito.anyString());
-        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleName(Mockito.anyString());
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findByLegalEntityAppId(Mockito.anyLong());
+        Mockito.verify(roleRepository, Mockito.times(1)).findByRoleId(Mockito.anyLong());
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any(User.class));
         Mockito.verify(userLegalEntityRepository, Mockito.times(1)).save(Mockito.any(UserLegalEntity.class));
 
@@ -409,11 +409,11 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(new LegalEntityApp());
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(null);
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(null);
         expectedEx.expect(CustomBadRequestException.class);
-        expectedEx.expectMessage("The following role doesn't exist: ROLE_TESTING");
+        expectedEx.expectMessage("The following role doesn't exist: 42");
 
         userService.registerNewUserAccount(newUser);
 
@@ -426,9 +426,9 @@ public class UserServiceTest {
         RegisterUserResource newUser = createValidRegisterResource();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString())).thenReturn(null);
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong())).thenReturn(null);
         expectedEx.expect(CustomBadRequestException.class);
-        expectedEx.expectMessage("The following legal entity doesn't exist: legalEntity1");
+        expectedEx.expectMessage("The following legalEntity doesn't exist: 64");
 
         userService.registerNewUserAccount(newUser);
 
@@ -455,10 +455,10 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
         LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
-        Mockito.when(legalEntityAppRepository.findByLegalEntityAppName(Mockito.anyString()))
+        Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
                 .thenReturn(expectedLegalEntityApp);
         Role expectedRole = createValidRole();
-        Mockito.when(roleRepository.findByRoleName(Mockito.anyString())).thenReturn(expectedRole);
+        Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
         Mockito.when(userLegalEntityRepository.save(Mockito.any(UserLegalEntity.class)))
                 .thenReturn(new UserLegalEntity());
         Mockito.when(userRepository.save(Mockito.any(User.class)))
@@ -963,12 +963,8 @@ public class UserServiceTest {
         newUser.setEmail("test@email.com");
         newUser.setFirstName("test");
         newUser.setLastName("user");
-        List<String> entities = new ArrayList<String>();
-        entities.add("legalEntity1");
-        newUser.setLegalEntityApps(entities);
-        List<String> roles = new ArrayList<String>();
-        roles.add("ROLE_TESTING");
-        newUser.setRoles(roles);
+        newUser.setLegalEntityApps(createValidLegalEntityIdsList());
+        newUser.setRoles(createValidRoleIdsList());
         newUser.setUsername("userTest");
         return newUser;
     }

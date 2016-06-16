@@ -96,8 +96,8 @@ public class UserService {
                     "Unable to create the account, this username already exists: " + username);
         }
 
-        List<UserLegalEntity> userLegalEntities = getUserLegalEntityApps(userResource.getLegalEntityApps());
-        List<UserRole> roles = getRoles(userResource.getRoles());
+        List<UserLegalEntity> userLegalEntities = getLegalEntitiesByIds(userResource.getLegalEntityApps());
+        List<UserRole> roles = getRolesByIds(userResource.getRoles());
         User newUser = userResource.toUser(roles, userLegalEntities);
         userRepository.save(newUser);
         newUser.getUserLegalEntities().forEach(userLegalEntity -> {
@@ -119,36 +119,6 @@ public class UserService {
             return true;
         }
         return false;
-    }
-
-    private List<UserRole> getRoles(List<String> rolesList) {
-        List<UserRole> result = new ArrayList<UserRole>();
-        for (String currentRole : rolesList) {
-            Role role = roleRepository.findByRoleName(currentRole);
-            if (role != null) {
-                UserRole userRole = new UserRole();
-                userRole.setRole(role);
-                result.add(userRole);
-            } else {
-                throw new CustomBadRequestException("The following role doesn't exist: " + currentRole);
-            }
-        }
-        return result;
-    }
-
-    private List<UserLegalEntity> getUserLegalEntityApps(List<String> legalEntityApps) {
-        List<UserLegalEntity> result = new ArrayList<UserLegalEntity>();
-        for (String currentEntity : legalEntityApps) {
-            LegalEntityApp legalEntity = legalEntityAppRepository.findByLegalEntityAppName(currentEntity);
-            if (legalEntity != null) {
-                UserLegalEntity userLegalEntity = new UserLegalEntity();
-                userLegalEntity.setLegalEntityApp(legalEntity);
-                result.add(userLegalEntity);
-            } else {
-                throw new CustomBadRequestException("The following legal entity doesn't exist: " + currentEntity);
-            }
-        }
-        return result;
     }
 
     /**
