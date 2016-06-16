@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,7 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.TokenRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomForbiddenException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.TokenHandler;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
@@ -46,7 +46,7 @@ public class SessionService {
     public UsernamePasswordAuthenticationToken authenticate(String username, String password) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new BadCredentialsException("Username doesn't exists: " + username);
+            throw new CustomForbiddenException("Username doesn't exists: " + username);
         }
         return new UsernamePasswordAuthenticationToken(username, password);
     }

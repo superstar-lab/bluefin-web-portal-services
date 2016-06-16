@@ -44,7 +44,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler(AuthenticationException.class)
+    @ExceptionHandler({ AuthenticationException.class, CustomUnauthorizedException.class })
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public @ResponseBody ErrorResource handleUnauthorizedException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);

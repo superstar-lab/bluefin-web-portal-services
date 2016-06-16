@@ -13,6 +13,7 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.LegalEntityAppService;
 
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -27,12 +28,15 @@ public class LegalEntityAppRestController {
     private LegalEntityAppService legalEntityAppService;
 
     @ApiOperation(value = "getLegalEntities", nickname = "getLegalEntities")
-    @RequestMapping(method = RequestMethod.GET)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
-            @ApiResponse(code = 404, message = "Message not found", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized"), @ApiResponse(code = 500, message = "Failure") })
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<LegalEntityApp> getLegalEntities() throws Exception {
-        LOGGER.info("get All Legal Entities");
-        return legalEntityAppService.findAll();
+        LOGGER.info("Getting all legal entities");
+        return legalEntityAppService.getLegalEntities();
     }
 }

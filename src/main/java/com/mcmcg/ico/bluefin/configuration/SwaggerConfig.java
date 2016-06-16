@@ -17,7 +17,8 @@ public class SwaggerConfig {
     @Bean
     public Docket secureMessageCenterApi() {
         return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.ant("/api/rest/bluefin/**")).build().apiInfo(apiInfo());
+                .paths(PathSelectors.ant("/api/rest/bluefin/**")).build().apiInfo(apiInfo())
+                .useDefaultResponseMessages(false);
     }
 
     private ApiInfo apiInfo() {

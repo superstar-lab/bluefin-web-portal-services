@@ -45,7 +45,7 @@ public class LegalEntityAppServiceTest {
 
         Mockito.when(legalEntityAppRepository.findAll()).thenReturn(legalEntityAppList);
 
-        legalEntityAppList = legalEntityAppService.findAll();
+        legalEntityAppList = legalEntityAppService.getLegalEntities();
 
         Assert.assertFalse(legalEntityAppList.isEmpty());
 
@@ -59,7 +59,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(legalEntityAppRepository.findAll())
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        legalEntityAppService.findAll();
+        legalEntityAppService.getLegalEntities();
 
         Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll();
 

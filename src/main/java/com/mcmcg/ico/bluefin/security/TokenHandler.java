@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcmcg.ico.bluefin.persistent.Token;
 import com.mcmcg.ico.bluefin.persistent.jpa.TokenRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 
 @Component
@@ -63,20 +64,19 @@ public final class TokenHandler {
     }
 
     public SecurityUser parseUserFromToken(String token) {
-        final String[] parts = token.split(SEPARATOR_SPLITTER);
-        if (parts.length == 2 && parts[0].length() > 0 && parts[1].length() > 0) {
-            try {
-                final byte[] userBytes = fromBase64(parts[0]);
-                final byte[] hash = fromBase64(parts[1]);
+        try {
+            final String[] parts = token.split(SEPARATOR_SPLITTER);
+            final byte[] userBytes = fromBase64(parts[0]);
+            final byte[] hash = fromBase64(parts[1]);
 
-                boolean validHash = Arrays.equals(createHmac(userBytes), hash);
-                if (validHash) {
-                    return fromJSON(userBytes);
-                }
-            } catch (IllegalArgumentException e) {
-                // log tempering attempt here
+            boolean validHash = Arrays.equals(createHmac(userBytes), hash);
+            if (validHash) {
+                return fromJSON(userBytes);
             }
+        } catch (Exception e) {
+            throw new CustomUnauthorizedException("Invalid authorization header. The access token is invalid.");
         }
+
         return null;
     }
 

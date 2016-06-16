@@ -14,7 +14,7 @@ public class LegalEntityAppService {
     @Autowired
     private LegalEntityAppRepository legalEntityAppRepository;
 
-    public List<LegalEntityApp> findAll() { 
-        return legalEntityAppRepository.findAll(); 
+    public List<LegalEntityApp> getLegalEntities() {
+        return legalEntityAppRepository.findAll();
     }
 }
