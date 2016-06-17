@@ -34,7 +34,7 @@ import io.swagger.annotations.ApiResponses;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-@RequestMapping(value = "/api/rest/bluefin/users")
+@RequestMapping(value = "/api/users")
 public class UserRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);

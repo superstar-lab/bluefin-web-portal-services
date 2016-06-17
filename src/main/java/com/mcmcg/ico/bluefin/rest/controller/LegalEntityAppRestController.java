@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(value = "/api/rest/bluefin/legal-entities")
+@RequestMapping(value = "/api/legal-entities")
 public class LegalEntityAppRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppRestController.class);

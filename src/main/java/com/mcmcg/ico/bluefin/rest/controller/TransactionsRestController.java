@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(value = "/api/rest/bluefin/transactions")
+@RequestMapping(value = "/api/transactions")
 public class TransactionsRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsRestController.class);

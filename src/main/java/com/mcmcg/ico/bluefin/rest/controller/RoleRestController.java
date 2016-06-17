@@ -19,7 +19,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(value = "/api/rest/bluefin/roles")
+@RequestMapping(value = "/api/roles")
 public class RoleRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleRestController.class);

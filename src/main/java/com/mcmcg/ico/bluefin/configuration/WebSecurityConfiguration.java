@@ -68,6 +68,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+        final String apiBaseURL = "/api";
+        final String transactionsApiBaseURL = apiBaseURL + "/transactions";
+        final String sessionApiBaseURL = apiBaseURL + "/session";
+        final String usersApiBaseURL = apiBaseURL + "/users";
+        final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
+        final String rolesApiBaseURL = apiBaseURL + "/roles";
 
         // @formatter:off
         httpSecurity
@@ -90,28 +96,30 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                                     "/configuration/**", "/images/**").permitAll()
 
                             // Transactions
-                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/transactions/**").permitAll()
+                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/").permitAll()
+                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").permitAll()
 
                             // Session
-                            .antMatchers(HttpMethod.POST, "/api/rest/bluefin/session").permitAll()
-                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/session").permitAll()
+                            .antMatchers(HttpMethod.POST, sessionApiBaseURL).permitAll()
+                            .antMatchers(HttpMethod.PUT, sessionApiBaseURL).permitAll()
 
                             // Users
-                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/users/{username}", "/api/rest/bluefin/users/{username}/").permitAll()
-                            .antMatchers(HttpMethod.POST, "/api/rest/bluefin/users/", "/api/rest/bluefin/users").permitAll()
-                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users").permitAll()
-                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/users/**").permitAll()
-                            .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/users/**").permitAll()
+                            .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()
+                            .antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/").permitAll()
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()
+                            .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()
 
                             // Legal entities
-                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities").permitAll()
-                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/legal-entities/").permitAll()
+                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").permitAll()
+//                            .antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL).permitAll()
+//                            .antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{legalEntityId}", legalEntitiesApiBaseURL + "/{legalEntityId}/").permitAll()
+//                            .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{legalEntityId}", legalEntitiesApiBaseURL + "/{legalEntityId}/").permitAll()
 
                             // Roles
-                            .antMatchers(HttpMethod.GET, "/api/rest/bluefin/roles").permitAll()
-                            .antMatchers(HttpMethod.POST, "/api/rest/bluefin/roles").permitAll()
-                            .antMatchers(HttpMethod.PUT, "/api/rest/bluefin/roles/**").permitAll()
-                            .antMatchers(HttpMethod.DELETE, "/api/rest/bluefin/roles/**").permitAll()
+                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").permitAll()
+//                            .antMatchers(HttpMethod.POST, rolesApiBaseURL).permitAll()
+//                            .antMatchers(HttpMethod.PUT, rolesApiBaseURL + "/{roleId}", rolesApiBaseURL + "/{roleId}/").permitAll()
+//                            .antMatchers(HttpMethod.DELETE, rolesApiBaseURL + "/{roleId}", rolesApiBaseURL + "/{roleId}/").permitAll()
 
                             .anyRequest().authenticated();
         // @formatter:on

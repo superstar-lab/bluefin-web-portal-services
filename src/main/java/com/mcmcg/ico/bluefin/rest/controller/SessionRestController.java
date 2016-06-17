@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiResponses;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-@RequestMapping(value = "/api/rest/bluefin/session")
+@RequestMapping(value = "/api/session")
 public class SessionRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionRestController.class);
