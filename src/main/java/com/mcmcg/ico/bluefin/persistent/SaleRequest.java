@@ -65,8 +65,8 @@ public class SaleRequest {
     private String accountId;
     @Column(name = "ApplicationTransactionID")
     private String transactionId;
-    @Column(name = "MerchantID")
-    private String merchantId;
+    @Column(name = "RoutingKey")
+    private String routingKey;
     @Column(name = "TestMode")
     private Short testMode;
     @Column(name = "Processor")

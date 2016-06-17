@@ -35,14 +35,14 @@ public class SaleResponse {
     private String approvalCode;
     @Column(name = "ProcessorTransactionID")
     private String processorTransactionId;
+    @Column(name = "ApplicationTransactionID")
+    private String applicationTransactionId;
     @Column(name = "rspToken")
     private String rspToken;
-    @Column(name = "Processor")
-    private String processor;
     @Column(name = "Amount", columnDefinition = "money")
     private BigDecimal amount;
-    @Column(name = "MerchantID")
-    private String merchantId;
+    @Column(name = "RoutingKey")
+    private String routingKey;
     @Column(name = "ResponseCode")
     private String responseCode;
     @Column(name = "ResponseDescription")

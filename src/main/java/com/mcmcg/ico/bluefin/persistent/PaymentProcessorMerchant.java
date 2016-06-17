@@ -33,10 +33,8 @@ public class PaymentProcessorMerchant {
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
 
-    @Column(name = "MerchantID")
-    private String merchantId;
-    @Column(name = "ProcessorID")
-    private String processorId;
+    @Column(name = "RoutingKey")
+    private String routingKey;
     @Column(name = "TestOrProd")
     private Short testOrProd;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
