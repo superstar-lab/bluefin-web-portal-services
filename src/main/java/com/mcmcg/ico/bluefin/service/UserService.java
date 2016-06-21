@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,8 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mysema.query.types.expr.BooleanExpression;
 
 @Service
 public class UserService {
@@ -49,12 +52,12 @@ public class UserService {
         return user.toUserResource();
     }
 
-    public List<UserResource> getUsers() {
-        List<UserResource> result = new ArrayList<UserResource>();
-        List<User> users = userRepository.findAll();
-        users.forEach(user -> {
-            result.add(user.toUserResource());
-        });
+    public Iterable<User> getUsers(BooleanExpression exp, Integer page, Integer size, String sort) {
+
+        Page<User> result = userRepository.findAll(exp, QueryDSLUtil.getPageRequest(page, size, sort));
+        if (page > result.getTotalPages() && page != 0) {
+            throw new CustomNotFoundException("Unable to find the page requested");
+        }
         return result;
     }
 

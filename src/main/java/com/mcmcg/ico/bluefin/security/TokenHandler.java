@@ -74,10 +74,8 @@ public final class TokenHandler {
                 return fromJSON(userBytes);
             }
         } catch (Exception e) {
-            throw new CustomUnauthorizedException("Invalid authorization header. The access token is invalid.");
         }
-
-        return null;
+        throw new CustomUnauthorizedException("Invalid authorization header. The access token is invalid.");
     }
 
     public String createTokenForUser(SecurityUser user) {

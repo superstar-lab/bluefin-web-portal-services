@@ -6,6 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -33,6 +34,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
+import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
+import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
@@ -74,8 +78,7 @@ public class UserRestControllerTest {
     public void testGetUserAccountSuccessMe() throws Exception {
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenReturn(createValidUserResource());
 
-        mockMvc.perform(
-                get("/api/rest/bluefin/users/{userName}", "me").principal(auth).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/users/{userName}", "me").principal(auth).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
                 .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"))
                 .andExpect(jsonPath("lastName").value("user"))
@@ -92,10 +95,10 @@ public class UserRestControllerTest {
                 .thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenReturn(createValidUserResource());
 
-        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").principal(auth)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("username").value("userTest")).andExpect(jsonPath("email").value("test@email.com"))
-                .andExpect(jsonPath("firstName").value("test")).andExpect(jsonPath("lastName").value("user"))
+        mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"))
+                .andExpect(jsonPath("lastName").value("user"))
                 .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppId").value(1234))
                 .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppName").value("legalEntity1"))
                 .andExpect(jsonPath("$.roles[0].roleId").value(4321))
@@ -113,8 +116,8 @@ public class UserRestControllerTest {
         Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
                 .thenReturn(false);
 
-        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").principal(auth)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
                 Mockito.anyString());
@@ -129,8 +132,8 @@ public class UserRestControllerTest {
                 .thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomNotFoundException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").principal(auth)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
 
         Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
                 Mockito.anyString());
@@ -144,8 +147,8 @@ public class UserRestControllerTest {
         Mockito.when(userService.havePermissionToGetOtherUsersInformation(Mockito.anyObject(), Mockito.anyString()))
                 .thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").principal(auth)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
                 Mockito.anyString());
@@ -160,8 +163,8 @@ public class UserRestControllerTest {
                 .thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/users/{userName}", "omonge").principal(auth)
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
                 Mockito.anyString());
@@ -176,12 +179,145 @@ public class UserRestControllerTest {
                 .thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/users/nquiros").principal(auth).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/users/nquiros").principal(auth).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).havePermissionToGetOtherUsersInformation(Mockito.anyObject(),
                 Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    // Get users tests
+
+    @Test
+    public void getUsersOK() throws Exception { // 200
+        List<User> users = new ArrayList<User>();
+        users.add(createValidUser());
+
+        Mockito.when(userService.getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
+                .thenReturn(users);
+
+        mockMvc.perform(get("/api/users").param("search", "email:test@email.com,firstName:test").param("page", "1")
+                .param("size", "2")).andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].email").value("test@email.com"))
+                .andExpect(jsonPath("$[0].username").value("userTest"))
+                .andExpect(jsonPath("$[0].firstName").value("test")).andExpect(jsonPath("$[0].lastName").value("user"))
+                .andExpect(jsonPath("$[0].roles[0].roleId").value(1234))
+                .andExpect(jsonPath("$[0].roles[0].roleName").value("ROLE_TESTING"))
+                .andExpect(jsonPath("$[0].roles[0].description").value("role description"))
+                .andExpect(jsonPath("$[0].legalEntityApps[0].legalEntityAppId").value(4321))
+                .andExpect(jsonPath("$[0].legalEntityApps[0].legalEntityAppName").value("legalEntity1"));
+
+        Mockito.verify(userService, Mockito.times(1)).getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUsersOKAllParams() throws Exception { // 200
+        List<User> users = new ArrayList<User>();
+        users.add(createValidUser());
+
+        Mockito.when(userService.getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
+                .thenReturn(users);
+
+        mockMvc.perform(get("/api/users")
+                .param("search",
+                        "email:test@email.com,username:userTest,firstName:test,lastName:user,userRoles:[1234],userLegalEntities:[4321]")
+                .param("page", "0").param("size", "2")).andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].email").value("test@email.com"))
+                .andExpect(jsonPath("$[0].username").value("userTest"))
+                .andExpect(jsonPath("$[0].firstName").value("test")).andExpect(jsonPath("$[0].lastName").value("user"))
+                .andExpect(jsonPath("$[0].roles[0].roleId").value(1234))
+                .andExpect(jsonPath("$[0].roles[0].roleName").value("ROLE_TESTING"))
+                .andExpect(jsonPath("$[0].roles[0].description").value("role description"))
+                .andExpect(jsonPath("$[0].legalEntityApps[0].legalEntityAppId").value(4321))
+                .andExpect(jsonPath("$[0].legalEntityApps[0].legalEntityAppName").value("legalEntity1"));
+
+        Mockito.verify(userService, Mockito.times(1)).getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUsersNoSearchParam() throws Exception { // 200
+        List<User> users = new ArrayList<User>();
+        users.add(createValidUser());
+
+        Mockito.when(userService.getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
+                .thenReturn(users);
+
+        mockMvc.perform(get("/api/users").param("search", "").param("page", "1").param("size", "2"))
+                .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].email").value("test@email.com"))
+                .andExpect(jsonPath("$[0].username").value("userTest"))
+                .andExpect(jsonPath("$[0].firstName").value("test")).andExpect(jsonPath("$[0].lastName").value("user"))
+                .andExpect(jsonPath("$[0].roles[0].roleId").value(1234))
+                .andExpect(jsonPath("$[0].roles[0].roleName").value("ROLE_TESTING"))
+                .andExpect(jsonPath("$[0].roles[0].description").value("role description"))
+                .andExpect(jsonPath("$[0].legalEntityApps[0].legalEntityAppId").value(4321))
+                .andExpect(jsonPath("$[0].legalEntityApps[0].legalEntityAppName").value("legalEntity1"));
+        Mockito.verify(userService, Mockito.times(1)).getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUsersNoParams() throws Exception { // 400
+
+        mockMvc.perform(get("/api/users")).andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUsersNoParamsButPage() throws Exception { // 400
+        mockMvc.perform(get("/api/users").param("page", "1")).andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUsersNoParamsButSize() throws Exception { // 400
+
+        mockMvc.perform(get("/api/users").param("size", "2")).andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getUsersNoParamsButNull() throws Exception { // 400
+
+        mockMvc.perform(get("/api/users").param("page", "null").param("size", "null"))
+                .andExpect(status().isBadRequest());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void getTransactiosUnauthorized() throws Exception { // 401
+
+        Mockito.when(userService.getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
+                .thenThrow(new CustomUnauthorizedException(""));
+
+        mockMvc.perform(get("/api/users").param("search", "").param("page", "1").param("size", "2"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getUsersInternalServerError() throws Exception { // 500
+
+        Mockito.when(userService.getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString()))
+                .thenThrow(new CustomException(""));
+
+        mockMvc.perform(get("/api/users").param("search", "").param("page", "1").param("size", "2"))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).getUsers(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
+                Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -194,8 +330,8 @@ public class UserRestControllerTest {
         UserResource returnedUser = createValidUserResource();
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
-        mockMvc.perform(post("/api/rest/bluefin/users").contentType(MediaType.APPLICATION_JSON)
-                .content(convertObjectToJsonBytes(newUser)))
+        mockMvc.perform(
+                post("/api/users").contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(newUser)))
 
                 .andExpect(status().isCreated()).andExpect(jsonPath("username").value("userTest"))
                 .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
@@ -211,15 +347,15 @@ public class UserRestControllerTest {
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
         String validationErros = mockMvc
-                .perform(post("/api/rest/bluefin/users").contentType(MediaType.APPLICATION_JSON)
+                .perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
                         .content(convertObjectToJsonBytes(newUser)))
                 .andExpect(status().isBadRequest()).andReturn().getResolvedException().getMessage();
 
         assertThat(validationErros, containsString("email must not be empty"));
         assertThat(validationErros, containsString("firstName must not be empty"));
         assertThat(validationErros, containsString("lastName must not be empty"));
-        assertThat(validationErros, containsString("rolesIdsList must not be null"));
-        assertThat(validationErros, containsString("legalEntityAppsIdsList must not be null"));
+        assertThat(validationErros, containsString("roles must not be null"));
+        assertThat(validationErros, containsString("legalEntityApps must not be null"));
         Mockito.verify(userService, Mockito.times(0)).registerNewUserAccount(newUser);
     }
 
@@ -232,12 +368,12 @@ public class UserRestControllerTest {
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
         String validationErros = mockMvc
-                .perform(post("/api/rest/bluefin/users").contentType(MediaType.APPLICATION_JSON)
+                .perform(post("/api/users").contentType(MediaType.APPLICATION_JSON)
                         .content(convertObjectToJsonBytes(newUser)))
                 .andExpect(status().isBadRequest()).andReturn().getResolvedException().getMessage();
 
         assertThat(validationErros, containsString("rolesIdsList must not be empty"));
-        assertThat(validationErros, containsString("legalEntityAppsIdsList must not be empty"));
+        assertThat(validationErros, containsString("legalEntityApps must not be empty"));
         Mockito.verify(userService, Mockito.times(0)).registerNewUserAccount(newUser);
     }
 
@@ -247,8 +383,9 @@ public class UserRestControllerTest {
         Mockito.when(userService.registerNewUserAccount(any(RegisterUserResource.class)))
                 .thenThrow(new CustomUnauthorizedException(""));
 
-        mockMvc.perform(post("/api/rest/bluefin/users").contentType(MediaType.APPLICATION_JSON)
-                .content(convertObjectToJsonBytes(newUser))).andExpect(status().isUnauthorized());
+        mockMvc.perform(
+                post("/api/users").contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(newUser)))
+                .andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1)).registerNewUserAccount(any(RegisterUserResource.class));
         Mockito.verifyNoMoreInteractions(userService);
@@ -260,8 +397,9 @@ public class UserRestControllerTest {
         Mockito.when(userService.registerNewUserAccount(any(RegisterUserResource.class)))
                 .thenThrow(new CustomException(""));
 
-        mockMvc.perform(post("/api/rest/bluefin/users").contentType(MediaType.APPLICATION_JSON)
-                .content(convertObjectToJsonBytes(newUser))).andExpect(status().isInternalServerError());
+        mockMvc.perform(
+                post("/api/users").contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(newUser)))
+                .andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).registerNewUserAccount(any(RegisterUserResource.class));
         Mockito.verifyNoMoreInteractions(userService);
@@ -278,7 +416,7 @@ public class UserRestControllerTest {
                 .thenReturn(true);
         Mockito.when(userService.updateUserProfile("test", user)).thenReturn(updatedUser);
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test").header("X-Auth-Token", "tokenTest")
+        mockMvc.perform(put("/api/users/test").header("X-Auth-Token", "tokenTest")
                 .contentType(MediaType.APPLICATION_JSON).principal(auth).content(convertObjectToJsonBytes(user)))
 
                 .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
@@ -297,7 +435,7 @@ public class UserRestControllerTest {
                 userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
                 .thenReturn(false);
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(user))).andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1))
@@ -310,7 +448,7 @@ public class UserRestControllerTest {
         UpdateUserResource user = createInvalidUpdateResource();
 
         String validationErros = mockMvc
-                .perform(put("/api/rest/bluefin/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
+                .perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
                         .content(convertObjectToJsonBytes(user)))
                 .andExpect(status().isBadRequest()).andReturn().getResolvedException().getMessage();
 
@@ -329,7 +467,7 @@ public class UserRestControllerTest {
                 .thenReturn(true);
         Mockito.when(userService.updateUserProfile("test", user)).thenThrow(new CustomException(""));
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(user))).andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1))
@@ -346,7 +484,7 @@ public class UserRestControllerTest {
         UserResource updatedUser = createValidUserResource();
         Mockito.when(userService.updateUserRoles("test", roles)).thenReturn(updatedUser);
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").header("X-Auth-Token", "tokenTest")
+        mockMvc.perform(put("/api/users/test/roles").header("X-Auth-Token", "tokenTest")
                 .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
 
                 .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
@@ -361,7 +499,7 @@ public class UserRestControllerTest {
         List<Integer> roles = createValidRoleIdsList();
 
         Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new CustomUnauthorizedException(""));
-        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(roles))).andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
@@ -373,7 +511,7 @@ public class UserRestControllerTest {
         List<String> invalidRoleIdsList = new ArrayList<String>();
         invalidRoleIdsList.add("ROLE_TEST");
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(invalidRoleIdsList))).andExpect(status().isBadRequest());
 
         Mockito.verifyNoMoreInteractions(userService);
@@ -384,7 +522,7 @@ public class UserRestControllerTest {
         List<Integer> roles = createValidRoleIdsList();
         Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new CustomException(""));
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(roles))).andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
@@ -399,7 +537,7 @@ public class UserRestControllerTest {
         UserResource updatedUser = createValidUserResource();
         Mockito.when(userService.updateUserLegalEntities("test", legalEntities)).thenReturn(updatedUser);
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").header("X-Auth-Token", "tokenTest")
+        mockMvc.perform(put("/api/users/test/legal-entities").header("X-Auth-Token", "tokenTest")
                 .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(legalEntities)))
 
                 .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
@@ -415,7 +553,7 @@ public class UserRestControllerTest {
 
         Mockito.when(userService.updateUserLegalEntities("test", legalEntities))
                 .thenThrow(new CustomUnauthorizedException(""));
-        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(legalEntities))).andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
@@ -427,7 +565,7 @@ public class UserRestControllerTest {
         List<String> invalidLegalEntityIdsList = new ArrayList<String>();
         invalidLegalEntityIdsList.add("LEGAL_ENTITY_APP_1");
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(invalidLegalEntityIdsList))).andExpect(status().isBadRequest());
 
         Mockito.verifyNoMoreInteractions(userService);
@@ -438,7 +576,7 @@ public class UserRestControllerTest {
         List<Integer> legalEntities = createValidLegalEntityIdsList();
         Mockito.when(userService.updateUserLegalEntities("test", legalEntities)).thenThrow(new CustomException(""));
 
-        mockMvc.perform(put("/api/rest/bluefin/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(legalEntities))).andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
@@ -449,6 +587,60 @@ public class UserRestControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsBytes(object);
+    }
+
+    private User createValidUser() {
+        User user = new User();
+        user.setEmail("test@email.com");
+        user.setFirstName("test");
+        user.setLastName("user");
+        user.setUsername("userTest");
+
+        List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+        userLegalEntities.add(createValidUserLegalEntity());
+        user.setUserLegalEntities(userLegalEntities);
+
+        List<UserRole> userRoles = new ArrayList<UserRole>();
+        userRoles.add(createValidUserRole());
+        user.setUserRoles(userRoles);
+        return user;
+    }
+
+    private UserLegalEntity createValidUserLegalEntity() {
+        UserLegalEntity userLegalEntity = new UserLegalEntity();
+        userLegalEntity.setUserLegalEntityAppId(0);
+        userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
+        return userLegalEntity;
+    }
+
+    private UserRole createValidUserRole() {
+        UserRole userRole = new UserRole();
+        userRole.setUserRoleId(0);
+        userRole.setRole(createValidRole());
+        return userRole;
+    }
+
+    private LegalEntityApp createValidLegalEntityApp() {
+        LegalEntityApp validLegalEntity = new LegalEntityApp();
+        UserLegalEntity validUserLegalEntity = new UserLegalEntity();
+        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        validUserLegalEntityList.add(validUserLegalEntity);
+        validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
+        validLegalEntity.setLegalEntityAppName("legalEntity1");
+        validLegalEntity.setLegalEntityAppId(4321);
+        return validLegalEntity;
+    }
+
+    private Role createValidRole() {
+        Role validRole = new Role();
+        UserRole validUserRole = new UserRole();
+        List<UserRole> validUserRoleList = new ArrayList<UserRole>();
+        validUserRoleList.add(validUserRole);
+        validRole.setUserRoles(validUserRoleList);
+        validRole.setRoleName("ROLE_TESTING");
+        validRole.setDescription("role description");
+        validRole.setRoleId(1234);
+        return validRole;
     }
 
     private RegisterUserResource createInvalidRegisterResource() {

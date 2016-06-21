@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
@@ -26,6 +28,7 @@ import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
+import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -70,14 +73,14 @@ public class UserRestController {
     @ApiOperation(value = "getUsers", nickname = "getUsers")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = UserResource.class, responseContainer = "List"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = User.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<UserResource> getUsers() {
-        LOGGER.info("Getting all users");
-        return userService.getUsers();
+    public Iterable<User> getUsers(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
+            @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort) {
+        LOGGER.info("Generating report with the following filters: {}", search);
+        return userService.getUsers(QueryDSLUtil.createExpression(search, User.class), page, size, sort);
     }
 
     @ApiOperation(value = "createUser", nickname = "createUser")

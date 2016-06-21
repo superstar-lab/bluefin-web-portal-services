@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.service.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -43,7 +44,7 @@ public class QueryDSLUtilTest {
     @Test
     public void createExpressionSuccessAll() {
         String query = "accountNumber:67326509,amount>4592.3599999999996725819073617458343505859375,amount<5000,createdDate>2016-06-07 12:05:56";
-        query+=",createdDate<2016-06-09 21:15:45,processorName:JETPAY,legalEntity:MCMR2K,transactionStatusCode:APPROVED,transactionType:SALE,customer:Natalia Quiros,cardType:DEBIT";
+        query += ",createdDate<2016-06-09 21:15:45,processorName:JETPAY,legalEntity:MCMR2K,transactionStatusCode:APPROVED,transactionType:SALE,customer:Natalia Quiros,cardType:DEBIT";
         final String accountNumber = "accountNumber";
         final String amount = "amount";
         final BigDecimal amountValue = new BigDecimal(5000);
@@ -56,7 +57,6 @@ public class QueryDSLUtilTest {
         final Integer transactionStatusCodeValue = new Integer(1);
         final String transactionType = "transactionType";
         final String cardType = "cardType";
-        
 
         TransactionView tv = getTransactionView();
         // Creates the boolean expression to be compared with the one returned
@@ -76,7 +76,7 @@ public class QueryDSLUtilTest {
                 .and(entityPath.getString(cardType).containsIgnoreCase(tv.getCardType()))// cardType:test
         ;
 
-        BooleanExpression be = QueryDSLUtil.createExpression(query);
+        BooleanExpression be = QueryDSLUtil.createExpression(query, TransactionView.class);
 
         assertEquals(expected.toString(), be.toString());
 
@@ -84,39 +84,39 @@ public class QueryDSLUtilTest {
 
     @Test(expected = CustomBadRequestException.class)
     public void createExpressionErrorTransactionStatusCodeAsInt() {
-        QueryDSLUtil.createExpression("transactionStatusCode:1");
+        QueryDSLUtil.createExpression("transactionStatusCode:1", TransactionView.class);
     }
 
     @Test
     public void createExpressionErrorWrongOperation() {
-        BooleanExpression expected = QueryDSLUtil.createExpression("accountNumber?67326509");
+        BooleanExpression expected = QueryDSLUtil.createExpression("accountNumber?67326509", TransactionView.class);
         assertNull(expected);
     }
 
     @Test(expected = CustomBadRequestException.class)
     public void createExpressionInvalidDate() {
-        QueryDSLUtil.createExpression("createdDate>2016-06-07 12:05:5");
+        QueryDSLUtil.createExpression("createdDate>2016-06-07 12:05:5", TransactionView.class);
     }
 
     @Test(expected = CustomBadRequestException.class)
     public void createExpressionInvalidAmountType() {
-        QueryDSLUtil.createExpression("amount:500xf");
+        QueryDSLUtil.createExpression("amount:500xf", TransactionView.class);
     }
 
     @Test(expected = CustomBadRequestException.class)
     public void createExpressionNotExistingField() {
-        QueryDSLUtil.createExpression("accountNumber2:67326509");
+        QueryDSLUtil.createExpression("accountNumber2:67326509", TransactionView.class);
     }
 
     @Test
     public void createExpressionErrorEmpty() {
-        BooleanExpression be = QueryDSLUtil.createExpression("");
+        BooleanExpression be = QueryDSLUtil.createExpression("", TransactionView.class);
         Assert.isNull(be);
     }
 
     @Test
     public void createExpressionErrorNull() {
-        BooleanExpression be = QueryDSLUtil.createExpression(null);
+        BooleanExpression be = QueryDSLUtil.createExpression(null, TransactionView.class);
         Assert.isNull(be);
     }
 

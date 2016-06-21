@@ -53,7 +53,8 @@ public class TransactionsRestController {
             @RequestParam(value = "page") Integer page, @RequestParam(value = "size") Integer size,
             @RequestParam(value = "sort", required = false) String sort) {
         LOGGER.info("Generating report with the following filters: {}", search);
-        return transactionService.getTransactions(QueryDSLUtil.createExpression(search), page, size, sort);
+        return transactionService.getTransactions(QueryDSLUtil.createExpression(search, TransactionView.class), page,
+                size, sort);
     }
 
 }

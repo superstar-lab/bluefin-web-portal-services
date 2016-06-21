@@ -122,52 +122,54 @@ public class TransactionsServiceTest {
     public void testGetTransactionsSuccess() {
         List<TransactionView> resultList = new ArrayList<TransactionView>();
         resultList.add(new TransactionView());
-        
-        Page<TransactionView>  result = new PageImpl<TransactionView>(resultList);
-               
+
+        Page<TransactionView> result = new PageImpl<TransactionView>(resultList);
+
         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenReturn(result);
 
-        Iterable<TransactionView> transactions = transactionsService.getTransactions(QueryDSLUtil.createExpression("search"),
-                1, 1, null); 
-        
+        Iterable<TransactionView> transactions = transactionsService
+                .getTransactions(QueryDSLUtil.createExpression("search", TransactionView.class), 1, 1, null);
+
         Assert.notNull(transactions);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class));
+        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+                Mockito.any(Pageable.class));
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
     }
+
     @Test(expected = CustomNotFoundException.class)
-    public void testGetTransactionsNotFound() { 
+    public void testGetTransactionsNotFound() {
 
         List<TransactionView> resultList = new ArrayList<TransactionView>();
-        Page<TransactionView>  result = new PageImpl<TransactionView>(resultList);
-        
+        Page<TransactionView> result = new PageImpl<TransactionView>(resultList);
+
         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenReturn(result);
 
-        transactionsService.getTransactions(QueryDSLUtil.createExpression("search"),
-                2, 1, null); 
-        
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class));
+        transactionsService.getTransactions(QueryDSLUtil.createExpression("search", TransactionView.class), 2, 1, null);
+
+        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+                Mockito.any(Pageable.class));
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
-    } 
-    
+    }
+
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
-    public void testGetTransactionsDBFail() { 
-               
+    public void testGetTransactionsDBFail() {
+
         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        transactionsService.getTransactions(QueryDSLUtil.createExpression("search"),
-                2, 1, null); 
+        transactionsService.getTransactions(QueryDSLUtil.createExpression("search", TransactionView.class), 2, 1, null);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class));
+        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+                Mockito.any(Pageable.class));
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
     }
-     
+
 }

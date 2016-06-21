@@ -52,7 +52,7 @@ public class RoleRestControllerTest {
 
         Mockito.when(roleService.getRoles()).thenReturn(roleList);
 
-        mockMvc.perform(get("/api/rest/bluefin/roles")).andExpect(status().isOk())
+        mockMvc.perform(get("/api/roles")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].roleId").value(1)).andExpect(jsonPath("$[0].roleName").value("ROLE_TESTING"))
                 .andExpect(jsonPath("$[0].description").value("test description"));
@@ -65,7 +65,7 @@ public class RoleRestControllerTest {
     public void getRolesNotFound() throws Exception { // 404
         Mockito.when(roleService.getRoles()).thenThrow(new CustomNotFoundException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/roles")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/roles")).andExpect(status().isNotFound());
 
         Mockito.verify(roleService, Mockito.times(1)).getRoles();
         Mockito.verifyNoMoreInteractions(roleService);
@@ -75,7 +75,7 @@ public class RoleRestControllerTest {
     public void getRolesBadRequest() throws Exception { // 400
         Mockito.when(roleService.getRoles()).thenThrow(new CustomBadRequestException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/roles")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/roles")).andExpect(status().isBadRequest());
 
         Mockito.verify(roleService, Mockito.times(1)).getRoles();
         Mockito.verifyNoMoreInteractions(roleService);
@@ -85,7 +85,7 @@ public class RoleRestControllerTest {
     public void getRolesUnauthorized() throws Exception { // 401
         Mockito.when(roleService.getRoles()).thenThrow(new CustomUnauthorizedException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/roles")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/roles")).andExpect(status().isUnauthorized());
 
         Mockito.verify(roleService, Mockito.times(1)).getRoles();
         Mockito.verifyNoMoreInteractions(roleService);
@@ -95,7 +95,7 @@ public class RoleRestControllerTest {
     public void getRolesInternalServerError() throws Exception { // 500
         Mockito.when(roleService.getRoles()).thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/roles")).andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/roles")).andExpect(status().isInternalServerError());
 
         Mockito.verify(roleService, Mockito.times(1)).getRoles();
         Mockito.verifyNoMoreInteractions(roleService);

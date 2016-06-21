@@ -1,9 +1,9 @@
 package com.mcmcg.ico.bluefin.persistent;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +16,8 @@ import javax.persistence.Table;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 
 import lombok.Data;
@@ -27,6 +29,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserID")
+    @JsonIgnore
     private long userId;
     @Column(name = "FirstName")
     private String firstName;
@@ -37,29 +40,36 @@ public class User {
     @Column(name = "Email")
     private String email;
     @Column(name = "IsActive")
+    @JsonIgnore
     private Short isActive;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "LastLogin")
+    @JsonIgnore
     private Date lastLogin;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated")
+    @JsonIgnore
     private Date createdDate;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateUpdated")
+    @JsonIgnore
     private Date dateUpdated;
-    
+
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Collection<UserLoginHistory> userLoginHistory;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Collection<UserRole> userRoles;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Collection<UserLegalEntity> userLegalEntities;
 
     public UserResource toUserResource() {
@@ -67,25 +77,20 @@ public class User {
         userResource.setUsername(username);
         userResource.setFirstName(firstName);
         userResource.setLastName(lastName);
-        userResource.setLegalEntityApps(getLegalEntityApps(userLegalEntities));
-        userResource.setRoles(getRoleNames(userRoles));
+        userResource.setLegalEntityApps(getLegalEntityApps());
+        userResource.setRoles(getRoleNames());
         userResource.setEmail(email);
         return userResource;
     }
 
-    private List<Role> getRoleNames(Collection<UserRole> roleList) {
-        List<Role> roleNames = new ArrayList<Role>();
-        for (UserRole role : roleList) {
-            roleNames.add(role.getRole());
-        }
-        return roleNames;
+    @JsonProperty("roles")
+    public List<Role> getRoleNames() {
+        return userRoles.stream().map(role -> role.getRole()).collect(Collectors.toList());
     }
 
-    private List<LegalEntityApp> getLegalEntityApps(Collection<UserLegalEntity> userLegalEntityAppList) {
-        List<LegalEntityApp> legalEntityApps = new ArrayList<LegalEntityApp>();
-        for (UserLegalEntity userLegalEntityApp : userLegalEntityAppList) {
-            legalEntityApps.add(userLegalEntityApp.getLegalEntityApp());
-        }
-        return legalEntityApps;
+    @JsonProperty("legalEntityApps")
+    public List<LegalEntityApp> getLegalEntityApps() {
+        return userLegalEntities.stream().map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityApp())
+                .collect(Collectors.toList());
     }
 }

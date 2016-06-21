@@ -6,28 +6,28 @@ import java.util.List;
 import com.mcmcg.ico.bluefin.rest.resource.SearchCriteria;
 import com.mysema.query.types.expr.BooleanExpression;
 
-public class TransactionPredicatesBuilder {
+public class PredicatesBuilder {
     private List<SearchCriteria> params;
 
-    public TransactionPredicatesBuilder() {
+    public PredicatesBuilder() {
         params = new ArrayList<SearchCriteria>();
     }
 
-    public TransactionPredicatesBuilder with(String key, String operation, Object value) {
+    public PredicatesBuilder with(String key, String operation, Object value) {
         params.add(new SearchCriteria(key, operation, value));
         return this;
     }
 
-    public BooleanExpression build() {
+    public BooleanExpression build(Class<?> entity) {
         if (params.size() == 0) {
             return null;
         }
 
         List<BooleanExpression> predicates = new ArrayList<BooleanExpression>();
-        TransactionPredicate predicate;
+        Predicate predicate;
         for (SearchCriteria param : params) {
-            predicate = new TransactionPredicate(param);
-            BooleanExpression exp = predicate.getPredicate();
+            predicate = new Predicate(param);
+            BooleanExpression exp = predicate.getPredicate(entity);
             if (exp != null) {
                 predicates.add(exp);
             }

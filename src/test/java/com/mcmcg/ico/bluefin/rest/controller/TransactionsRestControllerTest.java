@@ -68,7 +68,7 @@ public class TransactionsRestControllerTest {
 
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenReturn(result);
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isOk())
+        mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.accountNumber").value("67326509"))
                 .andExpect(jsonPath("$.amount").value(new BigDecimal(4592.36)))
@@ -90,7 +90,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomNotFoundException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isNotFound());
 
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
@@ -101,7 +101,7 @@ public class TransactionsRestControllerTest {
     public void getTransactionByIdBadRequest() throws Exception { // 400
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomBadRequestException(""));
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isBadRequest());
 
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
@@ -111,7 +111,7 @@ public class TransactionsRestControllerTest {
     @Test
     public void getTransactionByIdBadRequestNoParam() throws Exception { // 400
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/transactions")).andExpect(status().isBadRequest());
 
     }
 
@@ -121,7 +121,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomUnauthorizedException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isUnauthorized());
 
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
@@ -134,7 +134,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
                 .thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions/{id}", 1234)).andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isInternalServerError());
 
         Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
 
@@ -150,7 +150,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenReturn(transactions);
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("search", "accountNumber:67326509,amount > 4592")
+        mockMvc.perform(get("/api/transactions").param("search", "accountNumber:67326509,amount > 4592")
                 .param("page", "1").param("size", "2")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].accountNumber").value("67326509"))
@@ -177,7 +177,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenReturn(transactions);
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions")
+        mockMvc.perform(get("/api/transactions")
                 .param("search",
                         "accountNumber:67326509,amount > 4592,customer:Natalia Quiros,legalEntity:MCM-R2K,processorName:JETPAY,transactionId:532673163,transactionStatusCode:APPROVED,transactionType:Sale")
                 .param("page", "1").param("size", "2")).andExpect(status().isOk())
@@ -206,7 +206,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenReturn(transactions);
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("search", "").param("page", "1").param("size", "2"))
+        mockMvc.perform(get("/api/transactions").param("search", "").param("page", "1").param("size", "2"))
                 .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].accountNumber").value("67326509"))
                 .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
@@ -227,14 +227,14 @@ public class TransactionsRestControllerTest {
     @Test
     public void getTransactionsNoParams() throws Exception { // 400
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/transactions")).andExpect(status().isBadRequest());
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
 
     @Test
     public void getTransactionsNoParamsButPage() throws Exception { // 400
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("page", "1")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/transactions").param("page", "1")).andExpect(status().isBadRequest());
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
@@ -242,7 +242,7 @@ public class TransactionsRestControllerTest {
     @Test
     public void getTransactionsNoParamsButSize() throws Exception { // 400
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("size", "2")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/transactions").param("size", "2")).andExpect(status().isBadRequest());
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
@@ -250,7 +250,7 @@ public class TransactionsRestControllerTest {
     @Test
     public void getTransactionsNoParamsButNull() throws Exception { // 400
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("page", "null").param("size", "null"))
+        mockMvc.perform(get("/api/transactions").param("page", "null").param("size", "null"))
                 .andExpect(status().isBadRequest());
 
         Mockito.verifyNoMoreInteractions(transactionService);
@@ -262,7 +262,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenThrow(new CustomUnauthorizedException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("search", "").param("page", "1").param("size", "2"))
+        mockMvc.perform(get("/api/transactions").param("search", "").param("page", "1").param("size", "2"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -272,7 +272,7 @@ public class TransactionsRestControllerTest {
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/rest/bluefin/transactions").param("search", "").param("page", "1").param("size", "2"))
+        mockMvc.perform(get("/api/transactions").param("search", "").param("page", "1").param("size", "2"))
                 .andExpect(status().isInternalServerError());
 
         Mockito.verify(transactionService, Mockito.times(1)).getTransactions(Mockito.anyObject(), Mockito.anyInt(),
