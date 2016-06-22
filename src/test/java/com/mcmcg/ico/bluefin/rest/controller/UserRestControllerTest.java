@@ -226,7 +226,7 @@ public class UserRestControllerTest {
 
         mockMvc.perform(get("/api/users")
                 .param("search",
-                        "email:test@email.com,username:userTest,firstName:test,lastName:user,userRoles:[1234],userLegalEntities:[4321]")
+                        "email:test@email.com,username:userTest,firstName:test,lastName:user,roles:[1234],legalEntities:[4321]")
                 .param("page", "0").param("size", "2")).andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].email").value("test@email.com"))
                 .andExpect(jsonPath("$[0].username").value("userTest"))
@@ -598,11 +598,11 @@ public class UserRestControllerTest {
 
         List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
         userLegalEntities.add(createValidUserLegalEntity());
-        user.setUserLegalEntities(userLegalEntities);
+        user.setLegalEntities(userLegalEntities);
 
         List<UserRole> userRoles = new ArrayList<UserRole>();
         userRoles.add(createValidUserRole());
-        user.setUserRoles(userRoles);
+        user.setRoles(userRoles);
         return user;
     }
 

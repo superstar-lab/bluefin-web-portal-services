@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -20,7 +21,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "Role_Permission")
-public class RolePermission {
+public class RolePermission implements Serializable {
+    private static final long serialVersionUID = -3382648236142523952L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "RolePermissionID")

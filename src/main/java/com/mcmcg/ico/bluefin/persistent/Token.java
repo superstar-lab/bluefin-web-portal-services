@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -18,7 +19,8 @@ import lombok.Data;
 @Data
 @Table(name = "User_Login_Token")
 @Entity
-public class Token {
+public class Token implements Serializable {
+    private static final long serialVersionUID = 1181127309149973824L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

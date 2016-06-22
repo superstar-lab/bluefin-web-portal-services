@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -25,7 +26,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "User_Lookup")
-public class User {
+public class User implements Serializable {
+    private static final long serialVersionUID = 301195813236863721L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserID")
@@ -66,11 +69,11 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private Collection<UserRole> userRoles;
+    private Collection<UserRole> roles;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private Collection<UserLegalEntity> userLegalEntities;
+    private Collection<UserLegalEntity> legalEntities;
 
     public UserResource toUserResource() {
         UserResource userResource = new UserResource();
@@ -85,12 +88,12 @@ public class User {
 
     @JsonProperty("roles")
     public List<Role> getRoleNames() {
-        return userRoles.stream().map(role -> role.getRole()).collect(Collectors.toList());
+        return roles.stream().map(role -> role.getRole()).collect(Collectors.toList());
     }
 
     @JsonProperty("legalEntityApps")
     public List<LegalEntityApp> getLegalEntityApps() {
-        return userLegalEntities.stream().map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityApp())
+        return legalEntities.stream().map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityApp())
                 .collect(Collectors.toList());
     }
 }

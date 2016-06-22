@@ -20,7 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.mcmcg.ico.bluefin.persistent.TransactionView;
+import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -43,15 +43,16 @@ public class TransactionsRestControllerTest {
         mockMvc = standaloneSetup(transactionsRestControllerMock).addFilters().build();
     }
 
-    private TransactionView getTransactionView() {
+    private SaleTransaction getSaleTransaction() {
 
         Date date = new Date(1465322756555L);
-        TransactionView result = new TransactionView();
+        SaleTransaction result = new SaleTransaction();
         result.setAccountNumber("67326509");
         result.setAmount(new BigDecimal(4592.36));
         result.setCardNumberLast4Char("5162");
         result.setCreatedDate(date);
-        result.setCustomer("Natalia Quiros");
+        result.setFirstName("Natalia");
+        result.setLastName("Quiros");
         result.setLegalEntity("MCM-R2K");
         result.setProcessorName("JETPAY");
         result.setTransactionId("532673163");
@@ -64,7 +65,7 @@ public class TransactionsRestControllerTest {
     @Test
     public void getTransactionByIdOk() throws Exception { // 200
 
-        TransactionView result = getTransactionView();
+        SaleTransaction result = getSaleTransaction();
 
         Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenReturn(result);
 
@@ -74,7 +75,7 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$.amount").value(new BigDecimal(4592.36)))
                 .andExpect(jsonPath("$.cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
                 .andExpect(jsonPath("$.createdDate").value("2016-06-07T18:05:56.555Z"))
-                .andExpect(jsonPath("$.customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$.firstName").value("Natalia")).andExpect(jsonPath("$.lastName").value("Quiros"))
                 .andExpect(jsonPath("$.legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$.processorName").value("JETPAY"))
                 .andExpect(jsonPath("$.transactionId").value("532673163"))
@@ -144,8 +145,8 @@ public class TransactionsRestControllerTest {
     /****** Starts GetTransactions ******/
     @Test
     public void getTransactionsOK() throws Exception { // 200
-        List<TransactionView> transactions = new ArrayList<TransactionView>();
-        transactions.add(getTransactionView());
+        List<SaleTransaction> transactions = new ArrayList<SaleTransaction>();
+        transactions.add(getSaleTransaction());
 
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenReturn(transactions);
@@ -157,7 +158,8 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
                 .andExpect(jsonPath("$[0].cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
                 .andExpect(jsonPath("$[0].createdDate").value("2016-06-07T18:05:56.555Z"))
-                .andExpect(jsonPath("$[0].customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$[0].firstName").value("Natalia"))
+                .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
                 .andExpect(jsonPath("$[0].transactionId").value("532673163"))
@@ -171,22 +173,23 @@ public class TransactionsRestControllerTest {
 
     @Test
     public void getTransactionsOKAllParams() throws Exception { // 200
-        List<TransactionView> transactions = new ArrayList<TransactionView>();
-        transactions.add(getTransactionView());
+        List<SaleTransaction> transactions = new ArrayList<SaleTransaction>();
+        transactions.add(getSaleTransaction());
 
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenReturn(transactions);
 
         mockMvc.perform(get("/api/transactions")
                 .param("search",
-                        "accountNumber:67326509,amount > 4592,customer:Natalia Quiros,legalEntity:MCM-R2K,processorName:JETPAY,transactionId:532673163,transactionStatusCode:APPROVED,transactionType:Sale")
+                        "accountNumber:67326509,amount>4592,firstName:Natalia,lastName:Quiros,legalEntity:MCM-R2K,processorName:JETPAY,transactionId:532673163,transactionStatusCode:APPROVED,transactionType:Sale")
                 .param("page", "1").param("size", "2")).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].accountNumber").value("67326509"))
                 .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
                 .andExpect(jsonPath("$[0].cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
                 .andExpect(jsonPath("$[0].createdDate").value("2016-06-07T18:05:56.555Z"))
-                .andExpect(jsonPath("$[0].customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$[0].firstName").value("Natalia"))
+                .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
                 .andExpect(jsonPath("$[0].transactionId").value("532673163"))
@@ -200,8 +203,8 @@ public class TransactionsRestControllerTest {
 
     @Test
     public void getTransactionsNoSearchParam() throws Exception { // 200
-        List<TransactionView> transactions = new ArrayList<TransactionView>();
-        transactions.add(getTransactionView());
+        List<SaleTransaction> transactions = new ArrayList<SaleTransaction>();
+        transactions.add(getSaleTransaction());
 
         Mockito.when(transactionService.getTransactions(Mockito.anyObject(), Mockito.anyInt(), Mockito.anyInt(),
                 Mockito.anyString())).thenReturn(transactions);
@@ -212,7 +215,8 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$[0].amount").value(new BigDecimal(4592.36)))
                 .andExpect(jsonPath("$[0].cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
                 .andExpect(jsonPath("$[0].createdDate").value("2016-06-07T18:05:56.555Z"))
-                .andExpect(jsonPath("$[0].customer").value("Natalia Quiros"))
+                .andExpect(jsonPath("$[0].firstName").value("Natalia"))
+                .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
                 .andExpect(jsonPath("$[0].transactionId").value("532673163"))

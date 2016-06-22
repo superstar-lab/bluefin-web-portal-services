@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
@@ -21,7 +22,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "Permission_Lookup")
-public class Permission {
+public class Permission implements Serializable {
+    private static final long serialVersionUID = 730005903939744601L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PermissionID")

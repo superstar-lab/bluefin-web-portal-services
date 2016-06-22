@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
@@ -20,7 +21,8 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Lookup")
-public class PaymentProcessor {
+public class PaymentProcessor implements Serializable {
+    private static final long serialVersionUID = 655003466748410661L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

@@ -978,11 +978,11 @@ public class UserServiceTest {
 
         List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
         userLegalEntities.add(createValidUserLegalEntity());
-        user.setUserLegalEntities(userLegalEntities);
+        user.setLegalEntities(userLegalEntities);
 
         List<UserRole> userRoles = new ArrayList<UserRole>();
         userRoles.add(createValidUserRole());
-        user.setUserRoles(userRoles);
+        user.setRoles(userRoles);
         return user;
     }
 

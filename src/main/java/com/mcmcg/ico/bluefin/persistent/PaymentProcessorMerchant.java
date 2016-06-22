@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -20,7 +21,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Merchant")
-public class PaymentProcessorMerchant {
+public class PaymentProcessorMerchant implements Serializable {
+    private static final long serialVersionUID = 3038512746750300442L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PaymentProcessorMerchantID")
@@ -33,8 +36,8 @@ public class PaymentProcessorMerchant {
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
 
-    @Column(name = "RoutingKey")
-    private String routingKey;
+    @Column(name = "MerchantID")
+    private String merchantId;
     @Column(name = "TestOrProd")
     private Short testOrProd;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

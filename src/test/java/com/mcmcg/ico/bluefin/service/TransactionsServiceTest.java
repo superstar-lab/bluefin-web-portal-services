@@ -20,7 +20,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.Assert;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
-import com.mcmcg.ico.bluefin.persistent.TransactionView;
+import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
@@ -47,9 +47,9 @@ public class TransactionsServiceTest {
     @Test
     public void testGetTransactionInformationSuccess() {
 
-        TransactionView result = null;
+        SaleTransaction result = null;
 
-        Mockito.when(transactionRepository.findByTransactionId(Mockito.anyString())).thenReturn(new TransactionView());
+        Mockito.when(transactionRepository.findByTransactionId(Mockito.anyString())).thenReturn(new SaleTransaction());
 
         result = transactionsService.getTransactionInformation(Mockito.anyString());
 
@@ -120,16 +120,16 @@ public class TransactionsServiceTest {
 
     @Test
     public void testGetTransactionsSuccess() {
-        List<TransactionView> resultList = new ArrayList<TransactionView>();
-        resultList.add(new TransactionView());
+        List<SaleTransaction> resultList = new ArrayList<SaleTransaction>();
+        resultList.add(new SaleTransaction());
 
-        Page<TransactionView> result = new PageImpl<TransactionView>(resultList);
+        Page<SaleTransaction> result = new PageImpl<SaleTransaction>(resultList);
 
         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenReturn(result);
 
-        Iterable<TransactionView> transactions = transactionsService
-                .getTransactions(QueryDSLUtil.createExpression("search", TransactionView.class), 1, 1, null);
+        Iterable<SaleTransaction> transactions = transactionsService
+                .getTransactions(QueryDSLUtil.createExpression("search", SaleTransaction.class), 1, 1, null);
 
         Assert.notNull(transactions);
 
@@ -143,13 +143,13 @@ public class TransactionsServiceTest {
     @Test(expected = CustomNotFoundException.class)
     public void testGetTransactionsNotFound() {
 
-        List<TransactionView> resultList = new ArrayList<TransactionView>();
-        Page<TransactionView> result = new PageImpl<TransactionView>(resultList);
+        List<SaleTransaction> resultList = new ArrayList<SaleTransaction>();
+        Page<SaleTransaction> result = new PageImpl<SaleTransaction>(resultList);
 
         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenReturn(result);
 
-        transactionsService.getTransactions(QueryDSLUtil.createExpression("search", TransactionView.class), 2, 1, null);
+        transactionsService.getTransactions(QueryDSLUtil.createExpression("search", SaleTransaction.class), 2, 1, null);
 
         Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
                 Mockito.any(Pageable.class));
@@ -163,7 +163,7 @@ public class TransactionsServiceTest {
         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        transactionsService.getTransactions(QueryDSLUtil.createExpression("search", TransactionView.class), 2, 1, null);
+        transactionsService.getTransactions(QueryDSLUtil.createExpression("search", SaleTransaction.class), 2, 1, null);
 
         Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
                 Mockito.any(Pageable.class));

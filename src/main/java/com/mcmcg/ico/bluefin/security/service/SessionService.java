@@ -102,7 +102,7 @@ public class SessionService {
         response.setUsername(username);
 
         List<Permission> permissionsResult = new ArrayList<Permission>();
-        for (UserRole role : user.getUserRoles()) {
+        for (UserRole role : user.getRoles()) {
             for (RolePermission permission : role.getRole().getRolePermissions()) {
                 permissionsResult.add(permission.getPermission());
             }

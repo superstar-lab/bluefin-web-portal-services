@@ -51,8 +51,8 @@ public class RegisterUserResource {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setUserRoles(roles);
-        user.setUserLegalEntities(entities);
+        user.setRoles(roles);
+        user.setLegalEntities(entities);
         Date currentDate = new Date();
         user.setCreatedDate(currentDate);
         user.setDateUpdated(currentDate);

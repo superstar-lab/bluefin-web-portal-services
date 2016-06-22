@@ -74,12 +74,12 @@ public class UserService {
 
     private boolean belongsToSameLegalEntity(String username, String tokenUsername) {
         User tokenUser = userRepository.findByUsername(tokenUsername);
-        Collection<String> tokenLegalEntities = getLegalEntityApps(tokenUser.getUserLegalEntities());
+        Collection<String> tokenLegalEntities = getLegalEntityApps(tokenUser.getLegalEntities());
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException("User information not found");
         }
-        Collection<String> userLegalEntities = getLegalEntityApps(user.getUserLegalEntities());
+        Collection<String> userLegalEntities = getLegalEntityApps(user.getLegalEntities());
         return !(intersection(tokenLegalEntities, userLegalEntities).isEmpty());
     }
 
@@ -112,12 +112,12 @@ public class UserService {
         List<UserRole> roles = getRolesByIds(userResource.getRoles());
         User newUser = userResource.toUser(roles, userLegalEntities);
         userRepository.save(newUser);
-        newUser.getUserLegalEntities().forEach(userLegalEntity -> {
+        newUser.getLegalEntities().forEach(userLegalEntity -> {
             userLegalEntity.setUser(newUser);
             userLegalEntity.setCreatedDate(new Date());
             userLegalEntityRepository.save(userLegalEntity);
         });
-        newUser.getUserRoles().forEach(userRole -> {
+        newUser.getRoles().forEach(userRole -> {
             userRole.setUser(newUser);
             userRole.setCreatedDate(new Date());
             userRoleRepository.save(userRole);
@@ -166,13 +166,13 @@ public class UserService {
             throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
         }
         List<UserRole> updatedRoles = getRolesByIds(roles);
-        userRoleRepository.deleteInBatch(user.getUserRoles());
+        userRoleRepository.deleteInBatch(user.getRoles());
         updatedRoles.forEach(userRole -> {
             userRole.setUser(user);
             userRole.setCreatedDate(new Date());
             userRoleRepository.save(userRole);
         });
-        user.setUserRoles(updatedRoles);
+        user.setRoles(updatedRoles);
         return user.toUserResource();
     }
 
@@ -213,13 +213,13 @@ public class UserService {
                     "Unable to update legalEntities, this username doesn't exists: " + username);
         }
         List<UserLegalEntity> updatedLegalEntities = getLegalEntitiesByIds(legalEntities);
-        userLegalEntityRepository.deleteInBatch(user.getUserLegalEntities());
+        userLegalEntityRepository.deleteInBatch(user.getLegalEntities());
         updatedLegalEntities.forEach(userLegalEntity -> {
             userLegalEntity.setUser(user);
             userLegalEntity.setCreatedDate(new Date());
             userLegalEntityRepository.save(userLegalEntity);
         });
-        user.setUserLegalEntities(updatedLegalEntities);
+        user.setLegalEntities(updatedLegalEntities);
         return user.toUserResource();
     }
 

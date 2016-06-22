@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -20,7 +21,9 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "User_Login_History")
-public class UserLoginHistory {
+public class UserLoginHistory implements Serializable {
+    private static final long serialVersionUID = -1383201107825800748L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserLoginHistoryID")

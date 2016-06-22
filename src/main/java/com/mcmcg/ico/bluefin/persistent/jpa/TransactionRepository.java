@@ -3,10 +3,10 @@ package com.mcmcg.ico.bluefin.persistent.jpa;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
-import com.mcmcg.ico.bluefin.persistent.TransactionView;
+import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 
 public interface TransactionRepository
-        extends JpaRepository<TransactionView, Long>, QueryDslPredicateExecutor<TransactionView> {
-    public TransactionView findByTransactionId(String transactionId);
+        extends JpaRepository<SaleTransaction, Long>, QueryDslPredicateExecutor<SaleTransaction> {
+    public SaleTransaction findByTransactionId(String transactionId);
 
 }

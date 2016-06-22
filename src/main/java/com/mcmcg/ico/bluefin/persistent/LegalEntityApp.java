@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
@@ -22,7 +23,8 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "LegalEntityApp_Lookup")
-public class LegalEntityApp {
+public class LegalEntityApp implements Serializable {
+    private static final long serialVersionUID = -3826977337542770003L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
