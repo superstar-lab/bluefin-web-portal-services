@@ -65,10 +65,6 @@ public class User implements Serializable {
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private Collection<UserLoginHistory> userLoginHistory;
-
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
     private Collection<UserRole> roles;
 
     @OneToMany(mappedBy = "user")
