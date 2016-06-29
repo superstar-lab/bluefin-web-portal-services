@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -44,7 +45,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler({ AuthenticationException.class, CustomUnauthorizedException.class })
+    @ExceptionHandler({ AuthenticationException.class, AccessDeniedException.class })
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public @ResponseBody ErrorResource handleUnauthorizedException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
