@@ -4,13 +4,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.util.Assert;
+import org.springframework.security.access.AccessDeniedException;
 
+import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.PathBuilder;
@@ -114,13 +119,13 @@ public class QueryDSLUtilTest {
     @Test
     public void createExpressionErrorEmpty() {
         BooleanExpression be = QueryDSLUtil.createExpression("", SaleTransaction.class);
-        Assert.isNull(be);
+        Assert.assertNull(be);
     }
 
     @Test
     public void createExpressionErrorNull() {
         BooleanExpression be = QueryDSLUtil.createExpression(null, SaleTransaction.class);
-        Assert.isNull(be);
+        Assert.assertNull(be);
     }
 
     @Test
@@ -130,9 +135,68 @@ public class QueryDSLUtilTest {
 
         PageRequest pr = QueryDSLUtil.getPageRequest(page, size, sort);
 
-        Assert.notNull(pr);
+        Assert.assertNotNull(pr);
 
         assertEquals(page, pr.getPageNumber());
         assertEquals(size, pr.getPageSize());
+    }
+
+    @Test(expected = CustomBadRequestException.class)
+    public void getValidSearchBasedOnLegalEntitiesEmptyLegalEntity() {
+        QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(), "legalEntity:");
+    }
+
+    @Test
+    public void getValidSearchBasedOnLegalEntitiesEmptyLegalEntity2() {
+        String result = QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(),
+                "legalEntity:[]");
+        Assert.assertEquals(result, "legalEntity:[MCM-R2K,MCM-AWA]");
+    }
+
+    @Test
+    public void getValidSearchBasedOnLegalEntitiesEmptyLegalEntity3() {
+        String result = QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(), "");
+        Assert.assertEquals(result, "legalEntity:[MCM-R2K, MCM-AWA]");
+    }
+
+    @Test
+    public void getValidSearchBasedOnLegalEntitiesEmptyLegalEntity4() {
+        String result = QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(), "amount>2");
+        Assert.assertEquals(result, "amount>2,legalEntity:[MCM-R2K, MCM-AWA]");
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void getValidSearchBasedOnLegalEntitiesUnauthorizedLegalEntity() {
+        QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(), "legalEntity:[MCM-TTT]");
+    }
+
+    @Test(expected = CustomBadRequestException.class)
+    public void getValidSearchBasedOnLegalEntitiesInvalidLegalEntity() {
+        QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(), "legalEntity:[MC");
+    }
+
+    @Test
+    public void getValidSearchBasedOnLegalEntitiesValidLegalEntity() {
+        String result = QueryDSLUtil.getValidSearchBasedOnLegalEntities(createValidLegalEntityAppList(),
+                "legalEntity:[MCM-R2K]");
+        Assert.assertEquals(result, "legalEntity:[MCM-R2K]");
+    }
+
+    private List<LegalEntityApp> createValidLegalEntityAppList() {
+        List<LegalEntityApp> result = new ArrayList<LegalEntityApp>();
+        result.add(createValidLegalEntityApp("MCM-R2K"));
+        result.add(createValidLegalEntityApp("MCM-AWA"));
+        return result;
+    }
+
+    private LegalEntityApp createValidLegalEntityApp(String name) {
+        LegalEntityApp validLegalEntity = new LegalEntityApp();
+        UserLegalEntity validUserLegalEntity = new UserLegalEntity();
+        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        validUserLegalEntityList.add(validUserLegalEntity);
+        validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
+        validLegalEntity.setLegalEntityAppName(name);
+        validLegalEntity.setLegalEntityAppId(4321);
+        return validLegalEntity;
     }
 }

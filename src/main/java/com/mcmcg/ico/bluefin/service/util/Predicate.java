@@ -124,6 +124,23 @@ public class Predicate {
         }
     }
 
+    private List<String> getStringListFromCriteria() {
+        Matcher matcher = Pattern.compile("\\[(.*?)\\]").matcher(criteria.getValue().toString());
+        String criteriaValue = null;
+        while (matcher.find()) {
+            criteriaValue = matcher.group(1);
+        }
+        if (criteriaValue != null) {
+            List<String> result = Arrays.asList(criteriaValue.split(",")).stream().map(String::trim)
+                    .collect(Collectors.toList());
+            return result;
+        } else {
+            LOGGER.error("Unable to parse value of {}, correct format example [XXXXX,YYYYYY,ZZZZZ]", criteria.getKey());
+            throw new CustomBadRequestException(
+                    "Unable to parse value of " + criteria.getKey() + ", correct format example [XXXXX,YYYYYY,ZZZZZ]");
+        }
+    }
+
     private BooleanExpression getDatePredicate(PathBuilder<?> entityPath) {
         Date date = isValidDate(criteria.getValue().toString());
         if (date != null) {
@@ -172,12 +189,16 @@ public class Predicate {
 
     private BooleanExpression getStringPredicate(PathBuilder<?> entityPath) {
         StringPath path = entityPath.getString(criteria.getKey());
+        if (criteria.getValue().toString().matches(QueryDSLUtil.WORD_LIST_REGEX)) {
+            List<String> values = getStringListFromCriteria();
+            return path.in(values);
+        } else {
+            if (criteria.getOperation().equalsIgnoreCase(":")) {
+                return path.containsIgnoreCase(criteria.getValue().toString());
+            }
 
-        if (criteria.getOperation().equalsIgnoreCase(":")) {
-            return path.containsIgnoreCase(criteria.getValue().toString());
+            LOGGER.error("Unable to parse string value of {}", criteria.getKey());
         }
-
-        LOGGER.error("Unable to parse string value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse string value of " + criteria.getKey());
     }
 
