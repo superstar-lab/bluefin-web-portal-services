@@ -53,12 +53,23 @@ public class UserService {
     }
 
     public Iterable<User> getUsers(BooleanExpression exp, Integer page, Integer size, String sort) {
-
         Page<User> result = userRepository.findAll(exp, QueryDSLUtil.getPageRequest(page, size, sort));
         if (page > result.getTotalPages() && page != 0) {
             throw new CustomNotFoundException("Unable to find the page requested");
         }
         return result;
+    }
+
+    /**
+     * Gets the legal entities by user name
+     * 
+     * @param userName
+     * @return list of legal entities owned by the user with the user name given
+     *         by parameter
+     */
+    public List<LegalEntityApp> getLegalEntitiesByUser(String username) {
+        User user = userRepository.findByUsername(username);
+        return user == null ? new ArrayList<LegalEntityApp>() : user.getLegalEntityApps();
     }
 
     public boolean havePermissionToGetOtherUsersInformation(Authentication tokenInformation, String username) {
@@ -103,7 +114,7 @@ public class UserService {
 
     public UserResource registerNewUserAccount(RegisterUserResource userResource) throws Exception {
         String username = userResource.getUsername();
-        if (userNameExist(username)) {
+        if (existUsername(username)) {
             throw new CustomBadRequestException(
                     "Unable to create the account, this username already exists: " + username);
         }
@@ -125,12 +136,8 @@ public class UserService {
         return newUser.toUserResource();
     }
 
-    private boolean userNameExist(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user != null) {
-            return true;
-        }
-        return false;
+    private boolean existUsername(String username) {
+        return userRepository.findByUsername(username) == null ? false : true;
     }
 
     /**

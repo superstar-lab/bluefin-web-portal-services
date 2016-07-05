@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -20,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
@@ -55,7 +57,7 @@ public class UserRestController {
     public UserResource getUserAccount(@PathVariable String username, @ApiIgnore Authentication authentication)
             throws Exception {
         if (authentication == null) {
-            throw new CustomBadRequestException("An authorization token is required to request this resource");
+            throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
         LOGGER.info("Getting user information: {}", username);
@@ -63,7 +65,7 @@ public class UserRestController {
             username = authentication.getName();
         } else {
             if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
-                throw new CustomUnauthorizedException(
+                throw new AccessDeniedException(
                         "User doesn't have permission to get information from other users");
             }
         }
@@ -78,11 +80,18 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<User> getUsers(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
-            @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort) {
+            @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Principal principal) {
+        if (principal == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        String userName = principal.getName();
+        //Verifies if the search parameter has allowed 
+        //legal entities for the consultant user
+        search = getVerifiedSearch(userName, search) ;
         LOGGER.info("Generating report with the following filters: {}", search);
         return userService.getUsers(QueryDSLUtil.createExpression(search, User.class), page, size, sort);
     }
-
+    
     @ApiOperation(value = "createUser", nickname = "createUser")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -98,7 +107,7 @@ public class UserRestController {
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-
+        
         LOGGER.info("Creating new account for user: {}", newUser.getUsername());
         return new ResponseEntity<UserResource>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
     }
@@ -127,7 +136,7 @@ public class UserRestController {
             username = authentication.getName();
         } else {
             if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
-                throw new CustomUnauthorizedException(
+                throw new AccessDeniedException(
                         "User doesn't have permission to get information from other users");
             }
         }
@@ -159,4 +168,19 @@ public class UserRestController {
         LOGGER.info("Updating legalEntities for user: {}", username);
         return userService.updateUserLegalEntities(username, legalEntities);
     }
+    
+    /**
+     * Verifies if the given LE are owned by the consultant user
+     * 
+     * @param userName
+     * @param search
+     * @return String with the verified search
+     */
+    private String getVerifiedSearch(String userName, String search) { 
+        //Searches for the legal entities of a user its user name
+        List<LegalEntityApp> legalEntities = userService.getLegalEntitiesByUser(userName); 
+        //Validates if the user has access to the given legal entities, exception if does not have access 
+        return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search); 
+    }
+    
 }

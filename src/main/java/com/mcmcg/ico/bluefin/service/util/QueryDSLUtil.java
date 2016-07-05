@@ -33,7 +33,8 @@ public class QueryDSLUtil {
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
 
-    private static final String LEGAL_ENTITIES_FILTER = "legalEntity:";
+    private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
+    private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
     public static BooleanExpression createExpression(String search, Class<?> entity) {
         PredicatesBuilder builder = new PredicatesBuilder();
@@ -76,31 +77,78 @@ public class QueryDSLUtil {
         }
         return sortList;
     }
-
-    public static String getValidSearchBasedOnLegalEntities(List<LegalEntityApp> userLE, String search) {
-        List<String> userLENames = userLE.stream().map(current -> current.getLegalEntityAppName())
-                .collect(Collectors.toList());
-
-        if (!search.contains(LEGAL_ENTITIES_FILTER)) {
+    
+    /**
+     * Validates by filter given. Right now the validation can be achieved by id
+     * or name, this method will allow to pass the filter and execute the
+     * validation of the search criteria.
+     * 
+     * @param search
+     * @param userLegalEntities
+     * @param filterKey
+     * @return
+     */
+    private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) { 
+        if (!search.contains(filterKey)) {
             if (!search.isEmpty()) {
                 search = search + ",";
             }
-            search = search + LEGAL_ENTITIES_FILTER + userLENames;
+            search = search + filterKey + userLegalEntities;
         } else {
-            String LEFilterValue = getLEFilterValue(search, userLENames);
-            search = search.replace(LEGAL_ENTITIES_FILTER + LEFilterValue,
-                    LEGAL_ENTITIES_FILTER + generateValidLEFilter(LEFilterValue, userLENames));
+            String LEFilterValue = getLEFilterValue(search, filterKey);
+            search = search.replace(filterKey + LEFilterValue, filterKey + generateValidLEFilter(LEFilterValue, userLegalEntities));
         }
         return search;
     }
 
-    private static String generateValidLEFilter(String filterValue, List<String> userLENames) {
-        List<String> listFilterValue = getLEListFilterValue(filterValue);
+    /**
+     * Checks the validity of the search criteria by checking the current legal
+     * entities owned by the consultant user and the ones provided.
+     * This verification will be executed by using LE id
+     * If the user do not have one LE, an access denied exception will be raised
+     * 
+     * @param userLE
+     * @param search
+     * @return String with the valid search criteria
+     */
+    public static String getValidSearchBasedOnLegalEntitiesById(List<LegalEntityApp> userLE, String search) {
+        List<String> userLEIds = userLE.stream().map(current -> current.getLegalEntityAppId())
+                .collect(Collectors.toList()).stream().map(i -> i.toString()).collect(Collectors.toList());
+
+        return validateByFilter(search, userLEIds, LEGAL_ENTITIES_FILTER);
+    }
+    
+    /**
+     * Checks the validity of the search criteria by checking the current legal
+     * entities owned by the consultant user and the ones provided.
+     * This verification will be executed by using LE names
+     * 
+     * @param userLE
+     * @param search
+     * @return String with the valid search criteria
+     */
+    public static String getValidSearchBasedOnLegalEntities(List<LegalEntityApp> userLE, String search) {
+        List<String> userLENames = userLE.stream().map(current -> current.getLegalEntityAppName())
+                .collect(Collectors.toList());
+
+        return validateByFilter(search, userLENames, LEGAL_ENTITY_FILTER);
+    }
+
+    /**
+     * This method ensures that the users have access to filter by the criteria
+     * given, if not a access denied exception will be raised.
+     * 
+     * @param filterKey
+     * @param userLegalEntities
+     * @return String with the valid filter to consult
+     */
+    private static String generateValidLEFilter(String filterKey, List<String> userLegalEntities) {
+        List<String> listFilterValue = getLEListFilterValue(filterKey);
         if (listFilterValue == null || listFilterValue.isEmpty()) {
-            listFilterValue = userLENames;
+            listFilterValue = userLegalEntities;
         } else {
             for (String currentLE : listFilterValue) {
-                if (!userLENames.contains(currentLE)) {
+                if (!userLegalEntities.contains(currentLE)) {
                     LOGGER.error("User doesn't have access to filter by this legal entity: ,", currentLE);
                     throw new AccessDeniedException(
                             "User doesn't have access to filter by this legal entity: " + currentLE);
@@ -110,13 +158,21 @@ public class QueryDSLUtil {
         return "[" + String.join(",", listFilterValue) + "]";
     }
 
-    private static String getLEFilterValue(String search, List<String> userLegalEntitiesNames) {
-        String result = "";
+    /**
+     * Checks if the search criteria has an array with the LE and returns it.
+     * If it can not parse it a bad request exception will rise
+     * 
+     * @param search
+     * @param filter
+     * @return String with the Legal Entities values
+     */
+    private static String getLEFilterValue(String search, String filter) {
+        String result = StringUtils.EMPTY;
         Boolean validSearch = false;
         Pattern pattern = Pattern.compile(SEARCH_REGEX);
         Matcher matcher = pattern.matcher(search + ",");
         while (matcher.find()) {
-            if (LEGAL_ENTITIES_FILTER.contains(matcher.group(1).toString())) {
+            if (filter.contains(matcher.group(1).toString())) {
                 result = matcher.group(3);
                 validSearch = true;
             }
@@ -126,11 +182,20 @@ public class QueryDSLUtil {
             LOGGER.error("Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
             throw new CustomBadRequestException(
                     "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
-        } else {
-            return result;
         }
+
+        return result;
     }
 
+    /**
+     * Creates a list that with the LE that are given in the search criteria. It
+     * takes the search criteria and pulls out the parameter with the LE and
+     * split it into a list to be analyzed with the own legal entities of the
+     * consultant user
+     * 
+     * @param value
+     * @return return a list of strings
+     */
     private static List<String> getLEListFilterValue(String value) {
         List<String> result = null;
         if (!StringUtils.isBlank(value) && !value.equals("[]")) {

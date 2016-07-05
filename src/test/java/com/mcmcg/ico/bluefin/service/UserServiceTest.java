@@ -17,6 +17,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -37,6 +40,8 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mysema.query.types.expr.BooleanExpression;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
@@ -68,16 +73,16 @@ public class UserServiceTest {
     // Get user info
 
     @Test
-    public void testGetUserInfoOK() throws Exception { // 200
+    public void testGetUserInformationSuccess() throws Exception { // 200
+        User user = createValidUser();
+        Mockito.when(userRepository.findByUsername("userTest")).thenReturn(user);
 
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        UserResource userResource = userService.getUserInfomation("userTest");
 
-        UserResource user = userService.getUserInfomation("mytest");
-
-        Assert.assertEquals("test@email.com", user.getEmail());
-        Assert.assertEquals("test", user.getFirstName());
-        Assert.assertEquals("user", user.getLastName());
-        Assert.assertEquals("userTest", user.getUsername());
+        Assert.assertEquals(user.getEmail(), userResource.getEmail());
+        Assert.assertEquals(user.getFirstName(), userResource.getFirstName());
+        Assert.assertEquals(user.getLastName(), userResource.getLastName());
+        Assert.assertEquals(user.getUsername(), userResource.getUsername());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -86,7 +91,7 @@ public class UserServiceTest {
     @Test(expected = CustomNotFoundException.class)
     public void testGetUserInfoNotFound() throws Exception {// 404
 
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+        Mockito.when(userRepository.findByUsername("omonge")).thenReturn(new User());
 
         userService.getUserInfomation("mytest");
 
@@ -94,6 +99,19 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testFindByUsernameRuntimeException() { // 500
+
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new RuntimeException(""));
+
+        userService.getUserInfomation("mytest");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+
+    }
+    
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void testFindByUsername() { // 500
 
@@ -132,13 +150,127 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
 
     }
+    
+    // Get Legal Entities by user name
+    
+    /**
+     * Test success path for Legal Entities by user name
+     */
+    @Test
+    public void testGetLegalEntitiesByUser() {
+        User user = createValidUser();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
 
+        List<LegalEntityApp> result = userService.getLegalEntitiesByUser("omonge");
+
+        Assert.assertEquals(user.getLegalEntityApps(), result);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test success path for Legal Entities by user name, empty list is return
+     * if user not found
+     */
+    @Test
+    public void testGetLegalEntitiesByUserNotFound() {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        List<LegalEntityApp> result = userService.getLegalEntitiesByUser("omonge");
+
+        Assert.assertTrue(result.isEmpty());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test runtime exception when trying to get information
+     */
+    @Test
+    public void testGetLegalEntitiesByUserRunTimeException() {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException());
+        expectedEx.expect(RuntimeException.class);
+
+        userService.getLegalEntitiesByUser("omonge");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    // Get Users 
+    
+    /**
+     * Test the success case where the user is allowed to get the list of users
+     * according with the LE that are owned, in other words, all LE that are
+     * sent in the search criteria belong to the consultan user
+     */
+    @Test
+    public void testGetUsers() {// 200 
+        Page<User> list = new PageImpl<User>(getValidUsers());
+        User searchUser =  createValidUser(); 
+        Mockito.when(userRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
+        .thenReturn(list);
+        
+        Iterable<User> result = userService.getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 1, 1, null);
+        
+        for (User resultUser : result) {
+            Assert.assertEquals("test@email.com", resultUser.getEmail());
+            Assert.assertEquals("test", resultUser.getFirstName());
+            Assert.assertEquals("user", resultUser.getLastName());
+            Assert.assertEquals("userTest", resultUser.getUsername());
+            Assert.assertEquals(searchUser.getLegalEntityApps(), resultUser.getLegalEntityApps());
+            Assert.assertEquals(searchUser.getRoleNames(), resultUser.getRoleNames());
+             
+        }  
+        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+    
+    /**
+     * Test the case where no information was found with the criteria used in
+     * the search parameter
+     */
+    @Test
+    public void testGetUsersNotFound() {// 404 
+        Page<User> list = new PageImpl<User>(new ArrayList<User>());
+         
+        Mockito.when(userRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
+        .thenReturn(list);
+
+        expectedEx.expect(CustomNotFoundException.class);
+        expectedEx.expectMessage("Unable to find the page requested");
+        
+        userService.getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 2, 1, null);
+         
+        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+ 
+    /**
+     * Test the case where a RuntimeException rises for when get all the list of
+     * users according with the criteria given
+     */
+    @Test 
+    public void testGetUsersRuntimeExceptionFindAll() throws Exception {
+        Mockito.when(userRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
+        .thenThrow(new RuntimeException()); 
+        
+        expectedEx.expect(RuntimeException.class);
+        
+        userService.getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 1, 1, null);
+         
+        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class));
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+    
     // Register user tests
 
     @Test
     public void testRegisterUserOK() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);        
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
         LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
         Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
@@ -151,10 +283,10 @@ public class UserServiceTest {
 
         UserResource result = userService.registerNewUserAccount(newUser);
 
-        Assert.assertEquals("test@email.com", result.getEmail());
-        Assert.assertEquals("test", result.getFirstName());
-        Assert.assertEquals("user", result.getLastName());
-        Assert.assertEquals("userTest", result.getUsername());
+        Assert.assertEquals(newUser.getEmail(), result.getEmail());
+        Assert.assertEquals(newUser.getFirstName(), result.getFirstName());
+        Assert.assertEquals(newUser.getLastName(), result.getLastName());
+        Assert.assertEquals(newUser.getUsername(), result.getUsername());
 
         Role actualRole = result.getRoles().get(0);
         Assert.assertEquals(expectedRole.getRoleId(), actualRole.getRoleId());
@@ -174,6 +306,18 @@ public class UserServiceTest {
         Mockito.verify(userRoleRepository, Mockito.times(5)).save(Mockito.any(UserRole.class));
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testRegisterUserRuntimeExceptionFindUserName() throws Exception {
+        RegisterUserResource newUser = createValidRegisterResource();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+                .thenThrow(new RuntimeException(""));
+
+        userService.registerNewUserAccount(newUser);
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+    
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void testRegisterUserDBFailsFindUserName() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
@@ -1041,6 +1185,16 @@ public class UserServiceTest {
         roles.add(87);
         roles.add(64);
         return roles;
+    }
+    
+    /**
+     * Create a list with valid users
+     * @return List of valid users 
+     */
+    private List<User> getValidUsers() {
+        List<User> resultList = new ArrayList<User>();
+        resultList.add(createValidUser());
+        return resultList;
     }
 
 }
