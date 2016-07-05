@@ -66,7 +66,7 @@ public class SessionServiceTest {
 
     private final static String TOKEN = "eyJpZCI6MTIzNDUsInVzZXJuYW1lIjoib21vbmdlIiwiZXhwaXJlcyI6MTQ2NzAzMzAwMzg2NH0=.ZrRceEEB63+4jDcLIXVUSuuOkV82pqvdXcfFZkzG1DE=";
     private final static String NEW_TOKEN = "nEwTokenpZCI6MTIzNDUsInVzZXJuYW1lIjoib21vbmdlIiwiZXhwaXJlcyI6MTQ2NzAzMzAwMzg2NH0=.ZrRceEEB63+4jDcLIXVUSuuOkV82pqvdXcfFZkzG1DE=";
-    
+
     @Before
     public void initMocks() {
         tokenHandler = PowerMockito.mock(TokenHandler.class);
@@ -81,12 +81,13 @@ public class SessionServiceTest {
      */
     @Test
     public void testAuthenticateSuccess() {
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(new User());
+        User user = createValidUser();
+        Mockito.when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
         Mockito.when(userLoginHistoryRepository.save(Mockito.any(UserLoginHistory.class)))
                 .thenReturn(new UserLoginHistory());
 
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = sessionService.authenticate("omonge",
-                "test");
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = sessionService
+                .authenticate(user.getUsername(), "test");
 
         Assert.assertEquals("omonge", usernamePasswordAuthenticationToken.getName());
         Assert.assertEquals("test", usernamePasswordAuthenticationToken.getCredentials());
@@ -103,9 +104,10 @@ public class SessionServiceTest {
      */
     @Test(expected = CustomForbiddenException.class)
     public void testAuthenticateNotUserFound() {
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+        User user = createValidUser();
+        Mockito.when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
 
-        sessionService.authenticate("omonge", "test");
+        sessionService.authenticate("omonge123", "test");
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(userLoginHistoryRepository, Mockito.times(0)).save(Mockito.any(UserLoginHistory.class));
@@ -118,7 +120,7 @@ public class SessionServiceTest {
      */
     @Test(expected = CustomForbiddenException.class)
     public void testAuthenticateUserNull() {
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+        Mockito.when(userRepository.findByUsername(null)).thenReturn(null);
 
         sessionService.authenticate(null, "test");
 
@@ -128,14 +130,26 @@ public class SessionServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
     }
 
-    /**
-     * Tests the case for when there is a DB error Transaction Exception when
-     * finding a user by username
-     */
-    @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
-    public void testAuthenticateTransactionErrorFindUser() {
+    @Test(expected = RuntimeException.class)
+    public void testAuthenticateRuntimeExceptionFindUser() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
+
+        sessionService.authenticate("omonge", "test");
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verify(userLoginHistoryRepository, Mockito.times(0)).save(Mockito.any(UserLoginHistory.class));
+
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Tests the case for when there is a Runtime Exception when finding a user
+     * by username
+     */
+    @Test(expected = RuntimeException.class)
+    public void testAuthenticateTransactionErrorFindUser() {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
         sessionService.authenticate("omonge", "test");
 
@@ -244,15 +258,15 @@ public class SessionServiceTest {
      */
     @Test
     public void testGenerateTokenNewSuccess() {
-        Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
-                .thenReturn(createValidSecurityUser());
-        Mockito.when(tokenRepository.findByUserIdAndType(Mockito.anyLong(), Mockito.anyString())).thenReturn(null);
-        Mockito.when(tokenHandler.validateToken(Mockito.any(Token.class))).thenReturn(null);
+        SecurityUser securityUser = createValidSecurityUser();
+        Mockito.when(userDetailsServiceImpl.loadUserByUsername(securityUser.getUsername())).thenReturn(securityUser);
+        Mockito.when(tokenRepository.findByUserIdAndType(securityUser.getId(), "authentication")).thenReturn(null);
+        Mockito.when(tokenHandler.validateToken(null)).thenReturn(null);
         Mockito.when(tokenRepository.save(Mockito.any(Token.class))).thenReturn(new Token());
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        Mockito.when(userRepository.findByUsername(securityUser.getUsername())).thenReturn(createValidUser());
         Mockito.when(tokenHandler.createTokenForUser(Mockito.any(SecurityUser.class))).thenReturn(TOKEN);
 
-        AuthenticationResponse response = sessionService.generateToken("omonge");
+        AuthenticationResponse response = sessionService.generateToken(securityUser.getUsername());
 
         Assert.assertEquals(TOKEN, response.getToken());
         Assert.assertEquals("omonge", response.getUsername());
@@ -278,11 +292,10 @@ public class SessionServiceTest {
      */
     @Test
     public void testGenerateTokenStillAliveSuccess() {
-        Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
-                .thenReturn(createValidSecurityUser());
-        Mockito.when(tokenRepository.findByUserIdAndType(Mockito.anyLong(), Mockito.anyString()))
-                .thenReturn(createValidToken());
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+        SecurityUser securityUser = createValidSecurityUser();
+        Mockito.when(userDetailsServiceImpl.loadUserByUsername(securityUser.getUsername())).thenReturn(securityUser);
+        Mockito.when(tokenRepository.findByUserIdAndType(securityUser.getId(), "authentication")).thenReturn(null);
+        Mockito.when(userRepository.findByUsername(securityUser.getUsername())).thenReturn(createValidUser());
         Mockito.when(tokenHandler.validateToken(Mockito.any(Token.class))).thenReturn(NEW_TOKEN);
 
         AuthenticationResponse response = sessionService.generateToken("omonge");
@@ -304,32 +317,7 @@ public class SessionServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(tokenHandler);
     }
-
-    /**
-     * Test a new token verification for a user that have a active token, happy
-     * path
-     */
-    @Test(expected = CustomNotFoundException.class)
-    public void testGenerateTokenNotFound() {
-        Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
-                .thenReturn(createValidSecurityUser());
-        Mockito.when(tokenRepository.findByUserIdAndType(Mockito.anyLong(), Mockito.anyString()))
-                .thenReturn(createValidToken());
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new CustomNotFoundException(""));
-
-        sessionService.generateToken("omonge");
-
-        Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
-        Mockito.verify(tokenRepository, Mockito.times(1)).findByUserIdAndType(Mockito.anyLong(), Mockito.anyString());
-        Mockito.verify(tokenRepository, Mockito.times(0)).save(Mockito.any(Token.class));
-        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
-        Mockito.verify(tokenHandler, Mockito.times(0)).validateToken(Mockito.any(Token.class));
-        Mockito.verify(tokenHandler, Mockito.times(0)).createTokenForUser(Mockito.any(SecurityUser.class));
-
-        Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-        Mockito.verifyNoMoreInteractions(tokenRepository);
-        Mockito.verifyNoMoreInteractions(userRepository);
-    }
+    
     // Testing errors Transaction, Data Access and Data Base exceptions
 
     /**
@@ -774,13 +762,14 @@ public class SessionServiceTest {
     }
 
     /**
-     * Test null pointer exception when accessing user id from null object
+     * Tests the case for when a user name does not exists in the table user a
+     * UsernameNotFoundException will be triggered.
      */
-    @Test(expected = java.lang.NullPointerException.class)
+    @Test(expected = RuntimeException.class)
     public void testGenerateTokenUserNotFound() {
-        Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString())).thenReturn(null);
+        Mockito.when(userDetailsServiceImpl.loadUserByUsername("omonge2")).thenThrow(new RuntimeException(""));
 
-        sessionService.generateToken("omonge");
+        sessionService.generateToken("omonge2");
 
         Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
 
@@ -1134,7 +1123,7 @@ public class SessionServiceTest {
     @Test
     public void generateNewTokenSuccess() {
         SecurityUser securityUser = createValidSecurityUser();
-        Mockito.when(tokenHandler.createTokenForUser(Mockito.any(SecurityUser.class))).thenReturn(TOKEN);
+        Mockito.when(tokenHandler.createTokenForUser(securityUser)).thenReturn(TOKEN);
 
         Token token = sessionService.generateNewToken(securityUser);
 
@@ -1151,7 +1140,7 @@ public class SessionServiceTest {
     @Test
     public void generateNewTokenNull() {
         SecurityUser securityUser = createValidSecurityUser();
-        Mockito.when(tokenHandler.createTokenForUser(Mockito.any(SecurityUser.class))).thenReturn(null);
+        Mockito.when(tokenHandler.createTokenForUser(securityUser)).thenReturn(null);
 
         Token token = sessionService.generateNewToken(securityUser);
 
@@ -1195,6 +1184,17 @@ public class SessionServiceTest {
         }
         Assert.assertTrue(permissionsResult.equals(response.getPermissions()));
 
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+    
+    @Test(expected = java.lang.NullPointerException.class)
+    public void getLoginResponseNoUserFound() throws Exception {
+        User user = createValidUser();
+        Mockito.when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+        
+        sessionService.getLoginResponse("omonge1");
+        
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
     }
@@ -1304,7 +1304,7 @@ public class SessionServiceTest {
     public void refreshTokenSuccess() {
 
         User user = createValidUser();
-        Mockito.when(tokenHandler.parseUserFromToken(Mockito.anyString())).thenReturn(createValidSecurityUser());
+        Mockito.when(tokenHandler.parseUserFromToken(TOKEN)).thenReturn(createValidSecurityUser());
         Mockito.when(tokenHandler.createTokenForUser(Mockito.any(SecurityUser.class))).thenReturn(NEW_TOKEN);
         Mockito.when(tokenRepository.findByToken(Mockito.anyString())).thenReturn(new Token());
         Mockito.when(tokenRepository.save(Mockito.any(Token.class))).thenReturn(new Token());
@@ -1411,6 +1411,27 @@ public class SessionServiceTest {
     /**
      * Test Transaction exception for when finding token repository
      */
+    @Test(expected = RuntimeException.class)
+    public void refreshTokenRuntimeExceptionFindToken() {
+        Mockito.when(tokenHandler.parseUserFromToken(Mockito.anyString())).thenReturn(createValidSecurityUser());
+        Mockito.when(tokenHandler.createTokenForUser(Mockito.any(SecurityUser.class))).thenReturn(NEW_TOKEN);
+        Mockito.when(tokenRepository.findByToken(Mockito.anyString()))
+                .thenThrow(new RuntimeException(""));
+
+        sessionService.refreshToken(TOKEN);
+
+        Mockito.verify(tokenHandler, Mockito.times(1)).parseUserFromToken(Mockito.anyString());
+        Mockito.verify(tokenHandler, Mockito.times(1)).createTokenForUser(Mockito.any(SecurityUser.class));
+        Mockito.verify(tokenRepository, Mockito.times(1)).findByToken(Mockito.anyString());
+        Mockito.verify(tokenRepository, Mockito.times(0)).save(Mockito.any(Token.class));
+        Mockito.verify(userRepository, Mockito.times(0)).findByUsername(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(tokenHandler);
+        Mockito.verifyNoMoreInteractions(tokenRepository);
+    }
+    /**
+     * Test Transaction exception for when finding token repository
+     */
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void refreshTokenTransactionExceptionFindToken() {
         Mockito.when(tokenHandler.parseUserFromToken(Mockito.anyString())).thenReturn(createValidSecurityUser());
@@ -1473,7 +1494,29 @@ public class SessionServiceTest {
         Mockito.verifyNoMoreInteractions(tokenHandler);
         Mockito.verifyNoMoreInteractions(tokenRepository);
     }
+    
+    /**
+     * Test Runtime Exception for saving a Token
+     */
+    @Test(expected = RuntimeException.class)
+    public void refreshTokenRuntimeExceptionSave() {
+        Mockito.when(tokenHandler.parseUserFromToken(Mockito.anyString())).thenReturn(createValidSecurityUser());
+        Mockito.when(tokenHandler.createTokenForUser(Mockito.any(SecurityUser.class))).thenReturn(NEW_TOKEN);
+        Mockito.when(tokenRepository.findByToken(Mockito.anyString())).thenReturn(new Token());
+        Mockito.when(tokenRepository.save(Mockito.any(Token.class)))
+                .thenThrow(new RuntimeException(""));
 
+        sessionService.refreshToken(TOKEN);
+
+        Mockito.verify(tokenHandler, Mockito.times(1)).parseUserFromToken(Mockito.anyString());
+        Mockito.verify(tokenHandler, Mockito.times(1)).createTokenForUser(Mockito.any(SecurityUser.class));
+        Mockito.verify(tokenRepository, Mockito.times(1)).findByToken(Mockito.anyString());
+        Mockito.verify(tokenRepository, Mockito.times(1)).save(Mockito.any(Token.class));
+        Mockito.verify(userRepository, Mockito.times(0)).findByUsername(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(tokenHandler);
+        Mockito.verifyNoMoreInteractions(tokenRepository);
+    }
     /**
      * Test Transaction Exception for saving a Token
      */

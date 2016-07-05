@@ -14,6 +14,7 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcmcg.ico.bluefin.persistent.Token;
 import com.mcmcg.ico.bluefin.persistent.jpa.TokenRepository;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 
 @Component
@@ -75,7 +75,7 @@ public final class TokenHandler {
             }
         } catch (Exception e) {
         }
-        throw new CustomUnauthorizedException("Invalid authorization header. The access token is invalid.");
+        throw new AccessDeniedException("Invalid authorization header. The access token is invalid.");
     }
 
     public String createTokenForUser(SecurityUser user) {
