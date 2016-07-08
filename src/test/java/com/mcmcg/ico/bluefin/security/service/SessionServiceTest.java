@@ -1691,7 +1691,7 @@ public class SessionServiceTest {
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("legalEntity1");
-        validLegalEntity.setLegalEntityAppId(4321);
+        validLegalEntity.setLegalEntityAppId(4321L);
         return validLegalEntity;
     }
 
@@ -1720,7 +1720,7 @@ public class SessionServiceTest {
         validRole.setUserRoles(validUserRoleList);
         validRole.setRoleName("ROLE_TESTING");
         validRole.setDescription("role description");
-        validRole.setRoleId(1234);
+        validRole.setRoleId(1234L);
         validRole.setRolePermissions(createRolePermissions());
         return validRole;
     }

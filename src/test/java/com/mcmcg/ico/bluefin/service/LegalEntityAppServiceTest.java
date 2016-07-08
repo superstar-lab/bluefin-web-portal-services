@@ -247,7 +247,7 @@ public class LegalEntityAppServiceTest {
     private List<LegalEntityApp> findAll() {
         List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
         LegalEntityApp lea = new LegalEntityApp();
-        lea.setLegalEntityAppId(1);
+        lea.setLegalEntityAppId(1L);
         lea.setLegalEntityAppName("MCM-R2K");
         list.add(lea);
         return list;
@@ -292,7 +292,7 @@ public class LegalEntityAppServiceTest {
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("MCM-R2K");
-        validLegalEntity.setLegalEntityAppId(1);
+        validLegalEntity.setLegalEntityAppId(1L);
         return validLegalEntity;
     }
 
@@ -304,7 +304,7 @@ public class LegalEntityAppServiceTest {
         validRole.setUserRoles(validUserRoleList);
         validRole.setRoleName("ROLE_TESTING");
         validRole.setDescription("role description");
-        validRole.setRoleId(1234);
+        validRole.setRoleId(1234L);
         return validRole;
     }
 

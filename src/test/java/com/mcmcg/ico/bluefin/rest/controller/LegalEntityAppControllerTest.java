@@ -64,7 +64,7 @@ public class LegalEntityAppControllerTest {
 
         List<LegalEntityApp> legalEntityAppList = new ArrayList<LegalEntityApp>();
         LegalEntityApp legalEntity = new LegalEntityApp();
-        legalEntity.setLegalEntityAppId(1);
+        legalEntity.setLegalEntityAppId(1L);
         legalEntity.setLegalEntityAppName("LegalEntity");
         legalEntityAppList.add(legalEntity);
 

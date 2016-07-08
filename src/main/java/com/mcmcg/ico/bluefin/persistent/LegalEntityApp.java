@@ -29,7 +29,7 @@ public class LegalEntityApp implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "LegalEntityAppID")
-    private long legalEntityAppId;
+    private Long legalEntityAppId;
 
     @Column(name = "LegalEntityAppName")
     private String legalEntityAppName;

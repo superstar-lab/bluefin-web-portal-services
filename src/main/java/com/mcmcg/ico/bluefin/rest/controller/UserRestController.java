@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -65,8 +66,7 @@ public class UserRestController {
             username = authentication.getName();
         } else {
             if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
-                throw new AccessDeniedException(
-                        "User doesn't have permission to get information from other users");
+                throw new AccessDeniedException("User doesn't have permission to get information from other users");
             }
         }
         return userService.getUserInfomation(username);
@@ -80,18 +80,19 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<User> getUsers(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
-            @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Principal principal) {
+            @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
+            @ApiIgnore Principal principal) {
         if (principal == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
         String userName = principal.getName();
-        //Verifies if the search parameter has allowed 
-        //legal entities for the consultant user
-        search = getVerifiedSearch(userName, search) ;
+        // Verifies if the search parameter has allowed
+        // legal entities for the consultant user
+        search = getVerifiedSearch(userName, search);
         LOGGER.info("Generating report with the following filters: {}", search);
         return userService.getUsers(QueryDSLUtil.createExpression(search, User.class), page, size, sort);
     }
-    
+
     @ApiOperation(value = "createUser", nickname = "createUser")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -101,13 +102,27 @@ public class UserRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<UserResource> registerUserAccount(@Validated @RequestBody RegisterUserResource newUser,
-            @ApiIgnore Errors errors) throws Exception {
+            @ApiIgnore Errors errors, @ApiIgnore Principal principal) throws Exception {
+        if (principal == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+
+        // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-        
+        // Gets the legal entities that will be verified, use of set to avoid
+        // duplicated values
+        Set<Long> legalEntitiesToVerify = newUser.getLegalEntityApps().stream().collect(Collectors.toSet());
+        // Checks if the Legal Entities given are valid according with the
+        // LegalEntities owned
+        if (!userService.hasUserPrivilegesOverLegalEntities(principal.getName(), legalEntitiesToVerify)) {
+            throw new AccessDeniedException(
+                    String.format("User doesn't have access to add by legal entity restriction"));
+        }
+
         LOGGER.info("Creating new account for user: {}", newUser.getUsername());
         return new ResponseEntity<UserResource>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
     }
@@ -136,8 +151,7 @@ public class UserRestController {
             username = authentication.getName();
         } else {
             if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
-                throw new AccessDeniedException(
-                        "User doesn't have permission to get information from other users");
+                throw new AccessDeniedException("User doesn't have permission to get information from other users");
             }
         }
         return userService.updateUserProfile(username, userToUpdate);
@@ -150,8 +164,7 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Integer> roles)
-            throws Exception {
+    public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Long> roles) throws Exception {
         LOGGER.info("Updating roles for user: {}", username);
         return userService.updateUserRoles(username, roles);
     }
@@ -163,12 +176,12 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Integer> legalEntities)
+    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Long> legalEntities)
             throws Exception {
         LOGGER.info("Updating legalEntities for user: {}", username);
         return userService.updateUserLegalEntities(username, legalEntities);
     }
-    
+
     /**
      * Verifies if the given LE are owned by the consultant user
      * 
@@ -176,11 +189,12 @@ public class UserRestController {
      * @param search
      * @return String with the verified search
      */
-    private String getVerifiedSearch(String userName, String search) { 
-        //Searches for the legal entities of a user its user name
-        List<LegalEntityApp> legalEntities = userService.getLegalEntitiesByUser(userName); 
-        //Validates if the user has access to the given legal entities, exception if does not have access 
-        return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search); 
+    private String getVerifiedSearch(String userName, String search) {
+        // Searches for the legal entities of a user its user name
+        List<LegalEntityApp> legalEntities = userService.getLegalEntitiesByUser(userName);
+        // Validates if the user has access to the given legal entities,
+        // exception if does not have access
+        return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search);
     }
-    
+
 }

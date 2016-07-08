@@ -29,7 +29,7 @@ public class Role implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "RoleID")
-    private long roleId;
+    private Long roleId;
 
     @Column(name = "RoleName")
     private String roleName;

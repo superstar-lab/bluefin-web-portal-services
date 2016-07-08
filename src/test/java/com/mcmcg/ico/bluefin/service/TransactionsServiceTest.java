@@ -241,7 +241,7 @@ public class TransactionsServiceTest {
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("legalEntity1");
-        validLegalEntity.setLegalEntityAppId(4321);
+        validLegalEntity.setLegalEntityAppId(4321L);
         return validLegalEntity;
     }
 

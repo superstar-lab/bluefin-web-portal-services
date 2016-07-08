@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,10 +67,10 @@ public class UserService {
      * 
      * @param userName
      * @return list of legal entities owned by the user with the user name given
-     *         by parameter
+     *         by parameter, empty list if user not found
      */
-    public List<LegalEntityApp> getLegalEntitiesByUser(String username) {
-        User user = userRepository.findByUsername(username);
+    public List<LegalEntityApp> getLegalEntitiesByUser(String userName) {
+        User user = userRepository.findByUsername(userName);
         return user == null ? new ArrayList<LegalEntityApp>() : user.getLegalEntityApps();
     }
 
@@ -118,7 +120,6 @@ public class UserService {
             throw new CustomBadRequestException(
                     "Unable to create the account, this username already exists: " + username);
         }
-
         List<UserLegalEntity> userLegalEntities = getLegalEntitiesByIds(userResource.getLegalEntityApps());
         List<UserRole> roles = getRolesByIds(userResource.getRoles());
         User newUser = userResource.toUser(roles, userLegalEntities);
@@ -167,7 +168,7 @@ public class UserService {
      * @return userResource with all the user information
      * @throws Exception
      */
-    public UserResource updateUserRoles(String username, List<Integer> roles) throws Exception {
+    public UserResource updateUserRoles(String username, List<Long> roles) throws Exception {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
@@ -190,9 +191,9 @@ public class UserService {
      *            as list of integers
      * @return rolesList as list of objects
      */
-    private List<UserRole> getRolesByIds(List<Integer> rolesList) throws Exception {
+    private List<UserRole> getRolesByIds(List<Long> rolesList) throws Exception {
         List<UserRole> result = new ArrayList<UserRole>();
-        for (Integer currentRole : rolesList) {
+        for (Long currentRole : rolesList) {
             Role role = roleRepository.findByRoleId(currentRole.longValue());
             if (role != null) {
                 UserRole userRole = new UserRole();
@@ -213,7 +214,7 @@ public class UserService {
      * @return userResource with all the user information
      * @throws Exception
      */
-    public UserResource updateUserLegalEntities(String username, List<Integer> legalEntities) throws Exception {
+    public UserResource updateUserLegalEntities(String username, List<Long> legalEntities) throws Exception {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException(
@@ -237,9 +238,9 @@ public class UserService {
      *            as list of integers
      * @return legalEntitiesList as list of objects
      */
-    private List<UserLegalEntity> getLegalEntitiesByIds(List<Integer> legalEntityList) throws Exception {
+    private List<UserLegalEntity> getLegalEntitiesByIds(List<Long> legalEntityList) throws Exception {
         List<UserLegalEntity> result = new ArrayList<UserLegalEntity>();
-        for (Integer currentLegalEntity : legalEntityList) {
+        for (Long currentLegalEntity : legalEntityList) {
             LegalEntityApp legalEntity = legalEntityAppRepository
                     .findByLegalEntityAppId(currentLegalEntity.longValue());
             if (legalEntity != null) {
@@ -253,4 +254,21 @@ public class UserService {
         return result;
     }
 
+    /**
+     * Validates if the current legal entities of the user that tries to get the
+     * information are valid by checking the values of the request with the ones
+     * owned by the user
+     * 
+     * @param legalEntityIds
+     * @param userName
+     */
+    public Boolean hasUserPrivilegesOverLegalEntities(String username, Set<Long> legalEntitiesToVerify) {
+        // Get Legal Entities from user name
+        Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
+                .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
+
+        return legalEntitiesToVerify.stream()
+                .filter(verifyLegalEntityId -> !userLegalEntities.contains(verifyLegalEntityId))
+                .collect(Collectors.toSet()).isEmpty();
+    }
 }

@@ -102,8 +102,7 @@ public class UserServiceTest {
     @Test(expected = RuntimeException.class)
     public void testFindByUsernameRuntimeException() { // 500
 
-        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
-                .thenThrow(new RuntimeException(""));
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
         userService.getUserInfomation("mytest");
 
@@ -111,7 +110,7 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
 
     }
-    
+
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void testFindByUsername() { // 500
 
@@ -150,9 +149,9 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
 
     }
-    
+
     // Get Legal Entities by user name
-    
+
     /**
      * Test success path for Legal Entities by user name
      */
@@ -199,22 +198,23 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
     }
 
-    // Get Users 
-    
+    // Get Users
+
     /**
      * Test the success case where the user is allowed to get the list of users
      * according with the LE that are owned, in other words, all LE that are
      * sent in the search criteria belong to the consultan user
      */
     @Test
-    public void testGetUsers() {// 200 
+    public void testGetUsers() {// 200
         Page<User> list = new PageImpl<User>(getValidUsers());
-        User searchUser =  createValidUser(); 
+        User searchUser = createValidUser();
         Mockito.when(userRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
-        .thenReturn(list);
-        
-        Iterable<User> result = userService.getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 1, 1, null);
-        
+                .thenReturn(list);
+
+        Iterable<User> result = userService
+                .getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 1, 1, null);
+
         for (User resultUser : result) {
             Assert.assertEquals("test@email.com", resultUser.getEmail());
             Assert.assertEquals("test", resultUser.getFirstName());
@@ -222,55 +222,58 @@ public class UserServiceTest {
             Assert.assertEquals("userTest", resultUser.getUsername());
             Assert.assertEquals(searchUser.getLegalEntityApps(), resultUser.getLegalEntityApps());
             Assert.assertEquals(searchUser.getRoleNames(), resultUser.getRoleNames());
-             
-        }  
-        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class));
+
+        }
+        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class),
+                Mockito.any(PageRequest.class));
         Mockito.verifyNoMoreInteractions(userRepository);
     }
-    
+
     /**
      * Test the case where no information was found with the criteria used in
      * the search parameter
      */
     @Test
-    public void testGetUsersNotFound() {// 404 
+    public void testGetUsersNotFound() {// 404
         Page<User> list = new PageImpl<User>(new ArrayList<User>());
-         
+
         Mockito.when(userRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
-        .thenReturn(list);
+                .thenReturn(list);
 
         expectedEx.expect(CustomNotFoundException.class);
         expectedEx.expectMessage("Unable to find the page requested");
-        
+
         userService.getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 2, 1, null);
-         
-        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class));
+
+        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class),
+                Mockito.any(PageRequest.class));
         Mockito.verifyNoMoreInteractions(userRepository);
     }
- 
+
     /**
      * Test the case where a RuntimeException rises for when get all the list of
      * users according with the criteria given
      */
-    @Test 
+    @Test
     public void testGetUsersRuntimeExceptionFindAll() throws Exception {
         Mockito.when(userRepository.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
-        .thenThrow(new RuntimeException()); 
-        
+                .thenThrow(new RuntimeException());
+
         expectedEx.expect(RuntimeException.class);
-        
+
         userService.getUsers(QueryDSLUtil.createExpression("legalEntities:[64,77,27,87]", User.class), 1, 1, null);
-         
-        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class));
+
+        Mockito.verify(userRepository, Mockito.times(1)).findAll(Mockito.any(BooleanExpression.class),
+                Mockito.any(PageRequest.class));
         Mockito.verifyNoMoreInteractions(userRepository);
     }
-    
+
     // Register user tests
 
     @Test
     public void testRegisterUserOK() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);        
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(null);
         LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
         Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
@@ -309,15 +312,14 @@ public class UserServiceTest {
     @Test(expected = RuntimeException.class)
     public void testRegisterUserRuntimeExceptionFindUserName() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
-                .thenThrow(new RuntimeException(""));
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
         userService.registerNewUserAccount(newUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
     }
-    
+
     @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void testRegisterUserDBFailsFindUserName() throws Exception {
         RegisterUserResource newUser = createValidRegisterResource();
@@ -718,7 +720,7 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUserRolesOK() throws Exception {
-        List<Integer> roles = createValidRoleIdsList();
+        List<Long> roles = createValidRoleIdsList();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Role expectedRole = createValidRole();
         Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(expectedRole);
@@ -740,7 +742,7 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUserRolesInvalidRolesBadRequest() throws Exception {
-        List<Integer> roles = createValidRoleIdsList();
+        List<Long> roles = createValidRoleIdsList();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(roleRepository.findByRoleId(Mockito.anyLong())).thenReturn(null);
         expectedEx.expect(CustomBadRequestException.class);
@@ -905,7 +907,7 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUserLegalEntitiesOK() throws Exception {
-        List<Integer> legalEntities = createValidLegalEntityIdsList();
+        List<Long> legalEntities = createValidLegalEntityIdsList();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         LegalEntityApp expectedLegalEntityApp = createValidLegalEntityApp();
         Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong()))
@@ -929,7 +931,7 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUserLegalEntitiesInvalidLegalEntitiesBadRequest() throws Exception {
-        List<Integer> legalEntities = createValidLegalEntityIdsList();
+        List<Long> legalEntities = createValidLegalEntityIdsList();
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(legalEntityAppRepository.findByLegalEntityAppId(Mockito.anyLong())).thenReturn(null);
         expectedEx.expect(CustomBadRequestException.class);
@@ -1094,6 +1096,42 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userLegalEntityRepository);
     }
 
+    /**
+     * Test the success case when the users exists and have a valid list of
+     * legal entities
+     */
+    @Test
+    public void testGetLegalEntitiesByUserNameSuccess() {
+        User user = createValidUser();
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+
+        List<LegalEntityApp> result = userService.getLegalEntitiesByUser("omonge");
+
+        Assert.assertEquals(user.getLegalEntityApps().get(0).getLegalEntityAppId(),
+                result.get(0).getLegalEntityAppId());
+        Assert.assertEquals("legalEntity1", result.get(0).getLegalEntityAppName());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test the case when the users does not exists, empty list will be returned
+     */
+    @Test
+    public void testGetLegalEntitiesByUserNameNoUserFound() {
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+
+        List<LegalEntityApp> result = userService.getLegalEntitiesByUser("omonge");
+
+        Assert.assertTrue(result.isEmpty());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    //
+
     private UpdateUserResource createValidUpdateResource() {
         UpdateUserResource user = new UpdateUserResource();
         user.setEmail("test@email.com");
@@ -1151,7 +1189,7 @@ public class UserServiceTest {
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("legalEntity1");
-        validLegalEntity.setLegalEntityAppId(4321);
+        validLegalEntity.setLegalEntityAppId(4321L);
         return validLegalEntity;
     }
 
@@ -1163,33 +1201,34 @@ public class UserServiceTest {
         validRole.setUserRoles(validUserRoleList);
         validRole.setRoleName("ROLE_TESTING");
         validRole.setDescription("role description");
-        validRole.setRoleId(1234);
+        validRole.setRoleId(1234L);
         return validRole;
     }
 
-    private List<Integer> createValidRoleIdsList() {
-        List<Integer> roles = new ArrayList<Integer>();
-        roles.add(42);
-        roles.add(33);
-        roles.add(52);
-        roles.add(16);
-        roles.add(89);
+    private List<Long> createValidRoleIdsList() {
+        List<Long> roles = new ArrayList<Long>();
+        roles.add(42L);
+        roles.add(33L);
+        roles.add(52L);
+        roles.add(16L);
+        roles.add(89L);
         return roles;
     }
 
-    private List<Integer> createValidLegalEntityIdsList() {
-        List<Integer> roles = new ArrayList<Integer>();
-        roles.add(64);
-        roles.add(77);
-        roles.add(27);
-        roles.add(87);
-        roles.add(64);
+    private List<Long> createValidLegalEntityIdsList() {
+        List<Long> roles = new ArrayList<Long>();
+        roles.add(64L);
+        roles.add(77L);
+        roles.add(27L);
+        roles.add(87L);
+        roles.add(64L);
         return roles;
     }
-    
+
     /**
      * Create a list with valid users
-     * @return List of valid users 
+     * 
+     * @return List of valid users
      */
     private List<User> getValidUsers() {
         List<User> resultList = new ArrayList<User>();
@@ -1197,4 +1236,41 @@ public class UserServiceTest {
         return resultList;
     }
 
+    private User getUserMoreLegalEntities() {
+
+        User user = createValidUser();
+        List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+        UserLegalEntity userLegalEntity = new UserLegalEntity();
+        LegalEntityApp validLegalEntity = new LegalEntityApp();
+
+        validLegalEntity.setLegalEntityAppName("legalEntity64");
+        validLegalEntity.setLegalEntityAppId(1L);
+        userLegalEntity.setLegalEntityApp(validLegalEntity);
+        userLegalEntities.add(userLegalEntity);
+
+        userLegalEntity = new UserLegalEntity();
+        validLegalEntity = new LegalEntityApp();
+        validLegalEntity.setLegalEntityAppName("legalEntity77");
+        validLegalEntity.setLegalEntityAppId(2l);
+        userLegalEntity.setLegalEntityApp(validLegalEntity);
+        userLegalEntities.add(userLegalEntity);
+
+        userLegalEntity = new UserLegalEntity();
+        validLegalEntity = new LegalEntityApp();
+        validLegalEntity.setLegalEntityAppName("legalEntity27");
+        validLegalEntity.setLegalEntityAppId(3l);
+        userLegalEntity.setLegalEntityApp(validLegalEntity);
+        userLegalEntities.add(userLegalEntity);
+
+        userLegalEntity = new UserLegalEntity();
+        validLegalEntity = new LegalEntityApp();
+        validLegalEntity.setLegalEntityAppName("legalEntity87");
+        validLegalEntity.setLegalEntityAppId(4l);
+        userLegalEntity.setLegalEntityApp(validLegalEntity);
+        userLegalEntities.add(userLegalEntity);
+
+        user.setLegalEntities(userLegalEntities);
+
+        return user;
+    }
 }

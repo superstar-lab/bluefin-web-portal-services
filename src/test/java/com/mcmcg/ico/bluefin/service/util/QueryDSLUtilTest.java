@@ -196,7 +196,7 @@ public class QueryDSLUtilTest {
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName(name);
-        validLegalEntity.setLegalEntityAppId(4321);
+        validLegalEntity.setLegalEntityAppId(4321L);
         return validLegalEntity;
     }
 }

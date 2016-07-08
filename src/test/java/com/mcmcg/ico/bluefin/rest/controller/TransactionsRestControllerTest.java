@@ -77,7 +77,7 @@ public class TransactionsRestControllerTest {
     public List<LegalEntityApp> createValidLegalEntities() {
         List<LegalEntityApp> legalEntities = new ArrayList<LegalEntityApp>();
         LegalEntityApp legalEntity = new LegalEntityApp();
-        legalEntity.setLegalEntityAppId(1234);
+        legalEntity.setLegalEntityAppId(1234L);
         legalEntity.setLegalEntityAppName("MCM-R2K");
         legalEntities.add(legalEntity);
         return legalEntities;

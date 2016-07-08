@@ -45,7 +45,7 @@ public class RoleRestControllerTest {
     public void getRolesOK() throws Exception { // 200
         List<Role> roleList = new ArrayList<Role>();
         Role role = new Role();
-        role.setRoleId(1);
+        role.setRoleId(1L);
         role.setRoleName("ROLE_TESTING");
         role.setDescription("test description");
         roleList.add(role);

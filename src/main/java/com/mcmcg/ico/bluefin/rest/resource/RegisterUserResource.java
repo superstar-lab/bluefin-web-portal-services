@@ -29,10 +29,10 @@ public class RegisterUserResource {
     private String email;
     @Size(min = 1, message = "rolesIdsList must not be empty")
     @NotNull(message = "roles must not be null")
-    private List<Integer> roles;
+    private List<Long> roles;
     @Size(min = 1, message = "legalEntityApps must not be empty")
     @NotNull(message = "legalEntityApps must not be null")
-    private List<Integer> legalEntityApps;
+    private List<Long> legalEntityApps;
 
     public UserResource toUserResource(List<Role> roles, List<LegalEntityApp> entities) {
         UserResource userResource = new UserResource();
