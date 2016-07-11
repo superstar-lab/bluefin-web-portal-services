@@ -137,9 +137,13 @@ public class UserRestController {
     public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
             @Validated @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) throws Exception {
         if (authentication == null) {
-            throw new CustomBadRequestException("An authorization token is required to request this resource");
+            throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-
+        // Checks if the Legal Entities of the consultant user are in the user
+        // that will be updated
+        if (!userService.belongsToSameLegalEntity(authentication.getName(), username)) {
+            throw new AccessDeniedException("User doesn't have permission to get information from other users");
+        }
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
@@ -149,11 +153,7 @@ public class UserRestController {
         LOGGER.info("Updating account for user: {}", username);
         if (username.equals("me")) {
             username = authentication.getName();
-        } else {
-            if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
-                throw new AccessDeniedException("User doesn't have permission to get information from other users");
-            }
-        }
+        } 
         return userService.updateUserProfile(username, userToUpdate);
     }
 

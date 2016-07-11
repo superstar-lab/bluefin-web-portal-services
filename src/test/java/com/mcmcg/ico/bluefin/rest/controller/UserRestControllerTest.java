@@ -520,9 +520,8 @@ public class UserRestControllerTest {
     public void updateUserOK() throws Exception { // 200
         UpdateUserResource user = createValidUpdateResource();
         UserResource updatedUser = createValidUserResource();
-        Mockito.when(
-                userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
-                .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(true); 
         Mockito.when(userService.updateUserProfile("test", user)).thenReturn(updatedUser);
 
         mockMvc.perform(put("/api/users/test").header("X-Auth-Token", "tokenTest")
@@ -531,24 +530,24 @@ public class UserRestControllerTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
                 .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
 
-        Mockito.verify(userService, Mockito.times(1))
-                .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).updateUserProfile("test", user);
         Mockito.verifyNoMoreInteractions(userService);
     }
 
     @Test
-    public void updateUserUnauthorized() throws Exception { // 401
-        RegisterUserResource user = createValidRegisterResource();
-        Mockito.when(
-                userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
-                .thenReturn(false);
+    public void updateUserUnauthorizedByLegalEntity() throws Exception { // 401
+        UpdateUserResource user = createValidUpdateResource();
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(false); 
 
-        mockMvc.perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
-                .content(convertObjectToJsonBytes(user))).andExpect(status().isUnauthorized());
+        mockMvc.perform(put("/api/users/test").header("X-Auth-Token", "tokenTest")
+                .contentType(MediaType.APPLICATION_JSON).principal(auth).content(convertObjectToJsonBytes(user)))
+                .andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1))
-                .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
+        .belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -556,8 +555,10 @@ public class UserRestControllerTest {
     public void updateUserBadRequestInvalidRequestBody() throws Exception { // 400
         UpdateUserResource user = createInvalidUpdateResource();
 
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
+        .thenReturn(true); 
         String validationErros = mockMvc
-                .perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
+                .perform(put("/api/users/{username}","test").principal(auth).contentType(MediaType.APPLICATION_JSON)
                         .content(convertObjectToJsonBytes(user)))
                 .andExpect(status().isBadRequest()).andReturn().getResolvedException().getMessage();
 
@@ -565,22 +566,24 @@ public class UserRestControllerTest {
         assertThat(validationErros, containsString("firstName must not be empty"));
         assertThat(validationErros, containsString("lastName must not be empty"));
         Mockito.verify(userService, Mockito.times(0)).updateUserProfile("test", user);
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userService);
     }
 
+    
     @Test
     public void updateUserInternalServerError() throws Exception { // 500
         UpdateUserResource user = createValidUpdateResource();
-        Mockito.when(
-                userService.havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString()))
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(true);
         Mockito.when(userService.updateUserProfile("test", user)).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(user))).andExpect(status().isInternalServerError());
 
-        Mockito.verify(userService, Mockito.times(1))
-                .havePermissionToGetOtherUsersInformation(any(Authentication.class), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).updateUserProfile("test", user);
         Mockito.verifyNoMoreInteractions(userService);
     }

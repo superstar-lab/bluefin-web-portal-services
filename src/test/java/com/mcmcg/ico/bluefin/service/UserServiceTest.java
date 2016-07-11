@@ -1130,6 +1130,91 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
     }
 
+    // Legal Entity verification
+
+    /**
+     * Test the case when the user is allowed to update a user with some legal
+     * entity related
+     */
+    @Test
+    public void testUpdateUserLegalEntitiesAllowedByLegalEntity() throws Exception {
+        // Adds 1 element equals as the for the consultant user's legal entity
+        // list
+        LegalEntityApp legalEntity = new LegalEntityApp();
+        legalEntity.setLegalEntityAppId(1L);
+        User userToUpdate = getUserOneLegalEntity();
+        User requestUser = getUserMoreLegalEntities();
+
+        Mockito.when(userRepository.findByUsername("omonge")).thenReturn(requestUser);
+        Mockito.when(userRepository.findByUsername("nquiros")).thenReturn(userToUpdate);
+
+        Boolean result = userService.belongsToSameLegalEntity("omonge", "nquiros");
+
+        Assert.assertTrue(result);
+
+        Mockito.verify(userRepository, Mockito.times(2)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test the case when the user is not allowed to update a user because are
+     * not related with some lega entity
+     */
+    @Test
+    public void testUpdateUserLegalEntitiesNotAllowedByLegalEntity() throws Exception {
+        Mockito.when(userRepository.findByUsername("omonge")).thenReturn(getUserMoreLegalEntities());
+        Mockito.when(userRepository.findByUsername("nquiros")).thenReturn(createValidUser());
+
+        Boolean result = userService.belongsToSameLegalEntity("omonge", "nquiros");
+
+        Assert.assertFalse(result);
+
+        Mockito.verify(userRepository, Mockito.times(2)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test the case when a error raises when consulting database
+     */
+    @Test
+    public void testUpdateUserLegalEntitiesRuntimeExceptionFindUser1() throws Exception {
+        // Adds 1 element equals as the for the consultant user's legal entity
+        // list
+        LegalEntityApp legalEntity = new LegalEntityApp();
+        legalEntity.setLegalEntityAppId(1L);
+        User userToUpdate = getUserOneLegalEntity();
+
+        Mockito.when(userRepository.findByUsername("omonge")).thenThrow(new RuntimeException());
+        Mockito.when(userRepository.findByUsername("nquiros")).thenReturn(userToUpdate);
+        expectedEx.expect(RuntimeException.class);
+
+        userService.belongsToSameLegalEntity("omonge", "nquiros");
+
+        Mockito.verify(userRepository, Mockito.times(2)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test the case when a error raises when consulting database
+     */
+    @Test
+    public void testUpdateUserLegalEntitiesRuntimeExceptionFindUser2() throws Exception {
+        // Adds 1 element equals as the for the consultant user's legal entity
+        // list
+        LegalEntityApp legalEntity = new LegalEntityApp();
+        legalEntity.setLegalEntityAppId(1L);
+        User userToUpdate = getUserOneLegalEntity();
+
+        Mockito.when(userRepository.findByUsername("omonge")).thenReturn(userToUpdate);
+        Mockito.when(userRepository.findByUsername("nquiros")).thenThrow(new RuntimeException());
+        expectedEx.expect(RuntimeException.class);
+
+        userService.belongsToSameLegalEntity("omonge", "nquiros");
+
+        Mockito.verify(userRepository, Mockito.times(2)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
     //
 
     private UpdateUserResource createValidUpdateResource() {
@@ -1266,6 +1351,22 @@ public class UserServiceTest {
         validLegalEntity = new LegalEntityApp();
         validLegalEntity.setLegalEntityAppName("legalEntity87");
         validLegalEntity.setLegalEntityAppId(4l);
+        userLegalEntity.setLegalEntityApp(validLegalEntity);
+        userLegalEntities.add(userLegalEntity);
+
+        user.setLegalEntities(userLegalEntities);
+
+        return user;
+    }
+
+    private User getUserOneLegalEntity() {
+        User user = createValidUser();
+        List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+        UserLegalEntity userLegalEntity = new UserLegalEntity();
+        LegalEntityApp validLegalEntity = new LegalEntityApp();
+
+        validLegalEntity.setLegalEntityAppName("legalEntity1");
+        validLegalEntity.setLegalEntityAppId(1L);
         userLegalEntity.setLegalEntityApp(validLegalEntity);
         userLegalEntities.add(userLegalEntity);
 

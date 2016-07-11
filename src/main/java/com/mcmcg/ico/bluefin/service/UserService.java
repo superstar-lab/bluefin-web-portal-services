@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -83,35 +82,6 @@ public class UserService {
             }
         }
         return false;
-    }
-
-    private boolean belongsToSameLegalEntity(String username, String tokenUsername) {
-        User tokenUser = userRepository.findByUsername(tokenUsername);
-        Collection<String> tokenLegalEntities = getLegalEntityApps(tokenUser.getLegalEntities());
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new CustomNotFoundException("User information not found");
-        }
-        Collection<String> userLegalEntities = getLegalEntityApps(user.getLegalEntities());
-        return !(intersection(tokenLegalEntities, userLegalEntities).isEmpty());
-    }
-
-    private List<String> intersection(Collection<String> tokenLegalEntities, Collection<String> userLegalEntities) {
-        List<String> result = new ArrayList<String>();
-        for (String legalEntity : tokenLegalEntities) {
-            if (userLegalEntities.contains(legalEntity)) {
-                result.add(legalEntity);
-            }
-        }
-        return result;
-    }
-
-    private List<String> getLegalEntityApps(Collection<UserLegalEntity> userLegalEntityAppList) {
-        List<String> legalEntityApps = new ArrayList<String>();
-        for (UserLegalEntity userLegalEntityApp : userLegalEntityAppList) {
-            legalEntityApps.add(userLegalEntityApp.getLegalEntityApp().getLegalEntityAppName());
-        }
-        return legalEntityApps;
     }
 
     public UserResource registerNewUserAccount(RegisterUserResource userResource) throws Exception {
@@ -271,4 +241,23 @@ public class UserService {
                 .filter(verifyLegalEntityId -> !userLegalEntities.contains(verifyLegalEntityId))
                 .collect(Collectors.toSet()).isEmpty();
     }
+    
+    /**
+     * This method will return true if both users have a common legal entity, false in other case
+     * @param username
+     * @param usernameToUpdate
+     * @return true if the request user has related legal entities with the user he wants to CRUD
+     */
+    public boolean belongsToSameLegalEntity(String username, String usernameToUpdate) {
+        // Get Legal Entities from consultant user
+        Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
+                .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
+        // Get Legal Entities from user that will be updated
+        Set<Long> legalEntitiesToVerify = getLegalEntitiesByUser(usernameToUpdate).stream()
+                .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
+
+        return !legalEntitiesToVerify.stream().filter(userLegalEntities::contains).collect(Collectors.toSet())
+                .isEmpty();
+    }
+
 }
