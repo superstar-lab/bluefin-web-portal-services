@@ -61,15 +61,13 @@ public class UserRestController {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
-        LOGGER.info("Getting user information: {}", username);
-        if (username.equals("me")) {
-            username = authentication.getName();
-        } else {
-            if (!userService.havePermissionToGetOtherUsersInformation(authentication, username)) {
-                throw new AccessDeniedException("User doesn't have permission to get information from other users");
-            }
+        // Checks if the Legal Entities of the consultant user are in the user that will be requested
+        if(!userService.belongsToSameLegalEntity(authentication.getName(), username)){
+            throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
         }
-        return userService.getUserInfomation(username);
+
+        LOGGER.info("Getting user information: {}", username);
+        return userService.getUserInfomation(username.equals("me") ? authentication.getName() : username);
     }
 
     @ApiOperation(value = "getUsers", nickname = "getUsers")
@@ -144,6 +142,7 @@ public class UserRestController {
         if (!userService.belongsToSameLegalEntity(authentication.getName(), username)) {
             throw new AccessDeniedException("User doesn't have permission to get information from other users");
         }
+
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
@@ -151,10 +150,7 @@ public class UserRestController {
         }
 
         LOGGER.info("Updating account for user: {}", username);
-        if (username.equals("me")) {
-            username = authentication.getName();
-        } 
-        return userService.updateUserProfile(username, userToUpdate);
+        return userService.updateUserProfile(username.equals("me") ? authentication.getName() : username, userToUpdate);
     }
 
     @ApiOperation(value = "updateUserRoles", nickname = "updateUserRoles")

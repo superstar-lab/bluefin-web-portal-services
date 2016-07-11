@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
@@ -71,17 +69,6 @@ public class UserService {
     public List<LegalEntityApp> getLegalEntitiesByUser(String userName) {
         User user = userRepository.findByUsername(userName);
         return user == null ? new ArrayList<LegalEntityApp>() : user.getLegalEntityApps();
-    }
-
-    public boolean havePermissionToGetOtherUsersInformation(Authentication tokenInformation, String username) {
-        for (GrantedAuthority permission : tokenInformation.getAuthorities()) {
-            if (permission.getAuthority().equals("readAllUsers")) {
-                return true;
-            } else if (permission.getAuthority().equals("readLegalEntityUsers")) {
-                return belongsToSameLegalEntity(username, tokenInformation.getName());
-            }
-        }
-        return false;
     }
 
     public UserResource registerNewUserAccount(RegisterUserResource userResource) throws Exception {
