@@ -160,9 +160,19 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Long> roles) throws Exception {
+    public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Long> roles,
+            @ApiIgnore Authentication authentication) throws Exception {
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        // Checks if the Legal Entities of the consultant user are in the user
+        // that will be updated
+        if (!userService.belongsToSameLegalEntity(authentication.getName(), username)) {
+            throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
+        }
         LOGGER.info("Updating roles for user: {}", username);
-        return userService.updateUserRoles(username, roles);
+
+        return userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles);
     }
 
     @ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")

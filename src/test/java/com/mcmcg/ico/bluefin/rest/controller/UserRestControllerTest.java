@@ -77,8 +77,7 @@ public class UserRestControllerTest {
 
     @Test
     public void testGetUserAccountSuccessMe() throws Exception {// 200
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenReturn(createValidUserResource());
 
         mockMvc.perform(get("/api/users/{userName}", "me").principal(auth).contentType(MediaType.APPLICATION_JSON))
@@ -89,16 +88,16 @@ public class UserRestControllerTest {
                 .andExpect(jsonPath("$.legalEntityApps[0].legalEntityAppName").value("legalEntity1"))
                 .andExpect(jsonPath("$.roles[0].roleId").value(4321))
                 .andExpect(jsonPath("$.roles[0].roleName").value("ROLE_TESTING"));
-        
-        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString());
+
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userService);
     }
 
     @Test
     public void getUserAccountSuccess() throws Exception { // 200
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenReturn(createValidUserResource());
 
         mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
@@ -110,7 +109,8 @@ public class UserRestControllerTest {
                 .andExpect(jsonPath("$.roles[0].roleId").value(4321))
                 .andExpect(jsonPath("$.roles[0].roleName").value("ROLE_TESTING"));
 
-        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).getUserInfomation(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(userService);
@@ -122,16 +122,16 @@ public class UserRestControllerTest {
         mockMvc.perform(get("/api/users/{userName}", "omonge").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
-        Mockito.verify(userService, Mockito.times(0)).belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(0)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verify(userService, Mockito.times(0)).getUserInfomation(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userService);
     }
 
     @Test
     public void getUserAccountErrorUnAuthorized() throws Exception { // 401
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(false);
-        
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+
         mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
@@ -143,8 +143,7 @@ public class UserRestControllerTest {
 
     @Test
     public void getUserAccountNotFound() throws Exception { // 404
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new CustomNotFoundException(""));
 
         mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
@@ -174,8 +173,7 @@ public class UserRestControllerTest {
 
     @Test
     public void getUserAccountErrorInternalServerErrorGettingUserData() throws Exception { // 500
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(get("/api/users/{userName}", "omonge").principal(auth).contentType(MediaType.APPLICATION_JSON))
@@ -190,8 +188,7 @@ public class UserRestControllerTest {
 
     @Test
     public void getUserAccountError() throws Exception { // 500
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.getUserInfomation(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(get("/api/users/nquiros").principal(auth).contentType(MediaType.APPLICATION_JSON))
@@ -399,7 +396,7 @@ public class UserRestControllerTest {
     public void registerUserOK() throws Exception { // 201
         RegisterUserResource newUser = createValidRegisterResource();
         UserResource returnedUser = createValidUserResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySet()))
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
@@ -409,7 +406,7 @@ public class UserRestControllerTest {
                 .andExpect(jsonPath("firstName").value("test"));
 
         Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySet());
+                Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).registerNewUserAccount(newUser);
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -418,7 +415,7 @@ public class UserRestControllerTest {
     public void registerUserBadRequestInvalidRequestBody() throws Exception { // 400
         RegisterUserResource newUser = createInvalidRegisterResource();
         UserResource returnedUser = createValidUserResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySet()))
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
@@ -441,7 +438,7 @@ public class UserRestControllerTest {
         newUser.setRoles(new ArrayList<Long>());
         newUser.setLegalEntityApps(new ArrayList<Long>());
         UserResource returnedUser = createValidUserResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySet()))
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
@@ -472,13 +469,13 @@ public class UserRestControllerTest {
     @Test
     public void registerUserAccessDeniedUnauthorized() throws Exception { // 401
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySet()))
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenReturn(false);
         mockMvc.perform(post("/api/users").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(newUser))).andExpect(status().isUnauthorized());
 
         Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySet());
+                Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(0)).registerNewUserAccount(newUser);
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -486,14 +483,14 @@ public class UserRestControllerTest {
     @Test
     public void registerUserInternalServerErrorValidatingLegalEntities() throws Exception { // 500
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySet()))
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenThrow(new RuntimeException(""));
 
         mockMvc.perform(post("/api/users").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(newUser))).andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySet());
+                Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(0)).registerNewUserAccount(any(RegisterUserResource.class));
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -501,7 +498,7 @@ public class UserRestControllerTest {
     @Test
     public void registerUserInternalServerError() throws Exception { // 500
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySet()))
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(any(RegisterUserResource.class)))
                 .thenThrow(new RuntimeException(""));
@@ -510,7 +507,7 @@ public class UserRestControllerTest {
                 .content(convertObjectToJsonBytes(newUser))).andExpect(status().isInternalServerError());
 
         Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySet());
+                Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).registerNewUserAccount(any(RegisterUserResource.class));
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -521,8 +518,7 @@ public class UserRestControllerTest {
     public void updateUserOK() throws Exception { // 200
         UpdateUserResource user = createValidUpdateResource();
         UserResource updatedUser = createValidUserResource();
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(true); 
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.updateUserProfile("test", user)).thenReturn(updatedUser);
 
         mockMvc.perform(put("/api/users/test").header("X-Auth-Token", "tokenTest")
@@ -540,15 +536,14 @@ public class UserRestControllerTest {
     @Test
     public void updateUserUnauthorizedByLegalEntity() throws Exception { // 401
         UpdateUserResource user = createValidUpdateResource();
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(false); 
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
 
         mockMvc.perform(put("/api/users/test").header("X-Auth-Token", "tokenTest")
                 .contentType(MediaType.APPLICATION_JSON).principal(auth).content(convertObjectToJsonBytes(user)))
                 .andExpect(status().isUnauthorized());
 
-        Mockito.verify(userService, Mockito.times(1))
-        .belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -556,10 +551,9 @@ public class UserRestControllerTest {
     public void updateUserBadRequestInvalidRequestBody() throws Exception { // 400
         UpdateUserResource user = createInvalidUpdateResource();
 
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-        .thenReturn(true); 
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         String validationErros = mockMvc
-                .perform(put("/api/users/{username}","test").principal(auth).contentType(MediaType.APPLICATION_JSON)
+                .perform(put("/api/users/{username}", "test").principal(auth).contentType(MediaType.APPLICATION_JSON)
                         .content(convertObjectToJsonBytes(user)))
                 .andExpect(status().isBadRequest()).andReturn().getResolvedException().getMessage();
 
@@ -572,12 +566,10 @@ public class UserRestControllerTest {
         Mockito.verifyNoMoreInteractions(userService);
     }
 
-    
     @Test
     public void updateUserInternalServerError() throws Exception { // 500
         UpdateUserResource user = createValidUpdateResource();
-        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(true);
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
         Mockito.when(userService.updateUserProfile("test", user)).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(put("/api/users/test").principal(auth).contentType(MediaType.APPLICATION_JSON)
@@ -592,18 +584,57 @@ public class UserRestControllerTest {
     // Update user roles tests
 
     @Test
-    public void updateUserRolesOK() throws Exception { // 200
+    public void testUpdateUserRolesSuccessMe() throws Exception {// 200
         List<Long> roles = createValidRoleIdsList();
         UserResource updatedUser = createValidUserResource();
+        updatedUser.setUsername("omonge");
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        Mockito.when(userService.updateUserRoles("omonge", roles)).thenReturn(updatedUser);
+
+        mockMvc.perform(put("/api/users/{username}/roles", "me").principal(auth).contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(roles)))
+
+                .andExpect(status().isOk()).andExpect(jsonPath("username").value("omonge"))
+                .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
+
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles("omonge", roles);
+        Mockito.verifyNoMoreInteractions(userService);
+
+    }
+
+    @Test
+    public void updateUserRolesSuccess() throws Exception { // 200
+        List<Long> roles = createValidRoleIdsList();
+        UserResource updatedUser = createValidUserResource();
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+
         Mockito.when(userService.updateUserRoles("test", roles)).thenReturn(updatedUser);
 
-        mockMvc.perform(put("/api/users/test/roles").header("X-Auth-Token", "tokenTest")
-                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
+        mockMvc.perform(put("/api/users/test/roles").principal(auth).contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(roles)))
 
                 .andExpect(status().isOk()).andExpect(jsonPath("username").value("userTest"))
                 .andExpect(jsonPath("email").value("test@email.com")).andExpect(jsonPath("firstName").value("test"));
 
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity("omonge", "test");
         Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesUnauthorizedNoObjectSupplied() throws Exception { // 401
+
+        List<Long> roles = createValidRoleIdsList();
+
+        mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+                .content(convertObjectToJsonBytes(roles))).andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.times(0)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(0)).getUserInfomation(Mockito.anyString());
+
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -612,10 +643,45 @@ public class UserRestControllerTest {
         List<Long> roles = createValidRoleIdsList();
 
         Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new AccessDeniedException(""));
-        mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(put("/api/users/{username}/roles", "omonge").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(roles))).andExpect(status().isUnauthorized());
 
-        Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
+        Mockito.verify(userService, Mockito.times(0)).updateUserRoles("test", roles);
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesUnAuthorizedByLegalEntities() throws Exception { // 401
+        List<Long> roles = createValidRoleIdsList();
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+
+        mockMvc.perform(put("/api/users/{username}/roles", "omonge").principal(auth)
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
+                .andExpect(status().isUnauthorized());
+
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(0)).getUserInfomation(Mockito.anyString());
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesNotFound() throws Exception { // 404
+        List<Long> roles = createValidRoleIdsList();
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anyListOf(Long.class)))
+                .thenThrow(new CustomNotFoundException(""));
+
+        mockMvc.perform(put("/api/users/{username}/roles", "omonge").principal(auth)
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
+                .andExpect(status().isNotFound());
+
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles(Mockito.anyString(),
+                Mockito.anyListOf(Long.class));
+
         Mockito.verifyNoMoreInteractions(userService);
     }
 
@@ -631,14 +697,59 @@ public class UserRestControllerTest {
     }
 
     @Test
-    public void updateUserRolesInternalServerError() throws Exception { // 500
+    public void updateUserRolesInternalServerErrorCheckingPermissionByLegalEntity() throws Exception { // 500
         List<Long> roles = createValidRoleIdsList();
-        Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new RuntimeException(""));
 
-        mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString()))
+                .thenThrow(new RuntimeException(""));
+
+        mockMvc.perform(put("/api/users/{username}/roles", "omonge").principal(auth)
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(0)).updateUserRoles(Mockito.anyString(),
+                Mockito.anyListOf(Long.class));
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    public void updateUserRolesInternalServerErrorGettingUserData() throws Exception { // 500
+        List<Long> roles = createValidRoleIdsList();
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+
+        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anyListOf(Long.class)))
+                .thenThrow(new RuntimeException(""));
+
+        mockMvc.perform(put("/api/users/{username}/roles", "omonge").principal(auth)
+                .contentType(MediaType.APPLICATION_JSON).content(convertObjectToJsonBytes(roles)))
+                .andExpect(status().isInternalServerError());
+
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles(Mockito.anyString(),
+                Mockito.anyListOf(Long.class));
+
+        Mockito.verifyNoMoreInteractions(userService);
+    }
+
+    public void updateUserRolesError() throws Exception { // 500
+        List<Long> roles = createValidRoleIdsList();
+        Mockito.when(userService.belongsToSameLegalEntity(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+
+        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anyListOf(Long.class)))
+                .thenThrow(new RuntimeException(""));
+
+        mockMvc.perform(put("/api/users/nquiros/roles").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(roles))).andExpect(status().isInternalServerError());
 
-        Mockito.verify(userService, Mockito.times(1)).updateUserRoles("test", roles);
+        Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.anyString(),
+                Mockito.anyString());
+        Mockito.verify(userService, Mockito.times(1)).updateUserRoles(Mockito.anyString(),
+                Mockito.anyListOf(Long.class));
+
         Mockito.verifyNoMoreInteractions(userService);
     }
 
