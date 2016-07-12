@@ -20,6 +20,8 @@ import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -64,10 +66,12 @@ public class UserServiceTest {
     private UserRoleRepository userRoleRepository;
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
+    Authentication auth;
 
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
+        auth = new UsernamePasswordAuthenticationToken("omonge", "password", null);
     }
 
     // Get user info
@@ -1137,6 +1141,21 @@ public class UserServiceTest {
      * entity related
      */
     @Test
+    public void testUpdateUserLegalEntitiesAllowedByLegalEntityMe() throws Exception {
+
+        Boolean result = userService.belongsToSameLegalEntity(auth, "omonge");
+
+        Assert.assertTrue(result);
+
+        Mockito.verify(userRepository, Mockito.times(0)).findByUsername(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(userRepository);
+    }
+
+    /**
+     * Test the case when the user is allowed to update a user with some legal
+     * entity related
+     */
+    @Test
     public void testUpdateUserLegalEntitiesAllowedByLegalEntity() throws Exception {
         // Adds 1 element equals as the for the consultant user's legal entity
         // list
@@ -1148,7 +1167,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername("omonge")).thenReturn(requestUser);
         Mockito.when(userRepository.findByUsername("nquiros")).thenReturn(userToUpdate);
 
-        Boolean result = userService.belongsToSameLegalEntity("omonge", "nquiros");
+        Boolean result = userService.belongsToSameLegalEntity(auth, "nquiros");
 
         Assert.assertTrue(result);
 
@@ -1165,7 +1184,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername("omonge")).thenReturn(getUserMoreLegalEntities());
         Mockito.when(userRepository.findByUsername("nquiros")).thenReturn(createValidUser());
 
-        Boolean result = userService.belongsToSameLegalEntity("omonge", "nquiros");
+        Boolean result = userService.belongsToSameLegalEntity(auth, "nquiros");
 
         Assert.assertFalse(result);
 
@@ -1188,7 +1207,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername("nquiros")).thenReturn(userToUpdate);
         expectedEx.expect(RuntimeException.class);
 
-        userService.belongsToSameLegalEntity("omonge", "nquiros");
+        userService.belongsToSameLegalEntity(auth, "nquiros");
 
         Mockito.verify(userRepository, Mockito.times(2)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -1209,7 +1228,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername("nquiros")).thenThrow(new RuntimeException());
         expectedEx.expect(RuntimeException.class);
 
-        userService.belongsToSameLegalEntity("omonge", "nquiros");
+        userService.belongsToSameLegalEntity(auth, "nquiros");
 
         Mockito.verify(userRepository, Mockito.times(2)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);

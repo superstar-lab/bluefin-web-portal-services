@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
@@ -219,7 +220,7 @@ public class UserService {
      * @param legalEntityIds
      * @param userName
      */
-    public Boolean hasUserPrivilegesOverLegalEntities(String username, Set<Long> legalEntitiesToVerify) {
+    public Boolean hasUserPrivilegesOverLegalEntities(String username, Set<Long> legalEntitiesToVerify) { 
         // Get Legal Entities from user name
         Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
@@ -235,7 +236,11 @@ public class UserService {
      * @param usernameToUpdate
      * @return true if the request user has related legal entities with the user he wants to CRUD
      */
-    public boolean belongsToSameLegalEntity(String username, String usernameToUpdate) {
+    public boolean belongsToSameLegalEntity(Authentication authentication, String usernameToUpdate) {
+        final String username = authentication.getName();
+        if (usernameToUpdate.equals(username)) {
+            return true;
+        }
         // Get Legal Entities from consultant user
         Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());

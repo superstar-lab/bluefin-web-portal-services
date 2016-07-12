@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,7 +61,7 @@ public class UserRestController {
         }
 
         // Checks if the Legal Entities of the consultant user are in the user that will be requested
-        if(!userService.belongsToSameLegalEntity(authentication.getName(), username)){
+        if(!userService.belongsToSameLegalEntity(authentication, username.equals("me") ? authentication.getName() : username)){
             throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
         }
 
@@ -79,11 +78,11 @@ public class UserRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<User> getUsers(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
             @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
-            @ApiIgnore Principal principal) {
-        if (principal == null) {
+            @ApiIgnore Authentication authentication) {
+        if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        String userName = principal.getName();
+        String userName = authentication.getName();
         // Verifies if the search parameter has allowed
         // legal entities for the consultant user
         search = getVerifiedSearch(userName, search);
@@ -100,8 +99,8 @@ public class UserRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<UserResource> registerUserAccount(@Validated @RequestBody RegisterUserResource newUser,
-            @ApiIgnore Errors errors, @ApiIgnore Principal principal) throws Exception {
-        if (principal == null) {
+            @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) throws Exception {
+        if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
@@ -116,7 +115,7 @@ public class UserRestController {
         Set<Long> legalEntitiesToVerify = newUser.getLegalEntityApps().stream().collect(Collectors.toSet());
         // Checks if the Legal Entities given are valid according with the
         // LegalEntities owned
-        if (!userService.hasUserPrivilegesOverLegalEntities(principal.getName(), legalEntitiesToVerify)) {
+        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), legalEntitiesToVerify)) {
             throw new AccessDeniedException(
                     String.format("User doesn't have access to add by legal entity restriction"));
         }
@@ -139,7 +138,7 @@ public class UserRestController {
         }
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated
-        if (!userService.belongsToSameLegalEntity(authentication.getName(), username)) {
+        if (!userService.belongsToSameLegalEntity(authentication, username.equals("me") ? authentication.getName() : username)) {
             throw new AccessDeniedException("User doesn't have permission to get information from other users");
         }
 
@@ -167,7 +166,7 @@ public class UserRestController {
         }
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated
-        if (!userService.belongsToSameLegalEntity(authentication.getName(), username)) {
+        if (!userService.belongsToSameLegalEntity(authentication, username.equals("me") ? authentication.getName() : username)) {
             throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
         }
         LOGGER.info("Updating roles for user: {}", username);
@@ -182,10 +181,30 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Long> legalEntities)
-            throws Exception {
+    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Long> legalEntities,
+            @ApiIgnore Authentication authentication) throws Exception {
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+
+        // Gets the legal entities that will be verified, use of set to avoid
+        // duplicated values
+        Set<Long> legalEntitiesToVerify = legalEntities.stream().collect(Collectors.toSet());
+        // Checks if the Legal Entities of the consultant user are in the user
+        // that will be updated and checks if the Legal Entities given are valid
+        // according with the LegalEntities owned
+        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), legalEntitiesToVerify)) {
+            throw new AccessDeniedException("User doesn't have permission over the given list of legal entities");
+        }
+
+        if (!userService.belongsToSameLegalEntity(authentication,
+                username.equals("me") ? authentication.getName() : username)) {
+            throw new AccessDeniedException("User doesn't have permission to add/remove legal entities to this user.");
+        }
+
         LOGGER.info("Updating legalEntities for user: {}", username);
-        return userService.updateUserLegalEntities(username, legalEntities);
+        return userService.updateUserLegalEntities(username.equals("me") ? authentication.getName() : username,
+                legalEntities);
     }
 
     /**
