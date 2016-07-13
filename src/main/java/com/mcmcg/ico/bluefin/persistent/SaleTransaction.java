@@ -27,7 +27,7 @@ public class SaleTransaction implements Serializable {
     @Id
     @JsonIgnore
     @Column(name = "SaleTransactionID")
-    private long saleTransactionId;
+    private Long saleTransactionId;
     @Column(name = "FirstName")
     private String firstName;
     @Column(name = "LastName")
@@ -89,12 +89,6 @@ public class SaleTransaction implements Serializable {
     @Column(name = "Origin")
     private String origin;
     @JsonIgnore
-    @Column(name = "ABA")
-    private String aba;
-    @JsonIgnore
-    @Column(name = "BankAccountNumber")
-    private String bankAccountNumber;
-    @JsonIgnore
     @Column(name = "TransactionDateTime")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -117,7 +111,7 @@ public class SaleTransaction implements Serializable {
     private BigDecimal amount;
     @JsonIgnore
     @Column(name = "ResponseCode")
-    private Integer responseCode;
+    private String responseCode;
     @JsonIgnore
     @Column(name = "ResponseDescription")
     private String responseDescription;

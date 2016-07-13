@@ -17,18 +17,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
-import com.mcmcg.ico.bluefin.security.model.SecurityUser;
-import com.mcmcg.ico.bluefin.security.service.SessionService;
-
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
 
     @Value("${bluefin.wp.services.token.header}")
     private String securityTokenHeader;
 
     @Autowired
-    private SessionService sessionService;
-    @Autowired
-    private TokenHandler tokenHandler;
+    private TokenUtils tokenUtils;
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -38,15 +33,10 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authToken = httpRequest.getHeader(this.securityTokenHeader);
 
-        if (authToken != null) {
-            // TODO:remove these lines when integrate with Okta
-            authToken = sessionService.getCurrentTokenIfValid(1);
-
-            SecurityUser securityUser = tokenHandler.parseUserFromToken(authToken);
-            if (securityUser != null && SecurityContextHolder.getContext().getAuthentication() == null
-                    && sessionService.getCurrentTokenIfValid(authToken) != null) {
-                String username = securityUser.getUsername();
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+        String username = tokenUtils.getUsernameFromToken(authToken);
+        if (username != null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            if (this.tokenUtils.validateToken(authToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
