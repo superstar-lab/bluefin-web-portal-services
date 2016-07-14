@@ -7,5 +7,5 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 public interface LegalEntityAppRepository extends JpaRepository<LegalEntityApp, Long> {
     public LegalEntityApp findByLegalEntityAppName(String legalEntityAppName);
 
-    public LegalEntityApp findByLegalEntityAppId(long legalEntityAppId);
+    public LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId);
 }

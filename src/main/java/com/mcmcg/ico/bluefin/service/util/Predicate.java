@@ -58,6 +58,8 @@ public class Predicate {
             result = getDatePredicate(entityPath);
         } else if (keyInstance == BigDecimal.class) {
             result = getNumericPredicate(entityPath);
+        } else if (keyInstance == Long.class) {
+            result = getLongNumericPredicate(entityPath);
         } else if (keyInstance == String.class) {
             result = getStringPredicate(entityPath);
         } else if (keyInstance == StatusCode.class) {
@@ -162,6 +164,23 @@ public class Predicate {
         if (NumberUtils.isNumber(criteria.getValue().toString())) {
             NumberPath<BigDecimal> path = entityPath.getNumber(criteria.getKey(), BigDecimal.class);
             BigDecimal value = new BigDecimal(criteria.getValue().toString());
+            if (criteria.getOperation().equalsIgnoreCase(":")) {
+                return path.eq(value);
+            } else if (criteria.getOperation().equalsIgnoreCase(">")) {
+                return path.goe(value);
+            } else if (criteria.getOperation().equalsIgnoreCase("<")) {
+                return path.loe(value);
+            }
+        }
+
+        LOGGER.error("Unable to parse numeric value of {}", criteria.getKey());
+        throw new CustomBadRequestException("Unable to parse numeric value of " + criteria.getKey());
+    }
+    
+    private BooleanExpression getLongNumericPredicate(PathBuilder<?> entityPath) {
+        if (NumberUtils.isNumber(criteria.getValue().toString())) {
+            NumberPath<Long> path = entityPath.getNumber(criteria.getKey(), Long.class);
+            Long value = new Long(criteria.getValue().toString());
             if (criteria.getOperation().equalsIgnoreCase(":")) {
                 return path.eq(value);
             } else if (criteria.getOperation().equalsIgnoreCase(">")) {

@@ -9,5 +9,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     public Role deleteByRoleName(String roleName);
 
-    public Role findByRoleId(long roleId);
+    public Role findByRoleId(Long roleId);
 }
