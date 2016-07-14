@@ -12,7 +12,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -969,6 +968,7 @@ public class UserRestControllerTest {
         newUser.setLegalEntityApps(createValidLegalEntityIdsList());
         newUser.setRoles(createValidRoleIdsList());
         newUser.setUsername("userTest");
+        newUser.setPassword("test");
         return newUser;
     }
 

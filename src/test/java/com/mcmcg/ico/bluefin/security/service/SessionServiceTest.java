@@ -18,6 +18,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -82,10 +83,10 @@ public class SessionServiceTest {
                 .thenReturn(new UserLoginHistory());
 
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = sessionService
-                .authenticate(user.getUsername(), "test");
+                .authenticate(user.getUsername(), "password");
 
         Assert.assertEquals("omonge", usernamePasswordAuthenticationToken.getName());
-        Assert.assertEquals("test", usernamePasswordAuthenticationToken.getCredentials());
+        Assert.assertEquals("password", usernamePasswordAuthenticationToken.getCredentials());
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(userLoginHistoryRepository, Mockito.times(1)).save(Mockito.any(UserLoginHistory.class));
@@ -747,7 +748,8 @@ public class SessionServiceTest {
         user.setUsername("omonge");
         user.setFirstName("Monge");
         user.setLastName("Vega");
-
+        user.setUserPassword("$2a$10$R2bXlpaxKzK92YNvef7Ox.LyIbRHyObKiZ4WNzaQZ22ouwkPXMn4a");
+        
         List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
         userLegalEntities.add(createValidUserLegalEntity());
         user.setLegalEntities(userLegalEntities);

@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.Permission;
@@ -20,7 +22,6 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserLoginHistoryRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomForbiddenException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
@@ -40,15 +41,18 @@ public class SessionService {
     private TokenUtils tokenUtils;
     @Autowired
     private UserLoginHistoryRepository userLoginHistoryRepository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
 
     public UsernamePasswordAuthenticationToken authenticate(String username, String password) {
         User user = userRepository.findByUsername(username);
+
         createLoginHistory(user, password, username);
 
-        if (user == null) {
-            throw new CustomForbiddenException("Error authenticating user: " + username);
+        if (user == null || !passwordEncoder.matches(password, user.getUserPassword())) {
+            throw new AccessDeniedException("Invalid credentials");
         }
         return new UsernamePasswordAuthenticationToken(username, password);
     }

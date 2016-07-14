@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.CannotCreateTransactionException;
@@ -64,6 +65,9 @@ public class UserServiceTest {
     private UserLegalEntityRepository userLegalEntityRepository;
     @Mock
     private UserRoleRepository userRoleRepository;
+    @Mock
+    private BCryptPasswordEncoder passwordEncoder;
+
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
     Authentication auth;

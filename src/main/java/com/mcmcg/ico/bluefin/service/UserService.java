@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
@@ -42,6 +43,8 @@ public class UserService {
     private UserRoleRepository userRoleRepository;
     @Autowired
     private LegalEntityAppRepository legalEntityAppRepository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     public UserResource getUserInfomation(String username) {
         User user = userRepository.findByUsername(username);
@@ -81,6 +84,7 @@ public class UserService {
         List<UserLegalEntity> userLegalEntities = getLegalEntitiesByIds(userResource.getLegalEntityApps());
         List<UserRole> roles = getRolesByIds(userResource.getRoles());
         User newUser = userResource.toUser(roles, userLegalEntities);
+        newUser.setUserPassword(passwordEncoder.encode(userResource.getPassword()));
         userRepository.save(newUser);
         newUser.getLegalEntities().forEach(userLegalEntity -> {
             userLegalEntity.setUser(newUser);

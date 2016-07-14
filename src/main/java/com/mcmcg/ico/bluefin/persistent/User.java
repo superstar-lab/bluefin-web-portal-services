@@ -42,6 +42,9 @@ public class User implements Serializable {
     private String username;
     @Column(name = "Email")
     private String email;
+    @JsonIgnore
+    @Column(name = "userPassword")
+    private String userPassword;
     @Column(name = "IsActive")
     @JsonIgnore
     private Short isActive;

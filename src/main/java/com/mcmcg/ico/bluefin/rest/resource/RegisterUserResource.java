@@ -21,6 +21,8 @@ public class RegisterUserResource {
 
     @NotEmpty(message = "username must not be empty")
     private String username;
+    @NotEmpty(message = "password must not be empty")
+    private String password;
     @NotEmpty(message = "firstName must not be empty")
     private String firstName;
     @NotEmpty(message = "lastName must not be empty")
