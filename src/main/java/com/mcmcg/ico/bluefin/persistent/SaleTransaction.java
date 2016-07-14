@@ -74,9 +74,8 @@ public class SaleTransaction implements Serializable {
     private String legalEntity;
     @Column(name = "AccountId")
     private String accountNumber;
-    @JsonIgnore
     @Column(name = "ApplicationTransactionID")
-    private String applicationTransactionId;
+    private String transactionId;
     @JsonIgnore
     @Column(name = "MerchantID")
     private String merchantId;
@@ -112,8 +111,9 @@ public class SaleTransaction implements Serializable {
     @JsonIgnore
     @Column(name = "ResponseDescription")
     private String responseDescription;
+    @JsonIgnore
     @Column(name = "ProcessorTransactionID")
-    private String transactionId;
+    private String processorTransactionId;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
