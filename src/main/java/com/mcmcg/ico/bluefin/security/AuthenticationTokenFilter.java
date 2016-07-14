@@ -34,6 +34,13 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
         String authToken = httpRequest.getHeader(this.securityTokenHeader);
 
         String username = tokenUtils.getUsernameFromToken(authToken);
+        
+        /////////////////TODO: TO BE REMOVED!!!///////////////////
+        if (username == null) {
+            username = "rblanco";
+        }
+        ///////////////////////////////////////////////////////////////
+        
         if (username != null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             if (this.tokenUtils.validateToken(authToken, userDetails)) {
@@ -42,7 +49,7 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        }
+        } 
 
         chain.doFilter(request, response);
     }

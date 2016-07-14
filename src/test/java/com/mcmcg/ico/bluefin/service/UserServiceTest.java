@@ -1256,6 +1256,7 @@ public class UserServiceTest {
         newUser.setLegalEntityApps(createValidLegalEntityIdsList());
         newUser.setRoles(createValidRoleIdsList());
         newUser.setUsername("userTest");
+        newUser.setPassword("password");
         return newUser;
     }
 

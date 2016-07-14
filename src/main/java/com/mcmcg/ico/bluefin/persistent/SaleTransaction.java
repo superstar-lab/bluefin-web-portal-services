@@ -104,9 +104,6 @@ public class SaleTransaction implements Serializable {
     @JsonIgnore
     @Column(name = "ApprovalCode")
     private String approvalCode;
-    @JsonIgnore
-    @Column(name = "rspToken")
-    private String rspToken;
     @Column(name = "ChargeAmount", columnDefinition = "money")
     private BigDecimal amount;
     @JsonIgnore
