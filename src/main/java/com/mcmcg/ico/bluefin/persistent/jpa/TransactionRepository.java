@@ -7,6 +7,6 @@ import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 
 public interface TransactionRepository
         extends JpaRepository<SaleTransaction, Long>, QueryDslPredicateExecutor<SaleTransaction> {
-    public SaleTransaction findByTransactionId(String transactionId);
+    public SaleTransaction findByApplicationTransactionId(String transactionId);
 
 }

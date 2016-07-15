@@ -31,6 +31,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class TransactionsRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsRestController.class);
+    private static final String TRANSACTION_ID_FILTER = "transactionId:";
 
     @Autowired
     private TransactionsService transactionService;
@@ -66,8 +67,17 @@ public class TransactionsRestController {
         List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(username);
         search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 
+        BooleanExpression transactionIdFilter = null;
+        if (search.contains(TRANSACTION_ID_FILTER)) {
+            String value = QueryDSLUtil.getTransactionIdValue(search, TRANSACTION_ID_FILTER);
+            transactionIdFilter = QueryDSLUtil.getTransactionIdFilter(search, value);
+            search = search.replace(TRANSACTION_ID_FILTER + value, "");
+        }
+
         LOGGER.info("Generating report with the following filters: {}", search);
-        BooleanExpression predicate = QueryDSLUtil.createExpression(search, SaleTransaction.class);
+        BooleanExpression predicate = QueryDSLUtil.createExpression(search, SaleTransaction.class)
+                .and(transactionIdFilter);
+
         return transactionService.getTransactions(predicate, page, size, sort);
     }
 }

@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,13 +55,14 @@ public class TransactionsServiceTest {
 
         SaleTransaction result = null;
 
-        Mockito.when(transactionRepository.findByTransactionId(Mockito.anyString())).thenReturn(new SaleTransaction());
+        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
+                .thenReturn(new SaleTransaction());
 
         result = transactionsService.getTransactionInformation(Mockito.anyString());
 
         Assert.assertNotNull(result);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByTransactionId(Mockito.anyString());
+        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
@@ -71,11 +71,11 @@ public class TransactionsServiceTest {
     @Test(expected = CustomNotFoundException.class)
     public void testGetTransactionInformationError() {
 
-        Mockito.when(transactionRepository.findByTransactionId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString())).thenReturn(null);
 
         transactionsService.getTransactionInformation(Mockito.anyString());
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByTransactionId(Mockito.anyString());
+        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
@@ -84,11 +84,11 @@ public class TransactionsServiceTest {
     @Test(expected = CustomNotFoundException.class)
     public void testGetTransactionInformationNuLLParam() {
 
-        Mockito.when(transactionRepository.findByTransactionId(null)).thenReturn(null);
+        Mockito.when(transactionRepository.findByApplicationTransactionId(null)).thenReturn(null);
 
         transactionsService.getTransactionInformation(null);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByTransactionId(null);
+        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(null);
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
@@ -97,12 +97,12 @@ public class TransactionsServiceTest {
     @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
     public void testGetTransactionInformationDBAccessFail() {
 
-        Mockito.when(transactionRepository.findByTransactionId(Mockito.anyString()))
+        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(null));
 
         transactionsService.getTransactionInformation(Mockito.anyString());
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByTransactionId(Mockito.anyString());
+        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
@@ -111,12 +111,12 @@ public class TransactionsServiceTest {
     @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
     public void testGetTransactionInformationDBConnectionFail() {
 
-        Mockito.when(transactionRepository.findByTransactionId(Mockito.anyString()))
+        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
         transactionsService.getTransactionInformation(Mockito.anyString());
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByTransactionId(Mockito.anyString());
+        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
@@ -212,7 +212,6 @@ public class TransactionsServiceTest {
         Mockito.verifyNoMoreInteractions(transactionRepository);
 
     }
-    
 
     private User createValidUser() {
         User user = new User();

@@ -70,6 +70,7 @@ public class SessionRestController {
 
     @ApiOperation(value = "logoutUser", nickname = "logoutUser")
     @RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = AuthenticationResponse.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),

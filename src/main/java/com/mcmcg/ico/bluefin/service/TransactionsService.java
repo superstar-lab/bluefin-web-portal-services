@@ -28,7 +28,7 @@ public class TransactionsService {
     private UserRepository userRepository;
 
     public SaleTransaction getTransactionInformation(String transactionId) {
-        SaleTransaction result = transactionRepository.findByTransactionId(transactionId);
+        SaleTransaction result = transactionRepository.findByApplicationTransactionId(transactionId);
 
         if (result == null) {
             LOGGER.error("Transaction not found: {}", transactionId);

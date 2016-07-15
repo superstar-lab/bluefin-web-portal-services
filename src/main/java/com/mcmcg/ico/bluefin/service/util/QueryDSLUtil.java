@@ -16,8 +16,11 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.access.AccessDeniedException;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
+import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mysema.query.types.expr.BooleanExpression;
+import com.mysema.query.types.path.PathBuilder;
+import com.mysema.query.types.path.StringPath;
 
 public class QueryDSLUtil {
 
@@ -77,7 +80,7 @@ public class QueryDSLUtil {
         }
         return sortList;
     }
-    
+
     /**
      * Validates by filter given. Right now the validation can be achieved by id
      * or name, this method will allow to pass the filter and execute the
@@ -88,7 +91,7 @@ public class QueryDSLUtil {
      * @param filterKey
      * @return
      */
-    private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) { 
+    private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
         if (!search.contains(filterKey)) {
             if (!search.isEmpty()) {
                 search = search + ",";
@@ -96,16 +99,17 @@ public class QueryDSLUtil {
             search = search + filterKey + userLegalEntities;
         } else {
             String LEFilterValue = getLEFilterValue(search, filterKey);
-            search = search.replace(filterKey + LEFilterValue, filterKey + generateValidLEFilter(LEFilterValue, userLegalEntities));
+            search = search.replace(filterKey + LEFilterValue,
+                    filterKey + generateValidLEFilter(LEFilterValue, userLegalEntities));
         }
         return search;
     }
 
     /**
      * Checks the validity of the search criteria by checking the current legal
-     * entities owned by the consultant user and the ones provided.
-     * This verification will be executed by using LE id
-     * If the user do not have one LE, an access denied exception will be raised
+     * entities owned by the consultant user and the ones provided. This
+     * verification will be executed by using LE id If the user do not have one
+     * LE, an access denied exception will be raised
      * 
      * @param userLE
      * @param search
@@ -117,11 +121,11 @@ public class QueryDSLUtil {
 
         return validateByFilter(search, userLEIds, LEGAL_ENTITIES_FILTER);
     }
-    
+
     /**
      * Checks the validity of the search criteria by checking the current legal
-     * entities owned by the consultant user and the ones provided.
-     * This verification will be executed by using LE names
+     * entities owned by the consultant user and the ones provided. This
+     * verification will be executed by using LE names
      * 
      * @param userLE
      * @param search
@@ -159,8 +163,8 @@ public class QueryDSLUtil {
     }
 
     /**
-     * Checks if the search criteria has an array with the LE and returns it.
-     * If it can not parse it a bad request exception will rise
+     * Checks if the search criteria has an array with the LE and returns it. If
+     * it can not parse it a bad request exception will rise
      * 
      * @param search
      * @param filter
@@ -185,6 +189,49 @@ public class QueryDSLUtil {
         }
 
         return result;
+    }
+
+    /**
+     * Checks if the search criteria has an string with the transactionId and
+     * returns it. If it can not parse it a bad request exception will rise
+     * 
+     * @param search
+     * @param filter
+     * @return String with the transactionId value
+     */
+    public static String getTransactionIdValue(String search, String filter) {
+        String result = StringUtils.EMPTY;
+        Boolean validSearch = false;
+        Pattern pattern = Pattern.compile(SEARCH_REGEX);
+        Matcher matcher = pattern.matcher(search + ",");
+        while (matcher.find()) {
+            if (filter.contains(matcher.group(1).toString())) {
+                result = matcher.group(3);
+                validSearch = true;
+            }
+        }
+
+        if (!validSearch) {
+            LOGGER.error("Unable to parse value of transactionId");
+            throw new CustomBadRequestException("Unable to parse value of transactionI");
+        }
+        return result;
+    }
+
+    /**
+     * Generate the filter by processorTransactionId or processorTransactionId
+     * 
+     * @param search
+     * @param value
+     * @return Boolean Expression with the filter
+     */
+    public static BooleanExpression getTransactionIdFilter(String search, String value) {
+        PathBuilder<SaleTransaction> entityPath = new PathBuilder<SaleTransaction>(SaleTransaction.class,
+                "saleTransaction");
+        StringPath pathApplicationTransactionId = entityPath.getString("applicationTransactionId");
+        StringPath pathProcessorTransactionId = entityPath.getString("processorTransactionId");
+        return pathApplicationTransactionId.containsIgnoreCase(value)
+                .or(pathProcessorTransactionId.containsIgnoreCase(value));
     }
 
     /**

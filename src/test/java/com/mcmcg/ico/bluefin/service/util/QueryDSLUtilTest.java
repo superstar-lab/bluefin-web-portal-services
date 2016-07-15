@@ -36,7 +36,7 @@ public class QueryDSLUtilTest {
         result.setLastName("Quiros");
         result.setLegalEntity("MCMR2K");
         result.setProcessorName("JETPAY");
-        result.setTransactionId("532673163");
+        result.setApplicationTransactionId("532673163");
         result.setTransactionType("SALE");
         result.setCardType("DEBIT");
 

@@ -67,7 +67,7 @@ public class TransactionsRestControllerTest {
         result.setLastName("Quiros");
         result.setLegalEntity("MCM-R2K");
         result.setProcessorName("JETPAY");
-        result.setTransactionId("532673163");
+        result.setApplicationTransactionId("532673163");
         result.setTransactionStatusCode(1);
         result.setTransactionType("SALE");
 
@@ -99,7 +99,7 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$.firstName").value("Natalia")).andExpect(jsonPath("$.lastName").value("Quiros"))
                 .andExpect(jsonPath("$.legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$.processorName").value("JETPAY"))
-                .andExpect(jsonPath("$.transactionId").value("532673163"))
+                .andExpect(jsonPath("$.applicationTransactionId").value("532673163"))
                 .andExpect(jsonPath("$.transactionStatusCode").value("APPROVED"))
                 .andExpect(jsonPath("$.transactionType").value("SALE"));
 
@@ -172,7 +172,7 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
-                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].applicationTransactionId").value("532673163"))
                 .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
                 .andExpect(jsonPath("$[0].transactionType").value("SALE"));
 
@@ -205,7 +205,7 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
-                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].applicationTransactionId").value("532673163"))
                 .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
                 .andExpect(jsonPath("$[0].transactionType").value("SALE"));
 
@@ -236,7 +236,7 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
-                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].applicationTransactionId").value("532673163"))
                 .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
                 .andExpect(jsonPath("$[0].transactionType").value("SALE"));
 
@@ -318,7 +318,7 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$[0].lastName").value("Quiros"))
                 .andExpect(jsonPath("$[0].legalEntity").value("MCM-R2K"))
                 .andExpect(jsonPath("$[0].processorName").value("JETPAY"))
-                .andExpect(jsonPath("$[0].transactionId").value("532673163"))
+                .andExpect(jsonPath("$[0].applicationTransactionId").value("532673163"))
                 .andExpect(jsonPath("$[0].transactionStatusCode").value("APPROVED"))
                 .andExpect(jsonPath("$[0].transactionType").value("SALE"));
 
