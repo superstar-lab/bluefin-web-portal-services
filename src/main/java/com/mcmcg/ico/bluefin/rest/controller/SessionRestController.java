@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -64,6 +66,21 @@ public class SessionRestController {
         LOGGER.info("Generating token for user: {}", authenticationRequest.getUsername());
         AuthenticationResponse response = sessionService.generateToken(authenticationRequest.getUsername());
         return response;
+    }
+
+    @ApiOperation(value = "logoutUser", nickname = "logoutUser")
+    @RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = AuthenticationResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public ResponseEntity<String> logoutRequest(HttpServletRequest request) throws AuthenticationException {
+        String token = request.getHeader(securityTokenHeader);
+        if (token != null) {
+            sessionService.deleteSession(token);
+            return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        }
+        throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
 
     @ApiOperation(value = "refreshToken", nickname = "refreshToken")

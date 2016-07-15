@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -226,7 +227,9 @@ public class SessionRestControllerTest {
     }
 
     /**
-     * Test the case for when the login response created but a CustomNotFoundException is raised.
+     * Test the case for when the login response created but a
+     * CustomNotFoundException is raised.
+     * 
      * @throws Exception
      */
     @Test
@@ -242,7 +245,8 @@ public class SessionRestControllerTest {
     }
 
     /**
-     * Test errors when an unauthorized exception will arise, when given token  is no valid
+     * Test errors when an unauthorized exception will arise, when given token
+     * is no valid
      * 
      * @throws Exception
      */
@@ -272,6 +276,53 @@ public class SessionRestControllerTest {
                 .andExpect(status().isInternalServerError());
 
         Mockito.verify(sessionService, Mockito.times(1)).refreshToken(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(sessionService);
+    }
+
+    /// Test log out
+
+    /**
+     * Test a successful logout with a valid token
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testUserLogoutRequest() throws Exception {// 204
+        Mockito.doNothing().when(sessionService).deleteSession(Mockito.anyString());
+
+        mockMvc.perform(delete(API).header("X-Auth-Token", "tokenTest1234")).andExpect(status().isNoContent());
+
+        Mockito.verify(sessionService, Mockito.times(1)).deleteSession(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(sessionService);
+    }
+
+    /**
+     * Test a bad request for no token provided
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testUserLogoutRequestMissingToken() throws Exception { // 400
+        mockMvc.perform(delete(API)).andExpect(status().isBadRequest());
+
+        Mockito.verify(sessionService, Mockito.times(0)).authenticate(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(sessionService, Mockito.times(0)).generateToken(Mockito.anyString());
+        Mockito.verifyNoMoreInteractions(sessionService);
+    }
+
+    /**
+     * Test errors with data base when the user is lo delete the currently
+     * session
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testUserLogoutRequestException() throws Exception { // 500
+        Mockito.doThrow(new RuntimeException("")).when(sessionService).deleteSession(Mockito.anyString());
+
+        mockMvc.perform(delete(API).header("X-Auth-Token", "tokenTest1234")).andExpect(status().isInternalServerError());
+
+        Mockito.verify(sessionService, Mockito.times(1)).deleteSession(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(sessionService);
     }
 

@@ -134,4 +134,10 @@ public class SessionService {
         response.setToken(newToken);
         return response;
     }
+
+    public void deleteSession(String token) {
+        LOGGER.info("Sending token to blacklist");
+        String username = tokenUtils.getUsernameFromToken(token);
+        tokenUtils.sendTokenToBlacklist(token, username);
+    }
 }

@@ -4,9 +4,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.mcmcg.ico.bluefin.persistent.Token;
+import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.jpa.TokenRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,6 +26,11 @@ public class TokenUtils {
 
     @Value("${bluefin.wp.services.token.expiration}")
     private Long expiration;
+
+    @Autowired
+    private TokenRepository tokenRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public String getUsernameFromToken(String token) {
         String username;
@@ -112,7 +123,24 @@ public class TokenUtils {
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = this.getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !(this.isTokenExpired(token)));
+        return (username.equals(userDetails.getUsername()) && !this.isTokenExpired(token)
+                && !isTokenInBlacklist(token, username));
+    }
+
+    public Token sendTokenToBlacklist(String token, String username) {
+        User user = userRepository.findByUsername(username);
+        Token blacklistToken = new Token();
+        blacklistToken.setToken(token);
+        blacklistToken.setUserId(user.getUserId());
+        blacklistToken.setExpire(new Date()); // TODO: remove this field
+        blacklistToken.setType("Authentication"); // TODO: remove this field?
+        return tokenRepository.save(blacklistToken);
+    }
+
+    public Boolean isTokenInBlacklist(String token, String username) {
+        User user = userRepository.findByUsername(username);
+        Token blacklistToken = tokenRepository.findByUserIdAndToken(user.getUserId(), token);
+        return blacklistToken != null;
     }
 
 }
