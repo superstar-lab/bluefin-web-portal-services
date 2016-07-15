@@ -35,9 +35,6 @@ public class PaymentProcessor implements Serializable {
     @Column(name = "ProcessorName")
     private String processorName;
 
-    @Column(name = "CardType")
-    private String cardType;
-
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")

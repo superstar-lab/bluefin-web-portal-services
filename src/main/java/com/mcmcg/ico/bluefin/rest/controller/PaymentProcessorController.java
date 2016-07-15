@@ -43,7 +43,6 @@ public class PaymentProcessorController {
 
     @ApiOperation(value = "getPaymentProcessor", nickname = "getPaymentProcessor")
     @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -77,7 +76,6 @@ public class PaymentProcessorController {
 
     @ApiOperation(value = "createPaymentProcessor", nickname = "createPaymentProcessor")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = PaymentProcessor.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -103,7 +101,6 @@ public class PaymentProcessorController {
 
     @ApiOperation(value = "updatePaymentProcessor", nickname = "updatePaymentProcessor")
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -127,7 +124,6 @@ public class PaymentProcessorController {
 
     @ApiOperation(value = "deletePaymentProcessor", nickname = "deletePaymentProcessor")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),

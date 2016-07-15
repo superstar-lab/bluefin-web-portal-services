@@ -45,9 +45,10 @@ public class PaymentProcessorServiceTest {
     }
 
     // Get Payment Processor by id
-    
+
     /**
-     * Test the success case when the get by id is performed correctly an return a valid payment processor
+     * Test the success case when the get by id is performed correctly an return
+     * a valid payment processor
      */
     @Test
     public void testGetPaymentProcessorSuccess() {
@@ -62,35 +63,36 @@ public class PaymentProcessorServiceTest {
     }
 
     /**
-     * Test the case when the object is going to be found and does not exist by id in the DB
+     * Test the case when the object is going to be found and does not exist by
+     * id in the DB
      */
     @Test
     public void testGetPaymentProcessorSuccessNotFound() {
         Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(null);
         expectedEx.expect(CustomNotFoundException.class);
         expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id: 1");
-        
+
         paymentProcessorService.getPaymentProcessorById(1L);
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
-    
+
     /**
      * Test the case when a runtime exception shows up when trying to find by id
      */
     @Test
     public void testGetPaymentProcessorRuntimeExceptionSaving() {
         Mockito.when(paymentProcessorRepository.findOne(Mockito.anyLong())).thenThrow(new RuntimeException(""));
-        
+
         expectedEx.expect(RuntimeException.class);
-        
+
         paymentProcessorService.getPaymentProcessorById(Mockito.anyLong());
-        
+
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
-    
+
     // Get Payment Processors
     /**
      * Test the success path when trying to get all payment processors from DB
@@ -238,12 +240,13 @@ public class PaymentProcessorServiceTest {
     // Update Payment Processor
 
     /**
-     * Test the success case when the update is performed correctly over the object
+     * Test the success case when the update is performed correctly over the
+     * object
      */
     @Test
     public void testUpdatePaymentProcessorSuccess() {
         PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
-        paymentProcessorResource.setCardType("JETPAY");
+
         paymentProcessorResource.setProcessorName("DEBIT");
 
         PaymentProcessor oldPaymentProcessor = createValidPaymentProcessor();
@@ -255,21 +258,21 @@ public class PaymentProcessorServiceTest {
 
         PaymentProcessor result = paymentProcessorService.updatePaymentProcessor(1L, paymentProcessorResource);
 
-        Assert.assertEquals(oldPaymentProcessor.getCardType(), result.getCardType());
         Assert.assertEquals(oldPaymentProcessor.getProcessorName(), result.getProcessorName());
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(newPaymentProcessor);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
-    
+
     /**
-     * Test the case when the object that is going to be updated does not exist by id in the DB
+     * Test the case when the object that is going to be updated does not exist
+     * by id in the DB
      */
     @Test
     public void testUpdatePaymentProcessorSuccessNotFound() {
         PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
-        paymentProcessorResource.setCardType("JETPAY");
+
         paymentProcessorResource.setProcessorName("DEBIT");
 
         PaymentProcessor newPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
@@ -291,7 +294,7 @@ public class PaymentProcessorServiceTest {
     @Test
     public void testUpdatePaymentProcessorRuntimeExceptionFindId() {
         Mockito.when(paymentProcessorRepository.findOne(1L)).thenThrow(new RuntimeException(""));
-        
+
         expectedEx.expect(RuntimeException.class);
 
         paymentProcessorService.updatePaymentProcessor(1L, Mockito.any(PaymentProcessorResource.class));
@@ -302,60 +305,63 @@ public class PaymentProcessorServiceTest {
     }
 
     /**
-     * Test the case when a runtime exception shows up when trying to update the payment processor
+     * Test the case when a runtime exception shows up when trying to update the
+     * payment processor
      */
     @Test
     public void testUpdatePaymentProcessorRuntimeExceptionSaving() {
         Mockito.when(paymentProcessorRepository.findOne(Mockito.anyLong())).thenReturn(new PaymentProcessor());
-        Mockito.when(paymentProcessorRepository.save(Mockito.any(PaymentProcessor.class))).thenThrow(new RuntimeException(""));
-        
+        Mockito.when(paymentProcessorRepository.save(Mockito.any(PaymentProcessor.class)))
+                .thenThrow(new RuntimeException(""));
+
         expectedEx.expect(RuntimeException.class);
-        
+
         paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(), Mockito.any(PaymentProcessorResource.class));
-        
+
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
-    
+
     // Delete Payment Processor
-    
+
     /**
-     * Test the success case when the delete is performed correctly over the object
+     * Test the success case when the delete is performed correctly over the
+     * object
      */
     @Test
     public void testDeletePaymentProcessorSuccess() {
-        PaymentProcessor paymentProcessorToDelete = new PaymentProcessor(); 
+        PaymentProcessor paymentProcessorToDelete = new PaymentProcessor();
         paymentProcessorToDelete.setPaymentProcessorId(1L);
 
         Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(paymentProcessorToDelete);
         Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable { 
-              return null;
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                return null;
             }
-          }).when(paymentProcessorRepository).delete(1L);
+        }).when(paymentProcessorRepository).delete(1L);
 
         paymentProcessorService.deletePaymentProcessor(1L);
- 
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).delete(paymentProcessorToDelete);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
-    
+
     /**
-     * Test the case when the object that is going to be deleted and does not exist by id in the DB
+     * Test the case when the object that is going to be deleted and does not
+     * exist by id in the DB
      */
     @Test
-    public void testDeletePaymentProcessorSuccessNotFound() { 
+    public void testDeletePaymentProcessorSuccessNotFound() {
         Mockito.doAnswer(new Answer<Void>() {
             @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable { 
-              return null;
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                return null;
             }
-          }).when(paymentProcessorRepository).delete(1L);
-        
+        }).when(paymentProcessorRepository).delete(1L);
+
         expectedEx.expect(CustomNotFoundException.class);
         expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id: 1");
         paymentProcessorService.deletePaymentProcessor(1L);
@@ -371,7 +377,7 @@ public class PaymentProcessorServiceTest {
     @Test
     public void testDeletePaymentProcessorRuntimeExceptionFindId() {
         Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository).findOne(1L);
-        
+
         expectedEx.expect(RuntimeException.class);
 
         paymentProcessorService.deletePaymentProcessor(Mockito.anyLong());
@@ -382,25 +388,26 @@ public class PaymentProcessorServiceTest {
     }
 
     /**
-     * Test the case when a runtime exception shows up when trying to delete the payment processor
+     * Test the case when a runtime exception shows up when trying to delete the
+     * payment processor
      */
     @Test
     public void testDeletePaymentProcessorRuntimeExceptionSaving() {
         Mockito.when(paymentProcessorRepository.findOne(Mockito.anyLong())).thenReturn(new PaymentProcessor());
-        Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository).delete(Mockito.any(PaymentProcessor.class));
-        
+        Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository)
+                .delete(Mockito.any(PaymentProcessor.class));
+
         expectedEx.expect(RuntimeException.class);
-        
+
         paymentProcessorService.deletePaymentProcessor(Mockito.anyLong());
-        
+
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).delete(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
-    
+
     private PaymentProcessorResource createValidPaymentProcessorResource() {
         PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
-        paymentProcessorResource.setCardType("VISA");
         paymentProcessorResource.setProcessorName("PAYSCOUT");
         return paymentProcessorResource;
     }
@@ -426,7 +433,6 @@ public class PaymentProcessorServiceTest {
         PaymentProcessor paymentProcessor = new PaymentProcessor();
         paymentProcessor.setPaymentProcessorId(1L);
         paymentProcessor.setProcessorName("PAYSCOUT");
-        paymentProcessor.setCardType("VISA");
         return paymentProcessor;
     }
 

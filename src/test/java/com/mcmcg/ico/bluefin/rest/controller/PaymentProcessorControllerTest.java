@@ -65,7 +65,7 @@ public class PaymentProcessorControllerTest {
         auth = new UsernamePasswordAuthenticationToken("omonge", "password", authorities);
     }
 
- // Get Payment Processor by id
+    // Get Payment Processor by id
 
     /**
      * Test the success path when trying to get payment processor from DB
@@ -76,8 +76,7 @@ public class PaymentProcessorControllerTest {
     public void testGetPaymentProcessor() throws Exception { // 200
         Mockito.when(paymentProcessorService.getPaymentProcessorById(1L)).thenReturn(createValidPaymentProcessor());
 
-        mockMvc.perform(get(API+"/{id}",1L).principal(auth))
-                .andExpect(status().isOk())
+        mockMvc.perform(get(API + "/{id}", 1L).principal(auth)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentProcessorId").value(1))
                 .andExpect(jsonPath("$.processorName").value("PAYSCOUT"));
 
@@ -93,11 +92,9 @@ public class PaymentProcessorControllerTest {
     @Test
     public void testGetPaymentProcessorBadRequestSearchMissing() throws Exception { // 400
 
-        mockMvc.perform(get(API+"/{id}","test").principal(auth))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(get(API + "/{id}", "test").principal(auth)).andExpect(status().isBadRequest());
     }
 
-     
     /**
      * Test the case when the user has not authorization to request information
      * 
@@ -105,8 +102,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testGetPaymentProcessorAuthException() throws Exception { // 401
-        mockMvc.perform(get(API+"/{id}",1L))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get(API + "/{id}", 1L)).andExpect(status().isUnauthorized());
     }
 
     /**
@@ -116,15 +112,15 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testGetPaymentProcessorRuntimeException() throws Exception { // 500
-        Mockito.when(paymentProcessorService.getPaymentProcessorById(Mockito.anyLong())).thenThrow(new RuntimeException(""));
+        Mockito.when(paymentProcessorService.getPaymentProcessorById(Mockito.anyLong()))
+                .thenThrow(new RuntimeException(""));
 
-        mockMvc.perform(get(API+"/{id}",1L).principal(auth))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(get(API + "/{id}", 1L).principal(auth)).andExpect(status().isInternalServerError());
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).getPaymentProcessorById(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
-    
+
     // Get Payment Processors
 
     /**
@@ -233,7 +229,7 @@ public class PaymentProcessorControllerTest {
         mockMvc.perform(post(API).principal(auth).content(convertObjectToJsonBytes(paymentProcessorResource))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.processorName").value("PAYSCOUT"))
-                .andExpect(jsonPath("$.cardType").value("VISA")).andExpect(jsonPath("$.paymentProcessorId").value(1));
+                .andExpect(jsonPath("$.paymentProcessorId").value(1));
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).createPaymentProcessor(paymentProcessorResource);
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
@@ -278,46 +274,6 @@ public class PaymentProcessorControllerTest {
     }
 
     /**
-     * Test the case when the card type of the processor is missing, bad request
-     * exception is thrown
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testCreatePaymentProcessorBadRequestCardTypeMissing() throws Exception { // 400
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
-        paymentProcessorResource.setCardType(null);
-
-        String validationError = mockMvc
-                .perform(post(API).principal(auth).content(convertObjectToJsonBytes(paymentProcessorResource))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andReturn().getResolvedException().getMessage();
-
-        assertThat(validationError, containsString("cardType must not be empty"));
-    }
-
-    /**
-     * Test the case when all required elements of the processor are missing,
-     * bad request exception is thrown
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testCreatePaymentProcessorBadRequestAllMissing() throws Exception { // 400
-        PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
-
-        String validationError = mockMvc
-                .perform(post(API).principal(auth).content(convertObjectToJsonBytes(paymentProcessorResource))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andReturn().getResolvedException().getMessage();
-
-        assertThat(validationError, containsString("cardType must not be empty"));
-        assertThat(validationError, containsString("processorName must not be empty"));
-    }
-
-    /**
      * Test the case when an exception raises up, like DB exceptions
      * 
      * @throws Exception
@@ -356,7 +312,7 @@ public class PaymentProcessorControllerTest {
                 .content(convertObjectToJsonBytes(paymentProcessorResource)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.processorName").value("PAYSCOUT"))
-                .andExpect(jsonPath("$.cardType").value("VISA")).andExpect(jsonPath("$.paymentProcessorId").value(1));
+                .andExpect(jsonPath("$.paymentProcessorId").value(1));
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).updatePaymentProcessor(Mockito.anyLong(),
                 Mockito.any(PaymentProcessorResource.class));
@@ -403,52 +359,6 @@ public class PaymentProcessorControllerTest {
                 .andReturn().getResolvedException().getMessage();
 
         assertThat(validationError, containsString("processorName must not be empty"));
-
-        Mockito.verifyZeroInteractions(paymentProcessorService);
-    }
-
-    /**
-     * Test the case when the request is not correct, it's missing the card type
-     * of the payment processor, bad request exceptions will be send
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdatePaymentProcessorBadRequestCardTypeMissing() throws Exception {// 400
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
-        paymentProcessorResource.setCardType(null);
-
-        String validationError = mockMvc
-                .perform(put(API + "/{id}", 1L).principal(auth)
-                        .content(convertObjectToJsonBytes(paymentProcessorResource))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andReturn().getResolvedException().getMessage();
-
-        assertThat(validationError, containsString("cardType must not be empty"));
-
-        Mockito.verifyZeroInteractions(paymentProcessorService);
-    }
-
-    /**
-     * Test the case when the request is not correct, all elements of a payment
-     * processor are missing , bad request exceptions will be send
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdatePaymentProcessorBadRequestAllMissing() throws Exception {// 400
-        PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
-
-        String validationError = mockMvc
-                .perform(put(API + "/{id}", 1L).principal(auth)
-                        .content(convertObjectToJsonBytes(paymentProcessorResource))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
-                .andReturn().getResolvedException().getMessage();
-
-        assertThat(validationError, containsString("processorName must not be empty"));
-        assertThat(validationError, containsString("cardType must not be empty"));
 
         Mockito.verifyZeroInteractions(paymentProcessorService);
     }
@@ -526,7 +436,6 @@ public class PaymentProcessorControllerTest {
 
     private PaymentProcessorResource createValidPaymentProcessorResource() {
         PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
-        paymentProcessorResource.setCardType("VISA");
         paymentProcessorResource.setProcessorName("PAYSCOUT");
         return paymentProcessorResource;
     }
