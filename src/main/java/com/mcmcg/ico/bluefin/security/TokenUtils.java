@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.mcmcg.ico.bluefin.persistent.Token;
+import com.mcmcg.ico.bluefin.persistent.SecurityToken;
 import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.TokenRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.SecurityTokenRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 
 import io.jsonwebtoken.Claims;
@@ -28,7 +28,7 @@ public class TokenUtils {
     private Long expiration;
 
     @Autowired
-    private TokenRepository tokenRepository;
+    private SecurityTokenRepository tokenRepository;
     @Autowired
     private UserRepository userRepository;
 
@@ -127,19 +127,18 @@ public class TokenUtils {
                 && !isTokenInBlacklist(token, username));
     }
 
-    public Token sendTokenToBlacklist(String token, String username) {
+    public SecurityToken sendTokenToBlacklist(String token, String username) {
         User user = userRepository.findByUsername(username);
-        Token blacklistToken = new Token();
+        SecurityToken blacklistToken = new SecurityToken();
         blacklistToken.setToken(token);
         blacklistToken.setUserId(user.getUserId());
-        blacklistToken.setExpire(new Date()); // TODO: remove this field
-        blacklistToken.setType("Authentication"); // TODO: remove this field?
+        blacklistToken.setType("Authentication"); // TODO: multiple token types
         return tokenRepository.save(blacklistToken);
     }
 
     public Boolean isTokenInBlacklist(String token, String username) {
         User user = userRepository.findByUsername(username);
-        Token blacklistToken = tokenRepository.findByUserIdAndToken(user.getUserId(), token);
+        SecurityToken blacklistToken = tokenRepository.findByUserIdAndToken(user.getUserId(), token);
         return blacklistToken != null;
     }
 
