@@ -1,9 +1,11 @@
 package com.mcmcg.ico.bluefin.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
@@ -11,8 +13,6 @@ import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
-import com.mysema.query.types.expr.BooleanExpression;
 
 @Service
 public class PaymentProcessorService {
@@ -32,7 +32,7 @@ public class PaymentProcessorService {
         PaymentProcessor paymentProcessor = paymentProcessorRepository.findOne(id);
 
         if (paymentProcessor == null) {
-            LOGGER.error(String.format("Unable to find payment processor, it doesn't exists: %s", id));
+            LOGGER.error("Unable to find payment processor, it doesn't exists: [{}]", id);
             throw new CustomNotFoundException(
                     String.format("Unable to process request payment processor doesn't exists with given id: %s", id));
         }
@@ -40,26 +40,15 @@ public class PaymentProcessorService {
     }
 
     /**
-     * This method will return a list of payment processors according to the
-     * criteria given by parameter, if not match found a not found exception
-     * will be thrown
+     * This method will return a list of all the payment processors
      * 
-     * @param exp
-     * @param page
-     * @param size
-     * @param sort
      * @return List with payment processors that match the criteria given, not
      *         found exception if not match found
      */
-    public Iterable<PaymentProcessor> getPaymentProcessors(BooleanExpression exp, Integer page, Integer size,
-            String sort) {
-        Page<PaymentProcessor> result = paymentProcessorRepository.findAll(exp,
-                QueryDSLUtil.getPageRequest(page, size, sort));
-        if (page > result.getTotalPages() && page != 0) {
-            LOGGER.error("Unable to find the page requested");
-            throw new CustomNotFoundException("Unable to find the page requested");
-        }
-        return result;
+    public List<PaymentProcessor> getPaymentProcessors() {
+        List<PaymentProcessor> result = paymentProcessorRepository.findAll();
+
+        return result == null ? new ArrayList<PaymentProcessor>() : result;
     }
 
     /**
@@ -71,11 +60,10 @@ public class PaymentProcessorService {
      */
     public PaymentProcessor createPaymentProcessor(PaymentProcessorResource paymentProcessorResource) {
         PaymentProcessor paymentProcessor = paymentProcessorResource.toPaymentProcessor();
-        String processorName = paymentProcessor.getProcessorName();
+        final String processorName = paymentProcessor.getProcessorName();
 
         if (existPaymentProcessorName(processorName)) {
-            LOGGER.error(String.format("Unable to create Payment Processor, this processor already exists: %s",
-                    processorName));
+            LOGGER.error("Unable to create Payment Processor, this processor already exists: [{}]", processorName);
             throw new CustomBadRequestException(String
                     .format("Unable to create Payment Processor, this processor already exists: %s", processorName));
         }
@@ -93,10 +81,11 @@ public class PaymentProcessorService {
         PaymentProcessor paymentProcessorToUpdate = paymentProcessorRepository.findOne(id);
 
         if (paymentProcessorToUpdate == null) {
-            LOGGER.error(String.format("Unable to update payment processor, it doesn't exists: %s", id));
+            LOGGER.error("Unable to update payment processor, it doesn't exists: [{}]", id);
             throw new CustomNotFoundException(
                     String.format("Unable to process request payment processor doesn't exists with given id: %s", id));
         }
+
         paymentProcessorResource.updatePaymentProcessor(paymentProcessorToUpdate);
         return paymentProcessorRepository.save(paymentProcessorToUpdate);
     }
@@ -111,7 +100,7 @@ public class PaymentProcessorService {
         PaymentProcessor paymentProcessorToDelete = paymentProcessorRepository.findOne(id);
 
         if (paymentProcessorToDelete == null) {
-            LOGGER.error(String.format("Unable to delete payment processor, it doesn't exists: %s", id));
+            LOGGER.error("Unable to delete payment processor, it doesn't exists: [{}]", id);
             throw new CustomNotFoundException(
                     String.format("Unable to process request payment processor doesn't exists with given id: %s", id));
         }

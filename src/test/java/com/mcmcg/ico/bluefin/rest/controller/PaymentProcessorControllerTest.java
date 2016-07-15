@@ -36,7 +36,6 @@ import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
-import com.mysema.query.types.expr.BooleanExpression;
 
 public class PaymentProcessorControllerTest {
 
@@ -96,16 +95,6 @@ public class PaymentProcessorControllerTest {
     }
 
     /**
-     * Test the case when the user has not authorization to request information
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetPaymentProcessorAuthException() throws Exception { // 401
-        mockMvc.perform(get(API + "/{id}", 1L)).andExpect(status().isUnauthorized());
-    }
-
-    /**
      * Test the case when a runtime exception raises up, like DB exceptions
      * 
      * @throws Exception
@@ -130,8 +119,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testGetPaymentProcessors() throws Exception { // 200
-        Mockito.when(paymentProcessorService.getPaymentProcessors(Mockito.any(BooleanExpression.class),
-                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).thenReturn(getValidPaymentProcessorList());
+        Mockito.when(paymentProcessorService.getPaymentProcessors()).thenReturn(getValidPaymentProcessorList());
 
         mockMvc.perform(get(API).principal(auth).param("search", "").param("page", "0").param("size", "1"))
                 .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -142,55 +130,8 @@ public class PaymentProcessorControllerTest {
                 .andExpect(jsonPath("$[2].paymentProcessorId").value(3))
                 .andExpect(jsonPath("$[2].processorName").value("ACI"));
 
-        Mockito.verify(paymentProcessorService, Mockito.times(1)).getPaymentProcessors(
-                Mockito.any(BooleanExpression.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
+        Mockito.verify(paymentProcessorService, Mockito.times(1)).getPaymentProcessors();
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
-    }
-
-    /**
-     * Test the case when the search is missing in the criteria given
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetPaymentProcessorsBadRequestSearchMissing() throws Exception { // 400
-
-        mockMvc.perform(get(API).principal(auth).param("page", "0").param("size", "1"))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Test the case when the page is missing in the criteria given
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetPaymentProcessorsBadRequestPageMissing() throws Exception { // 400
-
-        mockMvc.perform(get(API).principal(auth).param("search", "").param("size", "1"))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Test the case when the size is missing in the criteria given
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetPaymentProcessorsBadRequestSizeMissing() throws Exception { // 400
-        mockMvc.perform(get(API).principal(auth).param("search", "").param("page", "1"))
-                .andExpect(status().isBadRequest());
-    }
-
-    /**
-     * Test the case when the user has not authorization to request information
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGetPaymentProcessorsAuthException() throws Exception { // 401
-        mockMvc.perform(get(API).param("search", "").param("page", "1").param("size", "1"))
-                .andExpect(status().isUnauthorized());
     }
 
     /**
@@ -200,14 +141,12 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testGetPaymentProcessorsRuntimeException() throws Exception { // 500
-        Mockito.when(paymentProcessorService.getPaymentProcessors(Mockito.any(BooleanExpression.class),
-                Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString())).thenThrow(new RuntimeException(""));
+        Mockito.when(paymentProcessorService.getPaymentProcessors()).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(get(API).principal(auth).param("search", "").param("page", "0").param("size", "1"))
                 .andExpect(status().isInternalServerError());
 
-        Mockito.verify(paymentProcessorService, Mockito.times(1)).getPaymentProcessors(
-                Mockito.any(BooleanExpression.class), Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
+        Mockito.verify(paymentProcessorService, Mockito.times(1)).getPaymentProcessors();
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
@@ -233,22 +172,6 @@ public class PaymentProcessorControllerTest {
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).createPaymentProcessor(paymentProcessorResource);
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
-    }
-
-    /**
-     * Test the case when user is not authorized to use this api
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testCreatePaymentProcessorUnauthorized() throws Exception { // 401
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
-
-        mockMvc.perform(post(API).content(convertObjectToJsonBytes(paymentProcessorResource))
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
-
-        Mockito.verifyZeroInteractions(paymentProcessorService);
     }
 
     /**
@@ -320,27 +243,6 @@ public class PaymentProcessorControllerTest {
     }
 
     /**
-     * Test the case when the requester user is not authenticated to update a
-     * payment processor
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdatePaymentProcessorUnauthorized() throws Exception {// 401
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
-        PaymentProcessor updatedPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
-        updatedPaymentProcessor.setPaymentProcessorId(1L);
-
-        Mockito.when(paymentProcessorService.updatePaymentProcessor(1L, paymentProcessorResource))
-                .thenReturn(updatedPaymentProcessor);
-
-        mockMvc.perform(put(API + "/{id}", 1L).content(convertObjectToJsonBytes(paymentProcessorResource))
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
-
-        Mockito.verifyZeroInteractions(paymentProcessorService);
-    }
-
-    /**
      * Test the case when the request is not correct, it's missing the name of
      * the payment processor, bad request exceptions will be send
      * 
@@ -404,18 +306,6 @@ public class PaymentProcessorControllerTest {
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).deletePaymentProcessor(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
-    }
-
-    /**
-     * Test the case when the requester user is not authenticated to delete a
-     * payment processor
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testDeletePaymentProcessorUnauthorized() throws Exception {// 401
-        mockMvc.perform(delete(API + "/{id}", 1L)).andExpect(status().isUnauthorized());
-        Mockito.verifyZeroInteractions(paymentProcessorService);
     }
 
     /**

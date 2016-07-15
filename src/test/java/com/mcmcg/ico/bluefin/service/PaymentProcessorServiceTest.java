@@ -15,17 +15,12 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
-import com.mysema.query.types.expr.BooleanExpression;
 
 public class PaymentProcessorServiceTest {
 
@@ -94,23 +89,20 @@ public class PaymentProcessorServiceTest {
     }
 
     // Get Payment Processors
+
     /**
      * Test the success path when trying to get all payment processors from DB
      */
     @Test
     public void testGetPaymentProcessors() {
-        Page<PaymentProcessor> returnedPaymentProcessorList = new PageImpl<PaymentProcessor>(
-                getValidPaymentProcessorList());
-        BooleanExpression exp = QueryDSLUtil.createExpression("paymentProcessorId:1,processorName:PAYSCOUT",
-                PaymentProcessor.class);
-        PageRequest page = QueryDSLUtil.getPageRequest(0, 1, null);
-        Mockito.when(paymentProcessorRepository.findAll(exp, page)).thenReturn(returnedPaymentProcessorList);
+        List<PaymentProcessor> returnedPaymentProcessorList = getValidPaymentProcessorList();
+        Mockito.when(paymentProcessorRepository.findAll()).thenReturn(getValidPaymentProcessorList());
 
-        Iterable<PaymentProcessor> result = paymentProcessorService.getPaymentProcessors(exp, 0, 1, null);
+        List<PaymentProcessor> result = paymentProcessorService.getPaymentProcessors();
 
         Assert.assertEquals(returnedPaymentProcessorList, result);
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(exp, page);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll();
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -120,18 +112,14 @@ public class PaymentProcessorServiceTest {
     @Test
     public void testGetPaymentProcessorsNotFound() {
         List<PaymentProcessor> returnedPaymentProcessorList = new ArrayList<PaymentProcessor>();
-        BooleanExpression exp = QueryDSLUtil.createExpression("search", PaymentProcessor.class);
-        PageRequest page = QueryDSLUtil.getPageRequest(2, 1, null);
 
-        Mockito.when(paymentProcessorRepository.findAll(exp, page))
-                .thenReturn(new PageImpl<PaymentProcessor>(returnedPaymentProcessorList));
+        Mockito.when(paymentProcessorRepository.findAll()).thenReturn(returnedPaymentProcessorList);
+ 
+        List<PaymentProcessor> result = paymentProcessorService.getPaymentProcessors();
+        
+        Assert.assertTrue(result.isEmpty());
 
-        expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to find the page requested");
-
-        paymentProcessorService.getPaymentProcessors(exp, 2, 1, null);
-
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(exp, page);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll();
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -141,14 +129,11 @@ public class PaymentProcessorServiceTest {
      */
     @Test(expected = RuntimeException.class)
     public void testGetPaymentProcessorsRuntimeException() {
-        BooleanExpression exp = QueryDSLUtil.createExpression("search", PaymentProcessor.class);
-        PageRequest page = QueryDSLUtil.getPageRequest(2, 1, null);
+        Mockito.when(paymentProcessorRepository.findAll()).thenThrow(new RuntimeException(""));
 
-        Mockito.when(paymentProcessorRepository.findAll(exp, page)).thenThrow(new RuntimeException(""));
+        paymentProcessorService.getPaymentProcessors();
 
-        paymentProcessorService.getPaymentProcessors(exp, 2, 1, null);
-
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(exp, page);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll();
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
