@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,15 +38,15 @@ public class LegalEntityApp implements Serializable {
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
+    @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<UserLegalEntity> userLegalEntities;
 
 }
