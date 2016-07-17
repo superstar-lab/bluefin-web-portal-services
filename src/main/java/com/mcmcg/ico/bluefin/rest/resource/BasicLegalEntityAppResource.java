@@ -1,14 +1,18 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import java.io.Serializable;
+
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 
 import lombok.Data;
 
 @Data
-public class LegalEntityAppResource {
-    @NotEmpty(message = "legal entity name must not be empty")
+public class BasicLegalEntityAppResource implements Serializable {
+    private static final long serialVersionUID = 8649893596541033808L;
+
+    @NotBlank(message = "Legal entity name cannot be empty or null")
     private String legalEntityAppName;
 
     public LegalEntityApp toLegalEntityApp() {
@@ -16,10 +20,4 @@ public class LegalEntityAppResource {
         legalEntityApp.setLegalEntityAppName(legalEntityAppName);
         return legalEntityApp;
     }
-
-    public LegalEntityApp updateLegalEntityApp(LegalEntityApp legalEntityApp) {
-        legalEntityApp.setLegalEntityAppName(legalEntityAppName);
-        return legalEntityApp;
-    }
-
 }

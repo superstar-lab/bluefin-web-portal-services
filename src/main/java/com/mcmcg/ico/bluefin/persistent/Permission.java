@@ -29,20 +29,22 @@ public class Permission implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PermissionID")
     private long permissionId;
+
     @Column(name = "PermissionName")
     private String permissionName;
+
     @Column(name = "Description")
     private String description;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "permission")
+    private Collection<RolePermission> rolePermissions;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated")
     private Date dateCreated;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "permission")
-    private Collection<RolePermission> rolePermissions;
 
     public Permission() {
     }

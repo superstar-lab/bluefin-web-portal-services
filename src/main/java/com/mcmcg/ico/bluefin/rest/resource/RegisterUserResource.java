@@ -1,12 +1,13 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
@@ -17,17 +18,18 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 import lombok.Data;
 
 @Data
-public class RegisterUserResource {
+public class RegisterUserResource implements Serializable {
+    private static final long serialVersionUID = 3833640597296293196L;
 
-    @NotEmpty(message = "username must not be empty")
+    @NotBlank(message = "username must not be empty")
     private String username;
-    @NotEmpty(message = "password must not be empty")
+    @NotBlank(message = "password must not be empty")
     private String password;
-    @NotEmpty(message = "firstName must not be empty")
+    @NotBlank(message = "firstName must not be empty")
     private String firstName;
-    @NotEmpty(message = "lastName must not be empty")
+    @NotBlank(message = "lastName must not be empty")
     private String lastName;
-    @NotEmpty(message = "email must not be empty")
+    @NotBlank(message = "email must not be empty")
     private String email;
     @Size(min = 1, message = "rolesIdsList must not be empty")
     @NotNull(message = "roles must not be null")

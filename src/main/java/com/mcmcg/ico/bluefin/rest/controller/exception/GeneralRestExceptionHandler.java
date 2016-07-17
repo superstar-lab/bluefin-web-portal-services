@@ -2,17 +2,21 @@ package com.mcmcg.ico.bluefin.rest.controller.exception;
 
 import java.util.UUID;
 
+import org.hibernate.exception.JDBCConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.WebUtils;
 
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 
@@ -20,6 +24,8 @@ import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionHandler.class);
+    private static final String DEVELOPMENT_PROFILE = "development";
+    private static final String CUSTOM_HEADER_PROFILE = "profile";
 
     @ExceptionHandler(CustomNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -29,7 +35,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler(CustomForbiddenException.class)
+    @ExceptionHandler({ DataAccessResourceFailureException.class, JDBCConnectionException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public @ResponseBody ErrorResource handleForbiddenException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
@@ -45,7 +51,15 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler({ AuthenticationException.class, AccessDeniedException.class })
+    @ExceptionHandler({ IllegalArgumentException.class, CustomBadRequestException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResource handleBadRequestException(final Exception exception, WebRequest request) {
+        UUID uniqueErrorId = logException(exception);
+
+        return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
+    }
+
+    @ExceptionHandler({ AccessDeniedException.class })
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public @ResponseBody ErrorResource handleUnauthorizedException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
@@ -53,12 +67,18 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler({ CustomBadRequestException.class, IllegalArgumentException.class })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResource handleBadRequestException(final Exception exception, WebRequest request) {
-        UUID uniqueErrorId = logException(exception);
+    /**
+     * Customizing exception internal
+     */
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
+            HttpStatus status, WebRequest request) {
 
-        return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
+        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
+            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+        }
+
+        return ErrorResource.buildErrorResource(status, logException(ex), ex, hasDevelopmentProfileHeader(request));
     }
 
     private UUID logException(final Exception exception) {
@@ -68,9 +88,9 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return uniqueErrorId;
     }
 
-    private boolean hasDevelopmentProfileHeader(WebRequest request) {
-        final String profile = request.getHeader("profile");
+    private boolean hasDevelopmentProfileHeader(final WebRequest request) {
+        final String profile = request.getHeader(CUSTOM_HEADER_PROFILE);
 
-        return profile == null ? false : profile.equalsIgnoreCase("development");
+        return profile == null ? false : profile.equalsIgnoreCase(DEVELOPMENT_PROFILE);
     }
 }

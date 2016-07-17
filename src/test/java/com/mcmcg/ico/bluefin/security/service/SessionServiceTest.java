@@ -2,7 +2,9 @@ package com.mcmcg.ico.bluefin.security.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -697,7 +699,7 @@ public class SessionServiceTest {
     private LegalEntityApp createValidLegalEntityApp() {
         LegalEntityApp validLegalEntity = new LegalEntityApp();
         UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("legalEntity1");

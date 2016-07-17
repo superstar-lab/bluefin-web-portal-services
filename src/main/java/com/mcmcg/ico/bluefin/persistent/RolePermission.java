@@ -32,6 +32,7 @@ public class RolePermission implements Serializable {
     @ManyToOne
     @JoinColumn(name = "RoleID")
     private Role role;
+
     @ManyToOne
     @JoinColumn(name = "PermissionID")
     private Permission permission;

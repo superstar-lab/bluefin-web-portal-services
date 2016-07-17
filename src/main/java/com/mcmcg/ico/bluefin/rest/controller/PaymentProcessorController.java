@@ -53,7 +53,8 @@ public class PaymentProcessorController {
     @ApiOperation(value = "getPaymentProcessors", nickname = "getPaymentProcessors")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class, responseContainer = "List"),
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class, responseContainer = "List"),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<PaymentProcessor> getPaymentProcessors() {
@@ -70,8 +71,7 @@ public class PaymentProcessorController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<PaymentProcessor> createPaymentProcessor(
-            @Validated @RequestBody PaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors)
-            throws Exception {
+            @Validated @RequestBody PaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -92,8 +92,7 @@ public class PaymentProcessorController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessor updatePaymentProcessor(@PathVariable Long id,
-            @Validated @RequestBody PaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors)
-            throws Exception {
+            @Validated @RequestBody PaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
@@ -111,7 +110,7 @@ public class PaymentProcessorController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<PaymentProcessor> deletePaymentProcessor(@PathVariable Long id) throws Exception {
+    public ResponseEntity<PaymentProcessor> deletePaymentProcessor(@PathVariable Long id) {
         LOGGER.info("Deleting Payment Processor {}", id);
         paymentProcessorService.deletePaymentProcessor(id);
         LOGGER.info("Payment Processor {} has been deleted.", id);

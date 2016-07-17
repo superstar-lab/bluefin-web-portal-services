@@ -6,6 +6,10 @@ import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
@@ -18,7 +22,7 @@ public class ErrorResource implements Serializable {
     public static final String REQUEST_HEADER_PROFILE = "profile";
     public static final String REQUEST_HEADER_PROFILE_DEVELOPMENT = "development";
 
-    private UUID uniqueErrorId;
+    private UUID uniqueId;
     private long timestamp;
     private String message;
     private String exception;
@@ -39,17 +43,19 @@ public class ErrorResource implements Serializable {
     /**
      * Build error resource when an exception happen
      * 
-     * @param uniqueErrorId
-     * @param exception
+     * @param uniqueId
+     *            unique uuid to map external error with logs
+     * @param ex
+     *            class exceptionn
      * @param hasDevelopmentProfile
      *            if true, it displays additional information related to
      *            development profile; otherwise it won't
      * @return ErrorResource object that holds the exception information
      */
-    public static ErrorResource buildErrorResource(UUID uniqueErrorId, final Exception exception,
+    public static ErrorResource buildErrorResource(UUID uniqueId, final Exception exception,
             final boolean hasDevelopmentProfile) {
         ErrorResource em = new ErrorResource();
-        em.setUniqueErrorId(uniqueErrorId);
+        em.setUniqueId(uniqueId);
         em.setTimestamp(Calendar.getInstance().getTimeInMillis());
         em.setMessage(exception.getMessage());
         em.setException(exception.getClass().getName());
@@ -62,5 +68,26 @@ public class ErrorResource implements Serializable {
         }
 
         return em;
+    }
+
+    /**
+     * Build a response entity using the application error resource format
+     * 
+     * @param httpStatus
+     *            http status code
+     * @param uniqueId
+     *            unique uuid to map external error with logs
+     * @param ex
+     *            class exception
+     * @param hasDevelopmentProfileHeader
+     *            if true, it displays additional information related to
+     *            development profile; otherwise it won't
+     * @return
+     */
+    public static ResponseEntity<Object> buildErrorResource(HttpStatus httpStatus, UUID uniqueId, Exception exception,
+            boolean hasDevelopmentProfileHeader) {
+        return new ResponseEntity<Object>(
+                ErrorResource.buildErrorResource(uniqueId, exception, hasDevelopmentProfileHeader), new HttpHeaders(),
+                httpStatus);
     }
 }

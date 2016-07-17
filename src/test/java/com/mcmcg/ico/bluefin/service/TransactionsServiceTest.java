@@ -1,7 +1,9 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +29,7 @@ import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.Predicate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -236,7 +238,7 @@ public class TransactionsServiceTest {
     private LegalEntityApp createValidLegalEntityApp() {
         LegalEntityApp validLegalEntity = new LegalEntityApp();
         UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("legalEntity1");

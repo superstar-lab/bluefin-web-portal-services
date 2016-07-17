@@ -14,6 +14,7 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
@@ -29,9 +30,12 @@ public class UserLegalEntity implements Serializable {
     @Column(name = "UserLegalEntityAppID")
     private long userLegalEntityAppId;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "LegalEntityAppID")
     private LegalEntityApp legalEntityApp;
+
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "UserID")
     private User user;

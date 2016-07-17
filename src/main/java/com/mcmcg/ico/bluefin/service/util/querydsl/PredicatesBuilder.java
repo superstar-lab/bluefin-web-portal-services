@@ -1,12 +1,11 @@
-package com.mcmcg.ico.bluefin.service.util;
+package com.mcmcg.ico.bluefin.service.util.querydsl;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mcmcg.ico.bluefin.rest.resource.SearchCriteria;
 import com.mysema.query.types.expr.BooleanExpression;
 
-public class PredicatesBuilder {
+class PredicatesBuilder {
     private List<SearchCriteria> params;
 
     public PredicatesBuilder() {

@@ -1,13 +1,18 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -15,13 +20,20 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+import com.mcmcg.ico.bluefin.BluefinServicesApplication;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
+@WebAppConfiguration
 public class PaymentProcessorServiceTest {
 
     @InjectMocks
@@ -114,9 +126,9 @@ public class PaymentProcessorServiceTest {
         List<PaymentProcessor> returnedPaymentProcessorList = new ArrayList<PaymentProcessor>();
 
         Mockito.when(paymentProcessorRepository.findAll()).thenReturn(returnedPaymentProcessorList);
- 
+
         List<PaymentProcessor> result = paymentProcessorService.getPaymentProcessors();
-        
+
         Assert.assertTrue(result.isEmpty());
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll();
@@ -388,6 +400,56 @@ public class PaymentProcessorServiceTest {
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).delete(Mockito.any(PaymentProcessor.class));
+        Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
+    }
+
+    /**
+     * Test when we send the correct data
+     */
+    @Test
+    public void testGetPaymentProcessorsByIds() {
+        List<PaymentProcessor> mockedLoadedPaymentProcessors = getValidPaymentProcessorList();
+        Mockito.when(paymentProcessorRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+                .thenReturn(mockedLoadedPaymentProcessors);
+
+        Set<Long> expectedPaymentProcessorIds = new HashSet<Long>(Arrays.asList(1L, 2L, 3L));
+        List<PaymentProcessor> loadedPaymentProcessors = paymentProcessorService
+                .getPaymentProcessorsByIds(expectedPaymentProcessorIds);
+
+        Assert.assertEquals(expectedPaymentProcessorIds.size(), loadedPaymentProcessors.size());
+        Assert.assertTrue(loadedPaymentProcessors.stream()
+                .filter(x -> !expectedPaymentProcessorIds.contains(x.getPaymentProcessorId()))
+                .collect(Collectors.toSet()).isEmpty());
+
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
+    }
+
+    /**
+     * Test when the system does not have payment processor
+     */
+    @Test(expected = CustomBadRequestException.class)
+    public void testGetPaymentProcessorsByIdsEmptyList() {
+        Mockito.when(paymentProcessorRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+                .thenReturn(new ArrayList<PaymentProcessor>());
+
+        paymentProcessorService.getPaymentProcessorsByIds(new HashSet<Long>(Arrays.asList(1L, 2L, 3L)));
+
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
+    }
+
+    /**
+     * Test when we pass a wrong payment processor id
+     */
+    @Test(expected = CustomBadRequestException.class)
+    public void testGetPaymentProcessorsByIdsOneWrongElement() {
+        Mockito.when(paymentProcessorRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+                .thenReturn(getValidPaymentProcessorList());
+
+        paymentProcessorService.getPaymentProcessorsByIds(new HashSet<Long>(Arrays.asList(1L, 2L, 3L, 5L)));
+
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 

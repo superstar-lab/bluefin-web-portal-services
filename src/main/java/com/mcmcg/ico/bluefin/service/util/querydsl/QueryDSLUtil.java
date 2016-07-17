@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service.util;
+package com.mcmcg.ico.bluefin.service.util.querydsl;
 
 import java.util.ArrayList;
 import java.util.Arrays;

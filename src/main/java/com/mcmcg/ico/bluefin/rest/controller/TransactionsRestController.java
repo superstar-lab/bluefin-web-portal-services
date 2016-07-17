@@ -1,12 +1,12 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.security.Principal;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,7 +17,7 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.TransactionsService;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -57,14 +57,15 @@ public class TransactionsRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<SaleTransaction> getTransactions(@RequestParam("search") String search,
-            @RequestParam(value = "page") Integer page, @RequestParam(value = "size") Integer size,
-            @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Principal principal) {
-        if (principal == null) {
+    public Iterable<SaleTransaction> getTransactions(@RequestParam(value = "search", required = true) String search,
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size,
+            @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication) {
+        if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        String username = principal.getName();
-        List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(username);
+
+        List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
         search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 
         BooleanExpression transactionIdFilter = null;

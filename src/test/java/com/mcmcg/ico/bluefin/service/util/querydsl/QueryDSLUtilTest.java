@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service.util;
+package com.mcmcg.ico.bluefin.service.util.querydsl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.PathBuilder;
 
@@ -192,7 +195,7 @@ public class QueryDSLUtilTest {
     private LegalEntityApp createValidLegalEntityApp(String name) {
         LegalEntityApp validLegalEntity = new LegalEntityApp();
         UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName(name);

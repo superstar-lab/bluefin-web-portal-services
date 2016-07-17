@@ -18,6 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Data;
 
@@ -35,13 +36,7 @@ public class LegalEntityApp implements Serializable {
     @Column(name = "LegalEntityAppName")
     private String legalEntityAppName;
 
-    @JsonIgnore
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated", insertable = false)
-    private Date createdDate;
-
-    @JsonIgnore
+    @JsonManagedReference(value = "legalEntityApp")
     @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
 
@@ -49,4 +44,16 @@ public class LegalEntityApp implements Serializable {
     @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<UserLegalEntity> userLegalEntities;
 
+    @JsonIgnore
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated", insertable = false)
+    private Date createdDate;
+
+    public LegalEntityApp() {
+    }
+
+    public LegalEntityApp(Long value) {
+        legalEntityAppId = value;
+    }
 }

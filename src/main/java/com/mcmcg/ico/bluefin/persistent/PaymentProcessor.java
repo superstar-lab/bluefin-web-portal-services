@@ -36,13 +36,19 @@ public class PaymentProcessor implements Serializable {
     private String processorName;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
+
+    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
+    public PaymentProcessor() {
+    }
 
+    public PaymentProcessor(Long value) {
+        this.paymentProcessorId = value;
+    }
 }

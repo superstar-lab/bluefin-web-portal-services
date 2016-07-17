@@ -2,6 +2,8 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +107,36 @@ public class PaymentProcessorService {
                     String.format("Unable to process request payment processor doesn't exists with given id: %s", id));
         }
         paymentProcessorRepository.delete(paymentProcessorToDelete);
+    }
+
+    /**
+     * Get all payment processor objects by the entered ids
+     * 
+     * @param paymentProcessorIds
+     *            list of payment processor ids that we need to find
+     * @return list of payment processors
+     * @throws CustomBadRequestException
+     *             when at least one id does not exist
+     */
+    public List<PaymentProcessor> getPaymentProcessorsByIds(Set<Long> paymentProcessorIds) {
+        List<PaymentProcessor> result = paymentProcessorRepository.findAll(paymentProcessorIds);
+
+        if (result.size() == paymentProcessorIds.size()) {
+            return result;
+        }
+
+        // Create a detail error
+        if (result == null || result.isEmpty()) {
+            throw new CustomBadRequestException(
+                    "The following payment processors don't exist.  List = [" + paymentProcessorIds + "]");
+        }
+
+        Set<Long> paymentProcessorsNotFound = paymentProcessorIds.stream().filter(x -> !result.stream()
+                .map(PaymentProcessor::getPaymentProcessorId).collect(Collectors.toSet()).contains(x))
+                .collect(Collectors.toSet());
+
+        throw new CustomBadRequestException(
+                "The following payment processors don't exist.  List = [" + paymentProcessorsNotFound + "]");
     }
 
     private boolean existPaymentProcessorName(String processorName) {

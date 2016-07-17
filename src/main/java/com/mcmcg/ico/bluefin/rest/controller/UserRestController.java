@@ -30,7 +30,7 @@ import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -54,14 +54,15 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource getUserAccount(@PathVariable String username, @ApiIgnore Authentication authentication)
-            throws Exception {
+    public UserResource getUserAccount(@PathVariable String username, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
-        // Checks if the Legal Entities of the consultant user are in the user that will be requested
-        if(!userService.belongsToSameLegalEntity(authentication, username.equals("me") ? authentication.getName() : username)){
+        // Checks if the Legal Entities of the consultant user are in the user
+        // that will be requested
+        if (!userService.belongsToSameLegalEntity(authentication,
+                username.equals("me") ? authentication.getName() : username)) {
             throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
         }
 
@@ -99,7 +100,7 @@ public class UserRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<UserResource> registerUserAccount(@Validated @RequestBody RegisterUserResource newUser,
-            @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) throws Exception {
+            @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -132,13 +133,15 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
-            @Validated @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) throws Exception {
+            @Validated @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
+
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated
-        if (!userService.belongsToSameLegalEntity(authentication, username.equals("me") ? authentication.getName() : username)) {
+        if (!userService.belongsToSameLegalEntity(authentication,
+                username.equals("me") ? authentication.getName() : username)) {
             throw new AccessDeniedException("User doesn't have permission to get information from other users");
         }
 
@@ -160,13 +163,14 @@ public class UserRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Long> roles,
-            @ApiIgnore Authentication authentication) throws Exception {
+            @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated
-        if (!userService.belongsToSameLegalEntity(authentication, username.equals("me") ? authentication.getName() : username)) {
+        if (!userService.belongsToSameLegalEntity(authentication,
+                username.equals("me") ? authentication.getName() : username)) {
             throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
         }
         LOGGER.info("Updating roles for user: {}", username);
@@ -182,7 +186,7 @@ public class UserRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Long> legalEntities,
-            @ApiIgnore Authentication authentication) throws Exception {
+            @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }

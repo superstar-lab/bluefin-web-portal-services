@@ -22,12 +22,11 @@ import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.service.RoleService;
 
 public class RoleRestControllerTest {
 
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @InjectMocks
     private RoleRestController roleControllerMock;
@@ -76,16 +75,6 @@ public class RoleRestControllerTest {
         Mockito.when(roleService.getRoles()).thenThrow(new CustomBadRequestException(""));
 
         mockMvc.perform(get("/api/roles")).andExpect(status().isBadRequest());
-
-        Mockito.verify(roleService, Mockito.times(1)).getRoles();
-        Mockito.verifyNoMoreInteractions(roleService);
-    }
-
-    @Test
-    public void getRolesUnauthorized() throws Exception { // 401
-        Mockito.when(roleService.getRoles()).thenThrow(new CustomUnauthorizedException(""));
-
-        mockMvc.perform(get("/api/roles")).andExpect(status().isUnauthorized());
 
         Mockito.verify(roleService, Mockito.times(1)).getRoles();
         Mockito.verifyNoMoreInteractions(roleService);

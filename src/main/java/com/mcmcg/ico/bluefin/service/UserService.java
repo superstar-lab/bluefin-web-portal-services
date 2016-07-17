@@ -27,7 +27,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 
 @Service
@@ -75,7 +75,7 @@ public class UserService {
         return user == null ? new ArrayList<LegalEntityApp>() : user.getLegalEntityApps();
     }
 
-    public UserResource registerNewUserAccount(RegisterUserResource userResource) throws Exception {
+    public UserResource registerNewUserAccount(RegisterUserResource userResource) {
         String username = userResource.getUsername();
         if (existUsername(username)) {
             throw new CustomBadRequestException(
@@ -109,9 +109,9 @@ public class UserService {
      * @param username
      * @param updateUserResource
      * @return userResource with all the user information
-     * @throws Exception
+     * @throws CustomNotFoundException
      */
-    public UserResource updateUserProfile(String username, UpdateUserResource userResource) throws Exception {
+    public UserResource updateUserProfile(String username, UpdateUserResource userResource) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException(
@@ -128,9 +128,9 @@ public class UserService {
      * @param username
      * @param roles
      * @return userResource with all the user information
-     * @throws Exception
+     * @throws CustomNotFoundException
      */
-    public UserResource updateUserRoles(String username, List<Long> roles) throws Exception {
+    public UserResource updateUserRoles(String username, List<Long> roles) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
@@ -152,8 +152,9 @@ public class UserService {
      * @param rolesList
      *            as list of integers
      * @return rolesList as list of objects
+     * @throws CustomBadRequestException
      */
-    private List<UserRole> getRolesByIds(List<Long> rolesList) throws Exception {
+    private List<UserRole> getRolesByIds(List<Long> rolesList) {
         List<UserRole> result = new ArrayList<UserRole>();
         for (Long currentRole : rolesList) {
             Role role = roleRepository.findByRoleId(currentRole.longValue());
@@ -174,9 +175,9 @@ public class UserService {
      * @param username
      * @param legalEntities
      * @return userResource with all the user information
-     * @throws Exception
+     * @throws CustomNotFoundException
      */
-    public UserResource updateUserLegalEntities(String username, List<Long> legalEntities) throws Exception {
+    public UserResource updateUserLegalEntities(String username, List<Long> legalEntities) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new CustomNotFoundException(
@@ -199,8 +200,9 @@ public class UserService {
      * @param legalEntitiesList
      *            as list of integers
      * @return legalEntitiesList as list of objects
+     * @throws CustomBadRequestException
      */
-    private List<UserLegalEntity> getLegalEntitiesByIds(List<Long> legalEntityList) throws Exception {
+    private List<UserLegalEntity> getLegalEntitiesByIds(List<Long> legalEntityList) {
         List<UserLegalEntity> result = new ArrayList<UserLegalEntity>();
         for (Long currentLegalEntity : legalEntityList) {
             LegalEntityApp legalEntity = legalEntityAppRepository
@@ -224,7 +226,7 @@ public class UserService {
      * @param legalEntityIds
      * @param userName
      */
-    public Boolean hasUserPrivilegesOverLegalEntities(String username, Set<Long> legalEntitiesToVerify) { 
+    public boolean hasUserPrivilegesOverLegalEntities(String username, Set<Long> legalEntitiesToVerify) {
         // Get Legal Entities from user name
         Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
@@ -233,12 +235,15 @@ public class UserService {
                 .filter(verifyLegalEntityId -> !userLegalEntities.contains(verifyLegalEntityId))
                 .collect(Collectors.toSet()).isEmpty();
     }
-    
+
     /**
-     * This method will return true if both users have a common legal entity, false in other case
+     * This method will return true if both users have a common legal entity,
+     * false in other case
+     * 
      * @param username
      * @param usernameToUpdate
-     * @return true if the request user has related legal entities with the user he wants to CRUD
+     * @return true if the request user has related legal entities with the user
+     *         he wants to CRUD
      */
     public boolean belongsToSameLegalEntity(Authentication authentication, String usernameToUpdate) {
         final String username = authentication.getName();

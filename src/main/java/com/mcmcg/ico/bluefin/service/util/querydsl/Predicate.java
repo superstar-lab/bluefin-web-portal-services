@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service.util;
+package com.mcmcg.ico.bluefin.service.util.querydsl;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -26,7 +26,6 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.resource.SearchCriteria;
 import com.mcmcg.ico.bluefin.rest.resource.StatusCode;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.CollectionPath;
@@ -35,7 +34,7 @@ import com.mysema.query.types.path.NumberPath;
 import com.mysema.query.types.path.PathBuilder;
 import com.mysema.query.types.path.StringPath;
 
-public class Predicate {
+class Predicate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Predicate.class);
     private SearchCriteria criteria;

@@ -2,7 +2,10 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,14 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.rest.resource.LegalEntityAppResource;
+import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
 
 @Service
+@Transactional
 public class LegalEntityAppService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppService.class);
 
@@ -30,19 +36,20 @@ public class LegalEntityAppService {
         User user = userRepository.findByUsername(userName);
 
         if (user == null) {
+            LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]", userName);
             return new ArrayList<LegalEntityApp>();
         }
 
-        List<Long> listOfIds = user.getLegalEntities().stream()
+        List<Long> legalEntitiesFromUser = user.getLegalEntities().stream()
                 .map(userLegalEntity -> userLegalEntity.getLegalEntityApp().getLegalEntityAppId())
                 .collect(Collectors.toList());
 
-        return legalEntityAppRepository.findAll(listOfIds);
+        return legalEntityAppRepository.findAll(legalEntitiesFromUser);
     }
-    
+
     /**
-     * This method will find a legal entity by its id, not found exception
-     * if it does not exist
+     * This method will find a legal entity by its id, not found exception if it
+     * does not exist
      * 
      * @param id
      * @return Legal entity object if found
@@ -51,49 +58,74 @@ public class LegalEntityAppService {
         LegalEntityApp legalEntityApp = legalEntityAppRepository.findOne(id);
 
         if (legalEntityApp == null) {
-            LOGGER.error("Unable to find legal entity, it doesn't exists: [{}]", id);
-            throw new CustomNotFoundException(
-                    String.format("Unable to process request legal entity doesn't exists with given id: %s", id));
+            throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
         }
+
         return legalEntityApp;
     }
 
-    public LegalEntityApp createLegalEntity(LegalEntityAppResource legalEntityResource) {
-        LegalEntityApp legalEntityApp = legalEntityResource.toLegalEntityApp();
-        String legalEntityAppName = legalEntityApp.getLegalEntityAppName();
+    public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource) {
+        final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
 
-        if (existLegalEntityAppName(legalEntityAppName)) {
-            LOGGER.error("Unable to create Legal Entity already exists: [{}]",
-                    legalEntityAppName);
-            throw new CustomBadRequestException(String
-                    .format("Unable to create Legal Entity already exists: %s", legalEntityAppName));
+        if (existLegalEntityAppName(newLegalEntityAppName)) {
+            throw new CustomBadRequestException(
+                    String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
         }
-        return legalEntityAppRepository.save(legalEntityApp);
+
+        return legalEntityAppRepository.save(legalEntityResource.toLegalEntityApp());
     }
-    
-    public LegalEntityApp updateLegalEntityApp(Long id, LegalEntityAppResource legalEntityAppResource) {
+
+    public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource) {
         LegalEntityApp legalEntityAppToUpdate = legalEntityAppRepository.findOne(id);
 
         if (legalEntityAppToUpdate == null) {
-            LOGGER.error("Unable to update Legal Entity, it doesn't exists: [{}]", id);
-            throw new CustomNotFoundException(
-                    String.format("Unable to process request Legal Entity doesn't exists with given id: %s", id));
+            throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
         }
-        legalEntityAppResource.updateLegalEntityApp(legalEntityAppToUpdate);
+
+        // Update fields for existing Legal Entity App
+        legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
+
         return legalEntityAppRepository.save(legalEntityAppToUpdate);
     }
-    
+
+    public LegalEntityApp updateLegalEntityAppPaymentProcessors(Long id,
+            Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
+        // Verify if legal entity app exists
+        LegalEntityApp legalEntityAppToUpdate = legalEntityAppRepository.findOne(id);
+        if (legalEntityAppToUpdate == null) {
+            throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
+        }
+
+        // Clean old payment processors merchants
+        legalEntityAppToUpdate.getPaymentProcessorMerchants().clear();
+        legalEntityAppToUpdate = legalEntityAppRepository.save(legalEntityAppToUpdate);
+
+        // User wants to clear processors from legal entity app
+        if (paymentProcessorMerchants.isEmpty()) {
+            return legalEntityAppToUpdate;
+        }
+
+        // Update legal entity app with new payment processor merchants
+        for (PaymentProcessorMerchantResource ppmr : paymentProcessorMerchants) {
+            PaymentProcessorMerchant ppm = ppmr.toPaymentProcessorMerchant();
+            ppm.setLegalEntityApp(legalEntityAppToUpdate);
+
+            legalEntityAppToUpdate.getPaymentProcessorMerchants().add(ppm);
+        }
+
+        return legalEntityAppRepository.save(legalEntityAppToUpdate);
+    }
+
     public void deleteLegalEntityApp(Long id) {
         LegalEntityApp legalEntityAppToDelete = legalEntityAppRepository.findOne(id);
 
         if (legalEntityAppToDelete == null) {
-            LOGGER.error("Unable to delete Legal Entity, it doesn't exists: [{}]", id);
-            throw new CustomNotFoundException(
-                    String.format("Unable to process request Legal Entity doesn't exists with given id: %s", id));
+            throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
         }
+
         legalEntityAppRepository.delete(legalEntityAppToDelete);
     }
-    
+
     private boolean existLegalEntityAppName(String legalEntityAppName) {
         return legalEntityAppRepository.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
     }

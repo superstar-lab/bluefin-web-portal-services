@@ -1,9 +1,10 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
@@ -12,13 +13,14 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import lombok.Data;
 
 @Data
-public class UpdateUserResource {
+public class UpdateUserResource implements Serializable {
+    private static final long serialVersionUID = 5100870250264827468L;
 
-    @NotEmpty(message = "firstName must not be empty")
+    @NotBlank(message = "firstName must not be empty")
     private String firstName;
-    @NotEmpty(message = "lastName must not be empty")
+    @NotBlank(message = "lastName must not be empty")
     private String lastName;
-    @NotEmpty(message = "email must not be empty")
+    @NotBlank(message = "email must not be empty")
     private String email;
 
     public UserResource toUserResource(List<Role> roles, List<LegalEntityApp> entities) {

@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -51,15 +50,15 @@ public class SessionRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse authenticationRequest(@Valid @RequestBody AuthenticationRequest authenticationRequest,
-            @ApiIgnore Errors errors) throws AuthenticationException {
+            @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
-            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+            final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
 
         LOGGER.info("Authenticating user: {}", authenticationRequest.getUsername());
-        Authentication authentication = this.sessionService.authenticate(authenticationRequest.getUsername(),
+        Authentication authentication = sessionService.authenticate(authenticationRequest.getUsername(),
                 authenticationRequest.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -75,12 +74,14 @@ public class SessionRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> logoutRequest(HttpServletRequest request) throws AuthenticationException {
-        String token = request.getHeader(securityTokenHeader);
+    public ResponseEntity<String> logoutRequest(HttpServletRequest request) {
+        final String token = request.getHeader(securityTokenHeader);
+
         if (token != null) {
             sessionService.deleteSession(token);
             return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
         }
+
         throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
 
@@ -91,8 +92,9 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public AuthenticationResponse refreshToken(HttpServletRequest request) throws Exception {
-        String token = request.getHeader(securityTokenHeader);
+    public AuthenticationResponse refreshToken(HttpServletRequest request) {
+        final String token = request.getHeader(securityTokenHeader);
+
         if (token != null) {
             return sessionService.refreshToken(token);
         }

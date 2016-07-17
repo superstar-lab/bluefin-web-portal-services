@@ -14,7 +14,9 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
@@ -27,22 +29,27 @@ public class PaymentProcessorMerchant implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PaymentProcessorMerchantID")
-    private long paymentProcessorMechantId;
+    private Long paymentProcessorMechantId;
 
+    @Column(name = "MerchantID")
+    private String merchantId;
+
+    @Column(name = "TestOrProd")
+    private Short testOrProd;
+
+    @JsonBackReference(value = "legalEntityApp")
     @ManyToOne
     @JoinColumn(name = "LegalEntityAppID")
     private LegalEntityApp legalEntityApp;
+
     @ManyToOne
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
 
-    @Column(name = "MerchantID")
-    private String merchantId;
-    @Column(name = "TestOrProd")
-    private Short testOrProd;
+    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
+    @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
 }

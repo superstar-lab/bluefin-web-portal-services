@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +27,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcmcg.ico.bluefin.persistent.Permission;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomForbiddenException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
@@ -123,7 +123,7 @@ public class SessionRestControllerTest {
         request.setUsername("omonge1");
 
         Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
-                .thenThrow(new CustomForbiddenException(""));
+                .thenThrow(new DataAccessResourceFailureException(""));
 
         mockMvc.perform(post(API).content(convertObjectToJsonBytes(request)).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());

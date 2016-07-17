@@ -15,14 +15,19 @@ import lombok.Data;
 @Table(name = "SecurityToken_Backlist")
 @Entity
 public class SecurityToken implements Serializable {
+    private static final long serialVersionUID = -1826844003400142380L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TokenID")
     private long tokenId;
+
     @Column(name = "UserID")
     private long userId;
+
     @Column(name = "Token", columnDefinition = "TEXT")
     private String token;
+
     @Column(name = "Type")
     private String type;
 }

@@ -14,7 +14,7 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.service.util.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 
 @Service

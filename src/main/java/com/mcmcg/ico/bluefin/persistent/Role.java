@@ -36,11 +36,6 @@ public class Role implements Serializable {
 
     @Column(name = "Description")
     private String description;
-    @JsonIgnore
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
-    private Date dateCreated;
 
     @JsonIgnore
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
@@ -49,6 +44,12 @@ public class Role implements Serializable {
     @JsonIgnore
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Collection<UserRole> userRoles;
+
+    @JsonIgnore
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated")
+    private Date dateCreated;
 
     public Role() {
     }

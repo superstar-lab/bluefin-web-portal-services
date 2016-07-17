@@ -13,7 +13,9 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -922,7 +924,7 @@ public class UserRestControllerTest {
     private LegalEntityApp createValidLegalEntityApp() {
         LegalEntityApp validLegalEntity = new LegalEntityApp();
         UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
         validLegalEntity.setLegalEntityAppName("legalEntity1");

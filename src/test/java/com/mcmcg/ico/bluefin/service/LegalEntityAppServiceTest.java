@@ -2,7 +2,9 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Before;
@@ -17,6 +19,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.testng.Assert;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
@@ -27,25 +30,33 @@ import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.util.TestUtilClass;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class LegalEntityAppServiceTest {
 
+    @Mock
+    private LegalEntityAppRepository legalEntityAppRepository;
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     @Autowired
     private LegalEntityAppService legalEntityAppService;
 
-    @Mock
-    private LegalEntityAppRepository legalEntityAppRepository;
-
-    @Mock
-    private UserRepository userRepository;
-
     @Before
-    public void initMocks() {
+    public void initMocks() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        // http://kim.saabye-pedersen.org/2012/12/mockito-and-spring-proxies.html
+        // This issue is fixed in spring version 4.3.1, but spring boot
+        // 3.6-RELEASE supports 4.2.7
+        LegalEntityAppService leaService = (LegalEntityAppService) TestUtilClass.unwrapProxy(legalEntityAppService);
+
+        ReflectionTestUtils.setField(leaService, "legalEntityAppRepository", legalEntityAppRepository);
+        ReflectionTestUtils.setField(leaService, "userRepository", userRepository);
     }
 
     /**
@@ -93,8 +104,8 @@ public class LegalEntityAppServiceTest {
 
     // DB Exceptions
     /**
-     * Test the case for when trying to get the user
-     * but a RuntimeException shows up
+     * Test the case for when trying to get the user but a RuntimeException
+     * shows up
      */
     @Test(expected = RuntimeException.class)
     public void testFindByUserGeneralExceptionFindByUser() {
@@ -123,6 +134,7 @@ public class LegalEntityAppServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
     }
+
     /**
      * Test the case for when trying to get the legal entities method is called
      * but the DB is down
@@ -260,11 +272,11 @@ public class LegalEntityAppServiceTest {
         user.setLastName("user");
         user.setUsername("userTest");
 
-        List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+        Set<UserLegalEntity> userLegalEntities = new HashSet<UserLegalEntity>();
         userLegalEntities.add(createValidUserLegalEntity());
         user.setLegalEntities(userLegalEntities);
 
-        List<UserRole> userRoles = new ArrayList<UserRole>();
+        Set<UserRole> userRoles = new HashSet<UserRole>();
         userRoles.add(createValidUserRole());
         user.setRoles(userRoles);
         return user;
@@ -287,7 +299,7 @@ public class LegalEntityAppServiceTest {
     private LegalEntityApp createValidLegalEntityApp() {
         LegalEntityApp validLegalEntity = new LegalEntityApp();
         UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-        List<UserLegalEntity> validUserLegalEntityList = new ArrayList<UserLegalEntity>();
+        Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
 
         validUserLegalEntityList.add(validUserLegalEntity);
         validLegalEntity.setUserLegalEntities(validUserLegalEntityList);

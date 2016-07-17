@@ -1,9 +1,9 @@
-package com.mcmcg.ico.bluefin.rest.resource;
+package com.mcmcg.ico.bluefin.service.util.querydsl;
 
 import lombok.Data;
 
 @Data
-public class SearchCriteria {
+class SearchCriteria {
 
     private String key;
     private String operation;

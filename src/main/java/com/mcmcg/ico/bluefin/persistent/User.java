@@ -34,25 +34,40 @@ public class User implements Serializable {
     @Column(name = "UserID")
     @JsonIgnore
     private long userId;
+
     @Column(name = "FirstName")
     private String firstName;
+
     @Column(name = "LastName")
     private String lastName;
+
     @Column(name = "UserName")
     private String username;
+
     @Column(name = "Email")
     private String email;
+
     @JsonIgnore
     @Column(name = "userPassword")
     private String userPassword;
+
     @Column(name = "IsActive")
     @JsonIgnore
     private Short isActive;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "LastLogin")
     @JsonIgnore
     private Date lastLogin;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private Collection<UserRole> roles;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private Collection<UserLegalEntity> legalEntities;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -65,14 +80,6 @@ public class User implements Serializable {
     @Column(name = "DateUpdated")
     @JsonIgnore
     private Date dateUpdated;
-
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
-    private Collection<UserRole> roles;
-
-    @OneToMany(mappedBy = "user")
-    @JsonIgnore
-    private Collection<UserLegalEntity> legalEntities;
 
     public UserResource toUserResource() {
         UserResource userResource = new UserResource();
