@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
+import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -71,7 +71,7 @@ public class PaymentProcessorController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<PaymentProcessor> createPaymentProcessor(
-            @Validated @RequestBody PaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
+            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -92,7 +92,7 @@ public class PaymentProcessorController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessor updatePaymentProcessor(@PathVariable Long id,
-            @Validated @RequestBody PaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
+            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));

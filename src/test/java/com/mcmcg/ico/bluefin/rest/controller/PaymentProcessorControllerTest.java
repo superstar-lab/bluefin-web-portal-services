@@ -34,7 +34,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
+import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
 
 public class PaymentProcessorControllerTest {
@@ -159,7 +159,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testCreatePaymentProcessor() throws Exception { // 201
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor newPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
         newPaymentProcessor.setPaymentProcessorId(1L);
         Mockito.when(paymentProcessorService.createPaymentProcessor(paymentProcessorResource))
@@ -182,7 +182,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testCreatePaymentProcessorBadRequestNameMissing() throws Exception { // 400
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         paymentProcessorResource.setProcessorName(null);
 
         String validationError = mockMvc
@@ -191,7 +191,7 @@ public class PaymentProcessorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andReturn().getResolvedException().getMessage();
 
-        assertThat(validationError, containsString("processorName must not be empty"));
+        assertThat(validationError, containsString("processorName cannot be null or empty"));
 
         Mockito.verifyZeroInteractions(paymentProcessorService);
     }
@@ -203,7 +203,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testCreatePaymentProcessorRuntimeException() throws Exception { // 500
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         Mockito.when(paymentProcessorService.createPaymentProcessor(paymentProcessorResource))
                 .thenThrow(new RuntimeException(""));
 
@@ -224,7 +224,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testUpdatePaymentProcessorSuccess() throws Exception {// 200
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor updatedPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
         updatedPaymentProcessor.setPaymentProcessorId(1L);
 
@@ -238,7 +238,7 @@ public class PaymentProcessorControllerTest {
                 .andExpect(jsonPath("$.paymentProcessorId").value(1));
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).updatePaymentProcessor(Mockito.anyLong(),
-                Mockito.any(PaymentProcessorResource.class));
+                Mockito.any(BasicPaymentProcessorResource.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
@@ -250,7 +250,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testUpdatePaymentProcessorBadRequestNameMissing() throws Exception {// 400
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         paymentProcessorResource.setProcessorName(null);
 
         String validationError = mockMvc
@@ -260,7 +260,7 @@ public class PaymentProcessorControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest())
                 .andReturn().getResolvedException().getMessage();
 
-        assertThat(validationError, containsString("processorName must not be empty"));
+        assertThat(validationError, containsString("processorName cannot be null or empty"));
 
         Mockito.verifyZeroInteractions(paymentProcessorService);
     }
@@ -274,7 +274,7 @@ public class PaymentProcessorControllerTest {
     @Test
     public void testUpdatePaymentProcessorRuntimeException() throws Exception {// 500
         Mockito.when(paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(),
-                Mockito.any(PaymentProcessorResource.class))).thenThrow(new RuntimeException(""));
+                Mockito.any(BasicPaymentProcessorResource.class))).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(put(API + "/{id}", 1L).principal(auth)
                 .content(convertObjectToJsonBytes(createValidPaymentProcessorResource()))
@@ -282,7 +282,7 @@ public class PaymentProcessorControllerTest {
                 .andExpect(status().isInternalServerError());
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).updatePaymentProcessor(Mockito.anyLong(),
-                Mockito.any(PaymentProcessorResource.class));
+                Mockito.any(BasicPaymentProcessorResource.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
@@ -324,8 +324,8 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
-    private PaymentProcessorResource createValidPaymentProcessorResource() {
-        PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
+    private BasicPaymentProcessorResource createValidPaymentProcessorResource() {
+        BasicPaymentProcessorResource paymentProcessorResource = new BasicPaymentProcessorResource();
         paymentProcessorResource.setProcessorName("PAYSCOUT");
         return paymentProcessorResource;
     }

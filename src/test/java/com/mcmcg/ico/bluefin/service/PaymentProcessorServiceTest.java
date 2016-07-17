@@ -29,7 +29,7 @@ import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResource;
+import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
@@ -77,7 +77,7 @@ public class PaymentProcessorServiceTest {
     public void testGetPaymentProcessorSuccessNotFound() {
         Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(null);
         expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id: 1");
+        expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id = [1]");
 
         paymentProcessorService.getPaymentProcessorById(1L);
 
@@ -158,7 +158,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testCreatePaymentProcessorSuccess() {
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor paymentProcessorExpected = paymentProcessorResource.toPaymentProcessor();
 
         Mockito.when(paymentProcessorRepository.getPaymentProcessorByProcessorName("PAYSCOUT")).thenReturn(null);
@@ -180,7 +180,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testCreatePaymentProcessorAlreadyExist() {
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor paymentProcessorExpected = paymentProcessorResource.toPaymentProcessor();
 
         Mockito.when(paymentProcessorRepository.getPaymentProcessorByProcessorName("PAYSCOUT"))
@@ -218,7 +218,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test(expected = RuntimeException.class)
     public void testCreatePaymentProcessorSavingRuntimeException() {
-        PaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor paymentProcessorExpected = paymentProcessorResource.toPaymentProcessor();
 
         Mockito.when(paymentProcessorRepository.getPaymentProcessorByProcessorName("PAYSCOUT")).thenReturn(null);
@@ -242,7 +242,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testUpdatePaymentProcessorSuccess() {
-        PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = new BasicPaymentProcessorResource();
 
         paymentProcessorResource.setProcessorName("DEBIT");
 
@@ -268,7 +268,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testUpdatePaymentProcessorSuccessNotFound() {
-        PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
+        BasicPaymentProcessorResource paymentProcessorResource = new BasicPaymentProcessorResource();
 
         paymentProcessorResource.setProcessorName("DEBIT");
 
@@ -277,7 +277,7 @@ public class PaymentProcessorServiceTest {
 
         Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(null);
         expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id: 1");
+        expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id = [1]");
         paymentProcessorService.updatePaymentProcessor(1L, paymentProcessorResource);
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
@@ -294,7 +294,7 @@ public class PaymentProcessorServiceTest {
 
         expectedEx.expect(RuntimeException.class);
 
-        paymentProcessorService.updatePaymentProcessor(1L, Mockito.any(PaymentProcessorResource.class));
+        paymentProcessorService.updatePaymentProcessor(1L, Mockito.any(BasicPaymentProcessorResource.class));
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(0)).save(Mockito.any(PaymentProcessor.class));
@@ -313,7 +313,7 @@ public class PaymentProcessorServiceTest {
 
         expectedEx.expect(RuntimeException.class);
 
-        paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(), Mockito.any(PaymentProcessorResource.class));
+        paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(), Mockito.any(BasicPaymentProcessorResource.class));
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(Mockito.any(PaymentProcessor.class));
@@ -360,7 +360,7 @@ public class PaymentProcessorServiceTest {
         }).when(paymentProcessorRepository).delete(1L);
 
         expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id: 1");
+        expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id = [1]");
         paymentProcessorService.deletePaymentProcessor(1L);
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
@@ -453,8 +453,8 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    private PaymentProcessorResource createValidPaymentProcessorResource() {
-        PaymentProcessorResource paymentProcessorResource = new PaymentProcessorResource();
+    private BasicPaymentProcessorResource createValidPaymentProcessorResource() {
+        BasicPaymentProcessorResource paymentProcessorResource = new BasicPaymentProcessorResource();
         paymentProcessorResource.setProcessorName("PAYSCOUT");
         return paymentProcessorResource;
     }
