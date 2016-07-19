@@ -2,7 +2,7 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -18,12 +18,14 @@ public class UpdateUserResource implements Serializable {
 
     @NotBlank(message = "firstName must not be empty")
     private String firstName;
+
     @NotBlank(message = "lastName must not be empty")
     private String lastName;
+
     @NotBlank(message = "email must not be empty")
     private String email;
 
-    public UserResource toUserResource(List<Role> roles, List<LegalEntityApp> entities) {
+    public UserResource toUserResource(Set<Role> roles, Set<LegalEntityApp> entities) {
         UserResource userResource = new UserResource();
         userResource.setFirstName(firstName);
         userResource.setLastName(lastName);

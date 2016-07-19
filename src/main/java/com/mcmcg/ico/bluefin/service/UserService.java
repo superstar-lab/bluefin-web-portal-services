@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -15,13 +17,7 @@ import org.springframework.stereotype.Service;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
-import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserLegalEntityRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRoleRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
@@ -31,18 +27,15 @@ import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 
 @Service
+@Transactional
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleService roleService;
     @Autowired
-    private UserLegalEntityRepository userLegalEntityRepository;
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-    @Autowired
-    private LegalEntityAppRepository legalEntityAppRepository;
+    private LegalEntityAppService legalEntityAppService;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -52,7 +45,7 @@ public class UserService {
             throw new CustomNotFoundException("User information not found");
         }
 
-        return user.toUserResource();
+        return new UserResource(user);
     }
 
     public Iterable<User> getUsers(BooleanExpression exp, Integer page, Integer size, String sort) {
@@ -60,6 +53,7 @@ public class UserService {
         if (page > result.getTotalPages() && page != 0) {
             throw new CustomNotFoundException("Unable to find the page requested");
         }
+
         return result;
     }
 
@@ -76,30 +70,21 @@ public class UserService {
     }
 
     public UserResource registerNewUserAccount(RegisterUserResource userResource) {
-        String username = userResource.getUsername();
+        final String username = userResource.getUsername();
         if (existUsername(username)) {
             throw new CustomBadRequestException(
                     "Unable to create the account, this username already exists: " + username);
         }
-        List<UserLegalEntity> userLegalEntities = getLegalEntitiesByIds(userResource.getLegalEntityApps());
-        List<UserRole> roles = getRolesByIds(userResource.getRoles());
-        User newUser = userResource.toUser(roles, userLegalEntities);
+
+        User newUser = userResource.toUser(roleService.getRolesByIds(userResource.getRoles()),
+                legalEntityAppService.getLegalEntityAppsByIds(userResource.getLegalEntityApps()));
+
         newUser.setUserPassword(passwordEncoder.encode(userResource.getPassword()));
-        userRepository.save(newUser);
-        newUser.getLegalEntities().forEach(userLegalEntity -> {
-            userLegalEntity.setUser(newUser);
-            userLegalEntity.setCreatedDate(new Date());
-            userLegalEntityRepository.save(userLegalEntity);
-        });
-        newUser.getRoles().forEach(userRole -> {
-            userRole.setUser(newUser);
-            userRole.setCreatedDate(new Date());
-            userRoleRepository.save(userRole);
-        });
-        return newUser.toUserResource();
+
+        return new UserResource(userRepository.save(newUser));
     }
 
-    private boolean existUsername(String username) {
+    public boolean existUsername(String username) {
         return userRepository.findByUsername(username) == null ? false : true;
     }
 
@@ -117,9 +102,14 @@ public class UserService {
             throw new CustomNotFoundException(
                     "Unable to update the account, this username doesn't exists: " + username);
         }
-        user = userResource.updateUser(user);
-        User updatedUser = userRepository.save(user);
-        return updatedUser.toUserResource();
+
+        // Updating fields from existing user
+        user.setFirstName(userResource.getFirstName());
+        user.setLastName(userResource.getLastName());
+        user.setEmail(userResource.getEmail());
+        user.setDateUpdated(new Date());
+
+        return new UserResource(userRepository.save(user));
     }
 
     /**
@@ -130,43 +120,29 @@ public class UserService {
      * @return userResource with all the user information
      * @throws CustomNotFoundException
      */
-    public UserResource updateUserRoles(String username, List<Long> roles) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
+    public User updateUserRoles(final String username, final Set<Long> rolesIds) {
+        User userToUpdate = userRepository.findByUsername(username);
+        if (userToUpdate == null) {
+            throw new CustomNotFoundException(
+                    "Unable to update roles, this username doesn't exists: " + username);
         }
-        List<UserRole> updatedRoles = getRolesByIds(roles);
-        userRoleRepository.deleteInBatch(user.getRoles());
-        updatedRoles.forEach(userRole -> {
-            userRole.setUser(user);
-            userRole.setCreatedDate(new Date());
-            userRoleRepository.save(userRole);
-        });
-        user.setRoles(updatedRoles);
-        return user.toUserResource();
-    }
 
-    /**
-     * Get all the role objects by the specified ids
-     * 
-     * @param rolesList
-     *            as list of integers
-     * @return rolesList as list of objects
-     * @throws CustomBadRequestException
-     */
-    private List<UserRole> getRolesByIds(List<Long> rolesList) {
-        List<UserRole> result = new ArrayList<UserRole>();
-        for (Long currentRole : rolesList) {
-            Role role = roleRepository.findByRoleId(currentRole.longValue());
-            if (role != null) {
-                UserRole userRole = new UserRole();
-                userRole.setRole(role);
-                result.add(userRole);
-            } else {
-                throw new CustomBadRequestException("The following role doesn't exist: " + currentRole);
-            }
+        // Clean old user roles
+        userToUpdate.getRoles().clear();
+        userToUpdate = userRepository.save(userToUpdate);
+
+        // User wants to clear roles from user
+        if (rolesIds.isEmpty()) {
+            return userToUpdate;
         }
-        return result;
+
+        // Update user roles
+        List<Role> roles = roleService.getRolesByIds(rolesIds);
+        for (Role role : roles) {
+            userToUpdate.addRole(role);
+        }
+
+        return userRepository.save(userToUpdate);
     }
 
     /**
@@ -174,48 +150,32 @@ public class UserService {
      * 
      * @param username
      * @param legalEntities
-     * @return userResource with all the user information
+     * @return user with all the user information
      * @throws CustomNotFoundException
      */
-    public UserResource updateUserLegalEntities(String username, List<Long> legalEntities) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
+    public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
+        User userToUpdate = userRepository.findByUsername(username);
+        if (userToUpdate == null) {
             throw new CustomNotFoundException(
                     "Unable to update legalEntities, this username doesn't exists: " + username);
         }
-        List<UserLegalEntity> updatedLegalEntities = getLegalEntitiesByIds(legalEntities);
-        userLegalEntityRepository.deleteInBatch(user.getLegalEntities());
-        updatedLegalEntities.forEach(userLegalEntity -> {
-            userLegalEntity.setUser(user);
-            userLegalEntity.setCreatedDate(new Date());
-            userLegalEntityRepository.save(userLegalEntity);
-        });
-        user.setLegalEntities(updatedLegalEntities);
-        return user.toUserResource();
-    }
 
-    /**
-     * Get all the legalEntity objects by the specified ids
-     * 
-     * @param legalEntitiesList
-     *            as list of integers
-     * @return legalEntitiesList as list of objects
-     * @throws CustomBadRequestException
-     */
-    private List<UserLegalEntity> getLegalEntitiesByIds(List<Long> legalEntityList) {
-        List<UserLegalEntity> result = new ArrayList<UserLegalEntity>();
-        for (Long currentLegalEntity : legalEntityList) {
-            LegalEntityApp legalEntity = legalEntityAppRepository
-                    .findByLegalEntityAppId(currentLegalEntity.longValue());
-            if (legalEntity != null) {
-                UserLegalEntity userLegalEntity = new UserLegalEntity();
-                userLegalEntity.setLegalEntityApp(legalEntity);
-                result.add(userLegalEntity);
-            } else {
-                throw new CustomBadRequestException("The following legalEntity doesn't exist: " + currentLegalEntity);
-            }
+        // Clean old legal entities
+        userToUpdate.getLegalEntityApps().clear();
+        userToUpdate = userRepository.save(userToUpdate);
+
+        // User wants to clear legal entities from user
+        if (legalEntityAppsIds.isEmpty()) {
+            return userToUpdate;
         }
-        return result;
+
+        // Update legal entities
+        List<LegalEntityApp> legalEntityApps = legalEntityAppService.getLegalEntityAppsByIds(legalEntityAppsIds);
+        for (LegalEntityApp leApp : legalEntityApps) {
+            userToUpdate.addLegalEntityApp(leApp);
+        }
+
+        return userRepository.save(userToUpdate);
     }
 
     /**

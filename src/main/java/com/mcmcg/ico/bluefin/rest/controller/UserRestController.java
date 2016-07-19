@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
@@ -57,6 +58,9 @@ public class UserRestController {
     public UserResource getUserAccount(@PathVariable String username, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        if (!userService.existUsername(username)) {
+            throw new CustomNotFoundException("User information not found.");
         }
 
         // Checks if the Legal Entities of the consultant user are in the user
@@ -162,7 +166,7 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource updateUserRoles(@PathVariable String username, @RequestBody List<Long> roles,
+    public UserResource updateUserRoles(@PathVariable String username, @RequestBody Set<Long> roles,
             @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
@@ -175,7 +179,7 @@ public class UserRestController {
         }
         LOGGER.info("Updating roles for user: {}", username);
 
-        return userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles);
+        return new UserResource(userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles));
     }
 
     @ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
@@ -185,19 +189,16 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody List<Long> legalEntities,
+    public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody Set<Long> legalEntities,
             @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
-        // Gets the legal entities that will be verified, use of set to avoid
-        // duplicated values
-        Set<Long> legalEntitiesToVerify = legalEntities.stream().collect(Collectors.toSet());
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated and checks if the Legal Entities given are valid
         // according with the LegalEntities owned
-        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), legalEntitiesToVerify)) {
+        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), legalEntities)) {
             throw new AccessDeniedException("User doesn't have permission over the given list of legal entities");
         }
 
@@ -207,8 +208,8 @@ public class UserRestController {
         }
 
         LOGGER.info("Updating legalEntities for user: {}", username);
-        return userService.updateUserLegalEntities(username.equals("me") ? authentication.getName() : username,
-                legalEntities);
+        return new UserResource(userService.updateUserLegalEntities(username.equals("me") ? authentication.getName() : username,
+                legalEntities));
     }
 
     /**

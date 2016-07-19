@@ -64,10 +64,8 @@ public class UserRestControllerTest {
         MockitoAnnotations.initMocks(this);
         mockMvc = standaloneSetup(userControllerMock).setControllerAdvice(new GeneralRestExceptionHandler()).build();
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_USER");
-        auth = new UsernamePasswordAuthenticationToken("omonge", "password", authorities);// Change
-                                                                                          // authorities
-                                                                                          // when
-                                                                                          // set
+        // Change authorities when set
+        auth = new UsernamePasswordAuthenticationToken("omonge", "password", authorities);
     }
 
     @After
@@ -443,8 +441,8 @@ public class UserRestControllerTest {
     @Test
     public void registerUserBadRequestInvalidLists() throws Exception { // 400
         RegisterUserResource newUser = createValidRegisterResource();
-        newUser.setRoles(new ArrayList<Long>());
-        newUser.setLegalEntityApps(new ArrayList<Long>());
+        newUser.setRoles(new HashSet<Long>());
+        newUser.setLegalEntityApps(new HashSet<Long>());
         UserResource returnedUser = createValidUserResource();
         Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenReturn(true);
@@ -617,8 +615,8 @@ public class UserRestControllerTest {
 
     @Test
     public void testUpdateUserRolesSuccessMe() throws Exception {// 200
-        List<Long> roles = createValidRoleIdsList();
-        UserResource updatedUser = createValidUserResource();
+        Set<Long> roles = createValidRoleIdsList();
+        User updatedUser = createValidUser();
         updatedUser.setUsername("omonge");
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.eq("omonge")))
                 .thenReturn(true);
@@ -639,8 +637,8 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserRolesSuccess() throws Exception { // 200
-        List<Long> roles = createValidRoleIdsList();
-        UserResource updatedUser = createValidUserResource();
+        Set<Long> roles = createValidRoleIdsList();
+        User updatedUser = createValidUser();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
 
@@ -660,7 +658,7 @@ public class UserRestControllerTest {
     @Test
     public void updateUserRolesUnauthorizedNoObjectSupplied() throws Exception { // 401
 
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
 
         mockMvc.perform(put("/api/users/test/roles").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(roles))).andExpect(status().isUnauthorized());
@@ -674,7 +672,7 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserRolesUnauthorized() throws Exception { // 401
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
 
         Mockito.when(userService.updateUserRoles("test", roles)).thenThrow(new AccessDeniedException(""));
         mockMvc.perform(put("/api/users/{username}/roles", "omonge").contentType(MediaType.APPLICATION_JSON)
@@ -686,7 +684,7 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserRolesUnAuthorizedByLegalEntities() throws Exception { // 401
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(false);
 
@@ -703,10 +701,10 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserRolesNotFound() throws Exception { // 404
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
-        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anyListOf(Long.class)))
+        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenThrow(new CustomNotFoundException(""));
 
         mockMvc.perform(put("/api/users/{username}/roles", "omonge").principal(auth)
@@ -716,7 +714,7 @@ public class UserRestControllerTest {
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).updateUserRoles(Mockito.anyString(),
-                Mockito.anyListOf(Long.class));
+                Mockito.anySetOf(Long.class));
 
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -734,7 +732,7 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserRolesInternalServerErrorCheckingPermissionByLegalEntity() throws Exception { // 500
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
 
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenThrow(new RuntimeException(""));
@@ -746,18 +744,18 @@ public class UserRestControllerTest {
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.anyString());
         Mockito.verify(userService, Mockito.times(0)).updateUserRoles(Mockito.anyString(),
-                Mockito.anyListOf(Long.class));
+                Mockito.anySetOf(Long.class));
 
         Mockito.verifyNoMoreInteractions(userService);
     }
 
     @Test
     public void updateUserRolesInternalServerErrorGettingUserData() throws Exception { // 500
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
 
-        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anyListOf(Long.class)))
+        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenThrow(new RuntimeException(""));
 
         mockMvc.perform(put("/api/users/{username}/roles", "omonge").principal(auth)
@@ -767,17 +765,17 @@ public class UserRestControllerTest {
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).updateUserRoles(Mockito.anyString(),
-                Mockito.anyListOf(Long.class));
+                Mockito.anySetOf(Long.class));
 
         Mockito.verifyNoMoreInteractions(userService);
     }
 
     public void updateUserRolesError() throws Exception { // 500
-        List<Long> roles = createValidRoleIdsList();
+        Set<Long> roles = createValidRoleIdsList();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
 
-        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anyListOf(Long.class)))
+        Mockito.when(userService.updateUserRoles(Mockito.anyString(), Mockito.anySetOf(Long.class)))
                 .thenThrow(new RuntimeException(""));
 
         mockMvc.perform(put("/api/users/nquiros/roles").principal(auth).contentType(MediaType.APPLICATION_JSON)
@@ -786,7 +784,7 @@ public class UserRestControllerTest {
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.anyString());
         Mockito.verify(userService, Mockito.times(1)).updateUserRoles(Mockito.anyString(),
-                Mockito.anyListOf(Long.class));
+                Mockito.anySetOf(Long.class));
 
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -795,8 +793,8 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserLegalEntitiesOK() throws Exception { // 200
-        List<Long> legalEntities = createValidLegalEntityIdsList();
-        UserResource updatedUser = createValidUserResource();
+        Set<Long> legalEntities = createValidLegalEntityIdsList();
+        User updatedUser = createValidUser();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
         Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
@@ -819,8 +817,8 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserLegalEntitiesOKMe() throws Exception { // 200
-        List<Long> legalEntities = createValidLegalEntityIdsList();
-        UserResource updatedUser = createValidUserResource();
+        Set<Long> legalEntities = createValidLegalEntityIdsList();
+        User updatedUser = createValidUser();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.eq("omonge")))
                 .thenReturn(true);
         Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
@@ -844,7 +842,7 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserLegalEntitiesUnauthorized() throws Exception { // 401
-        List<Long> legalEntities = createValidLegalEntityIdsList();
+        Set<Long> legalEntities = createValidLegalEntityIdsList();
         mockMvc.perform(put("/api/users/test/legal-entities").contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(legalEntities))).andExpect(status().isUnauthorized());
 
@@ -865,7 +863,7 @@ public class UserRestControllerTest {
 
     @Test
     public void updateUserLegalEntitiesInternalServerError() throws Exception { // 500
-        List<Long> legalEntities = createValidLegalEntityIdsList();
+        Set<Long> legalEntities = createValidLegalEntityIdsList();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
         Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
@@ -987,13 +985,13 @@ public class UserRestControllerTest {
         userResource.setEmail("test@email.com");
         userResource.setFirstName("test");
         userResource.setLastName("user");
-        List<LegalEntityApp> legalEntities = new ArrayList<LegalEntityApp>();
+        Set<LegalEntityApp> legalEntities = new HashSet<LegalEntityApp>();
         LegalEntityApp legalEntity = new LegalEntityApp();
         legalEntity.setLegalEntityAppId(1234L);
         legalEntity.setLegalEntityAppName("legalEntity1");
         legalEntities.add(legalEntity);
         userResource.setLegalEntityApps(legalEntities);
-        List<Role> roles1 = new ArrayList<Role>();
+        Set<Role> roles1 = new HashSet<Role>();
         Role role = new Role();
         role.setRoleId(4321L);
         role.setRoleName("ROLE_TESTING");
@@ -1004,8 +1002,8 @@ public class UserRestControllerTest {
         return userResource;
     }
 
-    private List<Long> createValidRoleIdsList() {
-        List<Long> roles = new ArrayList<Long>();
+    private Set<Long> createValidRoleIdsList() {
+        Set<Long> roles = new HashSet<Long>();
         roles.add(42L);
         roles.add(33L);
         roles.add(52L);
@@ -1014,13 +1012,13 @@ public class UserRestControllerTest {
         return roles;
     }
 
-    private List<Long> createValidLegalEntityIdsList() {
-        List<Long> roles = new ArrayList<Long>();
+    private Set<Long> createValidLegalEntityIdsList() {
+        Set<Long> roles = new HashSet<Long>();
         roles.add(64L);
         roles.add(77L);
         roles.add(27L);
         roles.add(87L);
-        roles.add(64L);
+        roles.add(62L);
         return roles;
     }
 

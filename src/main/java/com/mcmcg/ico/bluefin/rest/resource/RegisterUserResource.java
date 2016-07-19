@@ -1,8 +1,9 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -12,8 +13,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
 
 import lombok.Data;
 
@@ -23,44 +22,44 @@ public class RegisterUserResource implements Serializable {
 
     @NotBlank(message = "username must not be empty")
     private String username;
+
     @NotBlank(message = "password must not be empty")
     private String password;
+
     @NotBlank(message = "firstName must not be empty")
     private String firstName;
+
     @NotBlank(message = "lastName must not be empty")
     private String lastName;
+
     @NotBlank(message = "email must not be empty")
     private String email;
+
     @Size(min = 1, message = "rolesIdsList must not be empty")
     @NotNull(message = "roles must not be null")
-    private List<Long> roles;
+    private Set<Long> roles;
+
     @Size(min = 1, message = "legalEntityApps must not be empty")
     @NotNull(message = "legalEntityApps must not be null")
-    private List<Long> legalEntityApps;
+    private Set<Long> legalEntityApps;
 
-    public UserResource toUserResource(List<Role> roles, List<LegalEntityApp> entities) {
-        UserResource userResource = new UserResource();
-        userResource.setUsername(username);
-        userResource.setFirstName(firstName);
-        userResource.setLastName(lastName);
-        userResource.setEmail(email);
-        userResource.setRoles(roles);
-        userResource.setLegalEntityApps(entities);
-        return userResource;
-    }
-
-    public User toUser(List<UserRole> roles, List<UserLegalEntity> entities) {
+    public User toUser(Collection<Role> roles, Collection<LegalEntityApp> legalEntityApps) {
         User user = new User();
+
         user.setUsername(username);
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setRoles(roles);
-        user.setLegalEntities(entities);
-        Date currentDate = new Date();
-        user.setCreatedDate(currentDate);
-        user.setDateUpdated(currentDate);
-        user.setIsActive((short) 1);
+        user.setDateUpdated(new Date());
+        // Roles
+        for (Role role : roles) {
+            user.addRole(role);
+        }
+        // Legal Entity Apps
+        for (LegalEntityApp legalEntityApp : legalEntityApps) {
+            user.addLegalEntityApp(legalEntityApp);
+        }
+
         return user;
     }
 }

@@ -5,10 +5,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,12 +33,16 @@ import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.util.TestUtilClass;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class LegalEntityAppServiceTest {
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Mock
     private LegalEntityAppRepository legalEntityAppRepository;
@@ -256,6 +263,58 @@ public class LegalEntityAppServiceTest {
         Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
     }
 
+    /**
+     * Test when we send the correct data
+     */
+    @Test
+    public void testGetLegalEntityAppsByIds() {
+        List<LegalEntityApp> mockedLoadedLegalEntityApps = getValidLegalEntityAppList();
+        Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+                .thenReturn(mockedLoadedLegalEntityApps);
+
+        Set<Long> expectedLegalEntityAppIds = new HashSet<Long>(Arrays.asList(1L, 2L, 3L));
+        List<LegalEntityApp> loadedLegalEntityApps = legalEntityAppService
+                .getLegalEntityAppsByIds(expectedLegalEntityAppIds);
+
+        Assert.assertEquals(expectedLegalEntityAppIds.size(), loadedLegalEntityApps.size());
+        Assert.assertTrue(
+                loadedLegalEntityApps.stream().filter(x -> !expectedLegalEntityAppIds.contains(x.getLegalEntityAppId()))
+                        .collect(Collectors.toSet()).isEmpty());
+
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    /**
+     * Test when the system does not have roles
+     */
+    @Test(expected = CustomBadRequestException.class)
+    public void testGetLegalEntityAppsByIdsEmptyList() {
+        Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+                .thenReturn(new ArrayList<LegalEntityApp>());
+
+        legalEntityAppService.getLegalEntityAppsByIds(new HashSet<Long>(Arrays.asList(1L, 2L, 3L)));
+
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
+    /**
+     * Test when we pass a wrong role ids
+     */
+    @Test
+    public void testGetLegalEntityAppsByIdsOneWrongElement() {
+        Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+                .thenReturn(getValidLegalEntityAppList());
+        expectedEx.expect(CustomBadRequestException.class);
+        expectedEx.expectMessage("The following legal entity apps don't exist.  List = [5, 7]");
+
+        legalEntityAppService.getLegalEntityAppsByIds(new HashSet<Long>(Arrays.asList(1L, 2L, 3L, 5L, 7L)));
+
+        Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verifyNoMoreInteractions(legalEntityAppRepository);
+    }
+
     private List<LegalEntityApp> findAll() {
         List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
         LegalEntityApp lea = new LegalEntityApp();
@@ -294,6 +353,23 @@ public class LegalEntityAppServiceTest {
         userRole.setUserRoleId(0);
         userRole.setRole(createValidRole());
         return userRole;
+    }
+
+    private List<LegalEntityApp> getValidLegalEntityAppList() {
+        List<LegalEntityApp> validLegalEntityAppList = new ArrayList<LegalEntityApp>();
+        validLegalEntityAppList.add(createValidLegalEntityApp());
+
+        LegalEntityApp validLegalEntity = new LegalEntityApp();
+        validLegalEntity.setLegalEntityAppName("MCM-SSC");
+        validLegalEntity.setLegalEntityAppId(2L);
+        validLegalEntityAppList.add(validLegalEntity);
+
+        validLegalEntity = new LegalEntityApp();
+        validLegalEntity.setLegalEntityAppName("SSC");
+        validLegalEntity.setLegalEntityAppId(3L);
+        validLegalEntityAppList.add(validLegalEntity);
+
+        return validLegalEntityAppList;
     }
 
     private LegalEntityApp createValidLegalEntityApp() {

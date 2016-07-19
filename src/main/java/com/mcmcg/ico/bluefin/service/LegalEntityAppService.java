@@ -126,6 +126,37 @@ public class LegalEntityAppService {
         legalEntityAppRepository.delete(legalEntityAppToDelete);
     }
 
+    /**
+     * Get all legal entity app objects by the entered ids
+     * 
+     * @param legalEntityAppsIds
+     *            list of legal entity apps ids that we need to find
+     * @return list of legal entity apps
+     * @throws CustomBadRequestException
+     *             when at least one id does not exist
+     */
+    public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
+        List<LegalEntityApp> result = legalEntityAppRepository.findAll(legalEntityAppsIds);
+
+        if (result.size() == legalEntityAppsIds.size()) {
+            return result;
+        }
+
+        // Create a detail error
+        if (result == null || result.isEmpty()) {
+            throw new CustomBadRequestException(
+                    "The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
+        }
+
+        Set<Long> legalEntityAppsNotFound = legalEntityAppsIds.stream()
+                .filter(x -> !result.stream().map(LegalEntityApp::getLegalEntityAppId)
+                        .collect(Collectors.toSet()).contains(x))
+                .collect(Collectors.toSet());
+
+        throw new CustomBadRequestException(
+                "The following legal entity apps don't exist.  List = " + legalEntityAppsNotFound);
+    }
+
     private boolean existLegalEntityAppName(String legalEntityAppName) {
         return legalEntityAppRepository.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
     }

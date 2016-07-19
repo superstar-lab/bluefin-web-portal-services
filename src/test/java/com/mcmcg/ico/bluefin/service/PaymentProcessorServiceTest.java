@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
@@ -30,25 +31,34 @@ import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
+import com.mcmcg.ico.bluefin.util.TestUtilClass;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class PaymentProcessorServiceTest {
 
-    @InjectMocks
-    @Autowired
-    private PaymentProcessorService paymentProcessorService;
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @Mock
     private PaymentProcessorRepository paymentProcessorRepository;
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
+    @InjectMocks
+    @Autowired
+    private PaymentProcessorService paymentProcessorService;
 
     @Before
-    public void initMocks() {
+    public void initMocks() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        // http://kim.saabye-pedersen.org/2012/12/mockito-and-spring-proxies.html
+        // This issue is fixed in spring version 4.3.1, but spring boot
+        // 3.6-RELEASE supports 4.2.7
+        PaymentProcessorService ppService = (PaymentProcessorService) TestUtilClass
+                .unwrapProxy(paymentProcessorService);
+
+        ReflectionTestUtils.setField(ppService, "paymentProcessorRepository", paymentProcessorRepository);
     }
 
     // Get Payment Processor by id
@@ -313,7 +323,8 @@ public class PaymentProcessorServiceTest {
 
         expectedEx.expect(RuntimeException.class);
 
-        paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(), Mockito.any(BasicPaymentProcessorResource.class));
+        paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(),
+                Mockito.any(BasicPaymentProcessorResource.class));
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(Mockito.any(PaymentProcessor.class));

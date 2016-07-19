@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.persistent;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -19,7 +20,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 
 import lombok.Data;
 
@@ -29,10 +29,10 @@ import lombok.Data;
 public class User implements Serializable {
     private static final long serialVersionUID = 301195813236863721L;
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserID")
-    @JsonIgnore
     private long userId;
 
     @Column(name = "FirstName")
@@ -51,14 +51,14 @@ public class User implements Serializable {
     @Column(name = "userPassword")
     private String userPassword;
 
-    @Column(name = "IsActive")
     @JsonIgnore
-    private Short isActive;
+    @Column(name = "IsActive")
+    private Short isActive = (short) 0;
 
+    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "LastLogin")
-    @JsonIgnore
     private Date lastLogin;
 
     @JsonIgnore
@@ -69,28 +69,16 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user")
     private Collection<UserLegalEntity> legalEntities;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
     @JsonIgnore
-    private Date createdDate;
-
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateUpdated")
-    @JsonIgnore
     private Date dateUpdated;
 
-    public UserResource toUserResource() {
-        UserResource userResource = new UserResource();
-        userResource.setUsername(username);
-        userResource.setFirstName(firstName);
-        userResource.setLastName(lastName);
-        userResource.setLegalEntityApps(getLegalEntityApps());
-        userResource.setRoles(getRoleNames());
-        userResource.setEmail(email);
-        return userResource;
-    }
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated", insertable = false)
+    private Date createdDate;
 
     @JsonProperty("roles")
     public List<Role> getRoleNames() {
@@ -101,5 +89,27 @@ public class User implements Serializable {
     public List<LegalEntityApp> getLegalEntityApps() {
         return legalEntities.stream().map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityApp())
                 .collect(Collectors.toList());
+    }
+
+    public void addRole(Role role) {
+        if (roles == null) {
+            roles = new ArrayList<UserRole>();
+        }
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(role);
+        userRole.setUser(this);
+        roles.add(userRole);
+    }
+
+    public void addLegalEntityApp(LegalEntityApp legalEntityApp) {
+        if (legalEntities == null) {
+            legalEntities = new ArrayList<UserLegalEntity>();
+        }
+
+        UserLegalEntity userLE = new UserLegalEntity();
+        userLE.setLegalEntityApp(legalEntityApp);
+        userLE.setUser(this);
+        legalEntities.add(userLE);
     }
 }

@@ -2,7 +2,8 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -23,31 +24,47 @@ public class UserResource implements Serializable {
 
     @NotBlank(message = "username must not be empty")
     private String username;
+
     @NotBlank(message = "firstName must not be empty")
     private String firstName;
+
     @NotBlank(message = "lastName must not be empty")
     private String lastName;
+
     @NotBlank(message = "email must not be empty")
     private String email;
+
     @Size(min = 1, message = "roleList must not be empty")
     @NotNull(message = "roleList must not be null")
-    private List<Role> roles;
+    private Set<Role> roles;
+
     @Size(min = 1, message = "legalEntityAppsList must not be empty")
     @NotNull(message = "legalEntityAppsList must not be null")
-    private List<LegalEntityApp> legalEntityApps;
+    private Set<LegalEntityApp> legalEntityApps;
 
-    public User toUser(List<UserRole> roles, List<UserLegalEntity> entities) {
+    public UserResource() {
+    }
+
+    public UserResource(User user) {
+        this.username = user.getUsername();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.legalEntityApps = new HashSet<LegalEntityApp>(user.getLegalEntityApps());
+        this.roles = new HashSet<Role>(user.getRoleNames());
+    }
+
+    public User toUser(Set<UserRole> roles, Set<UserLegalEntity> entities) {
         User user = new User();
+
         user.setUsername(username);
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
         user.setRoles(roles);
         user.setLegalEntities(entities);
-        Date currentDate = new Date();
-        user.setCreatedDate(currentDate);
-        user.setDateUpdated(currentDate);
-        user.setIsActive((short) 1);
+        user.setDateUpdated(new Date());
+
         return user;
     }
 }

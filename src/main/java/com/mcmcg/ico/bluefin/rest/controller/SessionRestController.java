@@ -46,8 +46,8 @@ public class SessionRestController {
     @ApiOperation(value = "loginUser", nickname = "loginUser")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = AuthenticationResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse authenticationRequest(@Valid @RequestBody AuthenticationRequest authenticationRequest,
             @ApiIgnore Errors errors) {
@@ -70,9 +70,9 @@ public class SessionRestController {
     @ApiOperation(value = "logoutUser", nickname = "logoutUser")
     @RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = AuthenticationResponse.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success", response = AuthenticationResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> logoutRequest(HttpServletRequest request) {
         final String token = request.getHeader(securityTokenHeader);
