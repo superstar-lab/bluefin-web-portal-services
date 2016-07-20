@@ -21,8 +21,11 @@ import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.security.TokenUtils;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -38,6 +41,8 @@ public class UserService {
     private LegalEntityAppService legalEntityAppService;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private TokenUtils tokenUtils;
 
     public UserResource getUserInfomation(String username) {
         User user = userRepository.findByUsername(username);
@@ -123,8 +128,7 @@ public class UserService {
     public User updateUserRoles(final String username, final Set<Long> rolesIds) {
         User userToUpdate = userRepository.findByUsername(username);
         if (userToUpdate == null) {
-            throw new CustomNotFoundException(
-                    "Unable to update roles, this username doesn't exists: " + username);
+            throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
         }
 
         // Clean old user roles
@@ -219,6 +223,42 @@ public class UserService {
 
         return !legalEntitiesToVerify.stream().filter(userLegalEntities::contains).collect(Collectors.toSet())
                 .isEmpty();
+    }
+
+    /**
+     * Update the password of an already stored user
+     * 
+     * @param username
+     * @param updatePasswordResource
+     * @return user with all the user information
+     * @throws CustomNotFoundException
+     * @throws CustomBadRequestException
+     */
+    public User updateUserPassword(final String username, final UpdatePasswordResource updatePasswordResource,
+            final String token) {
+        User userToUpdate = userRepository.findByUsername(username);
+        if (userToUpdate == null) {
+            throw new CustomNotFoundException("Unable to update password, this username doesn't exists: " + username);
+        }
+
+        String tokenType = tokenUtils.getTypeFromToken(token);
+        if (tokenType == null) {
+            throw new CustomBadRequestException("An authorization token is required to request this resource");
+        }
+        if (tokenType.equals(TokenType.AUTHENTICATION.name())
+                && !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getUserPassword())) {
+            throw new CustomBadRequestException("The old password is incorrect.");
+        }
+        userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
+        return userRepository.save(userToUpdate);
+    }
+
+    private boolean isValidOldPassword(String oldPassword, String currentUserPassword) {
+        if (oldPassword.isEmpty()) {
+            throw new CustomBadRequestException("oldPassword must not be empty");
+        } else {
+            return passwordEncoder.matches(oldPassword, currentUserPassword);
+        }
     }
 
 }

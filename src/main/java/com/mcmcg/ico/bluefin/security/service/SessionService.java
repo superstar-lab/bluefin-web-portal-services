@@ -26,12 +26,18 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
+import com.mcmcg.ico.bluefin.service.EmailService;
 
 @Service
 public class SessionService {
 
     @Value("${bluefin.wp.services.token.expiration}")
     private Integer securityTokenExpiration;
+    @Value("${bluefin.wp.services.resetpassword.email.link}")
+    private String resetPasswordEmailLink;
+
+    private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
 
     @Autowired
     private UserRepository userRepository;
@@ -43,6 +49,8 @@ public class SessionService {
     private UserLoginHistoryRepository userLoginHistoryRepository;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private EmailService emailService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
 
@@ -74,7 +82,7 @@ public class SessionService {
     }
 
     public AuthenticationResponse generateToken(String username) {
-        String token = generateNewToken(username);
+        String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
         AuthenticationResponse response;
         try {
@@ -88,10 +96,10 @@ public class SessionService {
         return response;
     }
 
-    public String generateNewToken(String username) {
+    public String generateNewToken(String username, TokenType type, String url) {
         SecurityUser securityUser = userDetailsService.loadUserByUsername(username);
         if (securityUser != null) {
-            return tokenUtils.generateToken(securityUser);
+            return tokenUtils.generateToken(securityUser, type, url);
         } else {
             LOGGER.error("Error generating token for user ", username);
             throw new CustomBadRequestException("Error generating token for user " + username);
@@ -121,7 +129,7 @@ public class SessionService {
         String username = tokenUtils.getUsernameFromToken(token);
 
         LOGGER.info("Trying to refresh token for user: {}", username);
-        String newToken = generateNewToken(username);
+        String newToken = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
         AuthenticationResponse response;
         try {
@@ -139,5 +147,17 @@ public class SessionService {
         LOGGER.info("Sending token to blacklist");
         String username = tokenUtils.getUsernameFromToken(token);
         tokenUtils.sendTokenToBlacklist(token, username);
+    }
+
+    public void resetPassword(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new CustomBadRequestException("Unable to reset password, this username doesn't exists: " + username);
+        }
+        LOGGER.info("Reseting password of user: {}", username);
+        String link = "/api/users/" + username + "/password";
+        String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
+        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT,
+                resetPasswordEmailLink + "?token=" + token);
     }
 }

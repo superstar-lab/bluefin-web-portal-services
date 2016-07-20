@@ -23,6 +23,8 @@
 		<io.springfox.version>2.2.2</io.springfox.version>
 		<querydsl.version>3.7.2</querydsl.version>
 		<org.powermock.version>1.6.2</org.powermock.version>
+		<endpoint.email.wsdl.base.url>http://phxiowasq34.internal.mcmcg.com</endpoint.email.wsdl.base.url>
+		<endpoint.email.wsdl.uri>${endpoint.email.wsdl.base.url}/MailManagerEJBHttpRouter/services/EmailRequestor</endpoint.email.wsdl.uri>
 	</properties>
 
 	<!-- Profiles -->
@@ -83,6 +85,7 @@
 				<spring.profiles.active>prod</spring.profiles.active>
 				<!-- Default environment -->
 				<environment>prod</environment>
+				<endpoint.email.wsdl.base.url>http://emailservice.internal.mcmcg.com</endpoint.email.wsdl.base.url>
 			</properties>
 			<build>
 				<resources>
@@ -299,6 +302,28 @@
 					<target>${java.version}</target>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-codegen-plugin</artifactId>
+				<version>3.1.5</version>
+				<executions>
+					<execution>
+						<id>generate-sources</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<sourceRoot>${project.build.directory}/generated-sources</sourceRoot>
+							<wsdlOptions>
+								<wsdlOption>
+									<wsdl>${endpoint.email.wsdl.uri}?wsdl</wsdl>
+								</wsdlOption>
+							</wsdlOptions>
+						</configuration>
+						<goals>
+							<goal>wsdl2java</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>pl.project13.maven</groupId>

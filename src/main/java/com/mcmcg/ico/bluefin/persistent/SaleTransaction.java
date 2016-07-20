@@ -13,7 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mcmcg.ico.bluefin.rest.resource.StatusCode;
+import com.mcmcg.ico.bluefin.model.StatusCode;
 
 import lombok.Data;
 

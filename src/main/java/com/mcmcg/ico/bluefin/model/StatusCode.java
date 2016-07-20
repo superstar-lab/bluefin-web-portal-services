@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.rest.resource;
+package com.mcmcg.ico.bluefin.model;
 
 import java.util.HashMap;
 import java.util.Map;

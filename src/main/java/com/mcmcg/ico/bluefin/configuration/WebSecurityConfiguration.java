@@ -102,6 +102,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             // Session
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL).permitAll()
                             .antMatchers(HttpMethod.PUT, sessionApiBaseURL).permitAll()
+                            .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/recovery/password").permitAll()
 
                             // Users
                             .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()

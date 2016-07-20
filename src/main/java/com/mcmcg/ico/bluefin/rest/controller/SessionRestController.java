@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -101,4 +103,25 @@ public class SessionRestController {
 
         throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
+
+    @ApiOperation(value = "resetPassword", nickname = "resetPassword")
+    @RequestMapping(method = RequestMethod.POST, value = "/recovery/password")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public ResponseEntity<String> resetPassword(@Validated @RequestBody SessionRequestResource sessionRequestResource,
+            @ApiIgnore Errors errors) {
+        // First checks if all required data is given
+        if (errors.hasErrors()) {
+            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            throw new CustomBadRequestException(errorDescription);
+        }
+        String username = sessionRequestResource.getUsername();
+        LOGGER.info("Password reset request from user: {}", username);
+        sessionService.resetPassword(username);
+        return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+    }
+
 }

@@ -13,6 +13,7 @@ import com.mcmcg.ico.bluefin.persistent.SecurityToken;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.SecurityTokenRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -26,6 +27,12 @@ public class TokenUtils {
 
     @Value("${bluefin.wp.services.token.expiration}")
     private Long expiration;
+
+    @Value("${bluefin.wp.services.token.resetpassword.expiration}")
+    private Long resetpasswordExpiration;
+
+    @Value("${bluefin.wp.services.token.authentication.expiration}")
+    private Long authenticationExpiration;
 
     @Autowired
     private SecurityTokenRepository tokenRepository;
@@ -54,6 +61,28 @@ public class TokenUtils {
         return created;
     }
 
+    public String getTypeFromToken(String token) {
+        String type;
+        try {
+            final Claims claims = this.getClaimsFromToken(token);
+            type = claims.get("type").toString();
+        } catch (Exception e) {
+            type = null;
+        }
+        return type;
+    }
+
+    public String getUrlFromToken(String token) {
+        String url;
+        try {
+            final Claims claims = this.getClaimsFromToken(token);
+            url = claims.get("url").toString();
+        } catch (Exception e) {
+            url = null;
+        }
+        return url;
+    }
+
     public Date getExpirationDateFromToken(String token) {
         Date expiration;
         try {
@@ -79,8 +108,15 @@ public class TokenUtils {
         return new Date(System.currentTimeMillis());
     }
 
-    private Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + this.expiration * 1000);
+    private Date generateExpirationDate(TokenType type) {
+        switch (type) {
+        case AUTHENTICATION:
+            return new Date(System.currentTimeMillis() + this.resetpasswordExpiration * 1000);
+        case FORGOT_PASSWORD:
+            return new Date(System.currentTimeMillis() + this.authenticationExpiration * 1000);
+        default:
+            return new Date(System.currentTimeMillis() + this.expiration * 1000);
+        }
     }
 
     private Boolean isTokenExpired(String token) {
@@ -92,15 +128,22 @@ public class TokenUtils {
         return (lastPasswordReset != null && created.before(lastPasswordReset));
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, TokenType type, String url) {
         Map<String, Object> claims = new HashMap<String, Object>();
         claims.put("sub", userDetails.getUsername());
         claims.put("created", this.generateCurrentDate());
+        claims.put("type", type.name());
+        claims.put("url", url);
         return this.generateToken(claims);
     }
 
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(userDetails, null, null);
+    }
+
     private String generateToken(Map<String, Object> claims) {
-        return Jwts.builder().setClaims(claims).setExpiration(this.generateExpirationDate())
+        return Jwts.builder().setClaims(claims)
+                .setExpiration(this.generateExpirationDate(TokenType.valueOf(claims.get("type").toString())))
                 .signWith(SignatureAlgorithm.HS512, this.secret).compact();
     }
 
@@ -132,7 +175,9 @@ public class TokenUtils {
         SecurityToken blacklistToken = new SecurityToken();
         blacklistToken.setToken(token);
         blacklistToken.setUserId(user.getUserId());
-        blacklistToken.setType("Authentication"); // TODO: multiple token types
+        blacklistToken.setType(TokenType.AUTHENTICATION.name()); // TODO:
+                                                                 // multiple
+                                                                 // token types
         return tokenRepository.save(blacklistToken);
     }
 

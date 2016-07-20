@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +31,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.service.UserService;
@@ -46,6 +50,8 @@ public class UserRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);
     @Autowired
     private UserService userService;
+    @Value("${bluefin.wp.services.token.header}")
+    private String securityTokenHeader;
 
     @ApiOperation(value = "getUser", nickname = "getUser")
     @RequestMapping(method = RequestMethod.GET, value = "/{username}", produces = "application/json")
@@ -179,7 +185,8 @@ public class UserRestController {
         }
         LOGGER.info("Updating roles for user: {}", username);
 
-        return new UserResource(userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles));
+        return new UserResource(
+                userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles));
     }
 
     @ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
@@ -208,8 +215,26 @@ public class UserRestController {
         }
 
         LOGGER.info("Updating legalEntities for user: {}", username);
-        return new UserResource(userService.updateUserLegalEntities(username.equals("me") ? authentication.getName() : username,
-                legalEntities));
+        return new UserResource(userService
+                .updateUserLegalEntities(username.equals("me") ? authentication.getName() : username, legalEntities));
+    }
+
+    @ApiOperation(value = "updateUserPassword", nickname = "updateUserPassword")
+    @RequestMapping(method = RequestMethod.PUT, value = "/{username}/password", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public ResponseEntity<String> updateUserPassword(@PathVariable String username,
+            @RequestBody UpdatePasswordResource updatePasswordResource, HttpServletRequest request) {
+        final String token = request.getHeader(securityTokenHeader);
+        if (token != null) {
+            userService.updateUserPassword(username, updatePasswordResource, token);
+            return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        }
+
+        throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
 
     /**
