@@ -28,7 +28,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "PaymentProcessor_Rule_new")
+@Table(name = "PaymentProcessor_Rule")
 public class PaymentProcessorRule implements Serializable {
     private static final long serialVersionUID = 255255719776828551L;
 

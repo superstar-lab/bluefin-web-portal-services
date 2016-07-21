@@ -37,11 +37,11 @@ public class PaymentProcessorMerchant implements Serializable {
     @Column(name = "TestOrProd")
     private Short testOrProd;
 
-    @JsonBackReference(value = "legalEntityApp")
     @ManyToOne
     @JoinColumn(name = "LegalEntityAppID")
     private LegalEntityApp legalEntityApp;
 
+    @JsonBackReference(value = "paymentProcessorMerchant")
     @ManyToOne
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;

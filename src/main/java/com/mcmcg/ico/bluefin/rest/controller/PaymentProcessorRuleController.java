@@ -110,7 +110,7 @@ public class PaymentProcessorRuleController {
     @ApiOperation(value = "Delete payment processor rule", nickname = "deletePaymentProcessorRule")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
@@ -119,6 +119,6 @@ public class PaymentProcessorRuleController {
         paymentProcessorRuleService.delete(id);
         LOGGER.info("Payment processor rule {} has been deleted.", id);
 
-        return new ResponseEntity<String>("{}", HttpStatus.OK);
+        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 }

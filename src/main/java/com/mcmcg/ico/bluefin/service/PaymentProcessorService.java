@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
 
 @Service
 @Transactional
@@ -96,6 +98,45 @@ public class PaymentProcessorService {
     }
 
     /**
+     * Add/remove payment processor merchants from a payment processor
+     * 
+     * @param id
+     *            identifier of the payment processor
+     * @param paymentProcessorMerchants
+     *            list of payment processor merchants
+     * @return updated payment processor
+     * @throws CustomNotFoundException
+     *             when payment processor not found
+     */
+    public PaymentProcessor updatePaymentProcessorMerchants(Long id,
+            Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
+        // Verify if legal entity app exists
+        PaymentProcessor paymentProcessorToUpdate = paymentProcessorRepository.findOne(id);
+        if (paymentProcessorToUpdate == null) {
+            throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
+        }
+
+        // Clean old payment processors merchants
+        paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
+        paymentProcessorToUpdate = paymentProcessorRepository.save(paymentProcessorToUpdate);
+
+        // User wants to clear processors from legal entity app
+        if (paymentProcessorMerchants.isEmpty()) {
+            return paymentProcessorToUpdate;
+        }
+
+        // Update legal entity app with new payment processor merchants
+        for (PaymentProcessorMerchantResource ppmr : paymentProcessorMerchants) {
+            PaymentProcessorMerchant ppm = ppmr.toPaymentProcessorMerchant();
+            ppm.setPaymentProcessor(paymentProcessorToUpdate);
+
+            paymentProcessorToUpdate.getPaymentProcessorMerchants().add(ppm);
+        }
+
+        return paymentProcessorRepository.save(paymentProcessorToUpdate);
+    }
+
+    /**
      * Deletes a payment processor by id, not found exception will be thrown if
      * payment processor does not exists
      * 
@@ -144,5 +185,4 @@ public class PaymentProcessorService {
     private boolean existPaymentProcessorName(String processorName) {
         return paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName) == null ? false : true;
     }
-
 }

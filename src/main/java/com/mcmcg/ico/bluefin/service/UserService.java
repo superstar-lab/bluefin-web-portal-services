@@ -44,13 +44,33 @@ public class UserService {
     @Autowired
     private TokenUtils tokenUtils;
 
+    /**
+     * Get user information by username
+     * 
+     * @param username
+     * @return UserResource object
+     * @throws CustomBadRequestException
+     *             user not found
+     */
     public UserResource getUserInfomation(String username) {
+        return new UserResource(getUser(username));
+    }
+
+    /**
+     * Get user object by username
+     * 
+     * @param username
+     * @return user object
+     * @throws CustomBadRequestException
+     *             when username is not found
+     */
+    public User getUser(final String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new CustomNotFoundException("User information not found");
+            throw new CustomBadRequestException("Unable to find user by username provided: " + username);
         }
 
-        return new UserResource(user);
+        return user;
     }
 
     public Iterable<User> getUsers(BooleanExpression exp, Integer page, Integer size, String sort) {
@@ -69,8 +89,8 @@ public class UserService {
      * @return list of legal entities owned by the user with the user name given
      *         by parameter, empty list if user not found
      */
-    public List<LegalEntityApp> getLegalEntitiesByUser(String userName) {
-        User user = userRepository.findByUsername(userName);
+    public List<LegalEntityApp> getLegalEntitiesByUser(final String username) {
+        User user = userRepository.findByUsername(username);
         return user == null ? new ArrayList<LegalEntityApp>() : user.getLegalEntityApps();
     }
 
@@ -89,7 +109,7 @@ public class UserService {
         return new UserResource(userRepository.save(newUser));
     }
 
-    public boolean existUsername(String username) {
+    public boolean existUsername(final String username) {
         return userRepository.findByUsername(username) == null ? false : true;
     }
 
@@ -102,11 +122,7 @@ public class UserService {
      * @throws CustomNotFoundException
      */
     public UserResource updateUserProfile(String username, UpdateUserResource userResource) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new CustomNotFoundException(
-                    "Unable to update the account, this username doesn't exists: " + username);
-        }
+        User user = getUser(username);
 
         // Updating fields from existing user
         user.setFirstName(userResource.getFirstName());
@@ -126,10 +142,7 @@ public class UserService {
      * @throws CustomNotFoundException
      */
     public User updateUserRoles(final String username, final Set<Long> rolesIds) {
-        User userToUpdate = userRepository.findByUsername(username);
-        if (userToUpdate == null) {
-            throw new CustomNotFoundException("Unable to update roles, this username doesn't exists: " + username);
-        }
+        User userToUpdate = getUser(username);
 
         // Clean old user roles
         userToUpdate.getRoles().clear();
@@ -158,11 +171,7 @@ public class UserService {
      * @throws CustomNotFoundException
      */
     public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
-        User userToUpdate = userRepository.findByUsername(username);
-        if (userToUpdate == null) {
-            throw new CustomNotFoundException(
-                    "Unable to update legalEntities, this username doesn't exists: " + username);
-        }
+        User userToUpdate = getUser(username);
 
         // Clean old legal entities
         userToUpdate.getLegalEntityApps().clear();
@@ -208,17 +217,23 @@ public class UserService {
      * @param usernameToUpdate
      * @return true if the request user has related legal entities with the user
      *         he wants to CRUD
+     * @throws CustomNotFoundException
+     *             username not found
      */
-    public boolean belongsToSameLegalEntity(Authentication authentication, String usernameToUpdate) {
+    public boolean belongsToSameLegalEntity(Authentication authentication, final String usernameToUpdate) {
         final String username = authentication.getName();
         if (usernameToUpdate.equals(username)) {
             return true;
         }
+
+        // Verify if user that needs to be updated exist
+        User userToUpdate = getUser(usernameToUpdate);
+
         // Get Legal Entities from consultant user
         Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
         // Get Legal Entities from user that will be updated
-        Set<Long> legalEntitiesToVerify = getLegalEntitiesByUser(usernameToUpdate).stream()
+        Set<Long> legalEntitiesToVerify = userToUpdate.getLegalEntityApps().stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
 
         return !legalEntitiesToVerify.stream().filter(userLegalEntities::contains).collect(Collectors.toSet())
@@ -236,10 +251,7 @@ public class UserService {
      */
     public User updateUserPassword(final String username, final UpdatePasswordResource updatePasswordResource,
             final String token) {
-        User userToUpdate = userRepository.findByUsername(username);
-        if (userToUpdate == null) {
-            throw new CustomNotFoundException("Unable to update password, this username doesn't exists: " + username);
-        }
+        User userToUpdate = getUser(username);
 
         String tokenType = tokenUtils.getTypeFromToken(token);
         if (tokenType == null) {
@@ -253,12 +265,12 @@ public class UserService {
         return userRepository.save(userToUpdate);
     }
 
-    private boolean isValidOldPassword(String oldPassword, String currentUserPassword) {
+    private boolean isValidOldPassword(final String oldPassword, final String currentUserPassword) {
         if (oldPassword.isEmpty()) {
             throw new CustomBadRequestException("oldPassword must not be empty");
-        } else {
-            return passwordEncoder.matches(oldPassword, currentUserPassword);
         }
+
+        return passwordEncoder.matches(oldPassword, currentUserPassword);
     }
 
 }

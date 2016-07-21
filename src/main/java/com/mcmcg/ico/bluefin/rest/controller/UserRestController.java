@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
@@ -61,12 +60,9 @@ public class UserRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public UserResource getUserAccount(@PathVariable String username, @ApiIgnore Authentication authentication) {
+    public UserResource get(@PathVariable String username, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
-        }
-        if (!userService.existUsername(username)) {
-            throw new CustomNotFoundException("User information not found.");
         }
 
         // Checks if the Legal Entities of the consultant user are in the user
@@ -87,13 +83,14 @@ public class UserRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<User> getUsers(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
+    public Iterable<User> get(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
             @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
             @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        String userName = authentication.getName();
+
+        final String userName = authentication.getName();
         // Verifies if the search parameter has allowed
         // legal entities for the consultant user
         search = getVerifiedSearch(userName, search);
@@ -109,7 +106,7 @@ public class UserRestController {
             @ApiResponse(code = 404, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<UserResource> registerUserAccount(@Validated @RequestBody RegisterUserResource newUser,
+    public ResponseEntity<UserResource> create(@Validated @RequestBody RegisterUserResource newUser,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
@@ -121,12 +118,10 @@ public class UserRestController {
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-        // Gets the legal entities that will be verified, use of set to avoid
-        // duplicated values
-        Set<Long> legalEntitiesToVerify = newUser.getLegalEntityApps().stream().collect(Collectors.toSet());
+
         // Checks if the Legal Entities given are valid according with the
         // LegalEntities owned
-        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), legalEntitiesToVerify)) {
+        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), newUser.getLegalEntityApps())) {
             throw new AccessDeniedException(
                     String.format("User doesn't have access to add by legal entity restriction"));
         }

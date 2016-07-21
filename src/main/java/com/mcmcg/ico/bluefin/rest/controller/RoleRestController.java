@@ -34,7 +34,7 @@ public class RoleRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public List<Role> getRoles() {
+    public List<Role> get() {
         LOGGER.info("Getting all roles");
         return roleService.getRoles();
     }

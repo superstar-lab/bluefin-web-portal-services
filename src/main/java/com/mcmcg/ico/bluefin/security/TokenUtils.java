@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.mcmcg.ico.bluefin.persistent.SecurityToken;
+import com.mcmcg.ico.bluefin.persistent.SecurityTokenBlacklist;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.SecurityTokenRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
@@ -170,20 +170,19 @@ public class TokenUtils {
                 && !isTokenInBlacklist(token, username));
     }
 
-    public SecurityToken sendTokenToBlacklist(String token, String username) {
+    public SecurityTokenBlacklist sendTokenToBlacklist(String token, String username) {
         User user = userRepository.findByUsername(username);
-        SecurityToken blacklistToken = new SecurityToken();
+        SecurityTokenBlacklist blacklistToken = new SecurityTokenBlacklist();
         blacklistToken.setToken(token);
         blacklistToken.setUserId(user.getUserId());
-        blacklistToken.setType(TokenType.AUTHENTICATION.name()); // TODO:
-                                                                 // multiple
-                                                                 // token types
+        // TODO: multiple token types
+        blacklistToken.setType(TokenType.AUTHENTICATION.name());
         return tokenRepository.save(blacklistToken);
     }
 
     public Boolean isTokenInBlacklist(String token, String username) {
         User user = userRepository.findByUsername(username);
-        SecurityToken blacklistToken = tokenRepository.findByUserIdAndToken(user.getUserId(), token);
+        SecurityTokenBlacklist blacklistToken = tokenRepository.findByUserIdAndToken(user.getUserId(), token);
         return blacklistToken != null;
     }
 

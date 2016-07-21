@@ -18,7 +18,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Data;
 
@@ -36,7 +35,7 @@ public class LegalEntityApp implements Serializable {
     @Column(name = "LegalEntityAppName")
     private String legalEntityAppName;
 
-    @JsonManagedReference(value = "legalEntityApp")
+    @JsonIgnore
     @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
 

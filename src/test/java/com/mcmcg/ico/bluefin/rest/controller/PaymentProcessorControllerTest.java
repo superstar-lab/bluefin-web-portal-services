@@ -302,7 +302,7 @@ public class PaymentProcessorControllerTest {
             }
         }).when(paymentProcessorService).deletePaymentProcessor(1L);
 
-        mockMvc.perform(delete(API + "/{id}", 1L).principal(auth)).andExpect(status().isOk());
+        mockMvc.perform(delete(API + "/{id}", 1L).principal(auth)).andExpect(status().isNoContent());
 
         Mockito.verify(paymentProcessorService, Mockito.times(1)).deletePaymentProcessor(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(paymentProcessorService);

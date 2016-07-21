@@ -1,8 +1,7 @@
 package com.mcmcg.ico.bluefin.security.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,25 +21,27 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserLoginHistoryRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.service.EmailService;
+import com.mcmcg.ico.bluefin.service.UserService;
 
 @Service
 public class SessionService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
+    private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
 
     @Value("${bluefin.wp.services.token.expiration}")
     private Integer securityTokenExpiration;
     @Value("${bluefin.wp.services.resetpassword.email.link}")
     private String resetPasswordEmailLink;
 
-    private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
-
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
     @Autowired
@@ -52,112 +53,99 @@ public class SessionService {
     @Autowired
     private EmailService emailService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
-
-    public UsernamePasswordAuthenticationToken authenticate(String username, String password) {
+    public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
         User user = userRepository.findByUsername(username);
 
-        createLoginHistory(user, password, username);
+        createLoginHistory(user, username, password);
 
         if (user == null || !passwordEncoder.matches(password, user.getUserPassword())) {
             throw new AccessDeniedException("Invalid credentials");
         }
+
         return new UsernamePasswordAuthenticationToken(username, password);
     }
 
-    private void createLoginHistory(User user, String password, String userName) {
+    private void createLoginHistory(User user, final String username, final String password) {
         // Creates a login history
         UserLoginHistory userLoginHistory = new UserLoginHistory();
-        userLoginHistory.setLoginDateTime(new Date());
         userLoginHistory.setMessageId(MessageCode.ERROR_USER_NOT_FOUND.getValue());
-        userLoginHistory.setUserName(userName);
+        userLoginHistory.setUsername(username);
 
         if (user != null) {
             // Creates success case for login history
-            userLoginHistory.setUser(user.getUserId());
+            userLoginHistory.setUserId(user.getUserId());
             userLoginHistory.setMessageId(MessageCode.SUCCESS.getValue());
         }
         // TODO add logic for when the user's password is not found
         userLoginHistoryRepository.save(userLoginHistory);
     }
 
-    public AuthenticationResponse generateToken(String username) {
-        String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
+    public AuthenticationResponse generateToken(final String username) {
+        User user = userService.getUser(username);
 
-        AuthenticationResponse response;
-        try {
-            LOGGER.info("Creating login response for user: {}", username);
-            response = getLoginResponse(username);
-        } catch (Exception e) {
-            LOGGER.error("Unable to get user information", e);
-            throw new CustomNotFoundException("Unable to get user information");
-        }
-        response.setToken(token);
-        return response;
+        final String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
+
+        LOGGER.info("Creating login response for user: {}", username);
+        return getLoginResponse(user, token);
     }
 
-    public String generateNewToken(String username, TokenType type, String url) {
+    public String generateNewToken(final String username, TokenType type, final String url) {
         SecurityUser securityUser = userDetailsService.loadUserByUsername(username);
-        if (securityUser != null) {
-            return tokenUtils.generateToken(securityUser, type, url);
-        } else {
-            LOGGER.error("Error generating token for user ", username);
+        if (securityUser == null) {
             throw new CustomBadRequestException("Error generating token for user " + username);
         }
+
+        return tokenUtils.generateToken(securityUser, type, url);
     }
 
-    public AuthenticationResponse getLoginResponse(String username) throws Exception {
+    public AuthenticationResponse refreshToken(final String token) {
+        LOGGER.info("Parsing token to get user information");
+        final String username = tokenUtils.getUsernameFromToken(token);
+
+        // Find user by username
+        User user = userService.getUser(username);
+
+        LOGGER.info("Trying to refresh token for user: {}", username);
+        final String newToken = generateNewToken(username, TokenType.AUTHENTICATION, null);
+
+        LOGGER.info("Creating response for user: {}", username);
+        return getLoginResponse(user, newToken);
+    }
+
+    public void deleteSession(final String token) {
+        LOGGER.info("Sending token to blacklist");
+        tokenUtils.sendTokenToBlacklist(token, tokenUtils.getUsernameFromToken(token));
+    }
+
+    public void resetPassword(final String username) {
+        User user = userService.getUser(username);
+
+        LOGGER.info("Reseting password of user: {}", username);
+        final String link = "/api/users/" + username + "/password";
+        final String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
+
+        // Send email
+        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT,
+                resetPasswordEmailLink + "?token=" + token);
+    }
+
+    private AuthenticationResponse getLoginResponse(final User user, final String token) {
         AuthenticationResponse response = new AuthenticationResponse();
 
-        User user = userRepository.findByUsername(username);
+        response.setToken(token);
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());
-        response.setUsername(username);
+        response.setUsername(user.getUsername());
 
-        List<Permission> permissionsResult = new ArrayList<Permission>();
+        Set<Permission> permissionsResult = new HashSet<Permission>();
         for (UserRole role : user.getRoles()) {
             for (RolePermission permission : role.getRole().getRolePermissions()) {
                 permissionsResult.add(permission.getPermission());
             }
         }
+
         response.setPermissions(permissionsResult);
+
         return response;
-    }
-
-    public AuthenticationResponse refreshToken(String token) {
-        LOGGER.info("Parsing token to get user information");
-        String username = tokenUtils.getUsernameFromToken(token);
-
-        LOGGER.info("Trying to refresh token for user: {}", username);
-        String newToken = generateNewToken(username, TokenType.AUTHENTICATION, null);
-
-        AuthenticationResponse response;
-        try {
-            LOGGER.info("Creating response for user: {}", username);
-            response = getLoginResponse(username);
-        } catch (Exception e) {
-            LOGGER.error("Unable to get user information", e);
-            throw new CustomNotFoundException("Unable to get user information");
-        }
-        response.setToken(newToken);
-        return response;
-    }
-
-    public void deleteSession(String token) {
-        LOGGER.info("Sending token to blacklist");
-        String username = tokenUtils.getUsernameFromToken(token);
-        tokenUtils.sendTokenToBlacklist(token, username);
-    }
-
-    public void resetPassword(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new CustomBadRequestException("Unable to reset password, this username doesn't exists: " + username);
-        }
-        LOGGER.info("Reseting password of user: {}", username);
-        String link = "/api/users/" + username + "/password";
-        String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
-        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT,
-                resetPasswordEmailLink + "?token=" + token);
     }
 }

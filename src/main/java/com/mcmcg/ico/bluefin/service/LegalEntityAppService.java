@@ -13,14 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
 
 @Service
 @Transactional
@@ -84,34 +82,6 @@ public class LegalEntityAppService {
 
         // Update fields for existing Legal Entity App
         legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
-
-        return legalEntityAppRepository.save(legalEntityAppToUpdate);
-    }
-
-    public LegalEntityApp updateLegalEntityAppPaymentProcessors(Long id,
-            Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
-        // Verify if legal entity app exists
-        LegalEntityApp legalEntityAppToUpdate = legalEntityAppRepository.findOne(id);
-        if (legalEntityAppToUpdate == null) {
-            throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
-        }
-
-        // Clean old payment processors merchants
-        legalEntityAppToUpdate.getPaymentProcessorMerchants().clear();
-        legalEntityAppToUpdate = legalEntityAppRepository.save(legalEntityAppToUpdate);
-
-        // User wants to clear processors from legal entity app
-        if (paymentProcessorMerchants.isEmpty()) {
-            return legalEntityAppToUpdate;
-        }
-
-        // Update legal entity app with new payment processor merchants
-        for (PaymentProcessorMerchantResource ppmr : paymentProcessorMerchants) {
-            PaymentProcessorMerchant ppm = ppmr.toPaymentProcessorMerchant();
-            ppm.setLegalEntityApp(legalEntityAppToUpdate);
-
-            legalEntityAppToUpdate.getPaymentProcessorMerchants().add(ppm);
-        }
 
         return legalEntityAppRepository.save(legalEntityAppToUpdate);
     }

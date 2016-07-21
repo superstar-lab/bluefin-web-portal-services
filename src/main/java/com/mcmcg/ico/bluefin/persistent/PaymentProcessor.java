@@ -18,6 +18,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.Data;
 
@@ -35,9 +36,13 @@ public class PaymentProcessor implements Serializable {
     @Column(name = "ProcessorName")
     private String processorName;
 
-    @JsonIgnore
+    @JsonManagedReference(value = "paymentProcessorMerchant")
     @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
+    
+    @JsonManagedReference(value = "paymentProcessorRule")
+    @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Collection<PaymentProcessorRule> paymentProcessorRules;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

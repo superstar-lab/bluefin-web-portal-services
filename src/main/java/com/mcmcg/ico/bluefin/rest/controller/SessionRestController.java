@@ -47,11 +47,11 @@ public class SessionRestController {
 
     @ApiOperation(value = "loginUser", nickname = "loginUser")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = AuthenticationResponse.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public AuthenticationResponse authenticationRequest(@Valid @RequestBody AuthenticationRequest authenticationRequest,
+    public AuthenticationResponse authentication(@Valid @RequestBody AuthenticationRequest authenticationRequest,
             @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -72,25 +72,25 @@ public class SessionRestController {
     @ApiOperation(value = "logoutUser", nickname = "logoutUser")
     @RequestMapping(method = RequestMethod.DELETE, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success", response = AuthenticationResponse.class),
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> logoutRequest(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request) {
         final String token = request.getHeader(securityTokenHeader);
 
-        if (token != null) {
-            sessionService.deleteSession(token);
-            return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        if (token == null) {
+            throw new CustomBadRequestException("An authorization token is required to request this resource");
         }
 
-        throw new CustomBadRequestException("An authorization token is required to request this resource");
+        sessionService.deleteSession(token);
+        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 
     @ApiOperation(value = "refreshToken", nickname = "refreshToken")
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = AuthenticationResponse.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
@@ -104,9 +104,9 @@ public class SessionRestController {
         throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
 
-    @ApiOperation(value = "resetPassword", nickname = "resetPassword")
+    @ApiOperation(value = "Reset password", nickname = "resetPassword")
     @RequestMapping(method = RequestMethod.POST, value = "/recovery/password")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success", response = String.class),
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
@@ -118,10 +118,12 @@ public class SessionRestController {
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-        String username = sessionRequestResource.getUsername();
+
+        final String username = sessionRequestResource.getUsername();
         LOGGER.info("Password reset request from user: {}", username);
         sessionService.resetPassword(username);
-        return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 
 }

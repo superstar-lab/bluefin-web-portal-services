@@ -14,7 +14,7 @@ import lombok.Data;
 @Data
 @Table(name = "SecurityToken_Backlist")
 @Entity
-public class SecurityToken implements Serializable {
+public class SecurityTokenBlacklist implements Serializable {
     private static final long serialVersionUID = -1826844003400142380L;
 
     @Id

@@ -8,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -344,8 +344,8 @@ public class SessionRestControllerTest {
         return response;
     }
 
-    private List<Permission> getPermissions() {
-        List<Permission> permissionsResult = new ArrayList<Permission>();
+    private Set<Permission> getPermissions() {
+        Set<Permission> permissionsResult = new HashSet<Permission>();
         permissionsResult.add(createPermission());
         return permissionsResult;
     }

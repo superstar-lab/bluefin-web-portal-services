@@ -39,25 +39,24 @@ public class UserLoginHistory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserLoginHistoryID")
-    private long userLoginHistoryId;
+    private Long userLoginHistoryId;
 
     @Column(name = "UserID", nullable = true)
-    private long user;
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "LoginDateTime")
-    private Date loginDateTime;
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated", insertable = false)
-    private Date createdDate;
+    private Long userId;
 
     @Column(name = "MessageID")
     private Integer messageId;
 
     @Column(name = "UserName")
-    private String userName;
+    private String username;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "LoginDateTime")
+    private Date loginDateTime = new Date();
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated", insertable = false)
+    private Date createdDate;
 }

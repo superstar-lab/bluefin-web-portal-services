@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -25,7 +24,6 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
 import com.mcmcg.ico.bluefin.service.LegalEntityAppService;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -49,7 +47,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public LegalEntityApp getLegalEntity(@PathVariable Long id) {
+    public LegalEntityApp get(@PathVariable Long id) {
         LOGGER.info("Getting legal entity by id");
         return legalEntityAppService.getLegalEntityAppById(id);
     }
@@ -62,7 +60,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public List<LegalEntityApp> getLegalEntities(@ApiIgnore Authentication authentication) {
+    public List<LegalEntityApp> get(@ApiIgnore Authentication authentication) {
         LOGGER.info("Getting all legal entities");
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
@@ -77,7 +75,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<LegalEntityApp> createLegalEntityApp(
+    public ResponseEntity<LegalEntityApp> create(
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
         // First checks if all required data is given
@@ -98,7 +96,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public LegalEntityApp updateLegalEntityApp(@PathVariable Long id,
+    public LegalEntityApp update(@PathVariable Long id,
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -110,39 +108,17 @@ public class LegalEntityAppRestController {
         return legalEntityAppService.updateLegalEntityApp(id, legalEntityAppToUpdate);
     }
 
-    @ApiOperation(value = "updateLegalEntityAppPaymentProcessorMerchants", nickname = "updateLegalEntityAppPaymentProcessorMerchants")
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}/payment-processor-merchants", produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public LegalEntityApp updateLegalEntityAppPaymentProcessorMerchants(@PathVariable Long id,
-            @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
-            @ApiIgnore Errors errors) {
-        LOGGER.info("Updating payment processors merchants = [{}] from legal entity app = [{}]",
-                paymentProcessorMerchants, id);
-
-        if (errors.hasErrors()) {
-            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
-            throw new CustomBadRequestException(errorDescription);
-        }
-
-        return legalEntityAppService.updateLegalEntityAppPaymentProcessors(id, paymentProcessorMerchants);
-    }
-
     @ApiOperation(value = "deleteLegalEntityApp", nickname = "deleteLegalEntityApp")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class),
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<LegalEntityApp> deleteLegalEntityApp(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
         LOGGER.info("Deleting Payment Processor {}", id);
         legalEntityAppService.deleteLegalEntityApp(id);
         LOGGER.info("Legal Entity {} has been deleted.", id);
 
-        return new ResponseEntity<LegalEntityApp>(HttpStatus.OK);
+        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 }

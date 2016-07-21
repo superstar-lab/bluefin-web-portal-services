@@ -44,7 +44,7 @@ public class TransactionsRestController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public SaleTransaction getTransaction(@PathVariable("transactionId") String transactionId) {
+    public SaleTransaction get(@PathVariable("transactionId") String transactionId) {
         LOGGER.info("Getting transaction information by id: {}", transactionId);
         return transactionService.getTransactionInformation(transactionId);
     }
@@ -57,7 +57,7 @@ public class TransactionsRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<SaleTransaction> getTransactions(@RequestParam(value = "search", required = true) String search,
+    public Iterable<SaleTransaction> get(@RequestParam(value = "search", required = true) String search,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size,
             @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication) {
