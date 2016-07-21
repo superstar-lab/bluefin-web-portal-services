@@ -122,7 +122,7 @@ public class SessionService {
         if (username == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        tokenUtils.sendTokenToBlacklist(token, token);
+        tokenUtils.sendTokenToBlacklist(token, username);
     }
 
     public void resetPassword(final String username) {

@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -105,7 +106,7 @@ public class SessionRestController {
     }
 
     @ApiOperation(value = "Reset password", nickname = "resetPassword")
-    @RequestMapping(method = RequestMethod.POST, value = "/recovery/password")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/recovery/password")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -125,5 +126,4 @@ public class SessionRestController {
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
-
 }
