@@ -267,14 +267,17 @@ public class UserService {
      * @throws CustomNotFoundException
      * @throws CustomBadRequestException
      */
-    public User updateUserPassword(final String username, final UpdatePasswordResource updatePasswordResource,
+    public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
             final String token) {
+
+        username = (username.equals("me") ? tokenUtils.getUsernameFromToken(token) : username);
+        String tokenType = tokenUtils.getTypeFromToken(token);
+        if (username == null || tokenType == null) {
+            throw new CustomBadRequestException("An authorization token is required to request this resource");
+        } 
+        
         User userToUpdate = getUser(username);
 
-        String tokenType = tokenUtils.getTypeFromToken(token);
-        if (tokenType == null) {
-            throw new CustomBadRequestException("An authorization token is required to request this resource");
-        }
         if (tokenType.equals(TokenType.AUTHENTICATION.name())
                 && !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getUserPassword())) {
             throw new CustomBadRequestException("The old password is incorrect.");

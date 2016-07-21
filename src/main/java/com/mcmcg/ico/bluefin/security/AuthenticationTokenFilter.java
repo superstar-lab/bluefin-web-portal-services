@@ -34,8 +34,8 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authToken = httpRequest.getHeader(this.securityTokenHeader);
-        String url = httpRequest.getRequestURL().toString();
         String username = tokenUtils.getUsernameFromToken(authToken);
+        String url = httpRequest.getRequestURL().toString().replace("/me/", "/" + username + "/");
 
         ///////////////// TODO: TO BE REMOVED!!!///////////////////
         if (username == null) {
