@@ -118,7 +118,11 @@ public class SessionService {
 
     public void deleteSession(final String token) {
         LOGGER.info("Sending token to blacklist");
-        tokenUtils.sendTokenToBlacklist(token, tokenUtils.getUsernameFromToken(token));
+        String username = tokenUtils.getUsernameFromToken(token);
+        if (username == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        tokenUtils.sendTokenToBlacklist(token, token);
     }
 
     public void resetPassword(final String username) {
