@@ -968,7 +968,6 @@ public class UserRestControllerTest {
         newUser.setLegalEntityApps(createValidLegalEntityIdsList());
         newUser.setRoles(createValidRoleIdsList());
         newUser.setUsername("userTest");
-        newUser.setPassword("test");
         return newUser;
     }
 

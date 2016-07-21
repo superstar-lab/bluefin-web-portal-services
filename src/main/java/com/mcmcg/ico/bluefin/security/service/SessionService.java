@@ -62,6 +62,10 @@ public class SessionService {
             throw new AccessDeniedException("Invalid credentials");
         }
 
+        if (user.getIsActive() == (short) 0) {
+            throw new AccessDeniedException("Account is not activated yet");
+        }
+
         return new UsernamePasswordAuthenticationToken(username, password);
     }
 

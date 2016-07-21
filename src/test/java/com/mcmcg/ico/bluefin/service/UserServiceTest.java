@@ -44,6 +44,8 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
+import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mcmcg.ico.bluefin.util.TestUtilClass;
 import com.mysema.query.types.expr.BooleanExpression;
@@ -56,6 +58,8 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private RoleService roleService;
+    @Mock
+    private SessionService sessionService;
     @Mock
     private LegalEntityAppService legalEntityAppService;
     @Mock
@@ -81,6 +85,7 @@ public class UserServiceTest {
         ReflectionTestUtils.setField(uService, "userRepository", userRepository);
         ReflectionTestUtils.setField(uService, "roleService", roleService);
         ReflectionTestUtils.setField(uService, "legalEntityAppService", legalEntityAppService);
+        ReflectionTestUtils.setField(uService, "sessionService", sessionService);
         ReflectionTestUtils.setField(uService, "passwordEncoder", passwordEncoder);
 
         auth = new UsernamePasswordAuthenticationToken("omonge", "password", null);
@@ -104,7 +109,7 @@ public class UserServiceTest {
         Mockito.verifyNoMoreInteractions(userRepository);
     }
 
-    @Test(expected = CustomNotFoundException.class)
+    @Test(expected = CustomBadRequestException.class)
     public void testGetUserInfoNotFound() {// 404
 
         Mockito.when(userRepository.findByUsername("omonge")).thenReturn(new User());
@@ -298,6 +303,9 @@ public class UserServiceTest {
         List<Role> expectedRoles = new ArrayList<Role>();
         expectedRoles.add(createValidRole());
         Mockito.when(roleService.getRolesByIds(Mockito.anySetOf(Long.class))).thenReturn(expectedRoles);
+        Mockito.when(
+                sessionService.generateNewToken(Mockito.anyString(), Mockito.any(TokenType.class), Mockito.anyString()))
+                .thenReturn("testToken");
 
         UserResource result = userService.registerNewUserAccount(newUser);
 
@@ -632,8 +640,8 @@ public class UserServiceTest {
     @Test
     public void testUpdateNotExistingUserBadRequest() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
-        expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to update the account, this username doesn't exists: userTest");
+        expectedEx.expect(CustomBadRequestException.class);
+        expectedEx.expectMessage("Unable to find user by username provided: userTest");
 
         userService.updateUserProfile("userTest", createValidUpdateResource());
 
@@ -748,8 +756,8 @@ public class UserServiceTest {
     @Test
     public void testUpdateUserRolesNotExistingUserBadRequest() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
-        expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to update roles, this username doesn't exists: userTest");
+        expectedEx.expect(CustomBadRequestException.class);
+        expectedEx.expectMessage("Unable to find user by username provided: userTest");
 
         userService.updateUserRoles("userTest", createValidRoleIdsList());
 
@@ -915,8 +923,8 @@ public class UserServiceTest {
     @Test
     public void testUpdateUserLegalEntitiesNotExistingUserBadRequest() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
-        expectedEx.expect(CustomNotFoundException.class);
-        expectedEx.expectMessage("Unable to update legalEntities, this username doesn't exists: userTest");
+        expectedEx.expect(CustomBadRequestException.class);
+        expectedEx.expectMessage("Unable to find user by username provided: userTest");
 
         userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
 
@@ -1198,7 +1206,6 @@ public class UserServiceTest {
         newUser.setLegalEntityApps(createValidLegalEntityIdsList());
         newUser.setRoles(createValidRoleIdsList());
         newUser.setUsername("userTest");
-        newUser.setPassword("password");
         return newUser;
     }
 

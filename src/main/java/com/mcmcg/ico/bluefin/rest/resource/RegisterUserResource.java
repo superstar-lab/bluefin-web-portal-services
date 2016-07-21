@@ -23,9 +23,6 @@ public class RegisterUserResource implements Serializable {
     @NotBlank(message = "username must not be empty")
     private String username;
 
-    @NotBlank(message = "password must not be empty")
-    private String password;
-
     @NotBlank(message = "firstName must not be empty")
     private String firstName;
 

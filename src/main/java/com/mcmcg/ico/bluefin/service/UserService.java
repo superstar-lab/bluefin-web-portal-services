@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,6 +28,7 @@ import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
+import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -43,6 +46,14 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private TokenUtils tokenUtils;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private SessionService sessionService;
+    @Value("${bluefin.wp.services.registeruser.email.link}")
+    private String registerUserEmailLink;
+
+    private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 
     /**
      * Get user information by username
@@ -103,10 +114,17 @@ public class UserService {
 
         User newUser = userResource.toUser(roleService.getRolesByIds(userResource.getRoles()),
                 legalEntityAppService.getLegalEntityAppsByIds(userResource.getLegalEntityApps()));
+        newUser.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
-        newUser.setUserPassword(passwordEncoder.encode(userResource.getPassword()));
+        UserResource newUserResource = new UserResource(userRepository.save(newUser));
 
-        return new UserResource(userRepository.save(newUser));
+        // Send email
+        final String link = "/api/users/" + username + "/password";
+        final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
+        emailService.sendEmail(newUser.getEmail(), REGISTER_USER_EMAIL_SUBJECT,
+                registerUserEmailLink + "?token=" + token);
+
+        return newUserResource;
     }
 
     public boolean existUsername(final String username) {
@@ -260,6 +278,9 @@ public class UserService {
         if (tokenType.equals(TokenType.AUTHENTICATION.name())
                 && !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getUserPassword())) {
             throw new CustomBadRequestException("The old password is incorrect.");
+        }
+        if (tokenType.equals(TokenType.REGISTER_USER.name())) {
+            userToUpdate.setIsActive((short) 1);
         }
         userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
         return userRepository.save(userToUpdate);
