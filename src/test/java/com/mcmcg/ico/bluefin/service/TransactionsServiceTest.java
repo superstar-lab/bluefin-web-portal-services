@@ -230,7 +230,7 @@ public class TransactionsServiceTest {
 
     private UserLegalEntity createValidUserLegalEntity() {
         UserLegalEntity userLegalEntity = new UserLegalEntity();
-        userLegalEntity.setUserLegalEntityAppId(0);
+        userLegalEntity.setUserLegalEntityAppId(0L);
         userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
         return userLegalEntity;
     }

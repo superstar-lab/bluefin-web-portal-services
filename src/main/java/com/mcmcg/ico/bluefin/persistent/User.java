@@ -7,8 +7,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -62,11 +64,11 @@ public class User implements Serializable {
     private Date lastLogin;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<UserRole> roles;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<UserLegalEntity> legalEntities;
 
     @JsonIgnore
@@ -109,6 +111,17 @@ public class User implements Serializable {
 
         UserLegalEntity userLE = new UserLegalEntity();
         userLE.setLegalEntityApp(legalEntityApp);
+        userLE.setUser(this);
+        legalEntities.add(userLE);
+    }
+    
+    public void addLegalEntityApp(Long legalEntityAppId) {
+        if (legalEntities == null) {
+            legalEntities = new ArrayList<UserLegalEntity>();
+        }
+
+        UserLegalEntity userLE = new UserLegalEntity();
+        userLE.setLegalEntityApp(new LegalEntityApp(legalEntityAppId));
         userLE.setUser(this);
         legalEntities.add(userLE);
     }

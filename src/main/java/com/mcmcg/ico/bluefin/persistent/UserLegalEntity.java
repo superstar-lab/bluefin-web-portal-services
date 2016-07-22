@@ -28,7 +28,7 @@ public class UserLegalEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserLegalEntityAppID")
-    private long userLegalEntityAppId;
+    private Long userLegalEntityAppId;
 
     @JsonBackReference
     @ManyToOne
@@ -42,7 +42,13 @@ public class UserLegalEntity implements Serializable {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
+    @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
+    public UserLegalEntity() {
+    }
+
+    public UserLegalEntity(Long value) {
+        this.userLegalEntityAppId = value;
+    }
 }

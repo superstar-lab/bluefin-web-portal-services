@@ -1,7 +1,10 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -116,21 +119,42 @@ public class PaymentProcessorService {
             throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
         }
 
-        // Clean old payment processors merchants
-        paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
-        paymentProcessorToUpdate = paymentProcessorRepository.save(paymentProcessorToUpdate);
-
-        // User wants to clear processors from legal entity app
+        // User wants to clear payment processor merchants from payment
+        // processor
         if (paymentProcessorMerchants.isEmpty()) {
-            return paymentProcessorToUpdate;
+            paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
+            return paymentProcessorRepository.save(paymentProcessorToUpdate);
         }
 
-        // Update legal entity app with new payment processor merchants
-        for (PaymentProcessorMerchantResource ppmr : paymentProcessorMerchants) {
-            PaymentProcessorMerchant ppm = ppmr.toPaymentProcessorMerchant();
-            ppm.setPaymentProcessor(paymentProcessorToUpdate);
+        // New payment processor merchants that need to be created or updated
+        Map<Long, PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants.stream()
+                .collect(Collectors.toMap(PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
 
-            paymentProcessorToUpdate.getPaymentProcessorMerchants().add(ppm);
+        // Temporal list of legal entity app ids already updated
+        Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
+
+        // Update information from current payment processor merchants
+        Iterator<PaymentProcessorMerchant> iter = paymentProcessorToUpdate.getPaymentProcessorMerchants().iterator();
+        while (iter.hasNext()) {
+            PaymentProcessorMerchant element = iter.next();
+
+            PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
+                    .get(element.getLegalEntityApp().getLegalEntityAppId());
+            if (ppmr == null) {
+                iter.remove();
+            } else {
+                element.setMerchantId(ppmr.getMerchantId());
+                element.setTestOrProd(ppmr.getTestOrProd());
+                PaymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
+            }
+        }
+
+        // Add the new payment processor merchants
+        for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
+            if (!PaymentProcessorMerchantsToKeep.contains(legalEntityId)) {
+                paymentProcessorToUpdate.addPaymentProcessorMerchant(
+                        newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant());
+            }
         }
 
         return paymentProcessorRepository.save(paymentProcessorToUpdate);

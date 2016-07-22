@@ -27,7 +27,7 @@ public class UserRole implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "UserRoleID")
-    private long userRoleId;
+    private Long userRoleId;
 
     @ManyToOne
     @JoinColumn(name = "RoleID")
@@ -39,7 +39,13 @@ public class UserRole implements Serializable {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
+    @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
+    public UserRole() {
+    }
+
+    public UserRole(Long value) {
+        this.userRoleId = value;
+    }
 }

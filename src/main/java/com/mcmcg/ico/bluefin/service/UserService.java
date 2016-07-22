@@ -2,7 +2,10 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
+import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -162,19 +167,37 @@ public class UserService {
     public User updateUserRoles(final String username, final Set<Long> rolesIds) {
         User userToUpdate = getUser(username);
 
-        // Clean old user roles
-        userToUpdate.getRoles().clear();
-        userToUpdate = userRepository.save(userToUpdate);
-
         // User wants to clear roles from user
         if (rolesIds.isEmpty()) {
-            return userToUpdate;
+            userToUpdate.getRoles().clear();
+            return userRepository.save(userToUpdate);
         }
 
-        // Update user roles
-        List<Role> roles = roleService.getRolesByIds(rolesIds);
-        for (Role role : roles) {
-            userToUpdate.addRole(role);
+        // Validate and load existing roles
+        Map<Long, Role> newMapOfRoles = roleService.getRolesByIds(rolesIds).stream()
+                .collect(Collectors.toMap(Role::getRoleId, r -> r));
+
+        // Temporal list of roles that we need to keep in the user role list
+        Set<Long> rolesToKeep = new HashSet<Long>();
+
+        // Update current role list from user
+        Iterator<UserRole> iter = userToUpdate.getRoles().iterator();
+        while (iter.hasNext()) {
+            UserRole element = iter.next();
+
+            Role role = newMapOfRoles.get(element.getRole().getRoleId());
+            if (role == null) {
+                iter.remove();
+            } else {
+                rolesToKeep.add(element.getRole().getRoleId());
+            }
+        }
+
+        // Add new roles to the user but ignoring the existing ones
+        for (Long roleId : newMapOfRoles.keySet()) {
+            if (!rolesToKeep.contains(roleId)) {
+                userToUpdate.addRole(newMapOfRoles.get(roleId));
+            }
         }
 
         return userRepository.save(userToUpdate);
@@ -191,19 +214,37 @@ public class UserService {
     public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
         User userToUpdate = getUser(username);
 
-        // Clean old legal entities
-        userToUpdate.getLegalEntityApps().clear();
-        userToUpdate = userRepository.save(userToUpdate);
-
-        // User wants to clear legal entities from user
+        // User wants to clear legal entity apps from user
         if (legalEntityAppsIds.isEmpty()) {
-            return userToUpdate;
+            userToUpdate.getLegalEntities().clear();
+            return userRepository.save(userToUpdate);
         }
 
-        // Update legal entities
-        List<LegalEntityApp> legalEntityApps = legalEntityAppService.getLegalEntityAppsByIds(legalEntityAppsIds);
-        for (LegalEntityApp leApp : legalEntityApps) {
-            userToUpdate.addLegalEntityApp(leApp);
+        // Validate and load existing legal entity apps
+        Map<Long, LegalEntityApp> newMapOfLegalEntityApps = legalEntityAppService.getLegalEntityAppsByIds(legalEntityAppsIds).stream()
+                .collect(Collectors.toMap(LegalEntityApp::getLegalEntityAppId, l -> l));
+
+        // Temporal list of legal entity apps that we need to keep in the user legal entity app list
+        Set<Long> legalEntityAppsToKeep = new HashSet<Long>();
+
+        // Update current role list from user
+        Iterator<UserLegalEntity> iter = userToUpdate.getLegalEntities().iterator();
+        while (iter.hasNext()) {
+            UserLegalEntity element = iter.next();
+
+            LegalEntityApp legalEntityApp = newMapOfLegalEntityApps.get(element.getLegalEntityApp().getLegalEntityAppId());
+            if (legalEntityApp == null) {
+                iter.remove();
+            } else {
+                legalEntityAppsToKeep.add(element.getLegalEntityApp().getLegalEntityAppId());
+            }
+        }
+
+        // Add new roles to the user but ignoring the existing ones
+        for (Long legalEntityAppId : newMapOfLegalEntityApps.keySet()) {
+            if (!legalEntityAppsToKeep.contains(legalEntityAppId)) {
+                userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
+            }
         }
 
         return userRepository.save(userToUpdate);
@@ -274,8 +315,8 @@ public class UserService {
         String tokenType = tokenUtils.getTypeFromToken(token);
         if (username == null || tokenType == null) {
             throw new CustomBadRequestException("An authorization token is required to request this resource");
-        } 
-        
+        }
+
         User userToUpdate = getUser(username);
 
         if (tokenType.equals(TokenType.AUTHENTICATION.name())

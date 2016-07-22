@@ -1228,14 +1228,14 @@ public class UserServiceTest {
 
     private UserLegalEntity createValidUserLegalEntity() {
         UserLegalEntity userLegalEntity = new UserLegalEntity();
-        userLegalEntity.setUserLegalEntityAppId(0);
+        userLegalEntity.setUserLegalEntityAppId(0L);
         userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
         return userLegalEntity;
     }
 
     private UserRole createValidUserRole() {
         UserRole userRole = new UserRole();
-        userRole.setUserRoleId(0);
+        userRole.setUserRoleId(0L);
         userRole.setRole(createValidRole());
         return userRole;
     }

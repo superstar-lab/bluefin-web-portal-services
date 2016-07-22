@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.persistent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -39,7 +40,7 @@ public class PaymentProcessor implements Serializable {
     @JsonManagedReference(value = "paymentProcessorMerchant")
     @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
-    
+
     @JsonManagedReference(value = "paymentProcessorRule")
     @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorRule> paymentProcessorRules;
@@ -55,5 +56,14 @@ public class PaymentProcessor implements Serializable {
 
     public PaymentProcessor(Long value) {
         this.paymentProcessorId = value;
+    }
+
+    public void addPaymentProcessorMerchant(PaymentProcessorMerchant paymentProcessorMerchant) {
+        if (paymentProcessorMerchants == null) {
+            this.paymentProcessorMerchants = new HashSet<PaymentProcessorMerchant>();
+        }
+
+        paymentProcessorMerchant.setPaymentProcessor(this);
+        paymentProcessorMerchants.add(paymentProcessorMerchant);
     }
 }

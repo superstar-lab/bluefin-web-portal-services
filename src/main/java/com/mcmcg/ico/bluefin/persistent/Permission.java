@@ -43,7 +43,7 @@ public class Permission implements Serializable {
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated")
+    @Column(name = "DateCreated", insertable = false)
     private Date dateCreated;
 
     public Permission() {
