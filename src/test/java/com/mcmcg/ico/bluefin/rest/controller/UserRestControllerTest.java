@@ -402,8 +402,8 @@ public class UserRestControllerTest {
     public void registerUserOK() throws Exception { // 201
         RegisterUserResource newUser = createValidRegisterResource();
         UserResource returnedUser = createValidUserResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
         mockMvc.perform(post("/api/users").principal(auth).contentType(MediaType.APPLICATION_JSON)
@@ -411,8 +411,8 @@ public class UserRestControllerTest {
                 .andExpect(jsonPath("username").value("userTest")).andExpect(jsonPath("email").value("test@email.com"))
                 .andExpect(jsonPath("firstName").value("test"));
 
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).registerNewUserAccount(newUser);
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -421,8 +421,8 @@ public class UserRestControllerTest {
     public void registerUserBadRequestInvalidRequestBody() throws Exception { // 400
         RegisterUserResource newUser = createInvalidRegisterResource();
         UserResource returnedUser = createValidUserResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
         String validationErros = mockMvc
@@ -444,8 +444,8 @@ public class UserRestControllerTest {
         newUser.setRoles(new HashSet<Long>());
         newUser.setLegalEntityApps(new HashSet<Long>());
         UserResource returnedUser = createValidUserResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(newUser)).thenReturn(returnedUser);
 
         String validationErros = mockMvc
@@ -475,13 +475,13 @@ public class UserRestControllerTest {
     @Test
     public void registerUserAccessDeniedUnauthorized() throws Exception { // 401
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(false);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(false);
         mockMvc.perform(post("/api/users").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(newUser))).andExpect(status().isUnauthorized());
 
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(0)).registerNewUserAccount(newUser);
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -489,14 +489,14 @@ public class UserRestControllerTest {
     @Test
     public void registerUserInternalServerErrorValidatingLegalEntities() throws Exception { // 500
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenThrow(new RuntimeException(""));
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(post("/api/users").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(newUser))).andExpect(status().isInternalServerError());
 
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(0)).registerNewUserAccount(any(RegisterUserResource.class));
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -504,16 +504,16 @@ public class UserRestControllerTest {
     @Test
     public void registerUserInternalServerError() throws Exception { // 500
         RegisterUserResource newUser = createValidRegisterResource();
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.registerNewUserAccount(any(RegisterUserResource.class)))
                 .thenThrow(new RuntimeException(""));
 
         mockMvc.perform(post("/api/users").principal(auth).contentType(MediaType.APPLICATION_JSON)
                 .content(convertObjectToJsonBytes(newUser))).andExpect(status().isInternalServerError());
 
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).registerNewUserAccount(any(RegisterUserResource.class));
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -797,8 +797,8 @@ public class UserRestControllerTest {
         User updatedUser = createValidUser();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.updateUserLegalEntities("test", legalEntities)).thenReturn(updatedUser);
 
         mockMvc.perform(put("/api/users/test/legal-entities").principal(auth).header("X-Auth-Token", "tokenTest")
@@ -809,8 +809,8 @@ public class UserRestControllerTest {
 
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.anyString());
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -821,8 +821,8 @@ public class UserRestControllerTest {
         User updatedUser = createValidUser();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.eq("omonge")))
                 .thenReturn(true);
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.updateUserLegalEntities("omonge", legalEntities)).thenReturn(updatedUser);
 
         mockMvc.perform(
@@ -834,8 +834,8 @@ public class UserRestControllerTest {
 
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.eq("omonge"));
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("omonge", legalEntities);
         Mockito.verifyNoMoreInteractions(userService);
     }
@@ -866,8 +866,8 @@ public class UserRestControllerTest {
         Set<Long> legalEntities = createValidLegalEntityIdsList();
         Mockito.when(userService.belongsToSameLegalEntity(Mockito.any(Authentication.class), Mockito.anyString()))
                 .thenReturn(true);
-        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.anyString(), Mockito.anySetOf(Long.class)))
-                .thenReturn(true);
+        Mockito.when(userService.hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class),
+                Mockito.anySetOf(Long.class))).thenReturn(true);
         Mockito.when(userService.updateUserLegalEntities("test", legalEntities)).thenThrow(new RuntimeException(""));
 
         mockMvc.perform(put("/api/users/test/legal-entities").principal(auth).principal(auth)
@@ -876,8 +876,8 @@ public class UserRestControllerTest {
 
         Mockito.verify(userService, Mockito.times(1)).belongsToSameLegalEntity(Mockito.any(Authentication.class),
                 Mockito.anyString());
-        Mockito.verify(userService, Mockito.times(1)).hasUserPrivilegesOverLegalEntities(Mockito.anyString(),
-                Mockito.anySetOf(Long.class));
+        Mockito.verify(userService, Mockito.times(1))
+                .hasUserPrivilegesOverLegalEntities(Mockito.any(Authentication.class), Mockito.anySetOf(Long.class));
         Mockito.verify(userService, Mockito.times(1)).updateUserLegalEntities("test", legalEntities);
         Mockito.verifyNoMoreInteractions(userService);
     }

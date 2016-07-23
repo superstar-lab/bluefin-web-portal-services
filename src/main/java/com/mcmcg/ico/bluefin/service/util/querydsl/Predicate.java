@@ -114,14 +114,15 @@ class Predicate {
         while (matcher.find()) {
             criteriaValue = matcher.group(1);
         }
-        if (criteriaValue != null) {
-            List<Long> result = Arrays.asList(criteriaValue.split(",")).stream().map(String::trim)
-                    .mapToLong(Long::parseLong).boxed().collect(Collectors.toList());
-            return result;
-        } else {
+        if (criteriaValue == null) {
             LOGGER.error("Unable to parse value of {}, correct format example [1,2,3]", criteria.getKey());
             throw new CustomBadRequestException(
                     "Unable to parse value of " + criteria.getKey() + ", correct format example [1,2,3]");
+        } else if (criteriaValue.isEmpty()) {
+            return new ArrayList<Long>();
+        } else {
+            return Arrays.asList(criteriaValue.split(",")).stream().map(String::trim).mapToLong(Long::parseLong).boxed()
+                    .collect(Collectors.toList());
         }
     }
 
@@ -175,7 +176,7 @@ class Predicate {
         LOGGER.error("Unable to parse numeric value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse numeric value of " + criteria.getKey());
     }
-    
+
     private BooleanExpression getLongNumericPredicate(PathBuilder<?> entityPath) {
         if (NumberUtils.isNumber(criteria.getValue().toString())) {
             NumberPath<Long> path = entityPath.getNumber(criteria.getKey(), Long.class);

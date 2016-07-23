@@ -1,7 +1,10 @@
 package com.mcmcg.ico.bluefin.security.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,10 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Permission;
+import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLoginHistory;
@@ -22,11 +29,14 @@ import com.mcmcg.ico.bluefin.persistent.jpa.UserLoginHistoryRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotActiveUserException;
+import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
+import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.service.EmailService;
+import com.mcmcg.ico.bluefin.service.RoleService;
 import com.mcmcg.ico.bluefin.service.UserService;
 
 @Service
@@ -38,6 +48,8 @@ public class SessionService {
     private Integer securityTokenExpiration;
     @Value("${bluefin.wp.services.resetpassword.email.link}")
     private String resetPasswordEmailLink;
+    @Value("${bluefin.wp.services.application.role.name}")
+    private String applicationRoleName;
 
     @Autowired
     private UserRepository userRepository;
@@ -53,6 +65,8 @@ public class SessionService {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private RoleService roleService;
 
     public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
         User user = userRepository.findByUsername(username);
@@ -157,4 +171,35 @@ public class SessionService {
 
         return response;
     }
+
+    public BasicTokenResponse registerApplication(String username) {
+        RegisterUserResource userResource = new RegisterUserResource();
+        userResource.setUsername(username);
+        userResource.setFirstName(username);
+        userResource.setLastName(username);
+
+        Collection<Role> rolesToAssign = new ArrayList<Role>();
+        rolesToAssign.add(roleService.getRoleByName(applicationRoleName));
+
+        if (!userService.existUsername(username)) {
+            User newUser = userResource.toUser(rolesToAssign, new ArrayList<LegalEntityApp>());
+            newUser.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            newUser.setIsActive((short) 1);
+
+            userRepository.save(newUser);
+        }
+        return new BasicTokenResponse(generateNewToken(username, TokenType.APPLICATION, null));
+    }
+
+    public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {
+        Boolean hasPermission = false;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            hasPermission = authority.getAuthority().equals("MANAGE_ALL_LEGAL_ENTITIES");
+            if (hasPermission) {
+                break;
+            }
+        }
+        return hasPermission;
+    }
+
 }

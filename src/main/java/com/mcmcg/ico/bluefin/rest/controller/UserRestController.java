@@ -33,6 +33,7 @@ import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.UserService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
@@ -49,6 +50,8 @@ public class UserRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);
     @Autowired
     private UserService userService;
+    @Autowired
+    private SessionService sessionService;
     @Value("${bluefin.wp.services.token.header}")
     private String securityTokenHeader;
 
@@ -91,9 +94,12 @@ public class UserRestController {
         }
 
         final String userName = authentication.getName();
-        // Verifies if the search parameter has allowed
-        // legal entities for the consultant user
-        search = getVerifiedSearch(userName, search);
+        if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+            // Verifies if the search parameter has allowed
+            // legal entities for the consultant user
+            search = getVerifiedSearch(userName, search);
+        }
+
         LOGGER.info("Generating report with the following filters: {}", search);
         return userService.getUsers(QueryDSLUtil.createExpression(search, User.class), page, size, sort);
     }
@@ -121,7 +127,7 @@ public class UserRestController {
 
         // Checks if the Legal Entities given are valid according with the
         // LegalEntities owned
-        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), newUser.getLegalEntityApps())) {
+        if (!userService.hasUserPrivilegesOverLegalEntities(authentication, newUser.getLegalEntityApps())) {
             throw new AccessDeniedException(
                     String.format("User doesn't have access to add by legal entity restriction"));
         }
@@ -200,7 +206,7 @@ public class UserRestController {
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated and checks if the Legal Entities given are valid
         // according with the LegalEntities owned
-        if (!userService.hasUserPrivilegesOverLegalEntities(authentication.getName(), legalEntities)) {
+        if (!userService.hasUserPrivilegesOverLegalEntities(authentication, legalEntities)) {
             throw new AccessDeniedException("User doesn't have permission over the given list of legal entities");
         }
 

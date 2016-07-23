@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
@@ -19,6 +20,7 @@ import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
+import com.mcmcg.ico.bluefin.security.service.SessionService;
 
 @Service
 @Transactional
@@ -29,20 +31,26 @@ public class LegalEntityAppService {
     private LegalEntityAppRepository legalEntityAppRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private SessionService sessionService;
 
-    public List<LegalEntityApp> getLegalEntities(String userName) {
-        User user = userRepository.findByUsername(userName);
+    public List<LegalEntityApp> getLegalEntities(Authentication authentication) {
+        User user = userRepository.findByUsername(authentication.getName());
 
         if (user == null) {
-            LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]", userName);
+            LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
+                    authentication.getName());
             return new ArrayList<LegalEntityApp>();
         }
 
-        List<Long> legalEntitiesFromUser = user.getLegalEntities().stream()
-                .map(userLegalEntity -> userLegalEntity.getLegalEntityApp().getLegalEntityAppId())
-                .collect(Collectors.toList());
-
-        return legalEntityAppRepository.findAll(legalEntitiesFromUser);
+        if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+            return legalEntityAppRepository.findAll();
+        } else {
+            List<Long> legalEntitiesFromUser = user.getLegalEntities().stream()
+                    .map(userLegalEntity -> userLegalEntity.getLegalEntityApp().getLegalEntityAppId())
+                    .collect(Collectors.toList());
+            return legalEntityAppRepository.findAll(legalEntitiesFromUser);
+        }
     }
 
     /**
@@ -118,9 +126,8 @@ public class LegalEntityAppService {
                     "The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
         }
 
-        Set<Long> legalEntityAppsNotFound = legalEntityAppsIds.stream()
-                .filter(x -> !result.stream().map(LegalEntityApp::getLegalEntityAppId)
-                        .collect(Collectors.toSet()).contains(x))
+        Set<Long> legalEntityAppsNotFound = legalEntityAppsIds.stream().filter(
+                x -> !result.stream().map(LegalEntityApp::getLegalEntityAppId).collect(Collectors.toSet()).contains(x))
                 .collect(Collectors.toSet());
 
         throw new CustomBadRequestException(

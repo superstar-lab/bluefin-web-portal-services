@@ -37,24 +37,15 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
         String username = tokenUtils.getUsernameFromToken(authToken);
         String url = httpRequest.getRequestURL().toString().replace("/me/", "/" + username + "/");
 
-        ///////////////// TODO: TO BE REMOVED!!!///////////////////
-        if (username == null) {
-            username = "rblanco";
-        }
-        ///////////////////////////////////////////////////////////////
-
         if (username != null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            ///////////////// TODO: TO BE REMOVED!!!///////////////////
-            if (username.equals("rblanco")) {
-                authToken = tokenUtils.generateToken(userDetails, TokenType.AUTHENTICATION, null);
-            }
-            ///////////////////////////////////////////////////////////////
+
             if (this.tokenUtils.validateToken(authToken, userDetails)) {
                 String tokenType = this.tokenUtils.getTypeFromToken(authToken);
                 String tokenUrl = this.tokenUtils.getUrlFromToken(authToken);
 
-                if (tokenType.equals(TokenType.AUTHENTICATION.name()) || url.contains(tokenUrl)) {
+                if (tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name())
+                        || url.contains(tokenUrl)) {
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());

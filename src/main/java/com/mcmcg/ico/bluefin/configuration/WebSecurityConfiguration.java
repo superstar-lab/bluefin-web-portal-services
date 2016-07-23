@@ -96,28 +96,29 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                                     "/configuration/**", "/images/**").permitAll()
 
                             // Transactions
-                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/").permitAll()
-                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").permitAll()
+                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/").authenticated()
+                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").authenticated()
 
                             // Session
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL).permitAll()
-                            .antMatchers(HttpMethod.PUT, sessionApiBaseURL).permitAll()
+                            .antMatchers(HttpMethod.PUT, sessionApiBaseURL).authenticated()
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/recovery/password").permitAll()
 
                             // Users
-                            .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()
-                            .antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/").permitAll()
-                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()
-                            .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").permitAll()
+                            .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
+                            .antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/").authenticated()
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}").authenticated()
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}/password").authenticated()
+                            .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
 
                             // Legal entities
-                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").permitAll()
+                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").authenticated()
 //                            .antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL).permitAll()
 //                            .antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{legalEntityId}", legalEntitiesApiBaseURL + "/{legalEntityId}/").permitAll()
 //                            .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{legalEntityId}", legalEntitiesApiBaseURL + "/{legalEntityId}/").permitAll()
 
                             // Roles
-                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").permitAll()
+                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
 //                            .antMatchers(HttpMethod.POST, rolesApiBaseURL).permitAll()
 //                            .antMatchers(HttpMethod.PUT, rolesApiBaseURL + "/{roleId}", rolesApiBaseURL + "/{roleId}/").permitAll()
 //                            .antMatchers(HttpMethod.DELETE, rolesApiBaseURL + "/{roleId}", rolesApiBaseURL + "/{roleId}/").permitAll()

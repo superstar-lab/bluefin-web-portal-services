@@ -20,6 +20,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -52,6 +54,7 @@ public class LegalEntityAppServiceTest {
     @InjectMocks
     @Autowired
     private LegalEntityAppService legalEntityAppService;
+    Authentication auth;
 
     @Before
     public void initMocks() throws Exception {
@@ -64,6 +67,8 @@ public class LegalEntityAppServiceTest {
 
         ReflectionTestUtils.setField(leaService, "legalEntityAppRepository", legalEntityAppRepository);
         ReflectionTestUtils.setField(leaService, "userRepository", userRepository);
+
+        auth = new UsernamePasswordAuthenticationToken("omonge", "password", null);
     }
 
     /**
@@ -81,7 +86,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(legalEntityAppRepository.findAll(listOfIds)).thenReturn(legalEntityAppList);
 
-        List<LegalEntityApp> result = legalEntityAppService.getLegalEntities("omonge");
+        List<LegalEntityApp> result = legalEntityAppService.getLegalEntities(auth);
 
         Assert.assertFalse(result.isEmpty());
         Assert.assertEquals(result, legalEntityAppList);
@@ -101,7 +106,7 @@ public class LegalEntityAppServiceTest {
     public void testFindAllUserNameNull() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
 
-        List<LegalEntityApp> result = legalEntityAppService.getLegalEntities("omonge");
+        List<LegalEntityApp> result = legalEntityAppService.getLegalEntities(auth);
 
         Assert.assertTrue(result.isEmpty());
 
@@ -118,7 +123,7 @@ public class LegalEntityAppServiceTest {
     public void testFindByUserGeneralExceptionFindByUser() {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -134,7 +139,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
         Mockito.when(legalEntityAppRepository.findAll(listOfIds)).thenThrow(new RuntimeException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(listOfIds);
@@ -153,7 +158,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollection()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollection());
@@ -170,7 +175,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -185,7 +190,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new DataAccessResourceFailureException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -200,7 +205,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.anyString()))
                 .thenThrow(new JDBCConnectionException("", null));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verifyNoMoreInteractions(userRepository);
@@ -217,7 +222,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollection()))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollection());
@@ -236,7 +241,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollection()))
                 .thenThrow(new DataAccessResourceFailureException(""));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollection());
@@ -255,7 +260,7 @@ public class LegalEntityAppServiceTest {
         Mockito.when(legalEntityAppRepository.findAll(Mockito.anyCollection()))
                 .thenThrow(new JDBCConnectionException("", null));
 
-        legalEntityAppService.getLegalEntities("omonge");
+        legalEntityAppService.getLegalEntities(auth);
 
         Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
         Mockito.verify(legalEntityAppRepository, Mockito.times(1)).findAll(Mockito.anyCollection());

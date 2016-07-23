@@ -107,7 +107,8 @@ public class UserService {
      */
     public List<LegalEntityApp> getLegalEntitiesByUser(final String username) {
         User user = userRepository.findByUsername(username);
-        return user == null ? new ArrayList<LegalEntityApp>() : user.getLegalEntityApps();
+        return (user == null || user.getLegalEntities().isEmpty()) ? new ArrayList<LegalEntityApp>()
+                : user.getLegalEntityApps();
     }
 
     public UserResource registerNewUserAccount(RegisterUserResource userResource) {
@@ -221,10 +222,12 @@ public class UserService {
         }
 
         // Validate and load existing legal entity apps
-        Map<Long, LegalEntityApp> newMapOfLegalEntityApps = legalEntityAppService.getLegalEntityAppsByIds(legalEntityAppsIds).stream()
+        Map<Long, LegalEntityApp> newMapOfLegalEntityApps = legalEntityAppService
+                .getLegalEntityAppsByIds(legalEntityAppsIds).stream()
                 .collect(Collectors.toMap(LegalEntityApp::getLegalEntityAppId, l -> l));
 
-        // Temporal list of legal entity apps that we need to keep in the user legal entity app list
+        // Temporal list of legal entity apps that we need to keep in the user
+        // legal entity app list
         Set<Long> legalEntityAppsToKeep = new HashSet<Long>();
 
         // Update current role list from user
@@ -232,7 +235,8 @@ public class UserService {
         while (iter.hasNext()) {
             UserLegalEntity element = iter.next();
 
-            LegalEntityApp legalEntityApp = newMapOfLegalEntityApps.get(element.getLegalEntityApp().getLegalEntityAppId());
+            LegalEntityApp legalEntityApp = newMapOfLegalEntityApps
+                    .get(element.getLegalEntityApp().getLegalEntityAppId());
             if (legalEntityApp == null) {
                 iter.remove();
             } else {
@@ -258,9 +262,12 @@ public class UserService {
      * @param legalEntityIds
      * @param userName
      */
-    public boolean hasUserPrivilegesOverLegalEntities(String username, Set<Long> legalEntitiesToVerify) {
+    public boolean hasUserPrivilegesOverLegalEntities(Authentication authentication, Set<Long> legalEntitiesToVerify) {
+        if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+            return true;
+        }
         // Get Legal Entities from user name
-        Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
+        Set<Long> userLegalEntities = getLegalEntitiesByUser(authentication.getName()).stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
 
         return legalEntitiesToVerify.stream()
@@ -288,6 +295,9 @@ public class UserService {
         // Verify if user that needs to be updated exist
         User userToUpdate = getUser(usernameToUpdate);
 
+        if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+            return true;
+        }
         // Get Legal Entities from consultant user
         Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
                 .map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
@@ -319,7 +329,7 @@ public class UserService {
 
         User userToUpdate = getUser(username);
 
-        if (tokenType.equals(TokenType.AUTHENTICATION.name())
+        if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
                 && !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getUserPassword())) {
             throw new CustomBadRequestException("The old password is incorrect.");
         }

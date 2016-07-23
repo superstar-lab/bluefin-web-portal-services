@@ -65,7 +65,7 @@ public class LegalEntityAppRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        return legalEntityAppService.getLegalEntities(authentication.getName());
+        return legalEntityAppService.getLegalEntities(authentication);
     }
 
     @ApiOperation(value = "createLegalEntityApp", nickname = "createLegalEntityApp")

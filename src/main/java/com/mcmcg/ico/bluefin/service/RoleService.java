@@ -42,16 +42,18 @@ public class RoleService {
 
         // Create a detail error
         if (result == null || result.isEmpty()) {
-            throw new CustomBadRequestException(
-                    "The following roles don't exist.  List = " + rolesIds);
+            throw new CustomBadRequestException("The following roles don't exist.  List = " + rolesIds);
         }
 
         Set<Long> rolesNotFound = rolesIds.stream()
                 .filter(x -> !result.stream().map(Role::getRoleId).collect(Collectors.toSet()).contains(x))
                 .collect(Collectors.toSet());
 
-        throw new CustomBadRequestException(
-                "The following roles don't exist.  List = " + rolesNotFound);
+        throw new CustomBadRequestException("The following roles don't exist.  List = " + rolesNotFound);
+    }
+
+    public Role getRoleByName(String roleName) {
+        return roleRepository.findByRoleName(roleName);
     }
 
 }

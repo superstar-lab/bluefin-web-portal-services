@@ -30,12 +30,15 @@ public class TokenUtils {
 
     @Value("${bluefin.wp.services.token.resetpassword.expiration}")
     private Long resetpasswordExpiration;
-    
+
     @Value("${bluefin.wp.services.token.registeruser.expiration}")
     private Long registerUserExpiration;
 
     @Value("${bluefin.wp.services.token.authentication.expiration}")
     private Long authenticationExpiration;
+
+    @Value("${bluefin.wp.services.token.application.expiration}")
+    private Long applicationExpiration;
 
     @Autowired
     private SecurityTokenRepository tokenRepository;
@@ -119,6 +122,8 @@ public class TokenUtils {
             return new Date(System.currentTimeMillis() + this.authenticationExpiration * 1000);
         case REGISTER_USER:
             return new Date(System.currentTimeMillis() + this.registerUserExpiration * 1000);
+        case APPLICATION:
+            return new Date(System.currentTimeMillis() + this.applicationExpiration * 1000);
         default:
             return new Date(System.currentTimeMillis() + this.expiration * 1000);
         }

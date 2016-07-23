@@ -68,14 +68,15 @@ public class LegalEntityAppControllerTest {
         legalEntity.setLegalEntityAppName("LegalEntity");
         legalEntityAppList.add(legalEntity);
 
-        Mockito.when(legalEntityAppService.getLegalEntities("omonge")).thenReturn(legalEntityAppList);
+        Mockito.when(legalEntityAppService.getLegalEntities(Mockito.any(Authentication.class)))
+                .thenReturn(legalEntityAppList);
 
         mockMvc.perform(get("/api/legal-entities").principal(auth)).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].legalEntityAppId").value(1))
                 .andExpect(jsonPath("$[0].legalEntityAppName").value("LegalEntity"));
 
-        Mockito.verify(legalEntityAppService, Mockito.times(1)).getLegalEntities("omonge");
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).getLegalEntities(Mockito.any(Authentication.class));
 
         Mockito.verifyNoMoreInteractions(legalEntityAppService);
     }
@@ -90,7 +91,7 @@ public class LegalEntityAppControllerTest {
     @Test
     public void getLegalEntitiesAccessDenied() throws Exception { // 401
         mockMvc.perform(get("/api/legal-entities")).andExpect(status().isUnauthorized());
-        Mockito.verify(legalEntityAppService, Mockito.times(0)).getLegalEntities("omonge");
+        Mockito.verify(legalEntityAppService, Mockito.times(0)).getLegalEntities(Mockito.any(Authentication.class));
         Mockito.verifyNoMoreInteractions(legalEntityAppService);
     }
 
@@ -103,11 +104,12 @@ public class LegalEntityAppControllerTest {
     @Test
     public void getLegalEntitiesInternalServerError() throws Exception { // 500
 
-        Mockito.when(legalEntityAppService.getLegalEntities("omonge")).thenThrow(new RuntimeException(""));
+        Mockito.when(legalEntityAppService.getLegalEntities(Mockito.any(Authentication.class)))
+                .thenThrow(new RuntimeException(""));
 
         mockMvc.perform(get("/api/legal-entities").principal(auth)).andExpect(status().isInternalServerError());
 
-        Mockito.verify(legalEntityAppService, Mockito.times(1)).getLegalEntities("omonge");
+        Mockito.verify(legalEntityAppService, Mockito.times(1)).getLegalEntities(Mockito.any(Authentication.class));
 
         Mockito.verifyNoMoreInteractions(legalEntityAppService);
     }

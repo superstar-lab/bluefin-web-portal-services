@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionsService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
@@ -35,6 +36,8 @@ public class TransactionsRestController {
 
     @Autowired
     private TransactionsService transactionService;
+    @Autowired
+    private SessionService sessionService;
 
     @ApiOperation(value = "getTransaction", nickname = "getTransaction")
     @RequestMapping(method = RequestMethod.GET, value = "/{transactionId}", produces = "application/json")
@@ -65,8 +68,10 @@ public class TransactionsRestController {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
-        List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-        search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+        if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+            List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
+            search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+        }
 
         BooleanExpression transactionIdFilter = null;
         if (search.contains(TRANSACTION_ID_FILTER)) {
@@ -76,8 +81,10 @@ public class TransactionsRestController {
         }
 
         LOGGER.info("Generating report with the following filters: {}", search);
-        BooleanExpression predicate = QueryDSLUtil.createExpression(search, SaleTransaction.class)
-                .and(transactionIdFilter);
+        BooleanExpression predicate = QueryDSLUtil.createExpression(search, SaleTransaction.class);
+        if (predicate != null) {
+            predicate = predicate.and(transactionIdFilter);
+        }
 
         return transactionService.getTransactions(predicate, page, size, sort);
     }
