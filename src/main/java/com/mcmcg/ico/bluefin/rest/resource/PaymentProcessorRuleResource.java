@@ -3,7 +3,7 @@ package com.mcmcg.ico.bluefin.rest.resource;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
@@ -15,19 +15,19 @@ import lombok.Data;
 public class PaymentProcessorRuleResource implements Serializable {
     private static final long serialVersionUID = -3192378815338636933L;
 
-    @NotBlank(message = "Attribute paymentProcessorId cannot be empty or null")
+    @NotNull(message = "Attribute paymentProcessorId cannot be empty or null")
     private Long paymentProcessorId;
 
-    @NotBlank(message = "Attribute cardType cannot be empty or null")
+    @NotNull(message = "Attribute cardType cannot be empty or null")
     private CardType cardType;
 
-    @NotBlank(message = "Attribute maximumMonthlyAmount cannot be empty or null")
+    @NotNull(message = "Attribute maximumMonthlyAmount cannot be empty or null")
     private BigDecimal maximumMonthlyAmount = new BigDecimal("0.00");
 
-    @NotBlank(message = "Attribute noMaximumMonthlyAmountFlag cannot be empty or null")
+    @NotNull(message = "Attribute noMaximumMonthlyAmountFlag cannot be empty or null")
     private Short noMaximumMonthlyAmountFlag = (short) 0;
 
-    @NotBlank(message = "Attribute priority cannot be empty or null")
+    @NotNull(message = "Attribute priority cannot be empty or null")
     private Short priority;
 
     /**

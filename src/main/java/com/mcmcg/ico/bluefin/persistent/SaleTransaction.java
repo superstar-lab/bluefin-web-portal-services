@@ -132,14 +132,6 @@ public class SaleTransaction implements Serializable {
     @Column(name = "ChargeAmount", columnDefinition = "money")
     private BigDecimal amount;
 
-    @JsonIgnore
-    @Column(name = "ResponseCode")
-    private String responseCode;
-
-    @JsonIgnore
-    @Column(name = "ResponseDescription")
-    private String responseDescription;
-
     @Column(name = "ProcessorTransactionID")
     private String processorTransactionId;
 
