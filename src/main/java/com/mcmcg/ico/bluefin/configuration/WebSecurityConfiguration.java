@@ -100,15 +100,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.GET, transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").authenticated()
 
                             // Session
-                            .antMatchers(HttpMethod.POST, sessionApiBaseURL).permitAll()
-                            .antMatchers(HttpMethod.PUT, sessionApiBaseURL).authenticated()
-                            .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/recovery/password").permitAll()
+                            .antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/").permitAll()
+                            .antMatchers(HttpMethod.PUT, sessionApiBaseURL, sessionApiBaseURL + "/").authenticated()
+                            .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/").permitAll()
+                            .antMatchers(HttpMethod.DELETE, sessionApiBaseURL, sessionApiBaseURL + "/").authenticated()
 
                             // Users
                             .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
                             .antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/").authenticated()
-                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}").authenticated()
-                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}/password").authenticated()
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}/password", usersApiBaseURL + "/{username}/password/").authenticated()
                             .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
 
                             // Legal entities
