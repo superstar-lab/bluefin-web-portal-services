@@ -42,7 +42,7 @@ public class PaymentProcessorRuleService {
             throw new CustomNotFoundException(
                     String.format("Unable to find payment processor with id = [%s]", processorId));
         }
-        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor);
+        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor, null);
 
         paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
         paymentProcessorRule.setMonthToDateCumulativeAmount(new BigDecimal("0.00")); // TODO:
@@ -56,15 +56,18 @@ public class PaymentProcessorRuleService {
     }
 
     public void validatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
-            PaymentProcessor loadedPaymentProcessor) {
+            PaymentProcessor loadedPaymentProcessor, Long ruleId) {
         List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
                 .findByCardType(paymentProcessorRule.getCardType());
         if (paymentProcessorRules != null) {
             for (PaymentProcessorRule current : paymentProcessorRules) {
-                if (current.getPaymentProcessor().getPaymentProcessorId()
-                        .equals(loadedPaymentProcessor.getPaymentProcessorId())) {
-                    throw new CustomBadRequestException("Payment Processor already assigned to this transaction type ["
-                            + paymentProcessorRule.getCardType() + "]");
+                if (ruleId == null || current.getPaymentProcessorRuleId() != ruleId) {
+                    if (current.getPaymentProcessor().getPaymentProcessorId()
+                            .equals(loadedPaymentProcessor.getPaymentProcessorId())) {
+                        throw new CustomBadRequestException(
+                                "Payment Processor already assigned to this transaction type ["
+                                        + paymentProcessorRule.getCardType() + "]");
+                    }
                 } else if (current.getPriority().equals(paymentProcessorRule.getPriority())) {
                     throw new CustomBadRequestException("Unable to assign this priority [" + current.getPriority()
                             + "] to this transaction type [" + paymentProcessorRule.getCardType() + "]");
@@ -101,8 +104,9 @@ public class PaymentProcessorRuleService {
                     String.format("Unable to find Payment Processor with id = [%s]", processorId));
         }
 
-        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor);
-        
+        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor,
+                paymentProcessorRuleToUpdate.getPaymentProcessorRuleId());
+
         // Update fields
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
         paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(paymentProcessorRule.getMaximumMonthlyAmount());
@@ -110,7 +114,7 @@ public class PaymentProcessorRuleService {
                 .setNoMaximumMonthlyAmountFlag(paymentProcessorRule.getNoMaximumMonthlyAmountFlag());
         paymentProcessorRuleToUpdate.setPriority(paymentProcessorRule.getPriority());
         paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
-        
+
         return paymentProcessorRuleRepository.save(paymentProcessorRuleToUpdate);
     }
 
