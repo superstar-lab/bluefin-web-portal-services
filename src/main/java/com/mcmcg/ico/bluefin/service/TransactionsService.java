@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
@@ -38,10 +39,11 @@ public class TransactionsService {
         return result;
     }
 
-    public Iterable<SaleTransaction> getTransactions(BooleanExpression exp, Integer page, Integer size, String sort) {
-
-        Page<SaleTransaction> result = transactionRepository.findAll(exp,
-                QueryDSLUtil.getPageRequest(page, size, sort));
+    public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
+        
+        Page<SaleTransaction> result =  transactionRepository.findTransaction(search, paging);
+        int page = paging.getPageNumber();
+         
         if (page > result.getTotalPages() && page != 0) {
             LOGGER.error("Unable to find the page requested");
             throw new CustomNotFoundException("Unable to find the page requested");

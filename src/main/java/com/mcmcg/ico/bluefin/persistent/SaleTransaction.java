@@ -5,8 +5,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,13 +20,75 @@ import com.mcmcg.ico.bluefin.model.StatusCode;
 
 import lombok.Data;
 
+ 
+@SqlResultSetMapping(name="CustomMappingResult", classes = {
+        @ConstructorResult(targetClass = SaleTransaction.class, 
+        columns = { 
+             @ColumnResult(name="SaleTransactionID", type = Long.class),
+             @ColumnResult(name="ApplicationTransactionID", type = String.class),
+             @ColumnResult(name="ProcessorTransactionID", type = String.class),
+             @ColumnResult(name="MerchantID", type = String.class),
+             @ColumnResult(name="TransactionType", type = String.class),
+             @ColumnResult(name="Processor", type = String.class),
+             @ColumnResult(name="StatusCode", type = Integer.class),
+             @ColumnResult(name="DateCreated", type = Date.class),
+             @ColumnResult(name="TransactionDateTime", type = Date.class),
+             @ColumnResult(name="ChargeAmount", type = BigDecimal.class),
+             @ColumnResult(name="FirstName", type = String.class),
+             @ColumnResult(name="LastName", type = String.class),
+             @ColumnResult(name="CardNumberLast4Char", type = String.class),
+             @ColumnResult(name="CardType", type = String.class),
+             @ColumnResult(name="LegalEntityApp", type = String.class),
+             @ColumnResult(name="AccountId", type = String.class)
+        })
+    })
 @Data
 @Entity
 @Table(name = "Sale_Transaction")
 public class SaleTransaction implements Serializable {
     private static final long serialVersionUID = 3783586860046594255L;
     private static final String CARD_MASK = "XXXX-XXXX-XXXX-";
+    
+    public SaleTransaction () {
+        
+    }
 
+    public SaleTransaction (Long saleTransactionId,
+            String applicationTransactionId,
+            String processorTransactionId,
+            String merchantID,
+            String transactionType,
+            String processorName,
+            Integer transactionStatusCode,
+            Date createdDate,
+            Date transactionDateTime,
+            BigDecimal amount,
+            String firstName,
+            String lastName,
+            String cardNumberLast4Char,
+            String cardType,
+            String legalEntity,
+            String accountNumber
+            ) {
+        this.saleTransactionId = saleTransactionId;
+        this.applicationTransactionId = applicationTransactionId;
+        this.processorTransactionId = processorTransactionId;
+        this.merchantId = merchantID;
+        this.transactionType = transactionType;
+        this.processorName = processorName;
+        this.transactionStatusCode = transactionStatusCode;
+        this.createdDate = createdDate;
+        this.transactionDateTime = transactionDateTime;
+        this.amount = amount;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.cardNumberLast4Char = cardNumberLast4Char;
+        this.cardType = cardType;
+        this.legalEntity = legalEntity;
+        this.accountNumber = accountNumber;
+    } 
+    
+    
     @Id
     @JsonIgnore
     @Column(name = "SaleTransactionID")

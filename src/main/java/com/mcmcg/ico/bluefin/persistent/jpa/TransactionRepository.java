@@ -6,7 +6,7 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 
 public interface TransactionRepository
-        extends JpaRepository<SaleTransaction, Long>, QueryDslPredicateExecutor<SaleTransaction> {
+        extends JpaRepository<SaleTransaction, Long>, QueryDslPredicateExecutor<SaleTransaction>, TransactionRepositoryCustom {
     public SaleTransaction findByApplicationTransactionId(String transactionId);
 
 }

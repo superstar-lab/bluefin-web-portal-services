@@ -19,7 +19,6 @@ import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionsService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
-import com.mysema.query.types.expr.BooleanExpression;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -32,7 +31,6 @@ import springfox.documentation.annotations.ApiIgnore;
 public class TransactionsRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsRestController.class);
-    private static final String TRANSACTION_ID_FILTER = "transactionId:";
 
     @Autowired
     private TransactionsService transactionService;
@@ -73,19 +71,8 @@ public class TransactionsRestController {
             search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
         }
 
-        BooleanExpression transactionIdFilter = null;
-        if (search.contains(TRANSACTION_ID_FILTER)) {
-            String value = QueryDSLUtil.getTransactionIdValue(search, TRANSACTION_ID_FILTER);
-            transactionIdFilter = QueryDSLUtil.getTransactionIdFilter(search, value);
-            search = search.replace(TRANSACTION_ID_FILTER + value, "");
-        }
-
         LOGGER.info("Generating report with the following filters: {}", search);
-        BooleanExpression predicate = QueryDSLUtil.createExpression(search, SaleTransaction.class);
-        if (predicate != null) {
-            predicate = predicate.and(transactionIdFilter);
-        }
 
-        return transactionService.getTransactions(predicate, page, size, sort);
+        return transactionService.getTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort));
     }
 }
