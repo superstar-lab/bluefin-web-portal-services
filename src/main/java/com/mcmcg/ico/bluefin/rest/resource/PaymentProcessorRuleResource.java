@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import javax.validation.constraints.NotNull;
 
 import com.mcmcg.ico.bluefin.model.CardType;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
 
 import lombok.Data;
@@ -37,11 +36,10 @@ public class PaymentProcessorRuleResource implements Serializable {
      */
     public PaymentProcessorRule toPaymentProcessorRule() {
         PaymentProcessorRule rule = new PaymentProcessorRule();
-        rule.setPaymentProcessor(new PaymentProcessor(paymentProcessorId));
         rule.setCardType(cardType);
         rule.setMaximumMonthlyAmount(maximumMonthlyAmount);
         rule.setNoMaximumMonthlyAmountFlag(noMaximumMonthlyAmountFlag);
-
+        rule.setPriority(priority);
         return rule;
     }
 }

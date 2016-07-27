@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRuleRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
@@ -31,8 +33,44 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorRule
      * @return
      */
-    public PaymentProcessorRule createPaymentProcessorRule(PaymentProcessorRule paymentProcessorRule) {
+    public PaymentProcessorRule createPaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
+            Long processorId) {
+
+        // Verify if processor exists
+        PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
+        if (loadedPaymentProcessor == null) {
+            throw new CustomNotFoundException(
+                    String.format("Unable to find payment processor with id = [%s]", processorId));
+        }
+        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor);
+
+        paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
+        paymentProcessorRule.setMonthToDateCumulativeAmount(new BigDecimal("0.00")); // TODO:
+                                                                                     // ask
+                                                                                     // if
+                                                                                     // is
+                                                                                     // the
+                                                                                     // expected
+                                                                                     // behavior
         return paymentProcessorRuleRepository.save(paymentProcessorRule);
+    }
+
+    public void validatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
+            PaymentProcessor loadedPaymentProcessor) {
+        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
+                .findByCardType(paymentProcessorRule.getCardType());
+        if (paymentProcessorRules != null) {
+            for (PaymentProcessorRule current : paymentProcessorRules) {
+                if (current.getPaymentProcessor().getPaymentProcessorId()
+                        .equals(loadedPaymentProcessor.getPaymentProcessorId())) {
+                    throw new CustomBadRequestException("Payment Processor already assigned to this transaction type ["
+                            + paymentProcessorRule.getCardType() + "]");
+                } else if (current.getPriority().equals(paymentProcessorRule.getPriority())) {
+                    throw new CustomBadRequestException("Unable to assign this priority [" + current.getPriority()
+                            + "] to this transaction type [" + paymentProcessorRule.getCardType() + "]");
+                }
+            }
+        }
     }
 
     /**
@@ -47,20 +85,32 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor rule is not found
      */
-    public PaymentProcessorRule updatePaymentProcessorRule(long id, PaymentProcessorRule paymentProcessorRule) {
+    public PaymentProcessorRule updatePaymentProcessorRule(long id, PaymentProcessorRule paymentProcessorRule,
+            long processorId) {
+
         PaymentProcessorRule paymentProcessorRuleToUpdate = paymentProcessorRuleRepository.findOne(id);
         if (paymentProcessorRule == null) {
             throw new CustomNotFoundException(
-                    String.format("Unable to find payment processor rule with id = [%s]", id));
+                    String.format("Unable to find Payment Processor Rule with id = [%s]", id));
         }
 
+        // Verify if processor exists
+        PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
+        if (loadedPaymentProcessor == null) {
+            throw new CustomNotFoundException(
+                    String.format("Unable to find Payment Processor with id = [%s]", processorId));
+        }
+
+        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor);
+        
         // Update fields
-        paymentProcessorRuleToUpdate.setPaymentProcessor(paymentProcessorRule.getPaymentProcessor());
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
         paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(paymentProcessorRule.getMaximumMonthlyAmount());
         paymentProcessorRuleToUpdate
                 .setNoMaximumMonthlyAmountFlag(paymentProcessorRule.getNoMaximumMonthlyAmountFlag());
-
+        paymentProcessorRuleToUpdate.setPriority(paymentProcessorRule.getPriority());
+        paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
+        
         return paymentProcessorRuleRepository.save(paymentProcessorRuleToUpdate);
     }
 
