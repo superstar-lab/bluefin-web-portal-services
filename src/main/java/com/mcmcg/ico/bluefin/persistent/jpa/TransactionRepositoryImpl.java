@@ -36,7 +36,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
     private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
     public static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
-    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
     private static final String NUMBERS_AND_WORDS_REGEX = "[\\w\\s|\\d+(?:\\.\\d+)?]+";
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
@@ -50,8 +50,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String VOID_TABLE = " Void_Transaction ";
     private static final String REFUND_TABLE = " Refund_Transaction ";
 
-    private ArrayListMultimap<String, String> map = ArrayListMultimap.create();
-    private  HashMap<String,String> nativePropertyHashMapping = new HashMap<String,String>();
+    private HashMap<String, String> map = new HashMap<String, String>();
+    private HashMap<String, String> nativePropertyHashMapping = new HashMap<String, String>();
     
     @Override
     public Page<SaleTransaction> findTransaction(String search, PageRequest page) {
@@ -66,7 +66,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         Query result = em.createNativeQuery(query + addSort(page.getSort()), "CustomMappingResult");
         
         // Sets all parameters to the Query result
-        for (Map.Entry<String, String> entry : map.entries()) {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
             if (entry.getKey().contains("amountParam")) {
                 result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
@@ -326,7 +326,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @throws ParseException
      */
     private Date getDateFormat(String dateInString) throws ParseException{ 
-       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
        return formatter.parse(dateInString);
     }
     
