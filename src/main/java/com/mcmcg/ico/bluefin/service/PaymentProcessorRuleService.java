@@ -67,10 +67,10 @@ public class PaymentProcessorRuleService {
                         throw new CustomBadRequestException(
                                 "Payment Processor already assigned to this transaction type ["
                                         + paymentProcessorRule.getCardType() + "]");
+                    } else if (current.getPriority().equals(paymentProcessorRule.getPriority())) {
+                        throw new CustomBadRequestException("Unable to assign this priority [" + current.getPriority()
+                                + "] to this transaction type [" + paymentProcessorRule.getCardType() + "]");
                     }
-                } else if (current.getPriority().equals(paymentProcessorRule.getPriority())) {
-                    throw new CustomBadRequestException("Unable to assign this priority [" + current.getPriority()
-                            + "] to this transaction type [" + paymentProcessorRule.getCardType() + "]");
                 }
             }
         }
