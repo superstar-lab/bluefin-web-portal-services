@@ -17,21 +17,23 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 
 class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     @PersistenceContext
     private EntityManager em;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRepositoryImpl.class);
     private static final String TRANSACTION_TYPE = "(transactionType)(:|<|>)([\\w]+)";
     private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
     private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
@@ -64,7 +66,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         Query queryTotal = em
                 .createNativeQuery("SELECT count(finalCount.ApplicationTransactionID) from (" + query + ") finalCount");
         Query result = em.createNativeQuery(query + addSort(page.getSort()), "CustomMappingResult");
-        
+        LOGGER.info("Dynamic Query {}",query);
+        LOGGER.info("Dynamic Parameters {}",map);
         // Sets all parameters to the Query result
         for (Map.Entry<String, String> entry : map.entrySet()) {
             if (entry.getKey().contains("amountParam")) {
@@ -110,6 +113,9 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @return String with the sort for the query
      */
     private String addSort(Sort sort){
+        if(sort == null){
+            return StringUtils.EMPTY;
+        }
         StringBuilder result = new StringBuilder(" ORDER BY ");
         Iterator<Order> list = sort.iterator();
         Order order = null;
@@ -337,6 +343,10 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String getPropertyNativeName(String property){
         String nativePropertyName = nativePropertyHashMapping.get(property);
+        if(nativePropertyName == null){
+            LOGGER.error("Property not found, unable to parse {}", property);
+            throw new CustomBadRequestException(String.format("Property not found, unable to parse [%s]", property));
+        }
         return nativePropertyName;
     }
     
@@ -347,6 +357,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         nativePropertyHashMapping.put("saleTransactionId", "SaleTransactionID");
         nativePropertyHashMapping.put("applicationTransactionId", "ApplicationTransactionID");
         nativePropertyHashMapping.put("processorTransactionId", "ProcessorTransactionID");
+        nativePropertyHashMapping.put("customer", "FirstName");
         nativePropertyHashMapping.put("firstName", "FirstName");
         nativePropertyHashMapping.put("lastName", "LastName");
         nativePropertyHashMapping.put("processUser", "ProcessUser");
