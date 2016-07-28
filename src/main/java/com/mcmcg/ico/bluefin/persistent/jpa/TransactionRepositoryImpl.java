@@ -38,7 +38,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
     private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
     public static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
-    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
+    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
     private static final String NUMBERS_AND_WORDS_REGEX = "[\\w\\s|\\d+(?:\\.\\d+)?]+";
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
@@ -47,6 +47,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String EQUALS = " = ";
     private static final String OR = " OR ";
     private static final String AND = " AND ";
+    private static final String LOE = " <= ";
+    private static final String GOE = " >= ";
     
     private static final String SALE_TABLE = " Sale_Transaction ";
     private static final String VOID_TABLE = " Void_Transaction ";
@@ -313,7 +315,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             return inputCriteria.toString();
         } else {
             if(name.contains("ChargeAmount") || name.contains("Date") || name.contains("StatusCode")){
-                inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator+"=");
+                inputCriteria.append(getOperation(operator));
             } else {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
             }
@@ -324,7 +326,22 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         map.put(param, value);
         return inputCriteria.toString();
     }
-     
+    
+    /**
+     * Returns a valid operator according with the parameter given, by default equal character will be returned
+     * @param operator
+     * @return string with the operation
+     */
+    private String getOperation(String operator) {
+         String result = EQUALS;
+         if (operator.equalsIgnoreCase(">")) { 
+             result = GOE;
+         } else if (operator.equalsIgnoreCase("<")) {
+             result = LOE;
+         }
+         return result;
+     }
+    
     /**
      * Gives format to the dates
      * @param dateInString
@@ -332,7 +349,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @throws ParseException
      */
     private Date getDateFormat(String dateInString) throws ParseException{ 
-       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
        return formatter.parse(dateInString);
     }
     
