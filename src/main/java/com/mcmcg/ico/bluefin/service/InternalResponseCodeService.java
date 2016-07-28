@@ -85,11 +85,9 @@ public class InternalResponseCodeService {
                 paymentProcessorResponseCode = new PaymentProcessorResponseCode();
             } else {
                 LOGGER.info("Updating payment processor response code {}", internalResponseCodeResource.getCode());
-
-                internalResponseCode.setPaymentProcessorInternalResponseCodes(
-                        new ArrayList<PaymentProcessorInternalResponseCode>());
-
             }
+            internalResponseCode
+                    .setPaymentProcessorInternalResponseCodes(new ArrayList<PaymentProcessorInternalResponseCode>());
 
             paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
             paymentProcessorResponseCode
