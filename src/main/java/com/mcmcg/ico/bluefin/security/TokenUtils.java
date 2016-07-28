@@ -117,9 +117,9 @@ public class TokenUtils {
     private Date generateExpirationDate(TokenType type) {
         switch (type) {
         case AUTHENTICATION:
-            return new Date(System.currentTimeMillis() + this.resetpasswordExpiration * 1000);
-        case FORGOT_PASSWORD:
             return new Date(System.currentTimeMillis() + this.authenticationExpiration * 1000);
+        case FORGOT_PASSWORD:
+            return new Date(System.currentTimeMillis() + this.resetpasswordExpiration * 1000);
         case REGISTER_USER:
             return new Date(System.currentTimeMillis() + this.registerUserExpiration * 1000);
         case APPLICATION:

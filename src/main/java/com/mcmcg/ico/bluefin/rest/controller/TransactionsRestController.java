@@ -41,8 +41,9 @@ public class TransactionsRestController {
     @RequestMapping(method = RequestMethod.GET, value = "/{transactionId}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public SaleTransaction get(@PathVariable("transactionId") String transactionId) {
@@ -55,8 +56,9 @@ public class TransactionsRestController {
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<SaleTransaction> get(@RequestParam(value = "search", required = true) String search,
             @RequestParam(value = "page", required = true) Integer page,

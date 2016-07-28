@@ -59,8 +59,9 @@ public class UserRestController {
     @RequestMapping(method = RequestMethod.GET, value = "/{username}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource get(@PathVariable String username, @ApiIgnore Authentication authentication) {
@@ -83,8 +84,9 @@ public class UserRestController {
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = User.class, responseContainer = "List"),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<User> get(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
             @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
@@ -109,8 +111,9 @@ public class UserRestController {
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = UserResource.class),
-            @ApiResponse(code = 404, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 404, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<UserResource> create(@Validated @RequestBody RegisterUserResource newUser,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
@@ -140,8 +143,9 @@ public class UserRestController {
     @RequestMapping(method = RequestMethod.PUT, value = "/{username}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
             @Validated @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
@@ -172,6 +176,7 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserRoles(@PathVariable String username, @RequestBody Set<Long> roles,
             @ApiIgnore Authentication authentication) {
@@ -196,6 +201,7 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody Set<Long> legalEntities,
             @ApiIgnore Authentication authentication) {
@@ -226,6 +232,7 @@ public class UserRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> updateUserPassword(@PathVariable String username,
             @RequestBody UpdatePasswordResource updatePasswordResource, HttpServletRequest request) {

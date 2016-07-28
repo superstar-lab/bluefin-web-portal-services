@@ -28,7 +28,7 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserLoginHistoryRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotActiveUserException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
@@ -74,11 +74,11 @@ public class SessionService {
         createLoginHistory(user, username, password);
 
         if (user == null || !passwordEncoder.matches(password, user.getUserPassword())) {
-            throw new AccessDeniedException("Invalid credentials");
+            throw new CustomUnauthorizedException("Invalid credentials.");
         }
 
         if (user.getIsActive() == (short) 0) {
-            throw new CustomNotActiveUserException("Account is not activated yet");
+            throw new AccessDeniedException("Account is not activated yet.");
         }
 
         return new UsernamePasswordAuthenticationToken(username, password);

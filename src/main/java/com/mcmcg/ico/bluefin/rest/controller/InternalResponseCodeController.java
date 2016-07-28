@@ -41,8 +41,9 @@ public class InternalResponseCodeController {
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = InternalResponseCode.class, responseContainer = "List"),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<InternalResponseCode> getInternalResponseCodes(@ApiIgnore Authentication authentication) {
         if (authentication == null) {
@@ -58,8 +59,9 @@ public class InternalResponseCodeController {
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = InternalResponseCode.class, responseContainer = "List"),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalResponseCode upsertInternalResponseCodes(
             @Validated @RequestBody InternalResponseCodeResource internalResponseCodeResource,

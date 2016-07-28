@@ -46,6 +46,7 @@ public class LegalEntityAppRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public LegalEntityApp get(@PathVariable Long id) {
         LOGGER.info("Getting legal entity by id");
@@ -59,6 +60,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<LegalEntityApp> get(@ApiIgnore Authentication authentication) {
         LOGGER.info("Getting all legal entities");
@@ -74,6 +76,7 @@ public class LegalEntityAppRestController {
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = LegalEntityApp.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<LegalEntityApp> create(
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
@@ -93,8 +96,9 @@ public class LegalEntityAppRestController {
     @ApiOperation(value = "updateLegalEntityApp", nickname = "updateLegalEntityApp")
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public LegalEntityApp update(@PathVariable Long id,
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors) {
@@ -111,8 +115,9 @@ public class LegalEntityAppRestController {
     @ApiOperation(value = "deleteLegalEntityApp", nickname = "deleteLegalEntityApp")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
         LOGGER.info("Deleting Payment Processor {}", id);

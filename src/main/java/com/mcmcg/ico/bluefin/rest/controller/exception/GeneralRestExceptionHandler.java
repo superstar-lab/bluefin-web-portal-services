@@ -35,7 +35,8 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler({ DataAccessResourceFailureException.class, JDBCConnectionException.class })
+    @ExceptionHandler({ DataAccessResourceFailureException.class, JDBCConnectionException.class,
+            AccessDeniedException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public @ResponseBody ErrorResource handleForbiddenException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
@@ -59,7 +60,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler({ AccessDeniedException.class, CustomNotActiveUserException.class })
+    @ExceptionHandler({ CustomUnauthorizedException.class })
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public @ResponseBody ErrorResource handleUnauthorizedException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);

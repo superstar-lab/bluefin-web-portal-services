@@ -52,6 +52,7 @@ public class SessionRestController {
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse authentication(@Valid @RequestBody AuthenticationRequest authenticationRequest,
             @ApiIgnore Errors errors) {
@@ -93,8 +94,8 @@ public class SessionRestController {
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse refreshToken(HttpServletRequest request) {
         final String token = request.getHeader(securityTokenHeader);
@@ -109,7 +110,6 @@ public class SessionRestController {
     @ApiOperation(value = "Reset password", nickname = "resetPassword")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/recovery/password")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> resetPassword(@Validated @RequestBody SessionRequestResource sessionRequestResource,
@@ -130,9 +130,11 @@ public class SessionRestController {
 
     @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/consumer/{username}")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public BasicTokenResponse registerApplication(@PathVariable String username) {
         LOGGER.info("Genereting session token for username: {}", username);
