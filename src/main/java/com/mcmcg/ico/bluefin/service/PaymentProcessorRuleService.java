@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRuleRepository;
@@ -72,6 +73,15 @@ public class PaymentProcessorRuleService {
                                 + "] to this transaction type [" + paymentProcessorRule.getCardType() + "]");
                     }
                 }
+            }
+        }
+        if (paymentProcessorRule.getCardType().equals(CardType.UNKNOWN)) {
+            if (paymentProcessorRule.getMaximumMonthlyAmount().longValue() > 0) {
+                throw new CustomBadRequestException(
+                        "To create a Payment Processor Rule as UNKNOWN the MaximumMonthlyAmount must be zero.");
+            } else if (paymentProcessorRule.getNoMaximumMonthlyAmountFlag() != 1) {
+                throw new CustomBadRequestException(
+                        "To create a Payment Processor Rule as UNKNOWN the NoMaximumMonthlyAmountFlag must be 1.");
             }
         }
     }

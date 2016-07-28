@@ -1,7 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 public enum CardType {
-    DEBIT("DEBIT"), CREDIT("CREDIT");
+    DEBIT("DEBIT"), CREDIT("CREDIT"), UNKNOWN("UNKNOWN");
 
     private final String type;
 
