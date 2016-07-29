@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -115,7 +115,7 @@ public class UserRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<UserResource> create(@Validated @RequestBody RegisterUserResource newUser,
+    public ResponseEntity<UserResource> create(@Valid @RequestBody RegisterUserResource newUser,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
@@ -148,7 +148,7 @@ public class UserRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
-            @Validated @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
+            @Valid @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -235,7 +235,13 @@ public class UserRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> updateUserPassword(@PathVariable String username,
-            @RequestBody UpdatePasswordResource updatePasswordResource, HttpServletRequest request) {
+            @Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
+            HttpServletRequest request) {
+        if (errors.hasErrors()) {
+            final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            throw new CustomBadRequestException(errorDescription);
+        }
         final String token = request.getHeader(securityTokenHeader);
         if (token != null) {
             userService.updateUserPassword(username, updatePasswordResource, token);
