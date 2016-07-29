@@ -70,33 +70,33 @@ public class SessionService {
 
     public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
         User user = userRepository.findByUsername(username);
-
-        createLoginHistory(user, username, password);
-
-        if (user == null || !passwordEncoder.matches(password, user.getUserPassword())) {
-            throw new CustomUnauthorizedException("Invalid credentials.");
+        UserLoginHistory userLoginHistory = new UserLoginHistory();
+        userLoginHistory.setUsername(username);
+        userLoginHistory.setUserPassword(password);
+        if (user == null) {
+            saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
+            throw new AccessDeniedException("Invalid credentials");
         }
-
+        userLoginHistory.setUserId(user.getUserId());
+        if (!passwordEncoder.matches(password, user.getUserPassword())) {
+            saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
+            throw new AccessDeniedException("Invalid credentials");
+        }
         if (user.getIsActive() == (short) 0) {
+            saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
             throw new AccessDeniedException("Account is not activated yet.");
         }
 
+        saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
         return new UsernamePasswordAuthenticationToken(username, password);
     }
-
-    private void createLoginHistory(User user, final String username, final String password) {
-        // Creates a login history
-        UserLoginHistory userLoginHistory = new UserLoginHistory();
-        userLoginHistory.setMessageId(MessageCode.ERROR_USER_NOT_FOUND.getValue());
-        userLoginHistory.setUsername(username);
-
-        if (user != null) {
-            // Creates success case for login history
-            userLoginHistory.setUserId(user.getUserId());
-            userLoginHistory.setMessageId(MessageCode.SUCCESS.getValue());
-        }
-        // TODO add logic for when the user's password is not found
-        userLoginHistoryRepository.save(userLoginHistory);
+    
+    private void saveUserLoginHistory(UserLoginHistory userLoginHistory,Integer messageCode) { 
+        if (userLoginHistory != null) {
+            userLoginHistory.setMessageId(messageCode);
+            userLoginHistoryRepository.save(userLoginHistory);
+        } 
+       
     }
 
     public AuthenticationResponse generateToken(final String username) {

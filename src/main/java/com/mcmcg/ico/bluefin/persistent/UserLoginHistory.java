@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
@@ -23,7 +24,7 @@ public class UserLoginHistory implements Serializable {
     private static final long serialVersionUID = -1383201107825800748L;
 
     public static enum MessageCode {
-        SUCCESS(1), ERROR_USER_NOT_FOUND(2), ERROR_PASSWORD_NOT_FOUND(3);
+        SUCCESS(1), ERROR_USER_NOT_FOUND(2), ERROR_PASSWORD_NOT_FOUND(3), ERROR_USER_NOT_ACTIVE(4);
 
         private final Integer messageCode;
 
@@ -59,4 +60,8 @@ public class UserLoginHistory implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
+    
+    @JsonIgnore
+    @Column(name = "UserPassword")
+    private String userPassword;
 }
