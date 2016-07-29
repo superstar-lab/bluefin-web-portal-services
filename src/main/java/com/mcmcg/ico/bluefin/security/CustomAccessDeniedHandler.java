@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.security;
 
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -13,6 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.cors.CorsConfiguration;
+
+import com.google.common.net.HttpHeaders;
+import com.mcmcg.ico.bluefin.configuration.cors.CustomCorsRegistration;
 
 @Component
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
@@ -22,6 +28,21 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse httpServletResponse, AccessDeniedException e)
             throws IOException, ServletException {
+
+        // Load global CORS configuration
+        CorsConfiguration ccGlobal = CustomCorsRegistration.getGlobalCorsConfiguration();
+        // Adding custom headers
+        List<String> allowHeaders = ccGlobal.getAllowedHeaders();
+        httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedOrigins()));
+        httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                StringUtils.collectionToCommaDelimitedString(ccGlobal.getAllowedMethods()));
+        httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                StringUtils.collectionToCommaDelimitedString(allowHeaders));
+        httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                String.valueOf(ccGlobal.getAllowCredentials()));
+        httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_MAX_AGE, String.valueOf(ccGlobal.getMaxAge()));
+
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
         httpServletResponse.getOutputStream()
