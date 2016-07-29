@@ -255,13 +255,14 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @return where element that is going to be attached to the select element
      */
     private String createWhereStatement(String search,String prefix) {
-        StringBuilder result = new StringBuilder(" WHERE ");
+        StringBuilder result = new StringBuilder();
         String attribute = StringUtils.EMPTY;
         String attributeParam = StringUtils.EMPTY; 
         boolean and = false;
         int id = 1;
         
-        if (search != null) {
+        if (search != null && !search.isEmpty()) {
+            result.append(" WHERE ");
             Pattern pattern = Pattern.compile(SEARCH_REGEX);
             Matcher matcher = pattern.matcher(search + ",");
            
