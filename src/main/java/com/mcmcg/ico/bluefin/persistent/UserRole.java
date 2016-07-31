@@ -12,15 +12,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "User_Role")
+@Where(clause="DeletedFlag = 0")
 public class UserRole implements Serializable {
     private static final long serialVersionUID = 8423689499232150573L;
 
@@ -41,6 +44,10 @@ public class UserRole implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
+
+    @JsonIgnore
+    @Column(name = "DeletedFlag")
+    private Short deletedFlag;
 
     public UserRole() {
     }

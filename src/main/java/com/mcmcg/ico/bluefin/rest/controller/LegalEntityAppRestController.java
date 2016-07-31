@@ -72,6 +72,7 @@ public class LegalEntityAppRestController {
 
     @ApiOperation(value = "createLegalEntityApp", nickname = "createLegalEntityApp")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = LegalEntityApp.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -94,6 +95,7 @@ public class LegalEntityAppRestController {
     }
 
     @ApiOperation(value = "updateLegalEntityApp", nickname = "updateLegalEntityApp")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -113,6 +115,7 @@ public class LegalEntityAppRestController {
     }
 
     @ApiOperation(value = "deleteLegalEntityApp", nickname = "deleteLegalEntityApp")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),

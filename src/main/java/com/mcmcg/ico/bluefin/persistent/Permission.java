@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -22,6 +23,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "Permission_Lookup")
+@Where(clause="DeletedFlag=0")
 public class Permission implements Serializable {
     private static final long serialVersionUID = 730005903939744601L;
 
@@ -45,6 +47,10 @@ public class Permission implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date dateCreated;
+    
+    @Column(name = "DeletedFlag")
+    @JsonIgnore
+    private Short deletedFlag;
 
     public Permission() {
     }
