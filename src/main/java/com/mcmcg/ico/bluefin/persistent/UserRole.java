@@ -23,7 +23,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "User_Role")
-@Where(clause="DeletedFlag = 0")
+@Where(clause = "DeletedFlag = 0")
 public class UserRole implements Serializable {
     private static final long serialVersionUID = 8423689499232150573L;
 

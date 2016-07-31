@@ -24,7 +24,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "User_LegalEntityApp")
-@Where(clause="DeletedFlag=0")
+@Where(clause = "DeletedFlag=0")
 public class UserLegalEntity implements Serializable {
     private static final long serialVersionUID = -8208809070124675993L;
 
@@ -47,7 +47,7 @@ public class UserLegalEntity implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
-    
+
     @Column(name = "DeletedFlag")
     @JsonIgnore
     private Short deletedFlag = 0;

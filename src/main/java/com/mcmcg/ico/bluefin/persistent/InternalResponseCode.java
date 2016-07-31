@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,7 +26,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "InternalResponseCode_Lookup")
-@Where(clause="DeletedFlag=0")
+@Where(clause = "DeletedFlag=0")
 public class InternalResponseCode implements Serializable {
 
     private static final long serialVersionUID = 6473941024724065216L;

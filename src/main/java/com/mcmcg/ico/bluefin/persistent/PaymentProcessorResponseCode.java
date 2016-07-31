@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,7 +26,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessorResponseCode_Lookup")
-@Where(clause="DeletedFlag=0")
+@Where(clause = "DeletedFlag=0")
 public class PaymentProcessorResponseCode implements Serializable {
 
     private static final long serialVersionUID = -4612223418828597035L;
@@ -56,7 +55,7 @@ public class PaymentProcessorResponseCode implements Serializable {
     @ManyToOne
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
-    
+
     @JsonIgnore
     @JoinColumn(name = "deletedFlag")
     private Short deletedFlag = 0;
