@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -24,6 +25,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "LegalEntityApp_Lookup")
+@Where(clause = "DeletedFlag=0")
 public class LegalEntityApp implements Serializable {
     private static final long serialVersionUID = -3826977337542770003L;
 
@@ -36,11 +38,11 @@ public class LegalEntityApp implements Serializable {
     private String legalEntityAppName;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "legalEntityApp", fetch = FetchType.LAZY)
     private Collection<UserLegalEntity> userLegalEntities;
 
     @JsonIgnore
@@ -48,6 +50,10 @@ public class LegalEntityApp implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
+
+    @JsonIgnore
+    @Column(name = "DeletedFlag")
+    private Short deletedFlag = 0;
 
     public LegalEntityApp() {
     }

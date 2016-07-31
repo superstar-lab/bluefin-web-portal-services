@@ -27,7 +27,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Lookup")
-@Where(clause="DeletedFlag=0")
+@Where(clause = "DeletedFlag=0")
 public class PaymentProcessor implements Serializable {
     private static final long serialVersionUID = 655003466748410661L;
 
@@ -55,7 +55,7 @@ public class PaymentProcessor implements Serializable {
 
     @Column(name = "DeletedFlag")
     @JsonIgnore
-    private Short deletedFlag;
+    private Short deletedFlag = 0;
 
     public PaymentProcessor() {
     }
