@@ -8,8 +8,6 @@ import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 public interface PaymentProcessorRepository
         extends JpaRepository<PaymentProcessor, Long>, QueryDslPredicateExecutor<PaymentProcessor> {
 
-    public PaymentProcessor getPaymentProcessorByPaymentProcessorId(Long id);
-
     public PaymentProcessor getPaymentProcessorByProcessorName(String processorName);
 
 }

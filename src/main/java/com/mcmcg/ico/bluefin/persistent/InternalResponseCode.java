@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -26,6 +27,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "InternalResponseCode_Lookup")
+@Where(clause="DeletedFlag=0")
 public class InternalResponseCode implements Serializable {
 
     private static final long serialVersionUID = 6473941024724065216L;
@@ -41,7 +43,7 @@ public class InternalResponseCode implements Serializable {
     @Column(name = "InternalResponseCodeDescription")
     private String internalResponseCodeDescription;
 
-    @OneToMany(mappedBy = "internalResponseCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "internalResponseCode", fetch = FetchType.LAZY)
     private Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
 
     @JsonIgnore
@@ -53,4 +55,8 @@ public class InternalResponseCode implements Serializable {
     @ManyToOne
     @JoinColumn(name = "InternalResponseCodeCategoryID")
     private InternalResponseCodeCategory internalResponseCodeCategory;
+
+    @JsonIgnore
+    @Column(name = "DeletedFlag")
+    private Short deletedFlag = 0;
 }
