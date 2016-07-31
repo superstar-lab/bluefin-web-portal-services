@@ -185,12 +185,13 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule doesn't exist
      */
     public void delete(final long id) {
-        PaymentProcessorRule paymentProcessorRule = paymentProcessorRuleRepository.findOne(id);
-        if (paymentProcessorRule == null) {
+        PaymentProcessorRule paymentProcessorRuleToDelete = paymentProcessorRuleRepository.findOne(id);
+        if (paymentProcessorRuleToDelete == null) {
             throw new CustomNotFoundException(
                     String.format("Unable to find payment processor rule with id = [%s]", id));
         }
 
-        paymentProcessorRuleRepository.delete(id);
+        paymentProcessorRuleToDelete.setDeletedFlag((short) 1);
+        paymentProcessorRuleRepository.save(paymentProcessorRuleToDelete);
     }
 }
