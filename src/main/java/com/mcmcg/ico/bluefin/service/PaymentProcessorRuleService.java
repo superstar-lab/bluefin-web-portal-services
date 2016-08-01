@@ -191,7 +191,6 @@ public class PaymentProcessorRuleService {
                     String.format("Unable to find payment processor rule with id = [%s]", id));
         }
 
-        paymentProcessorRuleToDelete.setDeletedFlag((short) 1);
-        paymentProcessorRuleRepository.save(paymentProcessorRuleToDelete);
+        paymentProcessorRuleRepository.delete(paymentProcessorRuleToDelete);
     }
 }

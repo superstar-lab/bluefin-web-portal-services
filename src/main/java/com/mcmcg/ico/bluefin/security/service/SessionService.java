@@ -75,12 +75,12 @@ public class SessionService {
         userLoginHistory.setUserPassword(password);
         if (user == null) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
-            throw new AccessDeniedException("Invalid credentials");
+            throw new CustomUnauthorizedException("Invalid credentials");
         }
         userLoginHistory.setUserId(user.getUserId());
         if (!passwordEncoder.matches(password, user.getUserPassword())) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
-            throw new AccessDeniedException("Invalid credentials");
+            throw new CustomUnauthorizedException("Invalid credentials");
         }
         if (user.getIsActive() == (short) 0) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
@@ -90,13 +90,13 @@ public class SessionService {
         saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
         return new UsernamePasswordAuthenticationToken(username, password);
     }
-    
-    private void saveUserLoginHistory(UserLoginHistory userLoginHistory,Integer messageCode) { 
+
+    private void saveUserLoginHistory(UserLoginHistory userLoginHistory, Integer messageCode) {
         if (userLoginHistory != null) {
             userLoginHistory.setMessageId(messageCode);
             userLoginHistoryRepository.save(userLoginHistory);
-        } 
-       
+        }
+
     }
 
     public AuthenticationResponse generateToken(final String username) {

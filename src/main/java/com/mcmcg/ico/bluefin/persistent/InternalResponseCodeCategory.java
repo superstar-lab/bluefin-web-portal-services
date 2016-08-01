@@ -19,7 +19,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "InternallResponseCodeCategory_Lookup")
+@Table(name = "InternalResponseCodeCategory_Lookup")
 public class InternalResponseCodeCategory implements Serializable {
 
     private static final long serialVersionUID = 7856208964444208101L;

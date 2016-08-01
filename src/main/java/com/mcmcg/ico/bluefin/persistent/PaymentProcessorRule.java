@@ -30,7 +30,6 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Rule")
-@Where(clause = "DeletedFlag=0")
 public class PaymentProcessorRule implements Serializable {
     private static final long serialVersionUID = 255255719776828551L;
 
@@ -74,8 +73,4 @@ public class PaymentProcessorRule implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
-
-    @Column(name = "DeletedFlag")
-    @JsonIgnore
-    private Short deletedFlag = 0;
 }
