@@ -160,13 +160,15 @@ public class SessionService {
         response.setLastName(user.getLastName());
         response.setUsername(user.getUsername());
 
+        Set<Role> rolesResult = new HashSet<Role>();
         Set<Permission> permissionsResult = new HashSet<Permission>();
         for (UserRole role : user.getRoles()) {
+            rolesResult.add(role.getRole());
             for (RolePermission permission : role.getRole().getRolePermissions()) {
                 permissionsResult.add(permission.getPermission());
             }
         }
-
+        response.setRoles(rolesResult);
         response.setPermissions(permissionsResult);
 
         return response;

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Set;
 
 import com.mcmcg.ico.bluefin.persistent.Permission;
+import com.mcmcg.ico.bluefin.persistent.Role;
 
 import lombok.Data;
 
@@ -15,5 +16,6 @@ public class AuthenticationResponse implements Serializable {
     private String username;
     private String firstName;
     private String lastName;
+    private Set<Role> roles;
     private Set<Permission> permissions;
 }

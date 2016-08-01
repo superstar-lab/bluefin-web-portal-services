@@ -15,8 +15,6 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
-import com.mysema.query.types.expr.BooleanExpression;
 
 @Service
 public class TransactionsService {
@@ -40,10 +38,10 @@ public class TransactionsService {
     }
 
     public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
-        
-        Page<SaleTransaction> result =  transactionRepository.findTransaction(search, paging);
+
+        Page<SaleTransaction> result = transactionRepository.findTransaction(search, paging);
         int page = paging.getPageNumber();
-         
+
         if (page > result.getTotalPages() && page != 0) {
             LOGGER.error("Unable to find the page requested");
             throw new CustomNotFoundException("Unable to find the page requested");
