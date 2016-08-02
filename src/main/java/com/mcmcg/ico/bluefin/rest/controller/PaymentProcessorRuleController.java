@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
@@ -63,6 +64,19 @@ public class PaymentProcessorRuleController {
     public List<PaymentProcessorRule> get() {
         LOGGER.info("Getting information with the following filters: {}");
         return paymentProcessorRuleService.getPaymentProcessorRules();
+    }
+
+    @ApiOperation(value = "Get payment processor rule transaction types", nickname = "getPaymentProcessorTransactionTypes")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json", value = "/transaction-types")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class, responseContainer = "List"),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public List<CardType> getTransactionTypes() {
+        LOGGER.info("Getting transaction types: {}");
+        return paymentProcessorRuleService.getTransactionTypes();
     }
 
     @ApiOperation(value = "Create payment processor rule", nickname = "createPaymentProcessorRule")

@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.transaction.Transactional;
@@ -192,5 +193,9 @@ public class PaymentProcessorRuleService {
         }
 
         paymentProcessorRuleRepository.delete(paymentProcessorRuleToDelete);
+    }
+
+    public List<CardType> getTransactionTypes() {
+        return Arrays.asList(CardType.values());
     }
 }
