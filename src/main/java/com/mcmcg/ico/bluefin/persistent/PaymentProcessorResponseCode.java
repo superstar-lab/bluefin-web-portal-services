@@ -20,6 +20,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
@@ -53,10 +54,21 @@ public class PaymentProcessorResponseCode implements Serializable {
     private Date createdDate;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
 
     @JsonIgnore
-    @JoinColumn(name = "deletedFlag")
+    @JoinColumn(name = "DeletedFlag")
     private Short deletedFlag = 0;
+
+    @JsonProperty("processorId")
+    private Long getProcessorId() {
+        return this.paymentProcessor.getPaymentProcessorId();
+    }
+
+    @JsonProperty("processorName")
+    private String getProcessoName() {
+        return this.paymentProcessor.getProcessorName();
+    }
 }

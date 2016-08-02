@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
+import com.mcmcg.ico.bluefin.persistent.InternalResponseCodeCategory;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalResponseCodeResource;
@@ -48,13 +50,38 @@ public class InternalResponseCodeController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<InternalResponseCode> getInternalResponseCodes(@ApiIgnore Authentication authentication) {
+    public Iterable<InternalResponseCode> getInternalResponseCodes(
+            @RequestParam(value = "paymentProcessorId", required = false) Long paymentProcessorId,
+            @ApiIgnore Authentication authentication) {
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        if (paymentProcessorId != null) {
+            LOGGER.info("Getting internal response code list by payment processor");
+            return internalResponseCodeService.getInternalResponseCodesByPaymentProcessorId(paymentProcessorId);
+        } else {
+            LOGGER.info("Getting internal response code list");
+            return internalResponseCodeService.getInternalResponseCodes();
+        }
+    }
+
+    @ApiOperation(value = "getInternalResponseCodeCategories", nickname = "getInternalResponseCodeCategories")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json", value = "/categories")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = InternalResponseCodeCategory.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public Iterable<InternalResponseCodeCategory> getInternalResponseCodeCategories(
+            @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
 
         LOGGER.info("Getting internal response code list");
-        return internalResponseCodeService.getInternalResponseCodes();
+        return internalResponseCodeService.getInternalResponseCodeCategories();
     }
 
     @ApiOperation(value = "upsertInternalResponseCodes", nickname = "upsertInternalResponseCodes")

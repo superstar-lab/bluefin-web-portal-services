@@ -1,7 +1,10 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -46,11 +49,43 @@ public class InternalResponseCodeService {
         return internalResponseCodeRepository.findAll();
     }
 
+    public List<InternalResponseCodeCategory> getInternalResponseCodeCategories() {
+        return internalResponseCodeCategoryRepository.findAll();
+    }
+
+    public Set<InternalResponseCode> getInternalResponseCodesByPaymentProcessorId(Long paymentProcessorId) {
+
+        PaymentProcessor paymentProcessor = paymentProcessorRepository.findOne(paymentProcessorId);
+        if (paymentProcessor == null) {
+            throw new CustomBadRequestException("Invalid payment processor");
+        }
+        Set<InternalResponseCode> internalCodesResult = new HashSet<InternalResponseCode>();
+
+        List<PaymentProcessorResponseCode> paymentProcessorResponseCodes = paymentProcessorResponseCodeRepository
+                .findByPaymentProcessor(paymentProcessor);
+
+        for (PaymentProcessorResponseCode paymentProcessorResponseCode : paymentProcessorResponseCodes) {
+            Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = paymentProcessorResponseCode
+                    .getInternalResponseCode();
+            for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodes) {
+                internalCodesResult.add(paymentProcessorInternalResponseCode.getInternalResponseCode());
+            }
+        }
+
+        return internalCodesResult;
+    }
+
     public InternalResponseCode upsertInternalResponseCodes(InternalResponseCodeResource internalResponseCodeResource) {
         InternalResponseCodeCategory category = internalResponseCodeCategoryRepository
                 .findOne(internalResponseCodeResource.getCategoryId());
         if (category == null) {
             throw new CustomBadRequestException("Invalid category");
+        }
+
+        PaymentProcessor paymentProcessor = paymentProcessorRepository
+                .findOne(internalResponseCodeResource.getPaymentProcessorResponseCode().getPaymentProcessorId());
+        if (paymentProcessor == null) {
+            throw new CustomBadRequestException("Invalid payment processor");
         }
 
         InternalResponseCode internalResponseCode = internalResponseCodeRepository
@@ -66,36 +101,38 @@ public class InternalResponseCodeService {
 
         } else {
             LOGGER.info("Updating internal response code {}", internalResponseCodeResource.getCode());
-            if (paymentProcessorResponseCodeRepository
-                    .findByPaymentProcessorResponseCode(paymentProcessorResponseCodeResource.getCode()) != null) {
-                throw new CustomBadRequestException(
-                        "This Payment Processor Response Code is already related to another Internal Response Code.");
+            List<PaymentProcessorResponseCode> processorCodes = paymentProcessorResponseCodeRepository
+                    .findByPaymentProcessor(paymentProcessor);
+            for (PaymentProcessorResponseCode paymentProcessorResponseCode : processorCodes) {
+                Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = paymentProcessorResponseCode
+                        .getInternalResponseCode();
+                for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodes) {
+                    if (paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCode()
+                            .equals(internalResponseCodeResource.getCode())
+                            && !paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
+                                    .getPaymentProcessorResponseCode()
+                                    .equals(internalResponseCodeResource.getPaymentProcessorResponseCode().getCode())) {
+                        throw new CustomBadRequestException(
+                                "This Payment Processor is already related to another Internal Response Code.");
+                    }
+                }
+
             }
-            List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<PaymentProcessorInternalResponseCode>();
-            for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode
-                    .getPaymentProcessorInternalResponseCodes()) {
-                paymentProcessorInternalResponseCode.setDeletedFlag((short) 1);
-                paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
-            }
-            internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodes);
+
         }
         internalResponseCode.setInternalResponseCodeCategory(category);
         internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
         internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 
         if (paymentProcessorResponseCodeResource != null) {
-            PaymentProcessor paymentProcessor = paymentProcessorRepository
-                    .findOne(paymentProcessorResponseCodeResource.getPaymentProcessorId());
-            if (paymentProcessor == null) {
-                throw new CustomBadRequestException("Invalid payment processor");
-            }
-
             PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                     .findByPaymentProcessorResponseCode(paymentProcessorResponseCodeResource.getCode());
 
+            Boolean creatingPaymentProcessor = false;
             if (paymentProcessorResponseCode == null) {
                 LOGGER.info("Creating new payment processor response code {}", internalResponseCodeResource.getCode());
                 paymentProcessorResponseCode = new PaymentProcessorResponseCode();
+                creatingPaymentProcessor = true;
             } else {
                 LOGGER.info("Updating payment processor response code {}", internalResponseCodeResource.getCode());
             }
@@ -107,16 +144,20 @@ public class InternalResponseCodeService {
                     .setPaymentProcessorResponseCodeDescription(paymentProcessorResponseCodeResource.getDescription());
 
             paymentProcessorResponseCode = paymentProcessorResponseCodeRepository.save(paymentProcessorResponseCode);
+            internalResponseCode = internalResponseCodeRepository.save(internalResponseCode);
 
-            PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new PaymentProcessorInternalResponseCode();
-            paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
-            paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
+            if (creatingPaymentProcessor) {
+                PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new PaymentProcessorInternalResponseCode();
+                paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
+                paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
+                paymentProcessorInternalResponseCodeRepository.save(paymentProcessorInternalResponseCode);
 
-            paymentProcessorInternalResponseCodeRepository.save(paymentProcessorInternalResponseCode);
-            internalResponseCode.getPaymentProcessorInternalResponseCodes().add(paymentProcessorInternalResponseCode);
+                internalResponseCode.getPaymentProcessorInternalResponseCodes()
+                        .add(paymentProcessorInternalResponseCode);
+            }
         }
-
         return internalResponseCodeRepository.save(internalResponseCode);
+
     }
 
     public void deleteInternalResponseCode(Long id) {
