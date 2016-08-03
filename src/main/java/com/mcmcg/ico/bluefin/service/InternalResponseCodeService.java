@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
-import com.mcmcg.ico.bluefin.persistent.InternalResponseCodeCategory;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorResponseCode;
@@ -37,9 +36,6 @@ public class InternalResponseCodeService {
     private InternalResponseCodeRepository internalResponseCodeRepository;
     @Autowired
     private PaymentProcessorResponseCodeRepository paymentProcessorResponseCodeRepository;
-    // @Autowired
-    // private InternalResponseCodeCategoryRepository
-    // internalResponseCodeCategoryRepository;
     @Autowired
     private PaymentProcessorRepository paymentProcessorRepository;
     @Autowired
@@ -47,11 +43,6 @@ public class InternalResponseCodeService {
 
     public List<InternalResponseCode> getInternalResponseCodes() {
         return internalResponseCodeRepository.findAll();
-    }
-
-    public List<InternalResponseCodeCategory> getInternalResponseCodeCategories() {
-        // return internalResponseCodeCategoryRepository.findAll();
-        return new ArrayList<InternalResponseCodeCategory>();
     }
 
     public Set<InternalResponseCode> getInternalResponseCodesByPaymentProcessorId(Long paymentProcessorId) {
@@ -77,12 +68,6 @@ public class InternalResponseCodeService {
     }
 
     public InternalResponseCode upsertInternalResponseCodes(InternalResponseCodeResource internalResponseCodeResource) {
-        // InternalResponseCodeCategory category =
-        // internalResponseCodeCategoryRepository
-        // .findOne(internalResponseCodeResource.getCategoryId());
-        // if (category == null) {
-        // throw new CustomBadRequestException("Invalid category");
-        // }
 
         PaymentProcessor paymentProcessor = paymentProcessorRepository
                 .findOne(internalResponseCodeResource.getPaymentProcessorResponseCode().getPaymentProcessorId());
@@ -122,7 +107,6 @@ public class InternalResponseCodeService {
             }
 
         }
-        // internalResponseCode.setInternalResponseCodeCategory(category);
         internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
         internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 
