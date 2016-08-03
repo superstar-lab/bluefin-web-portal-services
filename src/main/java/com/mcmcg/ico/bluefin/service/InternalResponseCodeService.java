@@ -38,8 +38,9 @@ public class InternalResponseCodeService {
     private InternalResponseCodeRepository internalResponseCodeRepository;
     @Autowired
     private PaymentProcessorResponseCodeRepository paymentProcessorResponseCodeRepository;
-    @Autowired
-    private InternalResponseCodeCategoryRepository internalResponseCodeCategoryRepository;
+    // @Autowired
+    // private InternalResponseCodeCategoryRepository
+    // internalResponseCodeCategoryRepository;
     @Autowired
     private PaymentProcessorRepository paymentProcessorRepository;
     @Autowired
@@ -50,7 +51,8 @@ public class InternalResponseCodeService {
     }
 
     public List<InternalResponseCodeCategory> getInternalResponseCodeCategories() {
-        return internalResponseCodeCategoryRepository.findAll();
+        // return internalResponseCodeCategoryRepository.findAll();
+        return new ArrayList<InternalResponseCodeCategory>();
     }
 
     public Set<InternalResponseCode> getInternalResponseCodesByPaymentProcessorId(Long paymentProcessorId) {
@@ -76,11 +78,12 @@ public class InternalResponseCodeService {
     }
 
     public InternalResponseCode upsertInternalResponseCodes(InternalResponseCodeResource internalResponseCodeResource) {
-        InternalResponseCodeCategory category = internalResponseCodeCategoryRepository
-                .findOne(internalResponseCodeResource.getCategoryId());
-        if (category == null) {
-            throw new CustomBadRequestException("Invalid category");
-        }
+        // InternalResponseCodeCategory category =
+        // internalResponseCodeCategoryRepository
+        // .findOne(internalResponseCodeResource.getCategoryId());
+        // if (category == null) {
+        // throw new CustomBadRequestException("Invalid category");
+        // }
 
         PaymentProcessor paymentProcessor = paymentProcessorRepository
                 .findOne(internalResponseCodeResource.getPaymentProcessorResponseCode().getPaymentProcessorId());
@@ -120,7 +123,7 @@ public class InternalResponseCodeService {
             }
 
         }
-        internalResponseCode.setInternalResponseCodeCategory(category);
+        // internalResponseCode.setInternalResponseCodeCategory(category);
         internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
         internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 

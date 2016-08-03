@@ -51,11 +51,6 @@ public class InternalResponseCode implements Serializable {
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
-    @ManyToOne
-    @JoinColumn(name = "InternalResponseCodeCategoryID")
-    private InternalResponseCodeCategory internalResponseCodeCategory;
-
-    @JsonIgnore
-    @Column(name = "DeletedFlag")
-    private Short deletedFlag = 0;
+    @Column(name = "InternalResponseCodeCategoryID")
+    private Long internalResponseCodeCategory = (long) 1;
 }
