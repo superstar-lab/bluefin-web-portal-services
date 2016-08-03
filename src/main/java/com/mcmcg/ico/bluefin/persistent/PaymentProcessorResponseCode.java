@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,7 +16,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,7 +27,6 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessorResponseCode_Lookup")
-@Where(clause = "DeletedFlag=0")
 public class PaymentProcessorResponseCode implements Serializable {
 
     private static final long serialVersionUID = -4612223418828597035L;
@@ -44,7 +43,7 @@ public class PaymentProcessorResponseCode implements Serializable {
     private String paymentProcessorResponseCodeDescription;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "paymentProcessorResponseCode", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "paymentProcessorResponseCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorInternalResponseCode> internalResponseCode;
 
     @JsonIgnore
@@ -57,10 +56,6 @@ public class PaymentProcessorResponseCode implements Serializable {
     @JsonIgnore
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
-
-    @JsonIgnore
-    @JoinColumn(name = "DeletedFlag")
-    private Short deletedFlag = 0;
 
     @JsonProperty("processorId")
     private Long getProcessorId() {

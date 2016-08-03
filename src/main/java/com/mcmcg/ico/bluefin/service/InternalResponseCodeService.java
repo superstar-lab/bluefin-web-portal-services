@@ -18,7 +18,6 @@ import com.mcmcg.ico.bluefin.persistent.InternalResponseCodeCategory;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorResponseCode;
-import com.mcmcg.ico.bluefin.persistent.jpa.InternalResponseCodeCategoryRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.InternalResponseCodeRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorInternalResponseCodeRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
@@ -170,16 +169,7 @@ public class InternalResponseCodeService {
             throw new CustomNotFoundException(
                     String.format("Unable to find internal response code with id = [%s]", id));
         }
-
-        List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<PaymentProcessorInternalResponseCode>();
-        for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCodeToDelete
-                .getPaymentProcessorInternalResponseCodes()) {
-            paymentProcessorInternalResponseCode.setDeletedFlag((short) 1);
-            paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
-        }
-
-        internalResponseCodeToDelete.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodes);
-        internalResponseCodeToDelete.setDeletedFlag((short) 1);
-        internalResponseCodeRepository.save(internalResponseCodeToDelete);
+        internalResponseCodeToDelete.getPaymentProcessorInternalResponseCodes().clear();
+        internalResponseCodeRepository.delete(internalResponseCodeToDelete);
     }
 }

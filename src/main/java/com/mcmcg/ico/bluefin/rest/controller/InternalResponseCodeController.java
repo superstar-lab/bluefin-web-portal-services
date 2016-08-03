@@ -5,14 +5,11 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -65,24 +62,24 @@ public class InternalResponseCodeController {
         }
     }
 
-    @ApiOperation(value = "getInternalResponseCodeCategories", nickname = "getInternalResponseCodeCategories")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json", value = "/categories")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = InternalResponseCodeCategory.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<InternalResponseCodeCategory> getInternalResponseCodeCategories(
-            @ApiIgnore Authentication authentication) {
-        if (authentication == null) {
-            throw new AccessDeniedException("An authorization token is required to request this resource");
-        }
-
-        LOGGER.info("Getting internal response code list");
-        return internalResponseCodeService.getInternalResponseCodeCategories();
-    }
+//    @ApiOperation(value = "getInternalResponseCodeCategories", nickname = "getInternalResponseCodeCategories")
+//    @RequestMapping(method = RequestMethod.GET, produces = "application/json", value = "/categories")
+//    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 200, message = "OK", response = InternalResponseCodeCategory.class, responseContainer = "List"),
+//            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+//            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+//            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+//            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+//    public Iterable<InternalResponseCodeCategory> getInternalResponseCodeCategories(
+//            @ApiIgnore Authentication authentication) {
+//        if (authentication == null) {
+//            throw new AccessDeniedException("An authorization token is required to request this resource");
+//        }
+//
+//        LOGGER.info("Getting internal response code list");
+//        return internalResponseCodeService.getInternalResponseCodeCategories();
+//    }
 
     @ApiOperation(value = "upsertInternalResponseCodes", nickname = "upsertInternalResponseCodes")
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
@@ -105,21 +102,5 @@ public class InternalResponseCodeController {
 
         LOGGER.info("Upserting internal response code");
         return internalResponseCodeService.upsertInternalResponseCodes(internalResponseCodeResource);
-    }
-
-    @ApiOperation(value = "deleteInternalResponseCode", nickname = "deleteInternalResponseCode")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Internal Response Code {}", id);
-        internalResponseCodeService.deleteInternalResponseCode(id);
-        LOGGER.info("Internal Response Code {} has been deleted.", id);
-
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 }

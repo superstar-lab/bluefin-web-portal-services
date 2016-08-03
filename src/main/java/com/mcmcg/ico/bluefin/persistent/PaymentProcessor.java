@@ -15,7 +15,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Where;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,7 +26,6 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Lookup")
-@Where(clause = "DeletedFlag=0")
 public class PaymentProcessor implements Serializable {
     private static final long serialVersionUID = 655003466748410661L;
 
@@ -52,10 +50,6 @@ public class PaymentProcessor implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
-
-    @Column(name = "DeletedFlag")
-    @JsonIgnore
-    private Short deletedFlag = 0;
 
     public PaymentProcessor() {
     }

@@ -5,7 +5,8 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 
-public interface LegalEntityAppRepository
-        extends JpaRepository<LegalEntityApp, Long>, QueryDslPredicateExecutor<LegalEntityApp> {
+public interface LegalEntityAppRepository extends JpaRepository<LegalEntityApp, Long>, QueryDslPredicateExecutor<LegalEntityApp> {
     public LegalEntityApp findByLegalEntityAppName(String legalEntityAppName);
+
+    public LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId);
 }

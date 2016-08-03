@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,11 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.Role;
-import com.mcmcg.ico.bluefin.persistent.RolePermission;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
 @Transactional
@@ -60,28 +56,4 @@ public class RoleService {
         return roleRepository.findByRoleName(roleName);
     }
 
-    public void deleteRole(Long id) {
-        Role roleToDelete = roleRepository.findOne(id);
-
-        if (roleToDelete == null) {
-            throw new CustomNotFoundException(String.format("Unable to find role with id = [%s]", id));
-        }
-
-        List<RolePermission> rolePermissions = new ArrayList<RolePermission>();
-        for (RolePermission rolePermission : roleToDelete.getRolePermissions()) {
-            rolePermission.setDeletedFlag((short) 1);
-            rolePermissions.add(rolePermission);
-        }
-        roleToDelete.setRolePermissions(rolePermissions);
-
-        List<UserRole> userRoles = new ArrayList<UserRole>();
-        for (UserRole userRole : roleToDelete.getUserRoles()) {
-            userRole.setDeletedFlag((short) 1);
-            userRoles.add(userRole);
-        }
-        roleToDelete.setUserRoles(userRoles);
-
-        roleToDelete.setDeletedFlag((short) 1);
-        roleRepository.save(roleToDelete);
-    }
 }

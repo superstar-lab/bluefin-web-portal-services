@@ -14,9 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -102,23 +100,8 @@ public class LegalEntityAppService {
         if (legalEntityAppToDelete == null) {
             throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
         }
-        List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
-        for (UserLegalEntity userLegalEntity : legalEntityAppToDelete.getUserLegalEntities()) {
-            userLegalEntity.setDeletedFlag((short) 1);
-            userLegalEntities.add(userLegalEntity);
-        }
-        legalEntityAppToDelete.setUserLegalEntities(userLegalEntities);
 
-        List<PaymentProcessorMerchant> paymentProcessorMerchants = new ArrayList<PaymentProcessorMerchant>();
-        for (PaymentProcessorMerchant paymentProcessorMerchant : legalEntityAppToDelete
-                .getPaymentProcessorMerchants()) {
-            paymentProcessorMerchant.setDeletedFlag((short) 1);
-            paymentProcessorMerchants.add(paymentProcessorMerchant);
-        }
-        legalEntityAppToDelete.setPaymentProcessorMerchants(paymentProcessorMerchants);
-
-        legalEntityAppToDelete.setDeletedFlag((short) 1);
-        legalEntityAppRepository.save(legalEntityAppToDelete);
+        legalEntityAppRepository.delete(legalEntityAppToDelete);
     }
 
     /**
