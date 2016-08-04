@@ -96,6 +96,9 @@ public class PaymentProcessorService {
 
         // Update fields for existing Payment Processor
         paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
+        if (paymentProcessorResource.getIsActive() != null) {
+            paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
+        }
 
         return paymentProcessorRepository.save(paymentProcessorToUpdate);
     }

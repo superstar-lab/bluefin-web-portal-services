@@ -51,6 +51,9 @@ public class PaymentProcessor implements Serializable {
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
 
+    @Column(name = "IsActive")
+    private Short isActive = 0;
+
     public PaymentProcessor() {
     }
 

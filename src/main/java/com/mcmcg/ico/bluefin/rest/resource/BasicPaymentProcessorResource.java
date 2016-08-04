@@ -14,6 +14,7 @@ public class BasicPaymentProcessorResource implements Serializable {
 
     @NotBlank(message = "processorName cannot be null or empty")
     private String processorName;
+    private Short isActive;
 
     public PaymentProcessor toPaymentProcessor() {
         PaymentProcessor paymentProcessor = new PaymentProcessor();
