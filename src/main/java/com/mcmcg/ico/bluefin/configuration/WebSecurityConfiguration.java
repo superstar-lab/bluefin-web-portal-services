@@ -74,6 +74,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String usersApiBaseURL = apiBaseURL + "/users";
         final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
         final String rolesApiBaseURL = apiBaseURL + "/roles";
+        final String internalCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
+        final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
+        final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
 
         // @formatter:off
         httpSecurity
@@ -96,33 +99,47 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                                     "/configuration/**", "/images/**").permitAll()
 
                             // Transactions
-                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/").authenticated()
-                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").authenticated()
+                            .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/", transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").hasAnyAuthority("SEARCH_REPORTING")
 
                             // Session
-                            .antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/").permitAll()
+                            .antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/", sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/").permitAll()
+                            .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/consumer/{username}", sessionApiBaseURL + "/consumer/{username}/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, sessionApiBaseURL, sessionApiBaseURL + "/").authenticated()
-                            .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/").permitAll()
                             .antMatchers(HttpMethod.DELETE, sessionApiBaseURL, sessionApiBaseURL + "/").authenticated()
 
                             // Users
-                            .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
-                            .antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/").authenticated()
-                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
-                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}/password", usersApiBaseURL + "/{username}/password/").authenticated()
-                            .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").authenticated()
+                            .antMatchers(HttpMethod.GET, usersApiBaseURL, usersApiBaseURL + "/").hasAnyAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").hasAnyAuthority("MANAGE_CURRENT_USER", "ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/", usersApiBaseURL + "/{username}/password", usersApiBaseURL + "/{username}/password/").hasAnyAuthority("MANAGE_CURRENT_USER", "ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}/legal-entities", usersApiBaseURL + "/{username}/legal-entities/",  usersApiBaseURL + "/{username}/roles", usersApiBaseURL + "/{username}/roles/").hasAnyAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").hasAuthority("ADMINISTRATIVE")
 
                             // Legal entities
-                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").authenticated()
-//                            .antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL).permitAll()
-//                            .antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{legalEntityId}", legalEntitiesApiBaseURL + "/{legalEntityId}/").permitAll()
-//                            .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{legalEntityId}", legalEntitiesApiBaseURL + "/{legalEntityId}/").permitAll()
+                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/", legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+
+                            // Payment Processors
+                            .antMatchers(HttpMethod.GET, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/", paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.POST, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.PUT, paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/", paymentProcessorApiBaseURL + "/{id}/payment-processor-merchants", paymentProcessorApiBaseURL + "/{id}/payment-processor-merchants/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.DELETE, paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+
+                            // Payment Processor Rules
+                            .antMatchers(HttpMethod.GET, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/", paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/", paymentProcessorRulesApiBaseURL + "/transaction-types", paymentProcessorRulesApiBaseURL + "/transaction-types/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.POST, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.PUT, paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 
                             // Roles
-                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
-//                            .antMatchers(HttpMethod.POST, rolesApiBaseURL).permitAll()
-//                            .antMatchers(HttpMethod.PUT, rolesApiBaseURL + "/{roleId}", rolesApiBaseURL + "/{roleId}/").permitAll()
-//                            .antMatchers(HttpMethod.DELETE, rolesApiBaseURL + "/{roleId}", rolesApiBaseURL + "/{roleId}/").permitAll()
+                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            
+                            // Internal Response Codes
+                            .antMatchers(HttpMethod.GET, internalCodesApiBaseURL, internalCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.PUT, internalCodesApiBaseURL, internalCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.DELETE, internalCodesApiBaseURL + "/{id}", internalCodesApiBaseURL + "/{id}/").hasAuthority("MANAGE_RESPONSE_CODES")
 
                             .anyRequest().authenticated();
         // @formatter:on

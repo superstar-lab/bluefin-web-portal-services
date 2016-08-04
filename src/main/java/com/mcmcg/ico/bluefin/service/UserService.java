@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -273,6 +274,17 @@ public class UserService {
         return legalEntitiesToVerify.stream()
                 .filter(verifyLegalEntityId -> !userLegalEntities.contains(verifyLegalEntityId))
                 .collect(Collectors.toSet()).isEmpty();
+    }
+
+    public boolean hasPermissionToManageAllUsers(Authentication authentication) {
+        Boolean hasPermission = false;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            hasPermission = authority.getAuthority().equals("ADMINISTRATIVE");
+            if (hasPermission) {
+                break;
+            }
+        }
+        return hasPermission;
     }
 
     /**

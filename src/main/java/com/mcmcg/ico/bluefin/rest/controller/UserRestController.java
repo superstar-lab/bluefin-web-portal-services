@@ -68,12 +68,18 @@ public class UserRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
+        if (username.equals("me")) {
+            username = authentication.getName();
+        } else {
+            if (!userService.hasPermissionToManageAllUsers(authentication)) {
+                throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
+            }
+        }
 
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be requested
-        if (!userService.belongsToSameLegalEntity(authentication,
-                username.equals("me") ? authentication.getName() : username)) {
-            throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
+        if (!userService.belongsToSameLegalEntity(authentication, username)) {
+            throw new AccessDeniedException("User does not have access to add by legal entity restriction");
         }
 
         LOGGER.info("Getting user information: {}", username);
@@ -152,11 +158,17 @@ public class UserRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
+        if (username.equals("me")) {
+            username = authentication.getName();
+        } else {
+            if (!userService.hasPermissionToManageAllUsers(authentication)) {
+                throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
+            }
+        }
 
         // Checks if the Legal Entities of the consultant user are in the user
         // that will be updated
-        if (!userService.belongsToSameLegalEntity(authentication,
-                username.equals("me") ? authentication.getName() : username)) {
+        if (!userService.belongsToSameLegalEntity(authentication, username)) {
             throw new AccessDeniedException("User doesn't have permission to get information from other users");
         }
 
@@ -236,11 +248,18 @@ public class UserRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> updateUserPassword(@PathVariable String username,
             @Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
-            HttpServletRequest request) {
+            HttpServletRequest request, Authentication authentication) {
         if (errors.hasErrors()) {
             final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
+        }
+        if (username.equals("me")) {
+            username = authentication.getName();
+        } else {
+            if (!userService.hasPermissionToManageAllUsers(authentication)) {
+                throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
+            }
         }
         final String token = request.getHeader(securityTokenHeader);
         if (token != null) {

@@ -196,7 +196,7 @@ public class SessionService {
     public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {
         Boolean hasPermission = false;
         for (GrantedAuthority authority : authentication.getAuthorities()) {
-            hasPermission = authority.getAuthority().equals("MANAGE_ALL_LEGAL_ENTITIES");
+            hasPermission = authority.getAuthority().equals("ADMINISTRATIVE");
             if (hasPermission) {
                 break;
             }
