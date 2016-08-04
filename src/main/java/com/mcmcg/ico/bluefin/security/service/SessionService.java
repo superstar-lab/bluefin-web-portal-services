@@ -22,6 +22,7 @@ import com.mcmcg.ico.bluefin.persistent.Permission;
 import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.UserLoginHistory;
 import com.mcmcg.ico.bluefin.persistent.UserLoginHistory.MessageCode;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
@@ -170,6 +171,13 @@ public class SessionService {
         }
         response.setRoles(rolesResult);
         response.setPermissions(permissionsResult);
+
+        Set<LegalEntityApp> legalEntityAppsResult = new HashSet<LegalEntityApp>();
+        for (UserLegalEntity legalEntity : user.getLegalEntities()) {
+            legalEntityAppsResult.add(legalEntity.getLegalEntityApp());
+
+        }
+        response.setLegalEntityApps(legalEntityAppsResult);
 
         return response;
     }
