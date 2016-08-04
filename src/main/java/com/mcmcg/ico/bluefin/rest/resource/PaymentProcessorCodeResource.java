@@ -7,11 +7,11 @@ import org.hibernate.validator.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class PaymentProcessorResponseCodeResource {
+public class PaymentProcessorCodeResource {
 
-    @NotBlank(message = "code value into Payment Processor Response Code object cannot be null or empty")
+    @NotBlank(message = "code value into Payment Processor Code object cannot be null or empty")
     private String code;
-    @NotBlank(message = "description value into Payment Processor Response Code object cannot be null or empty")
+    @NotBlank(message = "description value into Payment Processor Code object cannot be null or empty")
     private String description;
     @NotNull(message = "Attribute paymentProcessorId cannot be empty or null")
     private Long paymentProcessorId;

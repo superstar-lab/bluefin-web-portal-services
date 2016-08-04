@@ -74,9 +74,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String usersApiBaseURL = apiBaseURL + "/users";
         final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
         final String rolesApiBaseURL = apiBaseURL + "/roles";
-        final String internalCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
+        final String internalResponseCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
         final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
         final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
+        final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
 
         // @formatter:off
         httpSecurity
@@ -137,9 +138,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             
                             // Internal Response Codes
-                            .antMatchers(HttpMethod.GET, internalCodesApiBaseURL, internalCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
-                            .antMatchers(HttpMethod.PUT, internalCodesApiBaseURL, internalCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
-                            .antMatchers(HttpMethod.DELETE, internalCodesApiBaseURL + "/{id}", internalCodesApiBaseURL + "/{id}/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.PUT, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{id}", internalResponseCodesApiBaseURL + "/{id}/").hasAuthority("MANAGE_RESPONSE_CODES")
+
+                         // Internal Response Codes
+                            .antMatchers(HttpMethod.GET, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.PUT, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{id}", internalStatusCodesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 
                             .anyRequest().authenticated();
         // @formatter:on

@@ -23,8 +23,8 @@ import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorResponseCodeRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.rest.resource.InternalResponseCodeResource;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorResponseCodeResource;
+import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorCodeResource;
 
 @Service
 @Transactional
@@ -67,18 +67,18 @@ public class InternalResponseCodeService {
         return internalCodesResult;
     }
 
-    public InternalResponseCode upsertInternalResponseCodes(InternalResponseCodeResource internalResponseCodeResource) {
+    public InternalResponseCode upsertInternalResponseCodes(InternalCodeResource internalResponseCodeResource) {
 
         PaymentProcessor paymentProcessor = paymentProcessorRepository
-                .findOne(internalResponseCodeResource.getPaymentProcessorResponseCode().getPaymentProcessorId());
+                .findOne(internalResponseCodeResource.getPaymentProcessorCode().getPaymentProcessorId());
         if (paymentProcessor == null) {
             throw new CustomBadRequestException("Invalid payment processor");
         }
 
         InternalResponseCode internalResponseCode = internalResponseCodeRepository
                 .findByInternalResponseCode(internalResponseCodeResource.getCode());
-        PaymentProcessorResponseCodeResource paymentProcessorResponseCodeResource = internalResponseCodeResource
-                .getPaymentProcessorResponseCode();
+        PaymentProcessorCodeResource paymentProcessorResponseCodeResource = internalResponseCodeResource
+                .getPaymentProcessorCode();
 
         if (internalResponseCode == null) {
             LOGGER.info("Creating new internal response code {}", internalResponseCodeResource.getCode());
@@ -98,7 +98,7 @@ public class InternalResponseCodeService {
                             .equals(internalResponseCodeResource.getCode())
                             && !paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
                                     .getPaymentProcessorResponseCode()
-                                    .equals(internalResponseCodeResource.getPaymentProcessorResponseCode().getCode())) {
+                                    .equals(internalResponseCodeResource.getPaymentProcessorCode().getCode())) {
                         throw new CustomBadRequestException(
                                 "This Payment Processor is already related to another Internal Response Code.");
                     }
