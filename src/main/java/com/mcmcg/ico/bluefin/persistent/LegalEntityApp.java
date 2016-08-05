@@ -48,6 +48,9 @@ public class LegalEntityApp implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
+    
+    @Column(name = "IsActive")
+    private Short isActive = 1;
 
     public LegalEntityApp() {
     }
