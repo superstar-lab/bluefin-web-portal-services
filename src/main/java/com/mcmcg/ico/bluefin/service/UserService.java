@@ -348,6 +348,9 @@ public class UserService {
         if (tokenType.equals(TokenType.REGISTER_USER.name())) {
             userToUpdate.setIsActive((short) 1);
         }
+        if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getIsActive() == (short) 0) {
+            userToUpdate.setIsActive((short) 1);
+        }
         userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
         return userRepository.save(userToUpdate);
     }
