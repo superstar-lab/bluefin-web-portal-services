@@ -74,18 +74,19 @@ public class SessionService {
         UserLoginHistory userLoginHistory = new UserLoginHistory();
         userLoginHistory.setUsername(username);
         userLoginHistory.setUserPassword(password);
+
         if (user == null) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
             throw new CustomUnauthorizedException("Invalid credentials");
         }
         userLoginHistory.setUserId(user.getUserId());
-        if (!passwordEncoder.matches(password, user.getUserPassword())) {
-            saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
-            throw new CustomUnauthorizedException("Invalid credentials");
-        }
         if (user.getIsActive() == (short) 0) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
             throw new AccessDeniedException("Account is not activated yet.");
+        }
+        if (!passwordEncoder.matches(password, user.getUserPassword())) {
+            saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
+            throw new CustomUnauthorizedException("Invalid credentials");
         }
 
         saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
