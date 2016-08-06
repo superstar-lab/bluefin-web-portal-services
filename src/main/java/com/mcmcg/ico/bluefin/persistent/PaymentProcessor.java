@@ -18,14 +18,16 @@ import javax.persistence.Table;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Lookup")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorId")
 public class PaymentProcessor implements Serializable {
     private static final long serialVersionUID = 655003466748410661L;
 
@@ -37,11 +39,9 @@ public class PaymentProcessor implements Serializable {
     @Column(name = "ProcessorName")
     private String processorName;
 
-    @JsonManagedReference(value = "paymentProcessorMerchant")
     @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
 
-    @JsonManagedReference(value = "paymentProcessorRule")
     @OneToMany(mappedBy = "paymentProcessor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorRule> paymentProcessorRules;
 

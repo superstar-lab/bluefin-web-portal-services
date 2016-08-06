@@ -14,14 +14,16 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "User_LegalEntityApp")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userLegalEntityAppId")
 public class UserLegalEntity implements Serializable {
     private static final long serialVersionUID = -8208809070124675993L;
 
@@ -30,12 +32,10 @@ public class UserLegalEntity implements Serializable {
     @Column(name = "UserLegalEntityAppID")
     private Long userLegalEntityAppId;
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "LegalEntityAppID")
     private LegalEntityApp legalEntityApp;
 
-    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "UserID")
     private User user;

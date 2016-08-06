@@ -38,12 +38,11 @@ public class PaymentProcessorService {
      * @param id
      * @return
      */
-    public PaymentProcessor getPaymentProcessorById(Long id) {
+    public PaymentProcessor getPaymentProcessorById(final long id) {
         PaymentProcessor paymentProcessor = paymentProcessorRepository.findOne(id);
 
         if (paymentProcessor == null) {
-            throw new CustomNotFoundException(String
-                    .format("Unable to process request payment processor doesn't exists with given id = [%s]", id));
+            throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
         }
         return paymentProcessor;
     }
@@ -86,13 +85,8 @@ public class PaymentProcessorService {
      * @param paymentProcessorResource
      * @return updated PaymentProcessor
      */
-    public PaymentProcessor updatePaymentProcessor(Long id, BasicPaymentProcessorResource paymentProcessorResource) {
-        PaymentProcessor paymentProcessorToUpdate = paymentProcessorRepository.findOne(id);
-
-        if (paymentProcessorToUpdate == null) {
-            throw new CustomNotFoundException(String
-                    .format("Unable to process request payment processor doesn't exists with given id = [%s]", id));
-        }
+    public PaymentProcessor updatePaymentProcessor(final long id, BasicPaymentProcessorResource paymentProcessorResource) {
+        PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
         // Update fields for existing Payment Processor
         paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
@@ -100,7 +94,7 @@ public class PaymentProcessorService {
             paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
         }
 
-        return paymentProcessorRepository.save(paymentProcessorToUpdate);
+        return paymentProcessorToUpdate;
     }
 
     /**
@@ -114,13 +108,10 @@ public class PaymentProcessorService {
      * @throws CustomNotFoundException
      *             when payment processor not found
      */
-    public PaymentProcessor updatePaymentProcessorMerchants(Long id,
+    public PaymentProcessor updatePaymentProcessorMerchants(final long id,
             Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
-        // Verify if legal entity app exists
-        PaymentProcessor paymentProcessorToUpdate = paymentProcessorRepository.findOne(id);
-        if (paymentProcessorToUpdate == null) {
-            throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
-        }
+        // Verify if payment processor exists
+        PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
         // User wants to clear payment processor merchants from payment
         // processor
@@ -130,8 +121,8 @@ public class PaymentProcessorService {
         }
 
         // New payment processor merchants that need to be created or updated
-        Map<Long, PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants.stream()
-                .collect(Collectors.toMap(PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
+        Map<Long, PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants
+                .stream().collect(Collectors.toMap(PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
 
         // Temporal list of legal entity app ids already updated
         Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
@@ -169,13 +160,9 @@ public class PaymentProcessorService {
      * 
      * @param id
      */
-    public void deletePaymentProcessor(Long id) {
-        PaymentProcessor paymentProcessorToDelete = paymentProcessorRepository.findOne(id);
+    public void deletePaymentProcessor(final long id) {
+        PaymentProcessor paymentProcessorToDelete = getPaymentProcessorById(id);
 
-        if (paymentProcessorToDelete == null) {
-            throw new CustomNotFoundException(String
-                    .format("Unable to process request payment processor doesn't exists with given id = [%s]", id));
-        }
         paymentProcessorRepository.delete(paymentProcessorToDelete);
     }
 

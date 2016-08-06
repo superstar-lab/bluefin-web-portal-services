@@ -14,15 +14,17 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "PaymentProcessor_InternalStatusCode")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorInternalStatusCodeId")
 public class PaymentProcessorInternalStatusCode implements Serializable {
 
     private static final long serialVersionUID = 7430312454113990013L;
@@ -32,7 +34,6 @@ public class PaymentProcessorInternalStatusCode implements Serializable {
     @Column(name = "PaymentProcessorInternalStatusCodeID")
     private Long paymentProcessorInternalStatusCodeId;
 
-    @JsonBackReference(value = "internalStatusCode")
     @ManyToOne
     @JoinColumn(name = "InternalStatusCode", referencedColumnName = "InternalStatusCode")
     private InternalStatusCode internalStatusCode;

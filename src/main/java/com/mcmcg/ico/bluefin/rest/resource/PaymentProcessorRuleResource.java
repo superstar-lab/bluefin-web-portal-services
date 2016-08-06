@@ -40,6 +40,18 @@ public class PaymentProcessorRuleResource implements Serializable {
         rule.setMaximumMonthlyAmount(maximumMonthlyAmount);
         rule.setNoMaximumMonthlyAmountFlag(noMaximumMonthlyAmountFlag);
         rule.setPriority(priority);
+
+        return rule;
+    }
+
+    public PaymentProcessorRule toPaymentProcessorRule(Long paymentProcessorRuleId) {
+        PaymentProcessorRule rule = new PaymentProcessorRule();
+        rule.setPaymentProcessorRuleId(paymentProcessorRuleId);
+        rule.setCardType(cardType);
+        rule.setMaximumMonthlyAmount(maximumMonthlyAmount);
+        rule.setNoMaximumMonthlyAmountFlag(noMaximumMonthlyAmountFlag);
+        rule.setPriority(priority);
+
         return rule;
     }
 }

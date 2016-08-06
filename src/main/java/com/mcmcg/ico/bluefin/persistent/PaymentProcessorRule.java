@@ -19,9 +19,12 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mcmcg.ico.bluefin.model.CardType;
 
 import lombok.Data;
@@ -29,13 +32,14 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "PaymentProcessor_Rule")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorRuleId")
 public class PaymentProcessorRule implements Serializable {
     private static final long serialVersionUID = 255255719776828551L;
 
     @PreUpdate
     @PrePersist
     public void beforePersist() {
-        if (this.noMaximumMonthlyAmountFlag.equals((short) 1)) {
+        if (hasNoLimit()) {
             this.maximumMonthlyAmount = BigDecimal.ZERO;
         }
     }
@@ -45,7 +49,8 @@ public class PaymentProcessorRule implements Serializable {
     @Column(name = "PaymentProcessorRuleID")
     private Long paymentProcessorRuleId;
 
-    @JsonBackReference(value = "paymentProcessorRule")
+    @JsonProperty(value = "paymentProcessorId")
+    @JsonIdentityReference(alwaysAsId = true)
     @ManyToOne
     @JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
@@ -72,4 +77,8 @@ public class PaymentProcessorRule implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false)
     private Date createdDate;
+
+    public boolean hasNoLimit() {
+        return noMaximumMonthlyAmountFlag.equals((short) 1);
+    }
 }

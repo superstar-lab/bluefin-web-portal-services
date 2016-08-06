@@ -100,8 +100,8 @@ public class PaymentProcessorRuleController {
 
         LOGGER.info("Creating new payment processor rule: {}", paymentProcessorRuleResource);
         return new ResponseEntity<PaymentProcessorRule>(paymentProcessorRuleService.createPaymentProcessorRule(
-                paymentProcessorRuleResource.toPaymentProcessorRule(),
-                paymentProcessorRuleResource.getPaymentProcessorId()), HttpStatus.CREATED);
+                paymentProcessorRuleResource.getPaymentProcessorId(),
+                paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Update payment processor rule", nickname = "updatePaymentProcessor")
@@ -122,8 +122,8 @@ public class PaymentProcessorRuleController {
         }
 
         LOGGER.info("Updating payment processor rule: {}", paymentProcessorRuleResource);
-        return paymentProcessorRuleService.updatePaymentProcessorRule(id,
-                paymentProcessorRuleResource.toPaymentProcessorRule(),
+        return paymentProcessorRuleService.updatePaymentProcessorRule(
+                paymentProcessorRuleResource.toPaymentProcessorRule(id),
                 paymentProcessorRuleResource.getPaymentProcessorId());
     }
 

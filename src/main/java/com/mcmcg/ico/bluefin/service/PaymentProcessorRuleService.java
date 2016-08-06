@@ -10,6 +10,9 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.CardType;
@@ -35,56 +38,15 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorRule
      * @return
      */
-    public PaymentProcessorRule createPaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
-            Long processorId) {
-
-        // Verify if processor exists
+    public PaymentProcessorRule createPaymentProcessorRule(final long processorId,
+            PaymentProcessorRule paymentProcessorRule) {
+        // Verify if payment processor exists
         PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-        if (loadedPaymentProcessor == null) {
-            throw new CustomNotFoundException(
-                    String.format("Unable to find payment processor with id = [%s]", processorId));
-        }
-        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor, null);
+        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
         paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
-        paymentProcessorRule.setMonthToDateCumulativeAmount(new BigDecimal("0.00")); // TODO:
-                                                                                     // ask
-                                                                                     // if
-                                                                                     // is
-                                                                                     // the
-                                                                                     // expected
-                                                                                     // behavior
+        paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
         return paymentProcessorRuleRepository.save(paymentProcessorRule);
-    }
-
-    public void validatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
-            PaymentProcessor loadedPaymentProcessor, Long ruleId) {
-        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
-                .findByCardType(paymentProcessorRule.getCardType());
-        if (paymentProcessorRules != null) {
-            for (PaymentProcessorRule current : paymentProcessorRules) {
-                if (ruleId == null || current.getPaymentProcessorRuleId() != ruleId) {
-                    if (current.getPaymentProcessor().getPaymentProcessorId()
-                            .equals(loadedPaymentProcessor.getPaymentProcessorId())) {
-                        throw new CustomBadRequestException(
-                                "Payment Processor already assigned to this transaction type ["
-                                        + paymentProcessorRule.getCardType() + "]");
-                    } else if (current.getPriority().equals(paymentProcessorRule.getPriority())) {
-                        throw new CustomBadRequestException("Unable to assign this priority [" + current.getPriority()
-                                + "] to this transaction type [" + paymentProcessorRule.getCardType() + "]");
-                    }
-                }
-            }
-        }
-        if (paymentProcessorRule.getCardType().equals(CardType.UNKNOWN)) {
-            if (paymentProcessorRule.getMaximumMonthlyAmount().longValue() > 0) {
-                throw new CustomBadRequestException(
-                        "To create a Payment Processor Rule as UNKNOWN the MaximumMonthlyAmount must be zero.");
-            } else if (paymentProcessorRule.getNoMaximumMonthlyAmountFlag() != 1) {
-                throw new CustomBadRequestException(
-                        "To create a Payment Processor Rule as UNKNOWN the NoMaximumMonthlyAmountFlag must be 1.");
-            }
-        }
     }
 
     /**
@@ -99,24 +61,15 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor rule is not found
      */
-    public PaymentProcessorRule updatePaymentProcessorRule(long id, PaymentProcessorRule paymentProcessorRule,
+    public PaymentProcessorRule updatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
             long processorId) {
 
-        PaymentProcessorRule paymentProcessorRuleToUpdate = paymentProcessorRuleRepository.findOne(id);
-        if (paymentProcessorRule == null) {
-            throw new CustomNotFoundException(
-                    String.format("Unable to find Payment Processor Rule with id = [%s]", id));
-        }
+        PaymentProcessorRule paymentProcessorRuleToUpdate = getPaymentProcessorRule(
+                paymentProcessorRule.getPaymentProcessorRuleId());
 
         // Verify if processor exists
         PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-        if (loadedPaymentProcessor == null) {
-            throw new CustomNotFoundException(
-                    String.format("Unable to find Payment Processor with id = [%s]", processorId));
-        }
-
-        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor,
-                paymentProcessorRuleToUpdate.getPaymentProcessorRuleId());
+        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
         // Update fields
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
@@ -126,7 +79,7 @@ public class PaymentProcessorRuleService {
         paymentProcessorRuleToUpdate.setPriority(paymentProcessorRule.getPriority());
         paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
 
-        return paymentProcessorRuleRepository.save(paymentProcessorRuleToUpdate);
+        return paymentProcessorRuleToUpdate;
     }
 
     /**
@@ -137,7 +90,8 @@ public class PaymentProcessorRuleService {
     public List<PaymentProcessorRule> getPaymentProcessorRules() {
         LOGGER.info("Getting all payment processor rules");
 
-        return paymentProcessorRuleRepository.findAll();
+        return paymentProcessorRuleRepository.findAll(new Sort(new Order(Direction.ASC, "cardType"),
+                new Order(Direction.ASC, "priority"), new Order(Direction.ASC, "paymentProcessor")));
     }
 
     /**
@@ -167,9 +121,6 @@ public class PaymentProcessorRuleService {
     public List<PaymentProcessorRule> getPaymentProcessorRulesByPaymentProcessorId(final long id) {
         // Verify if processor exists
         PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(id);
-        if (loadedPaymentProcessor == null) {
-            throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
-        }
 
         List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
                 .findByPaymentProcessor(loadedPaymentProcessor);
@@ -186,16 +137,136 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule doesn't exist
      */
     public void delete(final long id) {
-        PaymentProcessorRule paymentProcessorRuleToDelete = paymentProcessorRuleRepository.findOne(id);
-        if (paymentProcessorRuleToDelete == null) {
-            throw new CustomNotFoundException(
-                    String.format("Unable to find payment processor rule with id = [%s]", id));
-        }
-
-        paymentProcessorRuleRepository.delete(paymentProcessorRuleToDelete);
+        paymentProcessorRuleRepository.delete(getPaymentProcessorRule(id));
     }
 
     public List<CardType> getTransactionTypes() {
         return Arrays.asList(CardType.values());
+    }
+
+    /**
+     * Validate if the Payment Processor Rules has correct information
+     * 
+     * @param newPaymentProcessorRule,
+     *            new rule to be created or updated (is update when the id is
+     *            set)
+     * @param paymentProcessorId,
+     *            payment processor id
+     */
+    private void validatePaymentProcessorRule(PaymentProcessorRule newPaymentProcessorRule,
+            final long paymentProcessorId) {
+        if (newPaymentProcessorRule.getCardType() == CardType.UNKNOWN) {
+            validatePaymentProcessorRuleForUnknownCardType(newPaymentProcessorRule, paymentProcessorId);
+        } else {
+            validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule, paymentProcessorId);
+        }
+    }
+
+    private void validatePaymentProcessorRuleForUnknownCardType(PaymentProcessorRule newPaymentProcessorRule,
+            final long loadedPaymentProcessorId) {
+        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
+                .findByCardType(newPaymentProcessorRule.getCardType());
+
+        /*
+         * Its impossible to have more than one payment processor rules with
+         * UNKNOWN transaction type
+         */
+        if (paymentProcessorRules != null && paymentProcessorRules.size() > 1) {
+            throw new CustomBadRequestException(
+                    "Please verify payment processor rule table because there is more than one UNKNOWN transaction type.");
+        }
+
+        if (paymentProcessorRules.isEmpty()) {
+            /*
+             * Verify when doesn't exist one rule with UNKNOWN. ONLY create is
+             * allowed
+             */
+            if (newPaymentProcessorRule.getPaymentProcessorRuleId() != null) {
+                throw new CustomBadRequestException(
+                        "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
+            }
+        } else {
+            /*
+             * Verify when exist one rule with UNKNOWN. ONLY update is allowed
+             * with same id
+             */
+            PaymentProcessorRule loadedPaymentProcessorRule = paymentProcessorRules.get(0);
+
+            if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || loadedPaymentProcessorRule
+                    .getPaymentProcessorRuleId() != newPaymentProcessorRule.getPaymentProcessorRuleId()) {
+                throw new CustomBadRequestException(
+                        "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
+            }
+        }
+
+        // When maximumMonthlyAmount is NOT zero then throw an error
+        if (newPaymentProcessorRule.getMaximumMonthlyAmount().compareTo(BigDecimal.ZERO) != 0
+                || newPaymentProcessorRule.getNoMaximumMonthlyAmountFlag().equals((short) 0)) {
+            throw new CustomBadRequestException(
+                    "Unable to create payment processor rule as UNKNOWN because MaximumMonthlyAmount must be zero and NoMaximumMonthlyAmountFlag must be 1.");
+        }
+    }
+
+    private void validatePaymentProcessorRuleForCreditDebitCardType(PaymentProcessorRule newPaymentProcessorRule,
+            final long loadedPaymentProcessorId) {
+        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
+                .findByCardType(newPaymentProcessorRule.getCardType());
+
+        if (paymentProcessorRules == null || paymentProcessorRules.isEmpty()) {
+            // No validation because there is no rules
+            return;
+        }
+
+        // Record highest priority from the existing rules
+        short highestPriority = 0;
+        // Exist a no maximum amount limit
+        boolean existsNoLimitPaymentProcessorRule = false;
+
+        for (PaymentProcessorRule current : paymentProcessorRules) {
+            if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || !current.getPaymentProcessorRuleId()
+                    .equals(newPaymentProcessorRule.getPaymentProcessorRuleId())) {
+                // Priority already assigned for the same transaction type
+                if (current.getPriority().equals(newPaymentProcessorRule.getPriority())) {
+                    throw new CustomBadRequestException(
+                            "Unable to create/update payment processor rule with an existing priority.  Details: ["
+                                    + newPaymentProcessorRule.toString() + "]");
+                }
+
+                // Do not allow adding or editing if already exist a no
+                // maximum monthly amount
+                if (newPaymentProcessorRule.hasNoLimit() && current.hasNoLimit()) {
+                    throw new CustomBadRequestException(
+                            "Unable to create/update payment processor rule with no maximum amount because already exist one.  Details: ["
+                                    + newPaymentProcessorRule.toString() + "]");
+                }
+
+                // Find the highest priority of the existing rules
+                highestPriority = highestPriority > current.getPriority().shortValue() ? highestPriority
+                        : current.getPriority().shortValue();
+
+                // There is a no maximum monthly amount ?
+                if (current.hasNoLimit()) {
+                    existsNoLimitPaymentProcessorRule = true;
+                }
+            }
+        }
+
+        /*
+         * When the new payment processor rule has noMaximumMonthlyAmountFlag ON
+         * then we need to make sure that has the lowest priority (which means
+         * that MUST has the highest number)
+         */
+        if (existsNoLimitPaymentProcessorRule && newPaymentProcessorRule.getPriority().shortValue() > highestPriority) {
+            throw new CustomBadRequestException(
+                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: ["
+                            + newPaymentProcessorRule.toString() + "]");
+        }
+
+        if (newPaymentProcessorRule.hasNoLimit()
+                && newPaymentProcessorRule.getPriority().shortValue() < highestPriority) {
+            throw new CustomBadRequestException(
+                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: ["
+                            + newPaymentProcessorRule.toString() + "]");
+        }
     }
 }
