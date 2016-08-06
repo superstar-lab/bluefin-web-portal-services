@@ -9,36 +9,52 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
 public class TransactionsService {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsService.class);
 
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
+    private VoidTransactionRepository voidTransactionRepository;
+    @Autowired
+    private RefundTransactionRepository refundTransactionRepository;
+    @Autowired
     private UserRepository userRepository;
 
-    public SaleTransaction getTransactionInformation(String transactionId) {
-        SaleTransaction result = transactionRepository.findByApplicationTransactionId(transactionId);
+    public Transaction getTransactionInformation(final String transactionId, TransactionType transactionType) {
+        Transaction result = null;
+
+        switch (transactionType) {
+        case VOID:
+            result = voidTransactionRepository.findByApplicationTransactionId(transactionId);
+            break;
+        case REFUND:
+            result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
+            break;
+        default:
+            result = transactionRepository.findByApplicationTransactionId(transactionId);
+        }
 
         if (result == null) {
-            LOGGER.error("Transaction not found: {}", transactionId);
-            throw new CustomNotFoundException("Transaction not found: " + transactionId);
+            throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
         }
 
         return result;
     }
 
     public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
-
         Page<SaleTransaction> result = transactionRepository.findTransaction(search, paging);
         int page = paging.getPageNumber();
 

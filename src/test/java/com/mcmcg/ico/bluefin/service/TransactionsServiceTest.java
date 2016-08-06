@@ -15,13 +15,12 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.User;
@@ -29,7 +28,6 @@ import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.Predicate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -60,7 +58,7 @@ public class TransactionsServiceTest {
         Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenReturn(new SaleTransaction());
 
-        result = transactionsService.getTransactionInformation(Mockito.anyString());
+        result = (SaleTransaction) transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Assert.assertNotNull(result);
 
@@ -75,7 +73,7 @@ public class TransactionsServiceTest {
 
         Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString())).thenReturn(null);
 
-        transactionsService.getTransactionInformation(Mockito.anyString());
+        transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
@@ -88,7 +86,7 @@ public class TransactionsServiceTest {
 
         Mockito.when(transactionRepository.findByApplicationTransactionId(null)).thenReturn(null);
 
-        transactionsService.getTransactionInformation(null);
+        transactionsService.getTransactionInformation(null, TransactionType.SALE);
 
         Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(null);
 
@@ -102,7 +100,7 @@ public class TransactionsServiceTest {
         Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(null));
 
-        transactionsService.getTransactionInformation(Mockito.anyString());
+        transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
@@ -116,7 +114,7 @@ public class TransactionsServiceTest {
         Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
-        transactionsService.getTransactionInformation(Mockito.anyString());
+        transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 

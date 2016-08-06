@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionsService;
@@ -46,9 +48,11 @@ public class TransactionsRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public SaleTransaction get(@PathVariable("transactionId") String transactionId) {
-        LOGGER.info("Getting transaction information by id: {}", transactionId);
-        return transactionService.getTransactionInformation(transactionId);
+    public Transaction get(@PathVariable("transactionId") String transactionId,
+            @RequestParam(value = "type", required = false, defaultValue = "SALE") String type) {
+        LOGGER.info("Getting transaction information by id = [{}] and type = [{}]", transactionId, type);
+
+        return transactionService.getTransactionInformation(transactionId, TransactionType.valueOf(type));
     }
 
     @ApiOperation(value = "getTransactions", nickname = "getTransactions")

@@ -51,6 +51,7 @@ class Predicate {
     public BooleanExpression getPredicate(Class<?> entity) {
         String entityQName = Character.toLowerCase(entity.getSimpleName().charAt(0))
                 + entity.getSimpleName().substring(1);
+        @SuppressWarnings({ "rawtypes", "unchecked" })
         PathBuilder<?> entityPath = new PathBuilder(entity, entityQName);
         Class<?> keyInstance = BeanUtils.findPropertyType(criteria.getKey(), entityPath.getType());
         BooleanExpression result = null;

@@ -24,6 +24,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -88,7 +89,7 @@ public class TransactionsRestControllerTest {
 
         SaleTransaction result = getSaleTransaction();
 
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString())).thenReturn(result);
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE)).thenReturn(result);
 
         mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -103,29 +104,29 @@ public class TransactionsRestControllerTest {
                 .andExpect(jsonPath("$.transactionStatusCode").value("APPROVED"))
                 .andExpect(jsonPath("$.transactionType").value("SALE"));
 
-        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
         Mockito.verifyNoMoreInteractions(transactionService);
     }
 
     @Test
     public void getTransactionByIdNotFound() throws Exception { // 404
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE))
                 .thenThrow(new CustomNotFoundException(""));
 
         mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isNotFound());
 
-        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
 
     @Test
     public void getTransactionByIdBadRequest() throws Exception { // 400
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE))
                 .thenThrow(new CustomBadRequestException(""));
         mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isBadRequest());
 
-        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }
@@ -140,12 +141,12 @@ public class TransactionsRestControllerTest {
     @Test
     public void getTransactionByIdInternalServerError() throws Exception { // 500
 
-        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString()))
+        Mockito.when(transactionService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE))
                 .thenThrow(new CustomException(""));
 
         mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isInternalServerError());
 
-        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString());
+        Mockito.verify(transactionService, Mockito.times(1)).getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Mockito.verifyNoMoreInteractions(transactionService);
     }

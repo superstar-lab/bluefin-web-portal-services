@@ -104,6 +104,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         result.setMaxResults(pageSize);
         
         //Brings the data and transform it into a Page value list
+        @SuppressWarnings("unchecked")
         List<SaleTransaction> tr = result.getResultList();
         Page<SaleTransaction> list = new PageImpl<SaleTransaction>(tr, page, countResult);
         return list;
