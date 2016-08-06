@@ -52,7 +52,7 @@ public class TransactionsRestController {
             @RequestParam(value = "type", required = false, defaultValue = "SALE") String type) {
         LOGGER.info("Getting transaction information by id = [{}] and type = [{}]", transactionId, type);
 
-        return transactionService.getTransactionInformation(transactionId, TransactionType.valueOf(type));
+        return transactionService.getTransactionInformation(transactionId, TransactionType.valueOf(type.toUpperCase()));
     }
 
     @ApiOperation(value = "getTransactions", nickname = "getTransactions")

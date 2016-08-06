@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.service;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -55,13 +56,19 @@ public class TransactionsService {
     }
 
     public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
-        Page<SaleTransaction> result = transactionRepository.findTransaction(search, paging);
-        int page = paging.getPageNumber();
+        Page<SaleTransaction> result;
+        try {
+            result = transactionRepository.findTransaction(search, paging);
+        } catch (ParseException e) {
+            throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+        }
+        final int page = paging.getPageNumber();
 
         if (page > result.getTotalPages() && page != 0) {
             LOGGER.error("Unable to find the page requested");
             throw new CustomNotFoundException("Unable to find the page requested");
         }
+
         return result;
     }
 
