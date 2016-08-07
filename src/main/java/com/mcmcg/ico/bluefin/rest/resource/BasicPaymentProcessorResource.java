@@ -14,11 +14,13 @@ public class BasicPaymentProcessorResource implements Serializable {
 
     @NotBlank(message = "processorName cannot be null or empty")
     private String processorName;
-    private Short isActive;
+    private Short isActive = 0;
 
     public PaymentProcessor toPaymentProcessor() {
         PaymentProcessor paymentProcessor = new PaymentProcessor();
         paymentProcessor.setProcessorName(processorName);
+        paymentProcessor.setIsActive(isActive);
+
         return paymentProcessor;
     }
 }

@@ -92,7 +92,7 @@ public class RefundTransaction implements Serializable, Transaction {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated", insertable = false)
+    @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
 
     public StatusCode getTransactionStatusCode() {

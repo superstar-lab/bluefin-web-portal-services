@@ -62,13 +62,13 @@ public class LegalEntityApp implements Serializable {
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DatedModified", insertable = false)
+    @Column(name = "DatedModified", insertable = false, updatable = false)
     private Date modifiedDate;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated", insertable = false)
+    @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
 
     @Column(name = "IsActive")

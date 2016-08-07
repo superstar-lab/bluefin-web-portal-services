@@ -85,14 +85,13 @@ public class PaymentProcessorService {
      * @param paymentProcessorResource
      * @return updated PaymentProcessor
      */
-    public PaymentProcessor updatePaymentProcessor(final long id, BasicPaymentProcessorResource paymentProcessorResource) {
+    public PaymentProcessor updatePaymentProcessor(final long id,
+            BasicPaymentProcessorResource paymentProcessorResource) {
         PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
         // Update fields for existing Payment Processor
         paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
-        if (paymentProcessorResource.getIsActive() != null) {
-            paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
-        }
+        paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
 
         return paymentProcessorToUpdate;
     }
