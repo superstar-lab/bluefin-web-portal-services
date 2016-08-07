@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.mcmcg.ico.bluefin.persistent.User;
 
 import lombok.Data;
 
@@ -16,10 +17,7 @@ import lombok.Data;
 public class SecurityUser implements UserDetails {
 
     private static final long serialVersionUID = 1680188661109204234L;
-    private long id;
-    private String username;
-    private String password;
-    private String email;
+    private User user;
     private Collection<? extends GrantedAuthority> authorities;
     private Boolean accountNonExpired = true;
     private Boolean accountNonLocked = true;
@@ -31,13 +29,19 @@ public class SecurityUser implements UserDetails {
         super();
     }
 
-    public SecurityUser(long id, String username, String password, String email,
-            Collection<? extends GrantedAuthority> authorities) {
-        this.setId(id);
-        this.setUsername(username);
-        this.setPassword(password);
-        this.setEmail(email);
-        this.setAuthorities(authorities);
+    public SecurityUser(User user, Collection<? extends GrantedAuthority> authorities) {
+        this.user = user;
+        this.authorities = authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return user == null ? null : user.getUserPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return user == null ? null : user.getUsername();
     }
 
     @Override

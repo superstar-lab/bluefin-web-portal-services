@@ -13,8 +13,7 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 public class SecurityUserFactory {
 
     public static SecurityUser create(User user) {
-        return new SecurityUser(user.getUserId(), user.getUsername(), "", user.getEmail(),
-                getRoles(user.getRoles()));
+        return new SecurityUser(user, getRoles(user.getRoles()));
     }
 
     public static Collection<? extends GrantedAuthority> getRoles(Collection<UserRole> roles) {

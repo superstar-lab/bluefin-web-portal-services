@@ -19,6 +19,7 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 
 @Service("userDetailsService")
 @Transactional
@@ -33,8 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new CustomNotFoundException("User not found: " + username);
         }
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), "", true, true, true, true,
-                getAuthorities(user.getRoles()));
+        return new SecurityUser(user, getAuthorities(user.getRoles()));
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Collection<UserRole> roles) {

@@ -739,8 +739,14 @@ public class SessionServiceTest {
 
     private SecurityUser createValidSecurityUser() {
         SecurityUser securityUser = new SecurityUser();
-        securityUser.setUsername("omonge");
-        securityUser.setId(12345L);
+
+        User user = new User();
+        user.setUsername("omonge");
+        user.setFirstName("Monge");
+        user.setLastName("Vega");
+        user.setUserId(12345L);
+
+        securityUser.setUser(user);
 
         return securityUser;
     }
