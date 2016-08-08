@@ -45,6 +45,8 @@ public class PaymentProcessorMerchant implements Serializable {
     @Column(name = "TestOrProd")
     private Short testOrProd;
 
+    @JsonProperty(value = "legalEntityAppId")
+    @JsonIdentityReference(alwaysAsId = true)
     @ManyToOne
     @JoinColumn(name = "LegalEntityAppID")
     private LegalEntityApp legalEntityApp;
