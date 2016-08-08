@@ -42,7 +42,6 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
 
-    private static final String LIKE = " LIKE ";
     private static final String EQUALS = " = ";
     private static final String OR = " OR ";
     private static final String AND = " AND ";
@@ -203,9 +202,9 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(" JOIN (");
 
         querySb.append(createSelectFromTransactionTypeBased("SALEINNERVOID", "SALEINNERVOID", "SALE", SALE_TABLE));
-        querySb.append(createWhereStatement(search, "SALEINNERVOID"));
 
         querySb.append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ");
+        querySb.append(createWhereStatement(search, "VOID"));
 
         return querySb.toString();
 
@@ -223,9 +222,10 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(" JOIN (");
 
         querySb.append(createSelectFromTransactionTypeBased("SALEINNERREFUND", "SALEINNERREFUND", "SALE", SALE_TABLE));
-        querySb.append(createWhereStatement(search, "SALEINNERREFUND"));
 
         querySb.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ");
+
+        querySb.append(createWhereStatement(search, "REFUND"));
 
         return querySb.toString();
     }
@@ -267,7 +267,6 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         int id = 1;
 
         if (search != null && !search.isEmpty()) {
-            result.append(" WHERE ");
             Pattern pattern = Pattern.compile(SEARCH_REGEX);
             Matcher matcher = pattern.matcher(search + ",");
 
@@ -278,6 +277,9 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 if (attribute.equalsIgnoreCase("transactionType")) {
                     continue;
                 }
+                if (!result.toString().contains("WHERE"))
+                    result.append(" WHERE ");
+
                 if (and)
                     result.append(AND);
 
@@ -330,7 +332,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             if (name.contains("ChargeAmount") || name.contains("Date") || name.contains("StatusCode")) {
                 inputCriteria.append(getOperation(operator));
             } else {
-                inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
+                inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator);
             }
 
         }
