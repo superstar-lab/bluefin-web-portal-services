@@ -103,9 +103,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         // Set the paging for the created select
         final int countResult = (Integer) queryTotal.getSingleResult();
-        pageNumber = (int) ((countResult / pageSize) + 1);
-
-        result.setFirstResult((pageNumber - 1) * pageSize);
+        result.setFirstResult(pageSize * pageNumber);
         result.setMaxResults(pageSize);
 
         // Brings the data and transform it into a Page value list
