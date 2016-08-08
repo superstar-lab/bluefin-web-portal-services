@@ -45,8 +45,11 @@ public class PaymentProcessorRuleService {
 
         // Payment processor must be active and has merchants associate to it
         if (!loadedPaymentProcessor.isActive() || !loadedPaymentProcessor.hasMerchantsAssociated()) {
+            LOGGER.error(
+                    "Unable to create payment processor rule.  Payment processor MUST be active and MUST have at least one merchant associated.   Payment processor id = [{}]",
+                    loadedPaymentProcessor.getPaymentProcessorId());
             throw new CustomNotFoundException(String.format(
-                    "Unable to create payment processor rule.  Payment processor MUST be active and MUST have at least one merchant associated.   Payment processor id = [%s]",
+                    "Unable to create payment processor rule.  Payment processor [%s] MUST be active and MUST have at least one merchant associated.",
                     loadedPaymentProcessor.getPaymentProcessorId()));
         }
 
@@ -235,17 +238,21 @@ public class PaymentProcessorRuleService {
                     .equals(newPaymentProcessorRule.getPaymentProcessorRuleId())) {
                 // Priority already assigned for the same transaction type
                 if (current.getPriority().equals(newPaymentProcessorRule.getPriority())) {
+                    LOGGER.error(
+                            "Unable to create/update payment processor rule with an existing priority.  Details: [{}]",
+                            newPaymentProcessorRule.toString());
                     throw new CustomBadRequestException(
-                            "Unable to create/update payment processor rule with an existing priority.  Details: ["
-                                    + newPaymentProcessorRule.toString() + "]");
+                            "Unable to create/update payment processor rule with an existing priority.");
                 }
 
                 // Do not allow adding or editing if already exist a no
                 // maximum monthly amount
                 if (newPaymentProcessorRule.hasNoLimit() && current.hasNoLimit()) {
+                    LOGGER.error(
+                            "Unable to create/update payment processor rule with no maximum amount because already exist one.  Details: [{}]",
+                            newPaymentProcessorRule.toString());
                     throw new CustomBadRequestException(
-                            "Unable to create/update payment processor rule with no maximum amount because already exist one.  Details: ["
-                                    + newPaymentProcessorRule.toString() + "]");
+                            "Unable to create/update payment processor rule with no maximum amount because already exist one.");
                 }
 
                 // Find the highest priority of the existing rules
@@ -265,16 +272,20 @@ public class PaymentProcessorRuleService {
          * that MUST has the highest number)
          */
         if (existsNoLimitPaymentProcessorRule && newPaymentProcessorRule.getPriority().shortValue() > highestPriority) {
+            LOGGER.error(
+                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: [{}]",
+                    newPaymentProcessorRule.toString());
             throw new CustomBadRequestException(
-                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: ["
-                            + newPaymentProcessorRule.toString() + "]");
+                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.");
         }
 
         if (newPaymentProcessorRule.hasNoLimit()
                 && newPaymentProcessorRule.getPriority().shortValue() < highestPriority) {
+            LOGGER.error(
+                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: [{}]",
+                    newPaymentProcessorRule.toString());
             throw new CustomBadRequestException(
-                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: ["
-                            + newPaymentProcessorRule.toString() + "]");
+                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.");
         }
     }
 }

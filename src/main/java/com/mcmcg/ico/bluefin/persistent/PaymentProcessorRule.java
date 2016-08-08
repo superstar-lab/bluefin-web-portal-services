@@ -78,6 +78,7 @@ public class PaymentProcessorRule implements Serializable {
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
 
+    @JsonIgnore
     public boolean hasNoLimit() {
         return noMaximumMonthlyAmountFlag.equals((short) 1);
     }

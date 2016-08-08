@@ -89,10 +89,12 @@ public class PaymentProcessor implements Serializable {
         paymentProcessorMerchants.add(paymentProcessorMerchant);
     }
 
+    @JsonIgnore
     public boolean isActive() {
-        return isActive.equals(1) ? true : false;
+        return isActive.equals((short) 1) ? true : false;
     }
 
+    @JsonIgnore
     public boolean hasMerchantsAssociated() {
         return paymentProcessorMerchants == null || paymentProcessorMerchants.isEmpty() ? false : true;
     }

@@ -114,8 +114,11 @@ public class PaymentProcessorService {
 
         // Payment processor must be active
         if (!paymentProcessorToUpdate.isActive()) {
+            LOGGER.error(
+                    "Unable to map payment processor merchants because payment processor is NOT active.  Payment processor id = [{}]",
+                    paymentProcessorToUpdate.getPaymentProcessorId());
             throw new CustomNotFoundException(String.format(
-                    "Unable to map payment processor merchants because payment processor is NOT active.  Payment processor id = [%s]",
+                    "Unable to map payment processor merchants because payment processor [%s] is NOT active.",
                     paymentProcessorToUpdate.getPaymentProcessorId()));
         }
 
