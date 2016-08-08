@@ -112,6 +112,13 @@ public class PaymentProcessorService {
         // Verify if payment processor exists
         PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
+        // Payment processor must be active
+        if (!paymentProcessorToUpdate.isActive()) {
+            throw new CustomNotFoundException(String.format(
+                    "Unable to map payment processor merchants because payment processor is NOT active.  Payment processor id = [%s]",
+                    paymentProcessorToUpdate.getPaymentProcessorId()));
+        }
+
         // User wants to clear payment processor merchants from payment
         // processor
         if (paymentProcessorMerchants.isEmpty()) {

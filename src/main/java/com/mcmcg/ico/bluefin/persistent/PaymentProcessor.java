@@ -88,4 +88,12 @@ public class PaymentProcessor implements Serializable {
         paymentProcessorMerchant.setPaymentProcessor(this);
         paymentProcessorMerchants.add(paymentProcessorMerchant);
     }
+
+    public boolean isActive() {
+        return isActive.equals(1) ? true : false;
+    }
+
+    public boolean hasMerchantsAssociated() {
+        return paymentProcessorMerchants == null || paymentProcessorMerchants.isEmpty() ? false : true;
+    }
 }

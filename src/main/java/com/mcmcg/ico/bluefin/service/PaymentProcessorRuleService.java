@@ -42,6 +42,14 @@ public class PaymentProcessorRuleService {
             PaymentProcessorRule paymentProcessorRule) {
         // Verify if payment processor exists
         PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
+
+        // Payment processor must be active and has merchants associate to it
+        if (!loadedPaymentProcessor.isActive() || !loadedPaymentProcessor.hasMerchantsAssociated()) {
+            throw new CustomNotFoundException(String.format(
+                    "Unable to create payment processor rule.  Payment processor MUST be active and MUST have at least one merchant associated.   Payment processor id = [%s]",
+                    loadedPaymentProcessor.getPaymentProcessorId()));
+        }
+
         validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
         paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
