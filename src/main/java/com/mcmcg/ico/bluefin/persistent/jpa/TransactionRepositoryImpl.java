@@ -42,6 +42,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
 
+    private static final String LIKE = " LIKE ";
     private static final String EQUALS = " = ";
     private static final String OR = " OR ";
     private static final String AND = " AND ";
@@ -185,7 +186,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private String getSelectForSaleTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
         querySb.append(createSelectFromTransactionTypeBased("MAINSALE", "MAINSALE", "SALE", SALE_TABLE));
-        querySb.append(createWhereStatement(search, "MAINSALE"));
+        querySb.append(createWhereStatementForSale(search, "MAINSALE"));
 
         return querySb.toString();
     }
@@ -202,6 +203,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(" JOIN (");
 
         querySb.append(createSelectFromTransactionTypeBased("SALEINNERVOID", "SALEINNERVOID", "SALE", SALE_TABLE));
+        querySb.append(createWhereStatement(search, "SALEINNERVOID"));
 
         querySb.append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ");
         querySb.append(createWhereStatement(search, "VOID"));
@@ -222,9 +224,9 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(" JOIN (");
 
         querySb.append(createSelectFromTransactionTypeBased("SALEINNERREFUND", "SALEINNERREFUND", "SALE", SALE_TABLE));
+        querySb.append(createWhereStatement(search, "SALEINNERREFUND"));
 
         querySb.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ");
-
         querySb.append(createWhereStatement(search, "REFUND"));
 
         return querySb.toString();
@@ -259,7 +261,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @param prefix
      * @return where element that is going to be attached to the select element
      */
-    private String createWhereStatement(String search, String prefix) {
+    private String createWhereStatementForSale(String search, String prefix) {
         StringBuilder result = new StringBuilder();
         String attribute = StringUtils.EMPTY;
         String attributeParam = StringUtils.EMPTY;
@@ -277,8 +279,6 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 if (attribute.equalsIgnoreCase("transactionType")) {
                     continue;
                 }
-                if (!result.toString().contains("WHERE"))
-                    result.append(" WHERE ");
 
                 if (and)
                     result.append(AND);
@@ -300,7 +300,70 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             }
         }
 
-        return result.toString();
+        return result.length() == 0 ? result.toString() : " WHERE " + result.toString();
+    }
+
+    /**
+     * Creates the WHERE element in the select, it will verify each element in
+     * the search string. Specials cases are taken into account, like
+     * transactionId, this element will create an OR with the attributes
+     * applicationTransactionId and processorTransactionId if found
+     * 
+     * @param search
+     * @param prefix
+     * @return where element that is going to be attached to the select element
+     */
+    private String createWhereStatement(String search, String prefix) {
+        StringBuilder result = new StringBuilder();
+        String attribute = StringUtils.EMPTY;
+        String attributeParam = StringUtils.EMPTY;
+        boolean and = false;
+        int id = 1;
+
+        if (search != null && !search.isEmpty()) {
+            Pattern pattern = Pattern.compile(SEARCH_REGEX);
+            Matcher matcher = pattern.matcher(search + ",");
+
+            while (matcher.find()) {
+                attribute = matcher.group(1);
+                // Transaction type is not part of the query, this criteria is
+                // filtered in the method getQueryByCriteria
+                if (attribute.equalsIgnoreCase("transactionType")) {
+                    continue;
+                }
+
+                if (prefix.equals("REFUND") || prefix.equals("VOID")) {
+                    if (attribute.equals("accountNumber") || attribute.equals("amount") || attribute.equals("cardType")
+                            || attribute.equals("legalEntity") || attribute.equals("customer")) {
+                        continue;
+                    }
+                } else {
+                    if (attribute.equals("transactionId") || attribute.equals("transactionStatusCode")
+                            || attribute.equals("createdDate") || attribute.equals("processorName")) {
+                        continue;
+                    }
+                }
+
+                if (and)
+                    result.append(AND);
+
+                if (attribute.equals("transactionId")) {
+                    result.append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
+                            "applicationTransactionIdParam", matcher.group(3)));
+                    result.append(OR);
+                    result.append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID", matcher.group(2),
+                            "processorTransactionIdParam", matcher.group(3)));
+                } else {
+                    attributeParam = attribute + "Param" + id;
+                    attribute = getPropertyNativeName(attribute);
+                    result.append(appendCriteriaToQuery(prefix + "." + attribute, matcher.group(2), attributeParam,
+                            matcher.group(3)));
+                }
+                and = true;
+                id++;
+            }
+        }
+        return result.length() == 0 ? result.toString() : " WHERE " + result.toString();
     }
 
     /**
@@ -331,6 +394,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         } else {
             if (name.contains("ChargeAmount") || name.contains("Date") || name.contains("StatusCode")) {
                 inputCriteria.append(getOperation(operator));
+            } else if (name.contains("Customer")) {
+                inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
             } else {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator);
             }
