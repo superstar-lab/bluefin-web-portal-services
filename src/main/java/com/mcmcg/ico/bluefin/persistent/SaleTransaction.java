@@ -14,12 +14,14 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 
@@ -42,7 +44,9 @@ import lombok.Data;
                 @ColumnResult(name = "CardNumberLast4Char", type = String.class),
                 @ColumnResult(name = "CardType", type = String.class),
                 @ColumnResult(name = "LegalEntityApp", type = String.class),
-                @ColumnResult(name = "AccountId", type = String.class) }) })
+                @ColumnResult(name = "AccountId", type = String.class),
+                @ColumnResult(name = "IsVoided", type = Integer.class),
+                @ColumnResult(name = "IsRefunded", type = Integer.class) }) })
 @Data
 @Entity
 @Table(name = "Sale_Transaction")
@@ -58,7 +62,8 @@ public class SaleTransaction implements Serializable, Transaction {
     public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
             String merchantID, String transactionType, String processorName, Integer transactionStatusCode,
             Date createdDate, Date transactionDateTime, BigDecimal amount, String firstName, String lastName,
-            String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber) {
+            String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
+            Integer isRefunded) {
         this.saleTransactionId = saleTransactionId;
         this.applicationTransactionId = applicationTransactionId;
         this.processorTransactionId = processorTransactionId;
@@ -75,6 +80,8 @@ public class SaleTransaction implements Serializable, Transaction {
         this.cardType = cardType;
         this.legalEntity = legalEntity;
         this.accountNumber = accountNumber;
+        this.isVoided = isVoided;
+        this.isRefunded = isRefunded;
     }
 
     @Id
@@ -209,4 +216,22 @@ public class SaleTransaction implements Serializable, Transaction {
     public String getCardNumberLast4Char() {
         return CARD_MASK + cardNumberLast4Char;
     }
+
+    @Transient
+    @JsonIgnore
+    private Integer isVoided = 0;
+    @Transient
+    @JsonIgnore
+    private Integer isRefunded = 0;
+
+    @JsonProperty("isVoided")
+    private boolean getIsVoided() {
+        return (voidedTransactions != null && !voidedTransactions.isEmpty()) || isVoided > 0;
+    }
+
+    @JsonProperty("isRefunded")
+    private boolean isRefunded() {
+        return (refundedTransactions != null && !refundedTransactions.isEmpty()) || isRefunded > 0;
+    }
+
 }

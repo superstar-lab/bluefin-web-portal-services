@@ -540,6 +540,14 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         select.append(saleAlias).append(".CardType,");
         select.append(saleAlias).append(".LegalEntityApp,");
         select.append(saleAlias).append(".AccountId");
+        if (saleAlias.equals("MAINSALE")) {
+            select.append(
+                    ",(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,");
+            select.append(
+                    "(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded");
+        } else if (saleAlias.equals("VOIDSALE") || saleAlias.equals("REFUNDSALE")) {
+            select.append(",0 AS IsVoided, 0 AS IsRefunded");
+        }
         select.append(" FROM ").append(tableName).append(alias).append(" ");
 
         return select.toString();
