@@ -284,11 +284,19 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                     result.append(AND);
 
                 if (attribute.equals("transactionId")) {
-                    result.append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
-                            "applicationTransactionIdParam", matcher.group(3)));
-                    result.append(OR);
-                    result.append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID", matcher.group(2),
-                            "processorTransactionIdParam", matcher.group(3)));
+                    result.append("(")
+                            .append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
+                                    "applicationTransactionIdParam", matcher.group(3)))
+                            .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
+                                    matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
+                            .append(")");
+                } else if (attribute.equals("customer")) {
+                    result.append("(")
+                            .append(appendCriteriaToQuery(prefix + ".FirstName", matcher.group(2), "customerParam",
+                                    matcher.group(3)))
+                            .append(OR).append(appendCriteriaToQuery(prefix + ".LastName", matcher.group(2),
+                                    "customerParam", matcher.group(3)))
+                            .append(")");
                 } else {
                     attributeParam = attribute + "Param" + id;
                     attribute = getPropertyNativeName(attribute);
@@ -348,11 +356,19 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                     result.append(AND);
 
                 if (attribute.equals("transactionId")) {
-                    result.append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
-                            "applicationTransactionIdParam", matcher.group(3)));
-                    result.append(OR);
-                    result.append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID", matcher.group(2),
-                            "processorTransactionIdParam", matcher.group(3)));
+                    result.append("(")
+                            .append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
+                                    "applicationTransactionIdParam", matcher.group(3)))
+                            .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
+                                    matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
+                            .append(")");
+                } else if (attribute.equals("customer")) {
+                    result.append("(")
+                            .append(appendCriteriaToQuery(prefix + ".FirstName", matcher.group(2), "customerParam",
+                                    matcher.group(3)))
+                            .append(OR).append(appendCriteriaToQuery(prefix + ".LastName", matcher.group(2),
+                                    "customerParam", matcher.group(3)))
+                            .append(")");
                 } else {
                     attributeParam = attribute + "Param" + id;
                     attribute = getPropertyNativeName(attribute);
@@ -394,7 +410,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         } else {
             if (name.contains("ChargeAmount") || name.contains("Date") || name.contains("StatusCode")) {
                 inputCriteria.append(getOperation(operator));
-            } else if (name.contains("Customer")) {
+            } else if (name.contains("FirstName") || name.contains("LastName")) {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
             } else {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator);
