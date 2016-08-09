@@ -117,7 +117,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/").hasAuthority("ADMINISTRATIVE")
 
                             // Legal entities
-                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/", legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/", legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").authenticated()
                             .antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
