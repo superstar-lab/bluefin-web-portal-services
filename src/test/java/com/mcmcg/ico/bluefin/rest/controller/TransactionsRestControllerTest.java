@@ -69,7 +69,7 @@ public class TransactionsRestControllerTest {
         result.setLegalEntity("MCM-R2K");
         result.setProcessorName("JETPAY");
         result.setApplicationTransactionId("532673163");
-        result.setTransactionStatusCode(1);
+        result.setInternalStatusCode("1");
         result.setTransactionType("SALE");
 
         return result;

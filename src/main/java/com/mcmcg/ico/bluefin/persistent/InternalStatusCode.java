@@ -51,6 +51,10 @@ public class InternalStatusCode implements Serializable {
 
     @OneToMany(mappedBy = "internalStatusCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes;
+    
+    @ManyToOne
+    @JoinColumn(name = "TransactionType", referencedColumnName = "TransactionType")
+    private TransactionType transactionType;
 
     @JsonIdentityReference(alwaysAsId = true)
     @ManyToOne

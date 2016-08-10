@@ -8,8 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,28 +21,27 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "PaymentProcessor_InternalStatusCode")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorInternalStatusCodeId")
-public class PaymentProcessorInternalStatusCode implements Serializable {
+@Table(name = "TransactionType_Lookup")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "transactionTypeName")
+public class TransactionType implements Serializable {
 
-    private static final long serialVersionUID = 7430312454113990013L;
+    private static final long serialVersionUID = -498713062773264263L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "PaymentProcessorInternalStatusCodeID")
-    private Long paymentProcessorInternalStatusCodeId;
+    @Column(name = "TransactionTypeID")
+    private Long transactionTypeId;
 
-    @ManyToOne
-    @JoinColumn(name = "InternalStatusCodeID")
-    private InternalStatusCode internalStatusCode;
+    @Column(name = "TransactionType")
+    private String transactionTypeName;
 
-    @ManyToOne
-    @JoinColumn(name = "PaymentProcessorStatusCodeID")
-    private PaymentProcessorStatusCode paymentProcessorStatusCode;
+    @Column(name = "Description")
+    private String description;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
+
 }

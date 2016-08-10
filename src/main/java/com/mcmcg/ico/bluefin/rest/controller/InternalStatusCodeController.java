@@ -2,6 +2,8 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +13,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,13 +56,10 @@ public class InternalStatusCodeController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        if (paymentProcessorId != null) {
-            LOGGER.info("Getting internal status code list by payment processor");
-            return internalStatusCodeService.getInternalStatusCodesByPaymentProcessorId(paymentProcessorId);
-        } else {
-            LOGGER.info("Getting internal status code list");
-            return internalStatusCodeService.getInternalStatusCodes();
-        }
+
+        LOGGER.info("Getting internal status code list");
+        return internalStatusCodeService.getInternalStatusCodes();
+
     }
 
     @ApiOperation(value = "upsertInternalStatusCodes", nickname = "upsertInternalStatusCodes")
@@ -74,7 +72,7 @@ public class InternalStatusCodeController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalStatusCode upsertInternalStatusCodes(
-            @Validated @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors) {
+            @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)

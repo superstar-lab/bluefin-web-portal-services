@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.mcmcg.ico.bluefin.model.StatusCode;
 
 import lombok.Data;
 
@@ -35,7 +34,7 @@ import lombok.Data;
                 @ColumnResult(name = "MerchantID", type = String.class),
                 @ColumnResult(name = "TransactionType", type = String.class),
                 @ColumnResult(name = "Processor", type = String.class),
-                @ColumnResult(name = "StatusCode", type = Integer.class),
+                @ColumnResult(name = "InternalStatusDescription", type = String.class),
                 @ColumnResult(name = "DateCreated", type = Date.class),
                 @ColumnResult(name = "TransactionDateTime", type = Date.class),
                 @ColumnResult(name = "ChargeAmount", type = BigDecimal.class),
@@ -60,7 +59,7 @@ public class SaleTransaction implements Serializable, Transaction {
     }
 
     public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
-            String merchantID, String transactionType, String processorName, Integer transactionStatusCode,
+            String merchantID, String transactionType, String processorName, String internalStatusDescription,
             Date createdDate, Date transactionDateTime, BigDecimal amount, String firstName, String lastName,
             String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
             Integer isRefunded) {
@@ -70,7 +69,7 @@ public class SaleTransaction implements Serializable, Transaction {
         this.merchantId = merchantID;
         this.transactionType = transactionType;
         this.processorName = processorName;
-        this.transactionStatusCode = transactionStatusCode;
+        this.internalStatusDescription = internalStatusDescription;
         this.createdDate = createdDate;
         this.transactionDateTime = transactionDateTime;
         this.amount = amount;
@@ -165,17 +164,11 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "Tokenized")
     private Short tokenized;
 
-    @Column(name = "StatusCode")
-    private Integer transactionStatusCode;
-
-    @Column(name = "StatusDescription")
-    private String statusDescription;
-
-    @Column(name = "ProcessorResponseCode")
+    @Column(name = "PaymentProcessorResponseCode")
     private String processorResponseCode;
 
-    @Column(name = "ProcessorResponseDescription")
-    private String processorResponseDescription;
+    @Column(name = "PaymentProcessorResponseCodeDescription")
+    private String processorResponseCodeDescription;
 
     @Column(name = "ApprovalCode")
     private String approvalCode;
@@ -183,6 +176,21 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "InternalResponseCode")
     private String internalResponseCode;
 
+    @Column(name = "InternalResponseDescription")
+    private String internalResponseDescription;
+
+    @Column(name = "InternalStatusCode")
+    private String internalStatusCode;
+
+    @Column(name = "InternalStatusDescription")
+    private String internalStatusDescription;
+
+    @Column(name = "PaymentProcessorStatusCode")
+    private String paymentProcessorStatusCode;
+
+    @Column(name = "PaymentProcessorStatusCodeDescription")
+    private String paymentProcessorStatusCodeDescription;
+    
     // Misc
     @Column(name = "ProcessUser")
     private String processUser;
@@ -209,8 +217,9 @@ public class SaleTransaction implements Serializable, Transaction {
     @OneToMany(mappedBy = "saleTransaction", fetch = FetchType.LAZY)
     private Collection<VoidTransaction> voidedTransactions;
 
-    public StatusCode getTransactionStatusCode() {
-        return StatusCode.valueOf(transactionStatusCode);
+    @JsonProperty("transactionStatusCode")
+    public String getTransactionStatusCode() {
+        return this.internalStatusDescription;
     }
 
     public String getCardNumberLast4Char() {

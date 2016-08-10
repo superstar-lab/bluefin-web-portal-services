@@ -68,6 +68,9 @@ public class PaymentProcessorResponseCode implements Serializable {
     @Column(name = "DatedModified", insertable = false, updatable = false)
     private Date modifiedDate;
 
+    @Column(name = "TransactionType")
+    private String transactionTypeName;
+
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")

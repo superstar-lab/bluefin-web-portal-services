@@ -9,8 +9,10 @@ import com.mcmcg.ico.bluefin.persistent.PaymentProcessorResponseCode;
 
 public interface PaymentProcessorResponseCodeRepository extends JpaRepository<PaymentProcessorResponseCode, Long> {
 
-    public PaymentProcessorResponseCode findByPaymentProcessorResponseCode(String paymentProcessorResponseCode);
+    public PaymentProcessorResponseCode findByPaymentProcessorResponseCodeAndTransactionTypeName(
+            String paymentProcessorResponseCode, String transactionTypeName);
 
-    public List<PaymentProcessorResponseCode> findByPaymentProcessor(PaymentProcessor paymentProcessor);
+    public List<PaymentProcessorResponseCode> findByPaymentProcessorAndTransactionTypeName(
+            PaymentProcessor paymentProcessor, String transactionTypeName);
 
 }

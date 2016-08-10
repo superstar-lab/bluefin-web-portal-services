@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.Permission;
@@ -26,6 +29,9 @@ import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.UserLoginHistory;
 import com.mcmcg.ico.bluefin.persistent.UserLoginHistory.MessageCode;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
+import com.mcmcg.ico.bluefin.persistent.jpa.PermissionRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.RolePermissionRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserLoginHistoryRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -41,6 +47,7 @@ import com.mcmcg.ico.bluefin.service.RoleService;
 import com.mcmcg.ico.bluefin.service.UserService;
 
 @Service
+@Transactional
 public class SessionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
     private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
@@ -51,6 +58,8 @@ public class SessionService {
     private String resetPasswordEmailLink;
     @Value("${bluefin.wp.services.application.role.name}")
     private String applicationRoleName;
+    @Value("${bluefin.wp.services.application.permission.name}")
+    private String applicationPermissionName;
 
     @Autowired
     private UserRepository userRepository;
@@ -68,6 +77,12 @@ public class SessionService {
     private EmailService emailService;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private PermissionRepository permissionRepository;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private RolePermissionRepository rolePermissionRepository;
 
     public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
         User user = userRepository.findByUsername(username);
@@ -190,7 +205,7 @@ public class SessionService {
         userResource.setLastName(username);
 
         Collection<Role> rolesToAssign = new ArrayList<Role>();
-        rolesToAssign.add(roleService.getRoleByName(applicationRoleName));
+        rolesToAssign.add(getRoleThirdParty());
 
         if (!userService.existUsername(username)) {
             User newUser = userResource.toUser(rolesToAssign, new ArrayList<LegalEntityApp>());
@@ -200,6 +215,29 @@ public class SessionService {
             userRepository.save(newUser);
         }
         return new BasicTokenResponse(generateNewToken(username, TokenType.APPLICATION, null));
+    }
+
+    public Role getRoleThirdParty() {
+        Role roleThirdParty = roleService.getRoleByName(applicationRoleName);
+        if (roleThirdParty == null) {
+            Permission permissionThirdParty = permissionRepository.findByPermissionName(applicationPermissionName);
+            if (permissionThirdParty == null) {
+                permissionThirdParty = new Permission();
+                permissionThirdParty.setPermissionName(applicationPermissionName);
+                permissionThirdParty.setDescription(StringUtils.capitalize(applicationPermissionName));
+                permissionThirdParty = permissionRepository.save(permissionThirdParty);
+            }
+            roleThirdParty = new Role();
+            roleThirdParty.setRoleName(applicationRoleName);
+            roleThirdParty.setDescription(StringUtils.capitalize(applicationRoleName));
+            roleThirdParty = roleRepository.save(roleThirdParty);
+
+            RolePermission rolePermission = new RolePermission();
+            rolePermission.setPermission(permissionThirdParty);
+            rolePermission.setRole(roleThirdParty);
+            rolePermissionRepository.save(rolePermission);
+        }
+        return roleThirdParty;
     }
 
     public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {

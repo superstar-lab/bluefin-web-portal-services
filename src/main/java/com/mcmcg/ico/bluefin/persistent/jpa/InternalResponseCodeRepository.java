@@ -6,6 +6,7 @@ import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
 
 public interface InternalResponseCodeRepository extends JpaRepository<InternalResponseCode, Long> {
 
-    public InternalResponseCode findByInternalResponseCode(String internalResponseCode);
+    public InternalResponseCode findByInternalResponseCodeAndTransactionTypeName(String internalResponseCode,
+            String transactionTypeName);
 
 }

@@ -35,7 +35,7 @@ public class PaymentProcessorInternalResponseCode implements Serializable {
     private Long paymentProcessorInternalResponseCodeId;
 
     @ManyToOne
-    @JoinColumn(name = "InternalResponseCode", referencedColumnName = "InternalResponseCode")
+    @JoinColumn(name = "InternalResponseCodeID")
     private InternalResponseCode internalResponseCode;
 
     @ManyToOne

@@ -2,9 +2,7 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -17,6 +15,7 @@ import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorResponseCode;
+import com.mcmcg.ico.bluefin.persistent.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.jpa.InternalResponseCodeRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorInternalResponseCodeRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
@@ -40,31 +39,11 @@ public class InternalResponseCodeService {
     private PaymentProcessorRepository paymentProcessorRepository;
     @Autowired
     private PaymentProcessorInternalResponseCodeRepository paymentProcessorInternalResponseCodeRepository;
+    @Autowired
+    private TransactionTypeService transactionTypeService;
 
     public List<InternalResponseCode> getInternalResponseCodes() {
         return internalResponseCodeRepository.findAll();
-    }
-
-    public Set<InternalResponseCode> getInternalResponseCodesByPaymentProcessorId(Long paymentProcessorId) {
-
-        PaymentProcessor paymentProcessor = paymentProcessorRepository.findOne(paymentProcessorId);
-        if (paymentProcessor == null) {
-            throw new CustomBadRequestException("Invalid payment processor");
-        }
-        Set<InternalResponseCode> internalCodesResult = new HashSet<InternalResponseCode>();
-
-        List<PaymentProcessorResponseCode> paymentProcessorResponseCodes = paymentProcessorResponseCodeRepository
-                .findByPaymentProcessor(paymentProcessor);
-
-        for (PaymentProcessorResponseCode paymentProcessorResponseCode : paymentProcessorResponseCodes) {
-            Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = paymentProcessorResponseCode
-                    .getInternalResponseCode();
-            for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodes) {
-                internalCodesResult.add(paymentProcessorInternalResponseCode.getInternalResponseCode());
-            }
-        }
-
-        return internalCodesResult;
     }
 
     public InternalResponseCode upsertInternalResponseCodes(InternalCodeResource internalResponseCodeResource) {
@@ -75,8 +54,14 @@ public class InternalResponseCodeService {
             throw new CustomBadRequestException("Invalid payment processor");
         }
 
+        TransactionType transactionType = transactionTypeService
+                .getTransactionTypeById(internalResponseCodeResource.getTransactionTypeId());
+        if (transactionType == null) {
+            throw new CustomBadRequestException("Invalid transaction type");
+        }
+
         InternalResponseCode internalResponseCode = internalResponseCodeRepository
-                .findByInternalResponseCode(internalResponseCodeResource.getCode());
+                .findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(), transactionType.getTransactionTypeName());
         PaymentProcessorCodeResource paymentProcessorResponseCodeResource = internalResponseCodeResource
                 .getPaymentProcessorCode();
 
@@ -85,11 +70,10 @@ public class InternalResponseCodeService {
             internalResponseCode = new InternalResponseCode();
             internalResponseCode
                     .setPaymentProcessorInternalResponseCodes(new ArrayList<PaymentProcessorInternalResponseCode>());
-
         } else {
             LOGGER.info("Updating internal response code {}", internalResponseCodeResource.getCode());
             List<PaymentProcessorResponseCode> processorCodes = paymentProcessorResponseCodeRepository
-                    .findByPaymentProcessor(paymentProcessor);
+                    .findByPaymentProcessorAndTransactionTypeName(paymentProcessor, transactionType.getTransactionTypeName());
             for (PaymentProcessorResponseCode paymentProcessorResponseCode : processorCodes) {
                 Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = paymentProcessorResponseCode
                         .getInternalResponseCode();
@@ -109,10 +93,12 @@ public class InternalResponseCodeService {
         }
         internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
         internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
+        internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
         if (paymentProcessorResponseCodeResource != null) {
             PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
-                    .findByPaymentProcessorResponseCode(paymentProcessorResponseCodeResource.getCode());
+                    .findByPaymentProcessorResponseCodeAndTransactionTypeName(
+                            paymentProcessorResponseCodeResource.getCode(), transactionType.getTransactionTypeName());
 
             Boolean creatingPaymentProcessor = false;
             if (paymentProcessorResponseCode == null) {
@@ -128,6 +114,7 @@ public class InternalResponseCodeService {
                     .setPaymentProcessorResponseCode(paymentProcessorResponseCodeResource.getCode());
             paymentProcessorResponseCode
                     .setPaymentProcessorResponseCodeDescription(paymentProcessorResponseCodeResource.getDescription());
+            paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
             paymentProcessorResponseCode = paymentProcessorResponseCodeRepository.save(paymentProcessorResponseCode);
             internalResponseCode = internalResponseCodeRepository.save(internalResponseCode);

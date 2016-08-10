@@ -67,19 +67,34 @@ public class RefundTransaction implements Serializable, Transaction {
 
     @Column(name = "StatusDescription")
     private String statusDescription;
-
-    @Column(name = "ResponseCode")
-    private String responseCode;
-
-    @Column(name = "ResponseDescription")
-    private String responseDescription;
-
+    
     @Column(name = "ApprovalCode")
     private String approvalCode;
 
-    // @Column(name = "InternalResponseCode")
-    // private String internalResponseCode;
+    @Column(name = "InternalResponseCode")
+    private String internalResponseCode;
 
+    @Column(name = "InternalResponseDescription")
+    private String internalResponseDescription;
+    
+    @Column(name = "InternalStatusCode")
+    private String internalStatusCode;
+
+    @Column(name = "InternalStatusDescription")
+    private String internalStatusDescription;
+
+    @Column(name = "PaymentProcessorResponseCode")
+    private String paymentProcessorResponseCode;
+
+    @Column(name = "PaymentProcessorResponseCodeDescription")
+    private String paymentProcessorResponseCodeDescription;
+    
+    @Column(name = "PaymentProcessorStatusCode")
+    private String paymentProcessorStatusCode;
+
+    @Column(name = "PaymentProcessorStatusCodeDescription")
+    private String paymentProcessorStatusCodeDescription;
+    
     // Misc
     @Column(name = "pUser")
     private String processUser;

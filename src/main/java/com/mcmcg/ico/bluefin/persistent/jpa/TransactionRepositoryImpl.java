@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.Sort.Order;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRepositoryImpl.class);
@@ -37,7 +37,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
     private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
     private static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
-    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
     private static final String NUMBERS_AND_WORDS_REGEX = "[\\w\\s|\\d+(?:\\.\\d+)?]+";
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
@@ -82,10 +82,15 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
             } else if (entry.getKey().contains("transactionDateTimeParam")
-                    || entry.getKey().contains("createdDateParam")) {
+                    || entry.getKey().contains("transactionDateTimeParam")) {
+
+                if (!validFormatDate(entry.getValue())) {
+                    throw new CustomNotFoundException(
+                            "Unable to process find transaction, due an error with date formatting");
+                }
                 // Special case for the dates
-                result.setParameter(entry.getKey(), getDateFormat(entry.getValue().toString()));
-                queryTotal.setParameter(entry.getKey(), getDateFormat(entry.getValue().toString()));
+                result.setParameter(entry.getKey(), entry.getValue());
+                queryTotal.setParameter(entry.getKey(), entry.getValue());
             } else if (entry.getKey().contains("legalEntityParam")) {
                 // Special case for legal entity
                 result.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
@@ -347,7 +352,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                     }
                 } else {
                     if (attribute.equals("transactionId") || attribute.equals("transactionStatusCode")
-                            || attribute.equals("createdDate") || attribute.equals("processorName")) {
+                            || attribute.equals("transactionDateTime") || attribute.equals("processorName")) {
                         continue;
                     }
                 }
@@ -408,17 +413,29 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             dynamicParametersMap.put(param, value.replaceAll("[^\\w\\-\\,]", ""));
             return inputCriteria.toString();
         } else {
-            if (name.contains("ChargeAmount") || name.contains("Date") || name.contains("StatusCode")) {
+            if (name.contains("ChargeAmount") || name.contains("InternalStatusDescription")) {
                 inputCriteria.append(getOperation(operator));
             } else if (name.contains("FirstName") || name.contains("LastName")) {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
+            } else if (name.contains("Date")) {
+                if ("<".equals(operator)) {
+                    inputCriteria.append(" ").append(operator).append(" DATEADD(DAY, 1, ");
+                } else if (">".equals(operator)) {
+                    inputCriteria.append(GOE);
+                } else {
+                    inputCriteria.append(" ").append("<").append(" DATEADD(DAY, 1, ").append(":").append(param)
+                            .append(")").append(AND).append(name).append(GOE);
+                }
             } else {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator);
             }
 
         }
-        inputCriteria.append(":");
-        inputCriteria.append(param);
+        inputCriteria.append(":").append(param);
+        if (name.contains("Date") && "<".equals(operator)) {
+            inputCriteria.append(")");
+        }
+
         dynamicParametersMap.put(param, value);
 
         return inputCriteria.toString();
@@ -450,9 +467,9 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @return date with the right format to be entered in the parameters hash
      * @throws ParseException
      */
-    private Date getDateFormat(String dateInString) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        return formatter.parse(dateInString);
+    private Boolean validFormatDate(String dateInString) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.parse(dateInString) != null;
     }
 
     /**
@@ -501,13 +518,13 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         nativePropertyHashMapping.put("origin", "Origin");
         nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
         nativePropertyHashMapping.put("testMode", "TestMode");
-        nativePropertyHashMapping.put("transactionStatusCode", "StatusCode");
+        nativePropertyHashMapping.put("transactionStatusCode", "InternalStatusDescription");
         nativePropertyHashMapping.put("statusDescription", "StatusDescription");
         nativePropertyHashMapping.put("approvalCode", "ApprovalCode");
         nativePropertyHashMapping.put("amount", "ChargeAmount");
         nativePropertyHashMapping.put("responseCode", "ResponseCode");
         nativePropertyHashMapping.put("responseDescription", "ResponseDescription");
-        nativePropertyHashMapping.put("createdDate", "DateCreated");
+        nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
     }
 
     /**
@@ -530,7 +547,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         select.append(alias).append(".MerchantID,");
         select.append("'" + transactionType + "' as TransactionType,");
         select.append(alias).append(".Processor,");
-        select.append(alias).append(".StatusCode,");
+        select.append(alias).append(".InternalStatusDescription,");
         select.append(alias).append(".DateCreated,");
         select.append(alias).append(".TransactionDateTime,");
         select.append(saleAlias).append(".ChargeAmount,");

@@ -2,6 +2,8 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +13,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
@@ -49,19 +49,12 @@ public class InternalResponseCodeController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<InternalResponseCode> getInternalResponseCodes(
-            @RequestParam(value = "paymentProcessorId", required = false) Long paymentProcessorId,
-            @ApiIgnore Authentication authentication) {
+    public Iterable<InternalResponseCode> getInternalResponseCodes(@ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        if (paymentProcessorId != null) {
-            LOGGER.info("Getting internal response code list by payment processor");
-            return internalResponseCodeService.getInternalResponseCodesByPaymentProcessorId(paymentProcessorId);
-        } else {
-            LOGGER.info("Getting internal response code list");
-            return internalResponseCodeService.getInternalResponseCodes();
-        }
+        LOGGER.info("Getting internal response code list");
+        return internalResponseCodeService.getInternalResponseCodes();
     }
 
     @ApiOperation(value = "upsertInternalResponseCodes", nickname = "upsertInternalResponseCodes")
@@ -74,8 +67,7 @@ public class InternalResponseCodeController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalResponseCode upsertInternalResponseCodes(
-            @Validated @RequestBody InternalCodeResource internalResponseCodeResource,
-            @ApiIgnore Errors errors) {
+            @Valid @RequestBody InternalCodeResource internalResponseCodeResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -86,7 +78,7 @@ public class InternalResponseCodeController {
         LOGGER.info("Upserting internal response code");
         return internalResponseCodeService.upsertInternalResponseCodes(internalResponseCodeResource);
     }
-    
+
     @ApiOperation(value = "deleteInternalResponseCode", nickname = "deleteInternalResponseCode")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")

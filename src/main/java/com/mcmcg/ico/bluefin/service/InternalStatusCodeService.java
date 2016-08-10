@@ -2,9 +2,7 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -17,6 +15,7 @@ import com.mcmcg.ico.bluefin.persistent.InternalStatusCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorStatusCode;
+import com.mcmcg.ico.bluefin.persistent.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.jpa.InternalStatusCodeRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorInternalStatusCodeRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
@@ -40,31 +39,11 @@ public class InternalStatusCodeService {
     private PaymentProcessorRepository paymentProcessorRepository;
     @Autowired
     private PaymentProcessorInternalStatusCodeRepository paymentProcessorInternalStatusCodeRepository;
+    @Autowired
+    private TransactionTypeService transactionTypeService;
 
     public List<InternalStatusCode> getInternalStatusCodes() {
         return internalStatusCodeRepository.findAll();
-    }
-
-    public Set<InternalStatusCode> getInternalStatusCodesByPaymentProcessorId(Long paymentProcessorId) {
-
-        PaymentProcessor paymentProcessor = paymentProcessorRepository.findOne(paymentProcessorId);
-        if (paymentProcessor == null) {
-            throw new CustomBadRequestException("Invalid payment processor");
-        }
-        Set<InternalStatusCode> internalCodesResult = new HashSet<InternalStatusCode>();
-
-        List<PaymentProcessorStatusCode> paymentProcessorStatusCodes = paymentProcessorStatusCodeRepository
-                .findByPaymentProcessor(paymentProcessor);
-
-        for (PaymentProcessorStatusCode paymentProcessorStatusCode : paymentProcessorStatusCodes) {
-            Collection<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes = paymentProcessorStatusCode
-                    .getInternalStatusCode();
-            for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : paymentProcessorInternalStatusCodes) {
-                internalCodesResult.add(paymentProcessorInternalStatusCode.getInternalStatusCode());
-            }
-        }
-
-        return internalCodesResult;
     }
 
     public InternalStatusCode upsertInternalStatusCodes(InternalCodeResource internalStatusCodeResource) {
@@ -75,8 +54,14 @@ public class InternalStatusCodeService {
             throw new CustomBadRequestException("Invalid payment processor");
         }
 
+        TransactionType transactionType = transactionTypeService
+                .getTransactionTypeById(internalStatusCodeResource.getTransactionTypeId());
+        if (transactionType == null) {
+            throw new CustomBadRequestException("Invalid transaction type");
+        }
+
         InternalStatusCode internalStatusCode = internalStatusCodeRepository
-                .findByInternalStatusCode(internalStatusCodeResource.getCode());
+                .findByInternalStatusCodeAndTransactionType(internalStatusCodeResource.getCode(), transactionType);
         PaymentProcessorCodeResource paymentProcessorStatusCodeResource = internalStatusCodeResource
                 .getPaymentProcessorCode();
 
@@ -85,11 +70,10 @@ public class InternalStatusCodeService {
             internalStatusCode = new InternalStatusCode();
             internalStatusCode
                     .setPaymentProcessorInternalStatusCodes(new ArrayList<PaymentProcessorInternalStatusCode>());
-
         } else {
             LOGGER.info("Updating internal status code {}", internalStatusCodeResource.getCode());
             List<PaymentProcessorStatusCode> processorCodes = paymentProcessorStatusCodeRepository
-                    .findByPaymentProcessor(paymentProcessor);
+                    .findByPaymentProcessorAndTransactionType(paymentProcessor, transactionType);
             for (PaymentProcessorStatusCode paymentProcessorStatusCode : processorCodes) {
                 Collection<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes = paymentProcessorStatusCode
                         .getInternalStatusCode();
@@ -109,10 +93,12 @@ public class InternalStatusCodeService {
         }
         internalStatusCode.setInternalStatusCode(internalStatusCodeResource.getCode());
         internalStatusCode.setInternalStatusCodeDescription(internalStatusCodeResource.getDescription());
+        internalStatusCode.setTransactionType(transactionType);
 
         if (paymentProcessorStatusCodeResource != null) {
             PaymentProcessorStatusCode paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
-                    .findByPaymentProcessorStatusCode(paymentProcessorStatusCodeResource.getCode());
+                    .findByPaymentProcessorStatusCodeAndTransactionType(paymentProcessorStatusCodeResource.getCode(),
+                            transactionType);
 
             Boolean creatingPaymentProcessor = false;
             if (paymentProcessorStatusCode == null) {
@@ -127,6 +113,7 @@ public class InternalStatusCodeService {
             paymentProcessorStatusCode.setPaymentProcessorStatusCode(paymentProcessorStatusCodeResource.getCode());
             paymentProcessorStatusCode
                     .setPaymentProcessorStatusDescription(paymentProcessorStatusCodeResource.getDescription());
+            paymentProcessorStatusCode.setTransactionType(transactionType);
 
             paymentProcessorStatusCode = paymentProcessorStatusCodeRepository.save(paymentProcessorStatusCode);
             internalStatusCode = internalStatusCodeRepository.save(internalStatusCode);
