@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -78,13 +79,13 @@ public class UserService {
      * 
      * @param username
      * @return user object
-     * @throws CustomBadRequestException
+     * @throws CustomNotFoundException
      *             when username is not found
      */
     public User getUser(final String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) {
-            throw new CustomBadRequestException("Unable to find user by username provided: " + username);
+            throw new CustomNotFoundException("Unable to find user by username provided: " + username);
         }
 
         return user;
@@ -171,8 +172,7 @@ public class UserService {
 
         // User wants to clear roles from user
         if (rolesIds.isEmpty()) {
-            userToUpdate.getRoles().clear();
-            return userRepository.save(userToUpdate);
+            throw new CustomBadRequestException("User MUST have at least one role assign to him.");
         }
 
         // Validate and load existing roles
@@ -218,8 +218,7 @@ public class UserService {
 
         // User wants to clear legal entity apps from user
         if (legalEntityAppsIds.isEmpty()) {
-            userToUpdate.getLegalEntities().clear();
-            return userRepository.save(userToUpdate);
+            throw new CustomBadRequestException("User MUST have at least one legal entity assign to him.");
         }
 
         // Validate and load existing legal entity apps
@@ -356,7 +355,7 @@ public class UserService {
     }
 
     private boolean isValidOldPassword(final String oldPassword, final String currentUserPassword) {
-        if (oldPassword.isEmpty()) {
+        if (StringUtils.isEmpty(oldPassword)) {
             throw new CustomBadRequestException("oldPassword must not be empty");
         }
 

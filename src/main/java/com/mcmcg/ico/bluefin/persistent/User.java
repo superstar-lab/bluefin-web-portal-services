@@ -18,8 +18,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -40,6 +43,17 @@ import lombok.Data;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "username")
 public class User implements Serializable {
     private static final long serialVersionUID = 301195813236863721L;
+
+    @PreUpdate
+    @PrePersist
+    public void beforePersist() {
+        this.username = this.username.toLowerCase();
+        if(StringUtils.isNotEmpty(this.email)) {
+            this.email = this.email.toLowerCase();
+        }
+        this.firstName = StringUtils.capitalize(this.firstName);
+        this.lastName = StringUtils.capitalize(this.lastName);
+    }
 
     @JsonIgnore
     @Id

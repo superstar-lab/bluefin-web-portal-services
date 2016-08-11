@@ -68,12 +68,10 @@ public class UserRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        if (username.equals("me")) {
+        if (username.equals("me") || username.equals(authentication.getName())) {
             username = authentication.getName();
-        } else {
-            if (!userService.hasPermissionToManageAllUsers(authentication)) {
-                throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
-            }
+        } else if (!userService.hasPermissionToManageAllUsers(authentication)) {
+            throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
         }
 
         // Checks if the Legal Entities of the consultant user are in the user
@@ -158,7 +156,7 @@ public class UserRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        if (username.equals("me")) {
+        if (username.equals("me") || username.equals(authentication.getName())) {
             username = authentication.getName();
         } else {
             if (!userService.hasPermissionToManageAllUsers(authentication)) {
@@ -254,13 +252,13 @@ public class UserRestController {
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-        if (username.equals("me")) {
+
+        if (username.equals("me") || username.equals(authentication.getName())) {
             username = authentication.getName();
-        } else {
-            if (!userService.hasPermissionToManageAllUsers(authentication)) {
-                throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
-            }
+        } else if (!userService.hasPermissionToManageAllUsers(authentication)) {
+            throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
         }
+
         final String token = request.getHeader(securityTokenHeader);
         if (token != null) {
             userService.updateUserPassword(username, updatePasswordResource, token);

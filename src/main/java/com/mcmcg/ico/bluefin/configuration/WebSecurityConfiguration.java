@@ -135,14 +135,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 
                             // Roles
-                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
-                            
+                            .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
+
                             // Internal Response Codes
                             .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
                             .antMatchers(HttpMethod.PUT, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
                             .antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{id}", internalResponseCodesApiBaseURL + "/{id}/").hasAuthority("MANAGE_RESPONSE_CODES")
 
-                         // Internal Response Codes
+                            // Internal Response Codes
                             .antMatchers(HttpMethod.GET, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{id}", internalStatusCodesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
