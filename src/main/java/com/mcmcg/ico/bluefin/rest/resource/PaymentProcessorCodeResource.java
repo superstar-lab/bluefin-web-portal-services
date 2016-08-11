@@ -15,4 +15,5 @@ public class PaymentProcessorCodeResource {
     private String description;
     @NotNull(message = "Attribute paymentProcessorId cannot be empty or null")
     private Long paymentProcessorId;
+    private Long paymentProcessorCodeId;
 }

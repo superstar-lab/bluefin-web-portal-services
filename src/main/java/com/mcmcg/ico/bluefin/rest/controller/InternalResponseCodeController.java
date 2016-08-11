@@ -17,12 +17,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
 import com.mcmcg.ico.bluefin.service.InternalResponseCodeService;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -40,7 +42,7 @@ public class InternalResponseCodeController {
     @Autowired
     private InternalResponseCodeService internalResponseCodeService;
 
-    @ApiOperation(value = "getInternalResponseCodes", nickname = "getInternalResponseCodes")
+    @ApiOperation(value = "getInternalResponseCodesByTransactionType", nickname = "getInternalResponseCodesByTransactionType")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
@@ -49,15 +51,39 @@ public class InternalResponseCodeController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<InternalResponseCode> getInternalResponseCodes(@ApiIgnore Authentication authentication) {
+    public Iterable<InternalResponseCode> getInternalResponseCodesByTransactionType(
+            @RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
+            @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
         LOGGER.info("Getting internal response code list");
-        return internalResponseCodeService.getInternalResponseCodes();
+        return internalResponseCodeService.getInternalResponseCodesByTransactionType(transactionType);
     }
 
-    @ApiOperation(value = "upsertInternalResponseCodes", nickname = "upsertInternalResponseCodes")
+    @ApiOperation(value = "createInternalResponseCodes", nickname = "createInternalResponseCodes")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "OK", response = InternalResponseCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public InternalResponseCode createInternalResponseCodes(
+            @Valid @RequestBody InternalCodeResource internalResponseCodeResource, @ApiIgnore Errors errors) {
+        // First checks if all required data is given
+        if (errors.hasErrors()) {
+            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            throw new CustomBadRequestException(errorDescription);
+        }
+
+        LOGGER.info("Creating internal response code");
+        return internalResponseCodeService.createInternalResponseCodes(internalResponseCodeResource);
+    }
+
+    @ApiOperation(value = "updateInternalResponseCodes", nickname = "updateInternalResponseCodes")
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
@@ -67,7 +93,8 @@ public class InternalResponseCodeController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalResponseCode upsertInternalResponseCodes(
-            @Valid @RequestBody InternalCodeResource internalResponseCodeResource, @ApiIgnore Errors errors) {
+            @Valid @RequestBody UpdateInternalCodeResource updateInternalResponseCodeResource,
+            @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -75,8 +102,8 @@ public class InternalResponseCodeController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Upserting internal response code");
-        return internalResponseCodeService.upsertInternalResponseCodes(internalResponseCodeResource);
+        LOGGER.info("Updating internal response code");
+        return internalResponseCodeService.updateInternalResponseCode(updateInternalResponseCodeResource);
     }
 
     @ApiOperation(value = "deleteInternalResponseCode", nickname = "deleteInternalResponseCode")
