@@ -16,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
@@ -61,13 +62,6 @@ public class RefundTransaction implements Serializable, Transaction {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private Date transactionDateTime;
 
-    // Other
-    @Column(name = "StatusCode")
-    private Integer transactionStatusCode;
-
-    @Column(name = "StatusDescription")
-    private String statusDescription;
-    
     @Column(name = "ApprovalCode")
     private String approvalCode;
 
@@ -76,7 +70,7 @@ public class RefundTransaction implements Serializable, Transaction {
 
     @Column(name = "InternalResponseDescription")
     private String internalResponseDescription;
-    
+
     @Column(name = "InternalStatusCode")
     private String internalStatusCode;
 
@@ -88,13 +82,13 @@ public class RefundTransaction implements Serializable, Transaction {
 
     @Column(name = "PaymentProcessorResponseCodeDescription")
     private String paymentProcessorResponseCodeDescription;
-    
+
     @Column(name = "PaymentProcessorStatusCode")
     private String paymentProcessorStatusCode;
 
     @Column(name = "PaymentProcessorStatusCodeDescription")
     private String paymentProcessorStatusCodeDescription;
-    
+
     // Misc
     @Column(name = "pUser")
     private String processUser;
@@ -110,7 +104,8 @@ public class RefundTransaction implements Serializable, Transaction {
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
 
+    @JsonProperty("transactionStatusCode")
     public StatusCode getTransactionStatusCode() {
-        return StatusCode.valueOf(transactionStatusCode);
+        return StatusCode.valueOf(internalStatusCode);
     }
 }

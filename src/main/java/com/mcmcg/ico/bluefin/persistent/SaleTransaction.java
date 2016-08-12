@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.mcmcg.ico.bluefin.model.StatusCode;
 
 import lombok.Data;
 
@@ -218,8 +219,8 @@ public class SaleTransaction implements Serializable, Transaction {
     private Collection<VoidTransaction> voidedTransactions;
 
     @JsonProperty("transactionStatusCode")
-    public String getTransactionStatusCode() {
-        return this.internalStatusDescription;
+    public StatusCode getTransactionStatusCode() {
+        return StatusCode.valueOf(internalStatusCode);
     }
 
     public String getCardNumberLast4Char() {
