@@ -100,8 +100,8 @@ public class VoidTransaction implements Serializable, Transaction {
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
 
-    @JsonProperty("transactionStatusCode")
-    public StatusCode getTransactionStatusCode() {
-        return StatusCode.valueOf(internalStatusCode);
+    public StatusCode getInternalStatusCode() {
+        return StatusCode.valueOf(Integer.parseInt(internalStatusCode));
     }
+
 }

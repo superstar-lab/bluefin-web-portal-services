@@ -95,7 +95,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 // Special case for legal entity
                 result.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
                 queryTotal.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
-            } else if (entry.getKey().contains("transactionStatusCodeParam")) {
+            } else if (entry.getKey().contains("internalStatusCodeParam")) {
                 // Special case for status code
                 result.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
@@ -351,7 +351,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                         continue;
                     }
                 } else {
-                    if (attribute.equals("transactionId") || attribute.equals("transactionStatusCode")
+                    if (attribute.equals("transactionId") || attribute.equals("internalStatusCode")
                             || attribute.equals("transactionDateTime") || attribute.equals("processorName")) {
                         continue;
                     }
@@ -413,7 +413,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             dynamicParametersMap.put(param, value.replaceAll("[^\\w\\-\\,]", ""));
             return inputCriteria.toString();
         } else {
-            if (name.contains("ChargeAmount") || name.contains("InternalStatusDescription")) {
+            if (name.contains("ChargeAmount") || name.contains("InternalStatusCode")) {
                 inputCriteria.append(getOperation(operator));
             } else if (name.contains("FirstName") || name.contains("LastName")) {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
@@ -518,8 +518,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         nativePropertyHashMapping.put("origin", "Origin");
         nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
         nativePropertyHashMapping.put("testMode", "TestMode");
-        nativePropertyHashMapping.put("transactionStatusCode", "InternalStatusDescription");
-        nativePropertyHashMapping.put("statusDescription", "StatusDescription");
+        nativePropertyHashMapping.put("internalStatusCode", "InternalStatusCode");
+        nativePropertyHashMapping.put("internalStatusDescription", "InternalStatusDescription");
         nativePropertyHashMapping.put("approvalCode", "ApprovalCode");
         nativePropertyHashMapping.put("amount", "ChargeAmount");
         nativePropertyHashMapping.put("responseCode", "ResponseCode");
@@ -547,7 +547,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         select.append(alias).append(".MerchantID,");
         select.append("'" + transactionType + "' as TransactionType,");
         select.append(alias).append(".Processor,");
-        select.append(alias).append(".InternalStatusDescription,");
+        select.append(alias).append(".InternalStatusCode,");
         select.append(alias).append(".DateCreated,");
         select.append(alias).append(".TransactionDateTime,");
         select.append(saleAlias).append(".ChargeAmount,");

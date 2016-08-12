@@ -35,7 +35,7 @@ import lombok.Data;
                 @ColumnResult(name = "MerchantID", type = String.class),
                 @ColumnResult(name = "TransactionType", type = String.class),
                 @ColumnResult(name = "Processor", type = String.class),
-                @ColumnResult(name = "InternalStatusDescription", type = String.class),
+                @ColumnResult(name = "InternalStatusCode", type = String.class),
                 @ColumnResult(name = "DateCreated", type = Date.class),
                 @ColumnResult(name = "TransactionDateTime", type = Date.class),
                 @ColumnResult(name = "ChargeAmount", type = BigDecimal.class),
@@ -60,7 +60,7 @@ public class SaleTransaction implements Serializable, Transaction {
     }
 
     public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
-            String merchantID, String transactionType, String processorName, String internalStatusDescription,
+            String merchantID, String transactionType, String processorName, String internalStatusCode,
             Date createdDate, Date transactionDateTime, BigDecimal amount, String firstName, String lastName,
             String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
             Integer isRefunded) {
@@ -70,7 +70,7 @@ public class SaleTransaction implements Serializable, Transaction {
         this.merchantId = merchantID;
         this.transactionType = transactionType;
         this.processorName = processorName;
-        this.internalStatusDescription = internalStatusDescription;
+        this.internalStatusCode = internalStatusCode;
         this.createdDate = createdDate;
         this.transactionDateTime = transactionDateTime;
         this.amount = amount;
@@ -191,7 +191,7 @@ public class SaleTransaction implements Serializable, Transaction {
 
     @Column(name = "PaymentProcessorStatusCodeDescription")
     private String paymentProcessorStatusCodeDescription;
-    
+
     // Misc
     @Column(name = "ProcessUser")
     private String processUser;
@@ -218,9 +218,8 @@ public class SaleTransaction implements Serializable, Transaction {
     @OneToMany(mappedBy = "saleTransaction", fetch = FetchType.LAZY)
     private Collection<VoidTransaction> voidedTransactions;
 
-    @JsonProperty("transactionStatusCode")
-    public StatusCode getTransactionStatusCode() {
-        return StatusCode.valueOf(internalStatusCode);
+    public StatusCode getInternalStatusCode() {
+        return StatusCode.valueOf(Integer.parseInt(internalStatusCode));
     }
 
     public String getCardNumberLast4Char() {
