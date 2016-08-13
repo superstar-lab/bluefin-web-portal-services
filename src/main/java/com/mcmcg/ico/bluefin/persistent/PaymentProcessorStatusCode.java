@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -34,21 +33,21 @@ import lombok.Data;
 @Table(name = "PaymentProcessorStatusCode_Lookup")
 public class PaymentProcessorStatusCode implements Serializable {
 
-    private static final long serialVersionUID = 8084535546702609371L;
+    private static final long serialVersionUID = -4612223418828597035L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "PaymentProcessorStatusCodeID")
-    private Long paymentProcessorStatusCodeID;
+    private Long paymentProcessorStatusCodeId;
 
     @Column(name = "PaymentProcessorStatusCode")
     private String paymentProcessorStatusCode;
 
     @Column(name = "PaymentProcessorStatusDescription")
-    private String paymentProcessorStatusDescription;
+    private String paymentProcessorStatusCodeDescription;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "paymentProcessorStatusCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "paymentProcessorStatusCode", fetch = FetchType.LAZY)
     private Collection<PaymentProcessorInternalStatusCode> internalStatusCode;
 
     @ManyToOne
@@ -61,16 +60,15 @@ public class PaymentProcessorStatusCode implements Serializable {
     @JoinColumn(name = "ModifiedBy", referencedColumnName = "username")
     @LastModifiedBy
     private User lastModifiedBy;
-    
-    @ManyToOne
-    @JoinColumn(name = "TransactionType", referencedColumnName = "TransactionType")
-    private TransactionType transactionType;
-    
+
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DatedModified", insertable = false, updatable = false)
     private Date modifiedDate;
+
+    @Column(name = "TransactionType")
+    private String transactionTypeName;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

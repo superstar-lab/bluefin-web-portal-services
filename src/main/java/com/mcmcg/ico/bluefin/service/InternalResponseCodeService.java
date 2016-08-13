@@ -239,13 +239,10 @@ public class InternalResponseCodeService {
                         .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
                 paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
-                if (paymentProcessorResponseCode.getPaymentProcessorResponseCodeId() == null) {
-                    newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
-                } else {
-                    newMapOfPaymentProcessorResponseCodes.put(
-                            paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
-                            paymentProcessorResponseCode);
-                }
+                newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
+                newMapOfPaymentProcessorResponseCodes.put(
+                        paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(), paymentProcessorResponseCode);
+
                 paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                         .save(paymentProcessorResponseCode);
             }

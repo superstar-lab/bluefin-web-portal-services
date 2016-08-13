@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.persistent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -51,13 +52,10 @@ public class InternalStatusCode implements Serializable {
 
     @OneToMany(mappedBy = "internalStatusCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes;
-    
-    @ManyToOne
-    @JoinColumn(name = "TransactionType", referencedColumnName = "TransactionType")
-    private TransactionType transactionType;
 
     @JsonIdentityReference(alwaysAsId = true)
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "ModifiedBy", referencedColumnName = "username")
     @LastModifiedBy
     private User lastModifiedBy;
@@ -68,9 +66,21 @@ public class InternalStatusCode implements Serializable {
     @Column(name = "DatedModified", insertable = false, updatable = false)
     private Date modifiedDate;
 
+    @Column(name = "TransactionType")
+    private String transactionTypeName; 
+
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
+    
+    public void addPaymentProcessorInternalStatusCode(PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode) {
+        if (paymentProcessorInternalStatusCode == null) {
+            this.paymentProcessorInternalStatusCodes = new HashSet<PaymentProcessorInternalStatusCode>();
+        }
+
+        paymentProcessorInternalStatusCode.setInternalStatusCode(this);
+        paymentProcessorInternalStatusCodes.add(paymentProcessorInternalStatusCode);
+    }
 }

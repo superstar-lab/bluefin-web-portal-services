@@ -24,6 +24,7 @@ import com.mcmcg.ico.bluefin.persistent.InternalStatusCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
+import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
 import com.mcmcg.ico.bluefin.service.InternalStatusCodeService;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -41,7 +42,7 @@ public class InternalStatusCodeController {
     @Autowired
     private InternalStatusCodeService internalStatusCodeService;
 
-    @ApiOperation(value = "getInternalStatusCodes", nickname = "getInternalStatusCodes")
+    @ApiOperation(value = "getInternalStatusCodesByTransactionType", nickname = "getInternalStatusCodesByTransactionType")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
@@ -50,19 +51,39 @@ public class InternalStatusCodeController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<InternalStatusCode> getInternalStatusCodes(
-            @RequestParam(value = "paymentProcessorId", required = false) Long paymentProcessorId,
+    public Iterable<InternalStatusCode> getInternalStatusCodesByTransactionType(
+            @RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
             @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-
         LOGGER.info("Getting internal status code list");
-        return internalStatusCodeService.getInternalStatusCodes();
-
+        return internalStatusCodeService.getInternalStatusCodesByTransactionType(transactionType);
     }
 
-    @ApiOperation(value = "upsertInternalStatusCodes", nickname = "upsertInternalStatusCodes")
+    @ApiOperation(value = "createInternalStatusCodes", nickname = "createInternalStatusCodes")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "OK", response = InternalStatusCode.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public InternalStatusCode createInternalStatusCodes(
+            @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors) {
+        // First checks if all required data is given
+        if (errors.hasErrors()) {
+            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            throw new CustomBadRequestException(errorDescription);
+        }
+
+        LOGGER.info("Creating internal status code");
+        return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource);
+    }
+
+    @ApiOperation(value = "updateInternalStatusCodes", nickname = "updateInternalStatusCodes")
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
@@ -72,7 +93,8 @@ public class InternalStatusCodeController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalStatusCode upsertInternalStatusCodes(
-            @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors) {
+            @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource,
+            @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -80,8 +102,8 @@ public class InternalStatusCodeController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Upserting internal Status code");
-        return internalStatusCodeService.upsertInternalStatusCodes(internalStatusCodeResource);
+        LOGGER.info("Updating internal status code");
+        return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource);
     }
 
     @ApiOperation(value = "deleteInternalStatusCode", nickname = "deleteInternalStatusCode")
