@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.persistent;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -66,11 +67,20 @@ public class InternalResponseCode implements Serializable {
     private Date modifiedDate;
 
     @Column(name = "TransactionType")
-    private String transactionTypeName;
+    private String transactionTypeName; 
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
+    
+    public void addPaymentProcessorInternalResponseCode(PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode) {
+        if (paymentProcessorInternalResponseCode == null) {
+            this.paymentProcessorInternalResponseCodes = new HashSet<PaymentProcessorInternalResponseCode>();
+        }
+
+        paymentProcessorInternalResponseCode.setInternalResponseCode(this);
+        paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
+    }
 }

@@ -48,7 +48,7 @@ public class PaymentProcessorResponseCode implements Serializable {
     private String paymentProcessorResponseCodeDescription;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "paymentProcessorResponseCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "paymentProcessorResponseCode", fetch = FetchType.LAZY)
     private Collection<PaymentProcessorInternalResponseCode> internalResponseCode;
 
     @ManyToOne
@@ -86,4 +86,5 @@ public class PaymentProcessorResponseCode implements Serializable {
     private String getProcessoName() {
         return this.paymentProcessor.getProcessorName();
     }
+
 }

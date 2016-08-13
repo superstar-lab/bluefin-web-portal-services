@@ -19,7 +19,7 @@ public enum StatusCode {
     private StatusCode(final Integer code) {
         statusCode = code;
     }
-
+    
     public static StatusCode valueOf(int code) {
         return map.get(code);
     }
@@ -31,5 +31,7 @@ public enum StatusCode {
         }
         return null;
     }
+    
+    
 
 }

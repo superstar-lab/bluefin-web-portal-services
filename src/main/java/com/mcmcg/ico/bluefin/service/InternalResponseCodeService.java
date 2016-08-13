@@ -2,7 +2,10 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -142,6 +145,7 @@ public class InternalResponseCodeService {
     }
 
     public InternalResponseCode updateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource) {
+
         Long internalCodeId = internalResponseCodeResource.getInternalCodeId();
         InternalResponseCode internalResponseCode = internalResponseCodeRepository.findOne(internalCodeId);
         if (internalResponseCode == null) {
@@ -169,20 +173,24 @@ public class InternalResponseCodeService {
         internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
         internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
         internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
-        internalResponseCode
-                .setPaymentProcessorInternalResponseCodes(new ArrayList<PaymentProcessorInternalResponseCode>());
-        internalResponseCode = internalResponseCodeRepository.save(internalResponseCode);
 
         if (internalResponseCodeResource.getPaymentProcessorCodes() != null
                 || !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
-            List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<PaymentProcessorInternalResponseCode>();
+            // New payment processor response codes that need to be created or
+            // updated
+            List<PaymentProcessorResponseCode> newPaymentProcessorResponseCode = new ArrayList<PaymentProcessorResponseCode>();
+
+            // New payment processor response codes that need to be created or
+            // updated
+            Map<Long, PaymentProcessorResponseCode> newMapOfPaymentProcessorResponseCodes = new HashMap<Long, PaymentProcessorResponseCode>();
+
             for (PaymentProcessorCodeResource resourceProcessorCode : internalResponseCodeResource
                     .getPaymentProcessorCodes()) {
 
                 PaymentProcessor paymentProcessor = paymentProcessorService
                         .getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
-                PaymentProcessorResponseCode paymentProcessorResponseCode = null;
+                PaymentProcessorResponseCode paymentProcessorResponseCode;
                 if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
                     paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                             .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -197,6 +205,7 @@ public class InternalResponseCodeService {
                                 "Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
                     } else if (!resourceProcessorCode.getCode()
                             .equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
+
                         if (paymentProcessorResponseCodeRepository
                                 .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
                                         resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
@@ -210,16 +219,18 @@ public class InternalResponseCodeService {
                 if (paymentProcessorResponseCode == null) {
                     LOGGER.info("Creating new payment processor response code {}", resourceProcessorCode.getCode());
                     paymentProcessorResponseCode = new PaymentProcessorResponseCode();
+
                 } else {
                     Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
                             .getInternalResponseCode();
                     for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
                         if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
-                                .equals(internalResponseCodeResource.getCode())) {
+                                .getPaymentProcessorResponseCode().equals(resourceProcessorCode.getCode())) {
                             throw new CustomBadRequestException(
                                     "This Payment Processor is already related to another Internal Response Code.");
                         }
                     }
+
                 }
 
                 paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
@@ -228,16 +239,40 @@ public class InternalResponseCodeService {
                         .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
                 paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
+                if (paymentProcessorResponseCode.getPaymentProcessorResponseCodeId() == null) {
+                    newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
+                } else {
+                    newMapOfPaymentProcessorResponseCodes.put(
+                            paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
+                            paymentProcessorResponseCode);
+                }
                 paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                         .save(paymentProcessorResponseCode);
-                PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new PaymentProcessorInternalResponseCode();
-                paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
-                paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
-                paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
             }
-            internalResponseCode.getPaymentProcessorInternalResponseCodes().clear();
-            internalResponseCode.getPaymentProcessorInternalResponseCodes()
-                    .addAll(paymentProcessorInternalResponseCodes);
+
+            // Update information from current payment processor merchants
+            Iterator<PaymentProcessorInternalResponseCode> iter = internalResponseCode
+                    .getPaymentProcessorInternalResponseCodes().iterator();
+            while (iter.hasNext()) {
+                PaymentProcessorInternalResponseCode element = iter.next();
+
+                PaymentProcessorResponseCode ppmr = newMapOfPaymentProcessorResponseCodes
+                        .get(element.getPaymentProcessorInternalResponseCodeId());
+                if (ppmr == null) {
+                    iter.remove();
+                } else {
+                    element.setPaymentProcessorResponseCode(ppmr);
+                }
+            }
+
+            // Add the new payment processor response codes
+            for (PaymentProcessorResponseCode current : newPaymentProcessorResponseCode) {
+                PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new PaymentProcessorInternalResponseCode();
+                paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(current);
+
+                internalResponseCode.addPaymentProcessorInternalResponseCode(paymentProcessorInternalResponseCode);
+            }
+
         }
         return internalResponseCodeRepository.save(internalResponseCode);
     }
