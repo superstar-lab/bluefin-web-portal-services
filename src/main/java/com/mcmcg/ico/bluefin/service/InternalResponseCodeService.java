@@ -82,6 +82,7 @@ public class InternalResponseCodeService {
                         .getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
                 PaymentProcessorResponseCode paymentProcessorResponseCode = null;
+                Boolean codeModified = false;
                 if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
                     paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                             .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -96,6 +97,7 @@ public class InternalResponseCodeService {
                                 "Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
                     } else if (!resourceProcessorCode.getCode()
                             .equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
+                        codeModified = true;
                         if (paymentProcessorResponseCodeRepository
                                 .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
                                         resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
@@ -114,7 +116,7 @@ public class InternalResponseCodeService {
                             .getInternalResponseCode();
                     for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
                         if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
-                                .equals(internalResponseCodeResource.getCode())) {
+                                .equals(internalResponseCodeResource.getCode()) && !codeModified) {
                             throw new CustomBadRequestException(
                                     "This Payment Processor is already related to another Internal Response Code.");
                         }
@@ -191,6 +193,7 @@ public class InternalResponseCodeService {
                         .getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
                 PaymentProcessorResponseCode paymentProcessorResponseCode;
+                Boolean codeModified = false;
                 if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
                     paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                             .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -205,7 +208,7 @@ public class InternalResponseCodeService {
                                 "Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
                     } else if (!resourceProcessorCode.getCode()
                             .equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
-
+                        codeModified = true;
                         if (paymentProcessorResponseCodeRepository
                                 .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
                                         resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
@@ -225,7 +228,8 @@ public class InternalResponseCodeService {
                             .getInternalResponseCode();
                     for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
                         if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
-                                .getPaymentProcessorResponseCode().equals(resourceProcessorCode.getCode())) {
+                                .getPaymentProcessorResponseCode().equals(resourceProcessorCode.getCode())
+                                && !codeModified) {
                             throw new CustomBadRequestException(
                                     "This Payment Processor is already related to another Internal Response Code.");
                         }

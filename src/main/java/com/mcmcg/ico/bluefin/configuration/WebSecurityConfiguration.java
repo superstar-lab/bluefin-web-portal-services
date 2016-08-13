@@ -139,11 +139,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                             // Internal Response Codes
                             .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.POST, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
                             .antMatchers(HttpMethod.PUT, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
                             .antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{id}", internalResponseCodesApiBaseURL + "/{id}/").hasAuthority("MANAGE_RESPONSE_CODES")
 
-                            // Internal Response Codes
+                            // Internal Status Codes
                             .antMatchers(HttpMethod.GET, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.POST, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{id}", internalStatusCodesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 

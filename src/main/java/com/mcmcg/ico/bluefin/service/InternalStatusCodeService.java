@@ -60,15 +60,16 @@ public class InternalStatusCodeService {
 
         if (internalStatusCode != null) {
             throw new CustomBadRequestException(
-                    "Internal status code already exists and is assigned to this transaction type.");
+                    "Internal Status code already exists and is assigned to this transaction type.");
         }
 
-        LOGGER.info("Creating new internal status code {}", internalStatusCodeResource.getCode());
+        LOGGER.info("Creating new internal Status code {}", internalStatusCodeResource.getCode());
         internalStatusCode = new InternalStatusCode();
         internalStatusCode.setInternalStatusCode(internalStatusCodeResource.getCode());
         internalStatusCode.setInternalStatusCodeDescription(internalStatusCodeResource.getDescription());
         internalStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
-        internalStatusCode.setPaymentProcessorInternalStatusCodes(new ArrayList<PaymentProcessorInternalStatusCode>());
+        internalStatusCode
+                .setPaymentProcessorInternalStatusCodes(new ArrayList<PaymentProcessorInternalStatusCode>());
         internalStatusCode = internalStatusCodeRepository.save(internalStatusCode);
 
         if (!(internalStatusCodeResource.getPaymentProcessorCodes() == null
@@ -81,6 +82,7 @@ public class InternalStatusCodeService {
                         .getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
                 PaymentProcessorStatusCode paymentProcessorStatusCode = null;
+                Boolean codeModified = false;
                 if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
                     paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
                             .findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -88,12 +90,14 @@ public class InternalStatusCodeService {
                                     paymentProcessor);
                 } else {
                     Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-                    paymentProcessorStatusCode = paymentProcessorStatusCodeRepository.findOne(paymentProcessorCodeId);
+                    paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
+                            .findOne(paymentProcessorCodeId);
                     if (paymentProcessorStatusCode == null) {
                         throw new CustomNotFoundException(
                                 "Payment Processor Status Code does not exist: " + paymentProcessorCodeId);
                     } else if (!resourceProcessorCode.getCode()
                             .equals(paymentProcessorStatusCode.getPaymentProcessorStatusCode())) {
+                        codeModified = true;
                         if (paymentProcessorStatusCodeRepository
                                 .findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
                                         resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
@@ -105,14 +109,14 @@ public class InternalStatusCodeService {
                 }
 
                 if (paymentProcessorStatusCode == null) {
-                    LOGGER.info("Creating new payment processor status code {}", resourceProcessorCode.getCode());
+                    LOGGER.info("Creating new payment processor Status code {}", resourceProcessorCode.getCode());
                     paymentProcessorStatusCode = new PaymentProcessorStatusCode();
                 } else {
                     Collection<PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
                             .getInternalStatusCode();
                     for (PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
                         if (!currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode()
-                                .equals(internalStatusCodeResource.getCode())) {
+                                .equals(internalStatusCodeResource.getCode()) && !codeModified) {
                             throw new CustomBadRequestException(
                                     "This Payment Processor is already related to another Internal Status Code.");
                         }
@@ -125,7 +129,8 @@ public class InternalStatusCodeService {
                         .setPaymentProcessorStatusCodeDescription(resourceProcessorCode.getDescription());
                 paymentProcessorStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
-                paymentProcessorStatusCode = paymentProcessorStatusCodeRepository.save(paymentProcessorStatusCode);
+                paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
+                        .save(paymentProcessorStatusCode);
                 PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
                 paymentProcessorInternalStatusCode.setPaymentProcessorStatusCode(paymentProcessorStatusCode);
                 paymentProcessorInternalStatusCode.setInternalStatusCode(internalStatusCode);
@@ -133,7 +138,8 @@ public class InternalStatusCodeService {
 
             }
             internalStatusCode.getPaymentProcessorInternalStatusCodes().clear();
-            internalStatusCode.getPaymentProcessorInternalStatusCodes().addAll(paymentProcessorInternalStatusCodes);
+            internalStatusCode.getPaymentProcessorInternalStatusCodes()
+                    .addAll(paymentProcessorInternalStatusCodes);
 
         }
         return internalStatusCodeRepository.save(internalStatusCode);
@@ -152,7 +158,7 @@ public class InternalStatusCodeService {
         TransactionType transactionType = transactionTypeService
                 .getTransactionTypeByName(internalStatusCodeResource.getTransactionTypeName());
 
-        LOGGER.info("Updating internal status code {}", internalCodeId);
+        LOGGER.info("Updating internal Status code {}", internalCodeId);
 
         // Just in case of modify the code of the Internal Status Code, verify
         // if the code is already assigned
@@ -162,7 +168,7 @@ public class InternalStatusCodeService {
                             transactionType.getTransactionTypeName());
             if (existingInternalStatusCode != null) {
                 throw new CustomBadRequestException(
-                        "Another Internal status code already exists and is assigned to this transaction type.");
+                        "Another Internal Status code already exists and is assigned to this transaction type.");
             }
         }
 
@@ -172,11 +178,11 @@ public class InternalStatusCodeService {
 
         if (internalStatusCodeResource.getPaymentProcessorCodes() != null
                 || !internalStatusCodeResource.getPaymentProcessorCodes().isEmpty()) {
-            // New payment processor status codes that need to be created or
+            // New payment processor Status codes that need to be created or
             // updated
             List<PaymentProcessorStatusCode> newPaymentProcessorStatusCode = new ArrayList<PaymentProcessorStatusCode>();
 
-            // New payment processor status codes that need to be created or
+            // New payment processor Status codes that need to be created or
             // updated
             Map<Long, PaymentProcessorStatusCode> newMapOfPaymentProcessorStatusCodes = new HashMap<Long, PaymentProcessorStatusCode>();
 
@@ -187,6 +193,7 @@ public class InternalStatusCodeService {
                         .getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
                 PaymentProcessorStatusCode paymentProcessorStatusCode;
+                Boolean codeModified = false;
                 if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
                     paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
                             .findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -194,13 +201,14 @@ public class InternalStatusCodeService {
                                     paymentProcessor);
                 } else {
                     Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-                    paymentProcessorStatusCode = paymentProcessorStatusCodeRepository.findOne(paymentProcessorCodeId);
+                    paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
+                            .findOne(paymentProcessorCodeId);
                     if (paymentProcessorStatusCode == null) {
                         throw new CustomNotFoundException(
                                 "Payment Processor Status Code does not exist: " + paymentProcessorCodeId);
                     } else if (!resourceProcessorCode.getCode()
                             .equals(paymentProcessorStatusCode.getPaymentProcessorStatusCode())) {
-
+                        codeModified = true;
                         if (paymentProcessorStatusCodeRepository
                                 .findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
                                         resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
@@ -212,7 +220,7 @@ public class InternalStatusCodeService {
                 }
 
                 if (paymentProcessorStatusCode == null) {
-                    LOGGER.info("Creating new payment processor status code {}", resourceProcessorCode.getCode());
+                    LOGGER.info("Creating new payment processor Status code {}", resourceProcessorCode.getCode());
                     paymentProcessorStatusCode = new PaymentProcessorStatusCode();
 
                 } else {
@@ -220,7 +228,8 @@ public class InternalStatusCodeService {
                             .getInternalStatusCode();
                     for (PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
                         if (!currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode()
-                                .getPaymentProcessorStatusCode().equals(resourceProcessorCode.getCode())) {
+                                .getPaymentProcessorStatusCode().equals(resourceProcessorCode.getCode())
+                                && !codeModified) {
                             throw new CustomBadRequestException(
                                     "This Payment Processor is already related to another Internal Status Code.");
                         }
@@ -235,10 +244,11 @@ public class InternalStatusCodeService {
                 paymentProcessorStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
                 newPaymentProcessorStatusCode.add(paymentProcessorStatusCode);
-                newMapOfPaymentProcessorStatusCodes.put(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),
-                        paymentProcessorStatusCode);
+                newMapOfPaymentProcessorStatusCodes.put(
+                        paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(), paymentProcessorStatusCode);
 
-                paymentProcessorStatusCode = paymentProcessorStatusCodeRepository.save(paymentProcessorStatusCode);
+                paymentProcessorStatusCode = paymentProcessorStatusCodeRepository
+                        .save(paymentProcessorStatusCode);
             }
 
             // Update information from current payment processor merchants
@@ -256,7 +266,7 @@ public class InternalStatusCodeService {
                 }
             }
 
-            // Add the new payment processor status codes
+            // Add the new payment processor Status codes
             for (PaymentProcessorStatusCode current : newPaymentProcessorStatusCode) {
                 PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
                 paymentProcessorInternalStatusCode.setPaymentProcessorStatusCode(current);
@@ -272,7 +282,8 @@ public class InternalStatusCodeService {
         InternalStatusCode internalStatusCodeToDelete = internalStatusCodeRepository.findOne(id);
 
         if (internalStatusCodeToDelete == null) {
-            throw new CustomNotFoundException(String.format("Unable to find internal status code with id = [%s]", id));
+            throw new CustomNotFoundException(
+                    String.format("Unable to find internal Status code with id = [%s]", id));
         }
         internalStatusCodeToDelete.getPaymentProcessorInternalStatusCodes().clear();
         internalStatusCodeRepository.delete(internalStatusCodeToDelete);
