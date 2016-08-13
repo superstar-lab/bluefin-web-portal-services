@@ -37,7 +37,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
     private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
     private static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
-    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
+    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
     private static final String NUMBERS_AND_WORDS_REGEX = "[\\w\\s|\\d+(?:\\.\\d+)?]+";
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
@@ -413,28 +413,16 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             dynamicParametersMap.put(param, value.replaceAll("[^\\w\\-\\,]", ""));
             return inputCriteria.toString();
         } else {
-            if (name.contains("ChargeAmount") || name.contains("InternalStatusCode")) {
+            if (name.contains("ChargeAmount") || name.contains("Date") || name.contains("InternalStatusCode")) {
                 inputCriteria.append(getOperation(operator));
             } else if (name.contains("FirstName") || name.contains("LastName")) {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
-            } else if (name.contains("Date")) {
-                if ("<".equals(operator)) {
-                    inputCriteria.append(" ").append(operator).append(" DATEADD(DAY, 1, ");
-                } else if (">".equals(operator)) {
-                    inputCriteria.append(GOE);
-                } else {
-                    inputCriteria.append(" ").append("<").append(" DATEADD(DAY, 1, ").append(":").append(param)
-                            .append(")").append(AND).append(name).append(GOE);
-                }
             } else {
                 inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator);
             }
 
         }
         inputCriteria.append(":").append(param);
-        if (name.contains("Date") && "<".equals(operator)) {
-            inputCriteria.append(")");
-        }
 
         dynamicParametersMap.put(param, value);
 
@@ -468,7 +456,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @throws ParseException
      */
     private Boolean validFormatDate(String dateInString) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         return formatter.parse(dateInString) != null;
     }
 
