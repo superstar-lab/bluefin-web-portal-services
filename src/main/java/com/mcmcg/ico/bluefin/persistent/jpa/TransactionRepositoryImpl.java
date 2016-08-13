@@ -288,14 +288,14 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 if (and)
                     result.append(AND);
 
-                if (attribute.equals("transactionId")) {
+                if (attribute.equalsIgnoreCase("transactionId")) {
                     result.append("(")
                             .append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
                                     "applicationTransactionIdParam", matcher.group(3)))
                             .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
                                     matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
                             .append(")");
-                } else if (attribute.equals("customer")) {
+                } else if (attribute.equalsIgnoreCase("customer")) {
                     result.append("(")
                             .append(appendCriteriaToQuery(prefix + ".FirstName", matcher.group(2), "customerParam",
                                     matcher.group(3)))
@@ -346,13 +346,13 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 }
 
                 if (prefix.equals("REFUND") || prefix.equals("VOID")) {
-                    if (attribute.equals("accountNumber") || attribute.equals("amount") || attribute.equals("cardType")
-                            || attribute.equals("legalEntity") || attribute.equals("customer")) {
+                    if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount") || attribute.equalsIgnoreCase("cardType")
+                            || attribute.equalsIgnoreCase("legalEntity") || attribute.equalsIgnoreCase("customer")) {
                         continue;
                     }
                 } else {
-                    if (attribute.equals("transactionId") || attribute.equals("internalStatusCode")
-                            || attribute.equals("transactionDateTime") || attribute.equals("processorName")) {
+                    if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
+                            || attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("processorName")) {
                         continue;
                     }
                 }
@@ -360,14 +360,14 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 if (and)
                     result.append(AND);
 
-                if (attribute.equals("transactionId")) {
+                if (attribute.equalsIgnoreCase("transactionId")) {
                     result.append("(")
                             .append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
                                     "applicationTransactionIdParam", matcher.group(3)))
                             .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
                                     matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
                             .append(")");
-                } else if (attribute.equals("customer")) {
+                } else if (attribute.equalsIgnoreCase("customer")) {
                     result.append("(")
                             .append(appendCriteriaToQuery(prefix + ".FirstName", matcher.group(2), "customerParam",
                                     matcher.group(3)))
@@ -563,7 +563,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             select.append(
                     "(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded");
         } else if (saleAlias.equals("VOIDSALE") || saleAlias.equals("REFUNDSALE")) {
-            select.append(",0 AS IsVoided, 0 AS IsRefunded");
+            select.append(", 0 AS IsVoided, 0 AS IsRefunded");
         }
         select.append(" FROM ").append(tableName).append(alias).append(" ");
 
