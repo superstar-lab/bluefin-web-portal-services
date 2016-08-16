@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,7 +62,6 @@ public class UserResource implements Serializable {
         user.setEmail(email);
         user.setRoles(roles);
         user.setLegalEntities(entities);
-        user.setDateUpdated(new Date());
 
         return user;
     }

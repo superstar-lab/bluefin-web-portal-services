@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Set;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -39,7 +38,6 @@ public class UpdateUserResource implements Serializable {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setDateUpdated(new Date());
         return user;
     }
 

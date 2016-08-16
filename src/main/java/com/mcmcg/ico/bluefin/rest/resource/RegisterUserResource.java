@@ -2,7 +2,6 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -47,7 +46,6 @@ public class RegisterUserResource implements Serializable {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
-        user.setDateUpdated(new Date());
         // Roles
         for (Role role : roles) {
             user.addRole(role);

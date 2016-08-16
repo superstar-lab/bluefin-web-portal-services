@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -154,7 +154,7 @@ public class UserService {
         user.setFirstName(userResource.getFirstName());
         user.setLastName(userResource.getLastName());
         user.setEmail(userResource.getEmail());
-        user.setDateUpdated(new Date());
+        user.setDateUpdated(new DateTime());
 
         return new UserResource(userRepository.save(user));
     }
@@ -202,6 +202,7 @@ public class UserService {
             }
         }
 
+        userToUpdate.setDateUpdated(new DateTime());
         return userRepository.save(userToUpdate);
     }
 
@@ -250,7 +251,7 @@ public class UserService {
                 userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
             }
         }
-
+        userToUpdate.setDateUpdated(new DateTime());
         return userRepository.save(userToUpdate);
     }
 
@@ -351,6 +352,7 @@ public class UserService {
             userToUpdate.setIsActive((short) 1);
         }
         userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
+        userToUpdate.setDateUpdated(new DateTime());
         return userRepository.save(userToUpdate);
     }
 

@@ -23,6 +23,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -48,7 +49,7 @@ public class User implements Serializable {
     @PrePersist
     public void beforePersist() {
         this.username = this.username.toLowerCase();
-        if(StringUtils.isNotEmpty(this.email)) {
+        if (StringUtils.isNotEmpty(this.email)) {
             this.email = this.email.toLowerCase();
         }
         this.firstName = StringUtils.capitalize(this.firstName);
@@ -81,11 +82,10 @@ public class User implements Serializable {
     @Column(name = "IsActive")
     private Short isActive = (short) 0;
 
-    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "LastLogin")
-    private Date lastLogin;
+    private DateTime lastLogin;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -105,7 +105,7 @@ public class User implements Serializable {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateUpdated")
-    private Date dateUpdated;
+    private DateTime dateUpdated = new DateTime();
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,6 +121,9 @@ public class SessionService {
         User user = userService.getUser(username);
 
         final String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
+
+        user.setLastLogin(new DateTime());
+        userRepository.save(user);
 
         LOGGER.info("Creating login response for user: {}", username);
         return getLoginResponse(user, token);
