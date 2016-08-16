@@ -99,6 +99,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers("/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-resources","/v2/api-docs", 
                                     "/configuration/**", "/images/**").permitAll()
 
+                    .and()
+                        .authorizeRequests()
+
+                            // Health
+                            .antMatchers(HttpMethod.GET, apiBaseURL + "/ping/", apiBaseURL + "/ping").permitAll()
+
                             // Transactions
                             .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/", transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").hasAnyAuthority("SEARCH_REPORTING")
 
@@ -149,6 +155,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.PUT, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{id}", internalStatusCodesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 
+                    .and()
+                        .authorizeRequests()
                             .anyRequest().authenticated();
         // @formatter:on
 
