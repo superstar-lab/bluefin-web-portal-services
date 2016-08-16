@@ -192,63 +192,74 @@ public class InternalResponseCodeService {
                 PaymentProcessor paymentProcessor = paymentProcessorService
                         .getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
-                PaymentProcessorResponseCode paymentProcessorResponseCode;
-                Boolean codeModified = false;
-                if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
-                    paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
-                            .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
-                                    resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
-                                    paymentProcessor);
-                } else {
-                    Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-                    paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
-                            .findOne(paymentProcessorCodeId);
-                    if (paymentProcessorResponseCode == null) {
-                        throw new CustomNotFoundException(
-                                "Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
-                    } else if (!resourceProcessorCode.getCode()
-                            .equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
-                        codeModified = true;
-                        if (paymentProcessorResponseCodeRepository
+                if (!resourceProcessorCode.getCode().isEmpty() && !resourceProcessorCode.getDescription().isEmpty()) {
+                    PaymentProcessorResponseCode paymentProcessorResponseCode;
+                    Boolean codeModified = false;
+                    if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
+                        paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                                 .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
                                         resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
-                                        paymentProcessor) != null) {
-                            throw new CustomBadRequestException("The code " + resourceProcessorCode.getCode()
-                                    + " is already used by other Payment Processor Response Code.");
+                                        paymentProcessor);
+                    } else {
+                        Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
+                        paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
+                                .findOne(paymentProcessorCodeId);
+                        if (paymentProcessorResponseCode == null) {
+                            throw new CustomNotFoundException(
+                                    "Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
+                        } else if (!resourceProcessorCode.getCode()
+                                .equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
+                            codeModified = true;
+                            if (paymentProcessorResponseCodeRepository
+                                    .findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
+                                            resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
+                                            paymentProcessor) != null) {
+                                throw new CustomBadRequestException("The code " + resourceProcessorCode.getCode()
+                                        + " is already used by other Payment Processor Response Code.");
+                            }
                         }
                     }
-                }
 
-                if (paymentProcessorResponseCode == null) {
-                    LOGGER.info("Creating new payment processor response code {}", resourceProcessorCode.getCode());
-                    paymentProcessorResponseCode = new PaymentProcessorResponseCode();
+                    if (paymentProcessorResponseCode == null) {
+                        LOGGER.info("Creating new payment processor response code {}", resourceProcessorCode.getCode());
+                        paymentProcessorResponseCode = new PaymentProcessorResponseCode();
 
+                    } else {
+                        Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
+                                .getInternalResponseCode();
+                        for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
+                            if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
+                                    .getPaymentProcessorResponseCode().equals(resourceProcessorCode.getCode())
+                                    && !codeModified) {
+                                throw new CustomBadRequestException(
+                                        "This Payment Processor is already related to another Internal Response Code.");
+                            }
+                        }
+
+                    }
+
+                    paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
+                    paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
+                    paymentProcessorResponseCode
+                            .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
+                    paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
+
+                    newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
+                    newMapOfPaymentProcessorResponseCodes.put(
+                            paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
+                            paymentProcessorResponseCode);
+
+                    paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
+                            .save(paymentProcessorResponseCode);
                 } else {
-                    Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
-                            .getInternalResponseCode();
-                    for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
-                        if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
-                                .getPaymentProcessorResponseCode().equals(resourceProcessorCode.getCode())
-                                && !codeModified) {
-                            throw new CustomBadRequestException(
-                                    "This Payment Processor is already related to another Internal Response Code.");
-                        }
+                    if (resourceProcessorCode.getCode().isEmpty() && resourceProcessorCode.getDescription().isEmpty()) {
+                        LOGGER.info("Removing payment processor code");
+                    } else {
+                        throw new CustomBadRequestException(
+                                "Unable to save Payment Processor code with code or description empty.");
+
                     }
-
                 }
-
-                paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-                paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
-                paymentProcessorResponseCode
-                        .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-                paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
-
-                newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
-                newMapOfPaymentProcessorResponseCodes.put(
-                        paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(), paymentProcessorResponseCode);
-
-                paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
-                        .save(paymentProcessorResponseCode);
             }
 
             // Update information from current payment processor merchants
