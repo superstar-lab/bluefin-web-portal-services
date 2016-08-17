@@ -29,8 +29,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = { "paymentProcessorMerchants", "paymentProcessorRules" })
+@ToString(exclude = { "paymentProcessorMerchants", "paymentProcessorRules" })
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "PaymentProcessor_Lookup")

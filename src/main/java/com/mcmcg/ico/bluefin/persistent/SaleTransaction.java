@@ -26,6 +26,8 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @SqlResultSetMapping(name = "CustomMappingResult", classes = {
         @ConstructorResult(targetClass = SaleTransaction.class, columns = {
@@ -48,6 +50,8 @@ import lombok.Data;
                 @ColumnResult(name = "IsVoided", type = Integer.class),
                 @ColumnResult(name = "IsRefunded", type = Integer.class) }) })
 @Data
+@EqualsAndHashCode(exclude = { "refundedTransactions", "voidedTransactions" })
+@ToString(exclude = { "refundedTransactions", "voidedTransactions" })
 @Entity
 @Table(name = "Sale_Transaction")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "saleTransactionId")

@@ -26,8 +26,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = { "internalStatusCode" })
+@ToString(exclude = { "internalStatusCode" })
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "PaymentProcessorStatusCode_Lookup")

@@ -36,8 +36,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = { "roles", "legalEntities" })
+@ToString(exclude = { "roles", "legalEntities" })
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "User_Lookup")

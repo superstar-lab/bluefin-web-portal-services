@@ -19,8 +19,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = { "rolePermissions", "userRoles" })
+@ToString(exclude = { "rolePermissions", "userRoles" })
 @Entity
 @Table(name = "Role_Lookup")
 public class Role implements Serializable {
