@@ -78,13 +78,11 @@ public class PaymentProcessorRule implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
-    
-    @JsonIdentityReference(alwaysAsId = true)
-    @ManyToOne
+
     @JsonIgnore
-    @JoinColumn(name = "ModifiedBy", referencedColumnName = "username")
     @LastModifiedBy
-    private User lastModifiedBy;
+    @Column(name = "ModifiedBy")
+    private String lastModifiedBy;
 
     @JsonIgnore
     public boolean hasNoLimit() {

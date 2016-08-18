@@ -17,7 +17,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -49,11 +48,9 @@ public class PaymentProcessorInternalStatusCode implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private Date createdDate;
-    
-    @JsonIdentityReference(alwaysAsId = true)
-    @ManyToOne
+
     @JsonIgnore
-    @JoinColumn(name = "ModifiedBy", referencedColumnName = "username")
     @LastModifiedBy
-    private User lastModifiedBy;
+    @Column(name = "ModifiedBy")
+    private String lastModifiedBy;
 }

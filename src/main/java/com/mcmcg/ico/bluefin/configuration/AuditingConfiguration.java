@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 
 @Configuration
@@ -15,21 +14,21 @@ import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 public class AuditingConfiguration {
 
     @Bean
-    public AuditorAware<User> auditorProvider() {
+    public AuditorAware<String> auditorProvider() {
         return new SpringSecurityAuditorAware();
 
     }
 
-    class SpringSecurityAuditorAware implements AuditorAware<User> {
+    class SpringSecurityAuditorAware implements AuditorAware<String> {
 
-        public User getCurrentAuditor() {
+        public String getCurrentAuditor() {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (authentication == null || !authentication.isAuthenticated()) {
                 return null;
             }
 
-            return ((SecurityUser) authentication.getPrincipal()).getUser();
+            return ((SecurityUser) authentication.getPrincipal()).getUser().getUsername();
         }
     }
 }

@@ -13,8 +13,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -24,7 +22,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -57,12 +54,10 @@ public class InternalResponseCode implements Serializable {
     @OneToMany(mappedBy = "internalResponseCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
 
-    @JsonIdentityReference(alwaysAsId = true)
-    @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "ModifiedBy", referencedColumnName = "username")
     @LastModifiedBy
-    private User lastModifiedBy;
+    @Column(name = "ModifiedBy")
+    private String lastModifiedBy;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
