@@ -166,13 +166,10 @@ public class PaymentProcessorRuleService {
      */
     private void validatePaymentProcessorRule(PaymentProcessorRule newPaymentProcessorRule,
             final long paymentProcessorId) {
-        if (newPaymentProcessorRule.getCardType() == CardType.UNKNOWN) {
-            validatePaymentProcessorRuleForUnknownCardType(newPaymentProcessorRule, paymentProcessorId);
-        } else {
-            validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule, paymentProcessorId);
-        }
+        validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule, paymentProcessorId);
     }
 
+    @SuppressWarnings("unused")
     private void validatePaymentProcessorRuleForUnknownCardType(PaymentProcessorRule newPaymentProcessorRule,
             final long loadedPaymentProcessorId) {
         List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
