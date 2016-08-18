@@ -27,7 +27,8 @@ public class QueryDSLUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryDSLUtil.class);
 
     private static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
-    private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
+    private static final String EMAIL_PATTERN = "[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
     private static final String ANY_LIST_REGEX = "\\[(.*?)\\]";
     private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
     public static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
