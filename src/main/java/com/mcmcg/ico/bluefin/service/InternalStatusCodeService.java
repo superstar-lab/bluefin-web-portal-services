@@ -45,7 +45,7 @@ public class InternalStatusCodeService {
     public List<InternalStatusCode> getInternalStatusCodesByTransactionType(String transactionType) {
         // Get transactionType if null thrown an exception
         transactionTypeService.getTransactionTypeByName(transactionType);
-        return internalStatusCodeRepository.findByTransactionTypeName(transactionType);
+        return internalStatusCodeRepository.findByTransactionTypeNameOrderByInternalStatusCodeAsc(transactionType);
     }
 
     public InternalStatusCode createInternalStatusCodes(InternalCodeResource internalStatusCodeResource) {

@@ -11,6 +11,6 @@ public interface InternalStatusCodeRepository extends JpaRepository<InternalStat
     public InternalStatusCode findByInternalStatusCodeAndTransactionTypeName(String internalStatusCode,
             String transactionTypeName);
     
-    public List<InternalStatusCode> findByTransactionTypeName(String transactionTypeName);
+    public List<InternalStatusCode> findByTransactionTypeNameOrderByInternalStatusCodeAsc(final String transactionTypeName);
 
 }

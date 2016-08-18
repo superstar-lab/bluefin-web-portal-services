@@ -144,10 +144,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
 
                             // Internal Response Codes
-                            .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
-                            .antMatchers(HttpMethod.POST, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
-                            .antMatchers(HttpMethod.PUT, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAuthority("MANAGE_RESPONSE_CODES")
-                            .antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{id}", internalResponseCodesApiBaseURL + "/{id}/").hasAuthority("MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.POST, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.PUT, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
+                            .antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{id}", internalResponseCodesApiBaseURL + "/{id}/").hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
 
                             // Internal Status Codes
                             .antMatchers(HttpMethod.GET, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")

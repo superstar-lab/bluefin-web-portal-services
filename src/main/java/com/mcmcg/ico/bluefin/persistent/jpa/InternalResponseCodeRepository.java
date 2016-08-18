@@ -11,6 +11,7 @@ public interface InternalResponseCodeRepository extends JpaRepository<InternalRe
     public InternalResponseCode findByInternalResponseCodeAndTransactionTypeName(String internalResponseCode,
             String transactionTypeName);
     
-    public List<InternalResponseCode> findByTransactionTypeName(String transactionTypeName);
+    
+    public List<InternalResponseCode> findByTransactionTypeNameOrderByInternalResponseCodeAsc(final String transactionTypeName);
 
 }
