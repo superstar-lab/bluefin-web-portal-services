@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -30,6 +30,7 @@ import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
@@ -51,7 +52,7 @@ public class TransactionsService {
     private RefundTransactionRepository refundTransactionRepository;
     @Autowired
     private UserRepository userRepository;
-    
+
     @Value("${bluefin.wp.services.transactions.report.path}")
     private String reportPath;
 
@@ -112,13 +113,14 @@ public class TransactionsService {
         // Create the CSVFormat object with "\n" as a record delimiter
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 
-         try {
-        File dir = new File(reportPath);
-        dir.mkdirs();
-        file = new File(dir, UUID.randomUUID() + ".csv");
-        file.createNewFile();
+        try {
+            File dir = new File(reportPath);
+            dir.mkdirs();
+            file = new File(dir, UUID.randomUUID() + ".csv");
+            file.createNewFile();
         } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv");
+            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
         }
         // initialize FileWriter object
         try (FileWriter fileWriter = new FileWriter(file);
@@ -138,7 +140,7 @@ public class TransactionsService {
                 transactionDataRecord.add(transaction.getApplicationTransactionId());
                 transactionDataRecord.add(transaction.getProcessorTransactionId());
                 transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
-                        : fmt.print(new DateTime(transaction.getTransactionDateTime())));
+                        : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));
                 transactionDataRecord.add(transaction.getAccountNumber());
                 transactionDataRecord
                         .add(transaction.getAmount() == null ? "" : "$" + transaction.getAmount().toString());
