@@ -2,7 +2,6 @@ package com.mcmcg.ico.bluefin.persistent;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -63,7 +63,7 @@ public class RefundTransaction implements Serializable, Transaction {
     @Column(name = "TransactionDateTime")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private Date transactionDateTime;
+    private DateTime transactionDateTime;
 
     @Column(name = "ApprovalCode")
     private String approvalCode;
@@ -105,7 +105,7 @@ public class RefundTransaction implements Serializable, Transaction {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
-    private Date createdDate;
+    private DateTime createdDate;
 
     public StatusCode getInternalStatusCode() {
         return StatusCode.valueOf(Integer.parseInt(internalStatusCode));

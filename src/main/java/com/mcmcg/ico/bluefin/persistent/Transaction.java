@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
-import java.util.Date;
+import org.joda.time.DateTime;
 
 public interface Transaction {
     public String getApplicationTransactionId();
@@ -11,5 +11,5 @@ public interface Transaction {
 
     public String getTransactionType();
 
-    public Date getTransactionDateTime();
+    public DateTime getTransactionDateTime();
 }

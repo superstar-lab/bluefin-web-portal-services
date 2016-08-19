@@ -16,6 +16,7 @@ import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -38,8 +39,8 @@ import lombok.ToString;
                 @ColumnResult(name = "TransactionType", type = String.class),
                 @ColumnResult(name = "Processor", type = String.class),
                 @ColumnResult(name = "InternalStatusCode", type = String.class),
-                @ColumnResult(name = "DateCreated", type = Date.class),
-                @ColumnResult(name = "TransactionDateTime", type = Date.class),
+                @ColumnResult(name = "DateCreated", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "TransactionDateTime", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "ChargeAmount", type = BigDecimal.class),
                 @ColumnResult(name = "FirstName", type = String.class),
                 @ColumnResult(name = "LastName", type = String.class),
@@ -65,7 +66,7 @@ public class SaleTransaction implements Serializable, Transaction {
 
     public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
             String merchantID, String transactionType, String processorName, String internalStatusCode,
-            Date createdDate, Date transactionDateTime, BigDecimal amount, String firstName, String lastName,
+            DateTime createdDate, DateTime transactionDateTime, BigDecimal amount, String firstName, String lastName,
             String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
             Integer isRefunded) {
         this.saleTransactionId = saleTransactionId;
@@ -114,7 +115,7 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "TransactionDateTime")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private Date transactionDateTime;
+    private DateTime transactionDateTime;
 
     // Credit Card Information
     @Column(name = "CardNumberFirst6Char")
@@ -212,7 +213,7 @@ public class SaleTransaction implements Serializable, Transaction {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
-    private Date createdDate;
+    private DateTime createdDate;
 
     @JsonIgnore
     @OneToMany(mappedBy = "saleTransaction", fetch = FetchType.LAZY)

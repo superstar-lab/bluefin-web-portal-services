@@ -5,11 +5,11 @@ import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.domain.PageRequest;
@@ -19,7 +19,6 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.PathBuilder;
 
@@ -29,7 +28,7 @@ public class QueryDSLUtilTest {
 
     private SaleTransaction getSaleTransaction() {
 
-        Date date = new Date(1465322756555L);
+        DateTime date = new DateTime(1465322756555L);
         SaleTransaction result = new SaleTransaction();
         result.setAccountNumber("67326509");
         result.setAmount(new BigDecimal(4592.36));
@@ -58,7 +57,7 @@ public class QueryDSLUtilTest {
         final String amount = "amount";
         final BigDecimal amountValue = new BigDecimal(5000);
         final String createdDate = "createdDate";
-        final Date createdDateValue = new Date(1465528545203L);
+        final DateTime createdDateValue = new DateTime(1465528545203L);
         final String processorName = "processorName";
         final String firstName = "firstName";
         final String lastName = "lastName";
@@ -74,8 +73,8 @@ public class QueryDSLUtilTest {
         BooleanExpression expected = entityPath.getString(accountNumber).containsIgnoreCase(tv.getAccountNumber())// accountNumber:1234
                 .and(entityPath.getNumber(amount, BigDecimal.class).goe(tv.getAmount()))// amount>1234
                 .and(entityPath.getNumber(amount, BigDecimal.class).loe(amountValue))// amount<1234
-                .and(entityPath.getDate(createdDate, Date.class).goe(tv.getCreatedDate()))// createdDate>date
-                .and(entityPath.getDate(createdDate, Date.class).loe(createdDateValue))// createdDate<date
+                .and(entityPath.getDate(createdDate, DateTime.class).goe(tv.getCreatedDate()))// createdDate>date
+                .and(entityPath.getDate(createdDate, DateTime.class).loe(createdDateValue))// createdDate<date
                 .and(entityPath.getString(processorName).containsIgnoreCase(tv.getProcessorName()))// processorName:test
                 .and(entityPath.getString(legalEntity).containsIgnoreCase(tv.getLegalEntity())) // legalEntity:test
                 // tricky one transactionStatusCode receives a String, process a

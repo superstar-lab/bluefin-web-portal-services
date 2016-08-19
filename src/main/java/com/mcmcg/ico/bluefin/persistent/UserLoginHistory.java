@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -60,7 +59,7 @@ public class UserLoginHistory implements Serializable {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
-    private Date createdDate;
+    private DateTime createdDate;
 
     @JsonIgnore
     @Column(name = "UserPassword")

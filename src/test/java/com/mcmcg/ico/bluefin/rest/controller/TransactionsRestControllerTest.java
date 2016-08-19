@@ -8,9 +8,9 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -58,7 +58,7 @@ public class TransactionsRestControllerTest {
 
     private SaleTransaction getSaleTransaction() {
 
-        Date date = new Date(1465322756555L);
+        DateTime date = new DateTime(1465322756555L);
         SaleTransaction result = new SaleTransaction();
         result.setAccountNumber("67326509");
         result.setAmount(new BigDecimal(4592.36));

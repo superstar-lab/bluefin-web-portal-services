@@ -1,11 +1,11 @@
 package com.mcmcg.ico.bluefin.security.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -710,7 +710,7 @@ public class SessionServiceTest {
     private List<RolePermission> createRolePermissions() {
         List<RolePermission> rolesPermissions = new ArrayList<RolePermission>();
         RolePermission rp = new RolePermission();
-        rp.setCreatedDate(new Date());
+        rp.setCreatedDate(new DateTime());
         rp.setRolePermissionId(234l);
         Permission permission = new Permission();
         rp.setPermission(permission);
