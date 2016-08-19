@@ -19,6 +19,7 @@ import javax.persistence.Query;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -58,6 +59,9 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     private HashMap<String, String> dynamicParametersMap = new HashMap<String, String>();
     private HashMap<String, String> nativePropertyHashMapping = new HashMap<String, String>();
+
+    @Value("${bluefin.wp.services.transactions.report.max.size}")
+    private String maxSizeReport;
 
     @PostConstruct
     public void init() {
@@ -117,6 +121,52 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         Page<SaleTransaction> list = new PageImpl<SaleTransaction>(tr, page, countResult);
 
         return list;
+    }
+
+    @Override
+    public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
+        String query = getQueryByCriteria(search);
+
+        Query queryTotal = em
+                .createNativeQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
+        Query result = em.createNativeQuery(query, "CustomMappingResult");
+        LOGGER.info("Dynamic Query {}", query);
+        LOGGER.info("Dynamic Parameters {}", dynamicParametersMap);
+        // Sets all parameters to the Query result
+        for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
+            if (entry.getKey().contains("amountParam")) {
+                result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+                queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+            } else if (entry.getKey().contains("transactionDateTimeParam")
+                    || entry.getKey().contains("transactionDateTimeParam")) {
+
+                if (!validFormatDate(entry.getValue())) {
+                    throw new CustomNotFoundException(
+                            "Unable to process find transaction, due an error with date formatting");
+                }
+                // Special case for the dates
+                result.setParameter(entry.getKey(), entry.getValue());
+                queryTotal.setParameter(entry.getKey(), entry.getValue());
+            } else if (entry.getKey().contains("legalEntityParam")) {
+                // Special case for legal entity
+                result.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
+                queryTotal.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
+            } else if (entry.getKey().contains("internalStatusCodeParam")) {
+                // Special case for status code
+                result.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
+                queryTotal.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
+            } else {
+                result.setParameter(entry.getKey(), entry.getValue());
+                queryTotal.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
+
+        dynamicParametersMap.clear();
+        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        @SuppressWarnings("unchecked")
+        List<SaleTransaction> tr = result.getResultList();
+
+        return tr;
     }
 
     /**
@@ -346,13 +396,15 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 }
 
                 if (prefix.equals("REFUND") || prefix.equals("VOID")) {
-                    if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount") || attribute.equalsIgnoreCase("cardType")
-                            || attribute.equalsIgnoreCase("legalEntity") || attribute.equalsIgnoreCase("customer")) {
+                    if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount")
+                            || attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
+                            || attribute.equalsIgnoreCase("customer")) {
                         continue;
                     }
                 } else {
                     if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
-                            || attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("processorName")) {
+                            || attribute.equalsIgnoreCase("transactionDateTime")
+                            || attribute.equalsIgnoreCase("processorName")) {
                         continue;
                     }
                 }

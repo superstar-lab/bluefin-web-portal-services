@@ -78,6 +78,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
         final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
         final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
+        final String reportsApiBaseURL = apiBaseURL + "/reports";
 
         // @formatter:off
         httpSecurity
@@ -107,6 +108,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                             // Transactions
                             .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/", transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").hasAnyAuthority("SEARCH_REPORTING")
+
+                            // Reports
+                            .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/transactions", reportsApiBaseURL + "/transactions/").hasAnyAuthority("SEARCH_REPORTING")
 
                             // Session
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/", sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/").permitAll()

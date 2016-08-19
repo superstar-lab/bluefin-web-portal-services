@@ -223,7 +223,8 @@ public class SaleTransaction implements Serializable, Transaction {
     private Collection<VoidTransaction> voidedTransactions;
 
     public StatusCode getInternalStatusCode() {
-        return StatusCode.valueOf(Integer.parseInt(internalStatusCode));
+        return (internalStatusCode == null || internalStatusCode.isEmpty() ? null
+                : StatusCode.valueOf(Integer.parseInt(internalStatusCode)));
     }
 
     public String getCardNumberLast4Char() {
