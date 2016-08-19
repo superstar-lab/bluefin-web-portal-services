@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum StatusCode {
-    APPROVED(1), DENIED(2), ERROR(3);
+    APPROVED(1), DENIED(2), ERROR(3), MCM_EXCEPTION(4);
 
     private Integer statusCode;
 
