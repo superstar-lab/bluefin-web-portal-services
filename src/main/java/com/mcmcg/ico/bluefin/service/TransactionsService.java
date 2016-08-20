@@ -149,8 +149,7 @@ public class TransactionsService {
                 transactionDataRecord.add(transaction.getCardType());
                 transactionDataRecord.add(transaction.getFirstName() + " " + transaction.getLastName());
                 transactionDataRecord.add(transaction.getProcessorName());
-                transactionDataRecord.add(
-                        transaction.getInternalStatusCode() == null ? "" : transaction.getInternalStatusCode().name());
+                transactionDataRecord.add(transaction.getInternalStatusDescription());
                 transactionDataRecord.add(transaction.getTransactionType());
                 csvFilePrinter.printRecord(transactionDataRecord);
                 count++;

@@ -16,7 +16,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 
 import lombok.Data;
@@ -102,9 +101,4 @@ public class VoidTransaction implements Serializable, Transaction {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
-
-    public StatusCode getInternalStatusCode() {
-        return StatusCode.valueOf(internalStatusCode);
-    }
-
 }

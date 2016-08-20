@@ -588,6 +588,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         select.append("'" + transactionType + "' as TransactionType,");
         select.append(alias).append(".Processor,");
         select.append(alias).append(".InternalStatusCode,");
+        select.append(alias).append(".InternalStatusDescription,");
         select.append(alias).append(".DateCreated,");
         select.append(alias).append(".TransactionDateTime,");
         select.append(saleAlias).append(".ChargeAmount,");

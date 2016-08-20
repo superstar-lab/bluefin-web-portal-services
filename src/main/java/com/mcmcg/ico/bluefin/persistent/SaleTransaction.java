@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.mcmcg.ico.bluefin.model.StatusCode;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -39,6 +38,7 @@ import lombok.ToString;
                 @ColumnResult(name = "TransactionType", type = String.class),
                 @ColumnResult(name = "Processor", type = String.class),
                 @ColumnResult(name = "InternalStatusCode", type = String.class),
+                @ColumnResult(name = "InternalStatusDescription", type = String.class),
                 @ColumnResult(name = "DateCreated", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "TransactionDateTime", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "ChargeAmount", type = BigDecimal.class),
@@ -65,7 +65,7 @@ public class SaleTransaction implements Serializable, Transaction {
     }
 
     public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
-            String merchantID, String transactionType, String processorName, String internalStatusCode,
+            String merchantID, String transactionType, String processorName, String internalStatusCode, String internalStatusDescription,
             DateTime createdDate, DateTime transactionDateTime, BigDecimal amount, String firstName, String lastName,
             String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
             Integer isRefunded) {
@@ -76,6 +76,7 @@ public class SaleTransaction implements Serializable, Transaction {
         this.transactionType = transactionType;
         this.processorName = processorName;
         this.internalStatusCode = internalStatusCode;
+        this.internalStatusDescription = internalStatusDescription;
         this.createdDate = createdDate;
         this.transactionDateTime = transactionDateTime;
         this.amount = amount;
@@ -222,11 +223,6 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonIgnore
     @OneToMany(mappedBy = "saleTransaction", fetch = FetchType.LAZY)
     private Collection<VoidTransaction> voidedTransactions;
-
-    public StatusCode getInternalStatusCode() {
-        return (internalStatusCode == null || internalStatusCode.isEmpty() ? null
-                : StatusCode.valueOf(internalStatusCode));
-    }
 
     public String getCardNumberLast4Char() {
         return CARD_MASK + cardNumberLast4Char;
