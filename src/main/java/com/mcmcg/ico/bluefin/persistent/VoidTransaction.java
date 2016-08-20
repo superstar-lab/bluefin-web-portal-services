@@ -104,7 +104,7 @@ public class VoidTransaction implements Serializable, Transaction {
     private DateTime createdDate;
 
     public StatusCode getInternalStatusCode() {
-        return StatusCode.valueOf(Integer.parseInt(internalStatusCode));
+        return StatusCode.valueOf(internalStatusCode);
     }
 
 }

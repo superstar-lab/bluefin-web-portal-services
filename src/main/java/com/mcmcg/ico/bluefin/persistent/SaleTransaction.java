@@ -225,7 +225,7 @@ public class SaleTransaction implements Serializable, Transaction {
 
     public StatusCode getInternalStatusCode() {
         return (internalStatusCode == null || internalStatusCode.isEmpty() ? null
-                : StatusCode.valueOf(Integer.parseInt(internalStatusCode)));
+                : StatusCode.valueOf(internalStatusCode));
     }
 
     public String getCardNumberLast4Char() {

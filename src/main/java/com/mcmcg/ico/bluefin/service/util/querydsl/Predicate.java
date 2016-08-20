@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.QUserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.QUserRole;
 import com.mcmcg.ico.bluefin.persistent.User;
@@ -63,8 +62,6 @@ class Predicate {
             result = getLongNumericPredicate(entityPath);
         } else if (keyInstance == String.class) {
             result = getStringPredicate(entityPath);
-        } else if (keyInstance == StatusCode.class) {
-            result = getStatusCodePredicate(entityPath);
         } else if (keyInstance == Collection.class) {
             String collectionType = getCollectionType();
             result = getCollectionPredicate(entityPath, collectionType);
@@ -194,18 +191,6 @@ class Predicate {
 
         LOGGER.error("Unable to parse numeric value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse numeric value of " + criteria.getKey());
-    }
-
-    private BooleanExpression getStatusCodePredicate(PathBuilder<?> entityPath) {
-        NumberPath<Integer> path = entityPath.getNumber(criteria.getKey(), Integer.class);
-        Integer value = StatusCode.getStatusCodeByString(criteria.getValue().toString());
-
-        if (value != null && criteria.getOperation().equalsIgnoreCase(":")) {
-            return path.eq(value);
-        }
-
-        LOGGER.error("Unable to parse the value of {}", criteria.getKey());
-        throw new CustomBadRequestException("Unable to parse the value of " + criteria.getKey());
     }
 
     private BooleanExpression getStringPredicate(PathBuilder<?> entityPath) {
