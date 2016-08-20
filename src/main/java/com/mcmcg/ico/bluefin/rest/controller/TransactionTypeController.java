@@ -41,8 +41,8 @@ public class TransactionTypeController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
+
         LOGGER.info("Getting transaction type list");
         return transactionTypeService.getTransactionTypes();
-
     }
 }

@@ -70,6 +70,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         final String apiBaseURL = "/api";
         final String transactionsApiBaseURL = apiBaseURL + "/transactions";
+        final String transactionTypesApiBaseURL = apiBaseURL + "/transaction-types";
         final String sessionApiBaseURL = apiBaseURL + "/session";
         final String usersApiBaseURL = apiBaseURL + "/users";
         final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
@@ -109,6 +110,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             // Transactions
                             .antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/", transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/").hasAnyAuthority("SEARCH_REPORTING")
 
+                            // Transaction Types
+                            .antMatchers(HttpMethod.GET, transactionTypesApiBaseURL, transactionTypesApiBaseURL + "/").authenticated()
+
                             // Reports
                             .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/transactions", reportsApiBaseURL + "/transactions/").hasAnyAuthority("SEARCH_REPORTING")
 
@@ -133,7 +137,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 
                             // Payment Processors
-                            .antMatchers(HttpMethod.GET, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/", paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            .antMatchers(HttpMethod.GET, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/", paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/").authenticated()
                             .antMatchers(HttpMethod.POST, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/", paymentProcessorApiBaseURL + "/{id}/payment-processor-merchants", paymentProcessorApiBaseURL + "/{id}/payment-processor-merchants/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
