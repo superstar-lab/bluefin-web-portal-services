@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -25,9 +26,11 @@ public class UserResource implements Serializable {
     private String username;
 
     @NotBlank(message = "firstName must not be empty")
+    @Pattern(regexp = "^[\\w]*$", message = "firstName must be alphanumeric")
     private String firstName;
 
     @NotBlank(message = "lastName must not be empty")
+    @Pattern(regexp = "^[\\w]*$", message = "lastName must be alphanumeric")
     private String lastName;
 
     @NotBlank(message = "email must not be empty")
