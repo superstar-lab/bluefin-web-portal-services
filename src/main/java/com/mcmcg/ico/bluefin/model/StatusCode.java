@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum StatusCode {
-    APPROVED(1), DENIED(2), ERROR(3), MCM_EXCEPTION(4);
+    APPROVED("1"), DENIED("2"), ERROR("3"), MCM_EXCEPTION("4"), DATABASE_ERROR("ME1");
 
-    private Integer statusCode;
+    private String statusCode;
 
-    private static Map<Integer, StatusCode> map = new HashMap<Integer, StatusCode>();
+    private static Map<String, StatusCode> map = new HashMap<String, StatusCode>();
 
     static {
         for (StatusCode statusEnum : StatusCode.values()) {
@@ -16,22 +16,16 @@ public enum StatusCode {
         }
     }
 
-    private StatusCode(final Integer code) {
+    private StatusCode(final String code) {
         statusCode = code;
     }
-    
-    public static StatusCode valueOf(int code) {
-        return map.get(code);
-    }
 
-    public static Integer getStatusCodeByString(String code) {
+    public static String getStatusCodeByString(String code) {
         for (StatusCode e : StatusCode.values()) {
             if (code.equals(e.name()))
                 return e.statusCode;
         }
         return null;
     }
-    
-    
 
 }
