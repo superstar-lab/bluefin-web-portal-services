@@ -211,6 +211,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         switch (getTransactionType(search).toLowerCase()) {
         case "sale":
+        case "tokenize":
             querySb.append(getSelectForSaleTransaction(search));
             break;
         case "void":
@@ -329,11 +330,6 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
             while (matcher.find()) {
                 attribute = matcher.group(1);
-                // Transaction type is not part of the query, this criteria is
-                // filtered in the method getQueryByCriteria
-                if (attribute.equalsIgnoreCase("transactionType")) {
-                    continue;
-                }
 
                 if (and)
                     result.append(AND);
@@ -585,7 +581,12 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         select.append(alias).append(".ApplicationTransactionID,");
         select.append(alias).append(".ProcessorTransactionID,");
         select.append(alias).append(".MerchantID,");
-        select.append("'" + transactionType + "' as TransactionType,");
+        
+        if("sale".equalsIgnoreCase(transactionType) || "tokenize".equalsIgnoreCase(transactionType)) {
+            select.append(alias).append(".TransactionType,");
+        } else {
+            select.append("'" + transactionType + "' as TransactionType,");
+        }
         select.append(alias).append(".Processor,");
         select.append(alias).append(".InternalStatusCode,");
         select.append(alias).append(".InternalStatusDescription,");
