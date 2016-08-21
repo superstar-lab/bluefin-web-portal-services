@@ -26,11 +26,11 @@ public class UserResource implements Serializable {
     private String username;
 
     @NotBlank(message = "firstName must not be empty")
-    @Pattern(regexp = "^[\\w]*$", message = "firstName must be alphanumeric")
+    @Pattern(regexp = "^[\\w-\\'\\s\\.\\,]*$", message = "firstName must be alphanumeric")
     private String firstName;
 
     @NotBlank(message = "lastName must not be empty")
-    @Pattern(regexp = "^[\\w]*$", message = "lastName must be alphanumeric")
+    @Pattern(regexp = "^[\\w-\\'\\s\\.\\,]*$", message = "lastName must be alphanumeric")
     private String lastName;
 
     @NotBlank(message = "email must not be empty")
