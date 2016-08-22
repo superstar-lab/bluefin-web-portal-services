@@ -23,7 +23,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -43,14 +45,18 @@ public class InternalStatusCode implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "InternalStatusCodeID")
+    @JsonView(Views.ExtendPublic.class)
     private Long internalStatusCodeId;
 
     @Column(name = "InternalStatusCode", unique = true)
+    @JsonView({Views.ExtendPublic.class, Views.Public.class})
     private String internalStatusCode;
 
+    @JsonView({Views.ExtendPublic.class, Views.Public.class})
     @Column(name = "InternalStatusCodeDescription")
     private String internalStatusCodeDescription;
 
+    @JsonView(Views.ExtendPublic.class)
     @OneToMany(mappedBy = "internalStatusCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes;
 
@@ -66,6 +72,7 @@ public class InternalStatusCode implements Serializable {
     private DateTime modifiedDate;
 
     @Column(name = "TransactionType")
+    @JsonView({Views.ExtendPublic.class, Views.Public.class})
     private String transactionTypeName; 
 
     @JsonIgnore

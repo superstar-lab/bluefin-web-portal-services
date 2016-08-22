@@ -20,11 +20,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.mcmcg.ico.bluefin.persistent.InternalStatusCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.service.InternalStatusCodeService;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -39,6 +43,8 @@ public class InternalStatusCodeController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InternalStatusCodeController.class);
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
     private InternalStatusCodeService internalStatusCodeService;
 
@@ -51,14 +57,22 @@ public class InternalStatusCodeController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<InternalStatusCode> getInternalStatusCodesByTransactionType(
+    public String getInternalStatusCodesByTransactionType(
             @RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
-            @ApiIgnore Authentication authentication) {
+            @RequestParam(value = "extended", required = false, defaultValue = "true") Boolean extended,
+            @ApiIgnore Authentication authentication) throws JsonProcessingException {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
         LOGGER.info("Getting internal status code list");
-        return internalStatusCodeService.getInternalStatusCodesByTransactionType(transactionType);
+        ObjectWriter objectWriter;
+        if (extended) {
+            objectWriter = objectMapper.writerWithView(Views.ExtendPublic.class);
+        } else {
+            objectWriter = objectMapper.writerWithView(Views.Public.class);
+        }
+        return objectWriter
+                .writeValueAsString(internalStatusCodeService.getInternalStatusCodesByTransactionType(transactionType));
     }
 
     @ApiOperation(value = "createInternalStatusCodes", nickname = "createInternalStatusCodes")
@@ -93,8 +107,7 @@ public class InternalStatusCodeController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalStatusCode upsertInternalStatusCodes(
-            @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource,
-            @ApiIgnore Errors errors) {
+            @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
