@@ -531,36 +531,17 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         nativePropertyHashMapping.put("saleTransactionId", "SaleTransactionID");
         nativePropertyHashMapping.put("applicationTransactionId", "ApplicationTransactionID");
         nativePropertyHashMapping.put("processorTransactionId", "ProcessorTransactionID");
-        nativePropertyHashMapping.put("customer", "FirstName");
-        nativePropertyHashMapping.put("firstName", "FirstName");
-        nativePropertyHashMapping.put("lastName", "LastName");
-        nativePropertyHashMapping.put("processUser", "ProcessUser");
-        nativePropertyHashMapping.put("transactionType", "TransactionType");
-        nativePropertyHashMapping.put("address1", "Address1");
-        nativePropertyHashMapping.put("address2", "Address2");
-        nativePropertyHashMapping.put("city", "City");
-        nativePropertyHashMapping.put("state", "State");
-        nativePropertyHashMapping.put("postalCode", "PostalCode");
-        nativePropertyHashMapping.put("country", "Country");
-        nativePropertyHashMapping.put("cardNumberFirst6Char", "CardNumberFirst6Char");
-        nativePropertyHashMapping.put("cardNumberLast4Char", "CardNumberLast4Char");
-        nativePropertyHashMapping.put("cardType", "CardType");
-        nativePropertyHashMapping.put("expiryDate", "ExpiryDate");
-        nativePropertyHashMapping.put("legalEntity", "LegalEntityApp");
-        nativePropertyHashMapping.put("accountNumber", "AccountId");
         nativePropertyHashMapping.put("merchantId", "MerchantID");
+        nativePropertyHashMapping.put("transactionType", "TransactionType");
         nativePropertyHashMapping.put("processorName", "Processor");
-        nativePropertyHashMapping.put("application", "Application");
-        nativePropertyHashMapping.put("origin", "Origin");
-        nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
-        nativePropertyHashMapping.put("testMode", "TestMode");
         nativePropertyHashMapping.put("internalStatusCode", "InternalStatusCode");
         nativePropertyHashMapping.put("internalStatusDescription", "InternalStatusDescription");
-        nativePropertyHashMapping.put("approvalCode", "ApprovalCode");
-        nativePropertyHashMapping.put("amount", "ChargeAmount");
-        nativePropertyHashMapping.put("responseCode", "ResponseCode");
-        nativePropertyHashMapping.put("responseDescription", "ResponseDescription");
         nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
+        nativePropertyHashMapping.put("amount", "ChargeAmount");
+        nativePropertyHashMapping.put("customer", "FirstName");
+        nativePropertyHashMapping.put("cardType", "CardType");
+        nativePropertyHashMapping.put("legalEntity", "LegalEntityApp");
+        nativePropertyHashMapping.put("accountNumber", "AccountId");
     }
 
     /**
@@ -581,8 +562,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         select.append(alias).append(".ApplicationTransactionID,");
         select.append(alias).append(".ProcessorTransactionID,");
         select.append(alias).append(".MerchantID,");
-        
-        if("sale".equalsIgnoreCase(transactionType) || "tokenize".equalsIgnoreCase(transactionType)) {
+
+        if ("sale".equalsIgnoreCase(transactionType) || "tokenize".equalsIgnoreCase(transactionType)) {
             select.append(alias).append(".TransactionType,");
         } else {
             select.append("'" + transactionType + "' as TransactionType,");

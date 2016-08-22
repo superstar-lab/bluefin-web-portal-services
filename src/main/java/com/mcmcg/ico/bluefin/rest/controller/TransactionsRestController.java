@@ -79,6 +79,7 @@ public class TransactionsRestController {
 
         LOGGER.info("Generating report with the following filters: {}", search);
 
+        QueryDSLUtil.createExpression(search, SaleTransaction.class);
         return transactionService.getTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort));
     }
 }
