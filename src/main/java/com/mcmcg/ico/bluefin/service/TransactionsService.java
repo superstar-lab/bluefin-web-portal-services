@@ -40,9 +40,9 @@ public class TransactionsService {
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
     // CSV file header
-    private static final Object[] FILE_HEADER = { "#", "Bluefin transaction ID", "Processor transaction ID",
-            "Transaction Date", "Account Number", "Amount", "Legal Entity App", "Card Number", "Card Type", "Customer",
-            "Processor", "Status", "Transaction type" };
+    private static final Object[] FILE_HEADER = { "#", "Bluefin Transaction ID", "Processor Transaction ID",
+            "Transaction Date", "Account Number", "Amount", "Legal Entity", "Card Number", "Card Type", "Customer",
+            "Processor", "Status", "Transaction Type" };
 
     @Autowired
     private TransactionRepository transactionRepository;
