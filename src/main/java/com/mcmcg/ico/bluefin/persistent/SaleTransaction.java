@@ -65,10 +65,10 @@ public class SaleTransaction implements Serializable, Transaction {
     }
 
     public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
-            String merchantID, String transactionType, String processorName, String internalStatusCode, String internalStatusDescription,
-            DateTime createdDate, DateTime transactionDateTime, BigDecimal amount, String firstName, String lastName,
-            String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
-            Integer isRefunded) {
+            String merchantID, String transactionType, String processorName, String internalStatusCode,
+            String internalStatusDescription, DateTime createdDate, DateTime transactionDateTime, BigDecimal amount,
+            String firstName, String lastName, String cardNumberLast4Char, String cardType, String legalEntity,
+            String accountNumber, Integer isVoided, Integer isRefunded) {
         this.saleTransactionId = saleTransactionId;
         this.applicationTransactionId = applicationTransactionId;
         this.processorTransactionId = processorTransactionId;
@@ -223,6 +223,10 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonIgnore
     @OneToMany(mappedBy = "saleTransaction", fetch = FetchType.LAZY)
     private Collection<VoidTransaction> voidedTransactions;
+
+    @JsonIgnore
+    @Transient
+    private String transactionId;
 
     public String getCardNumberLast4Char() {
         return CARD_MASK + cardNumberLast4Char;

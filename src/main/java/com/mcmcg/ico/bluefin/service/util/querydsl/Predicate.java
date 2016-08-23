@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -54,7 +55,7 @@ class Predicate {
         PathBuilder<?> entityPath = new PathBuilder(entity, entityQName);
         Class<?> keyInstance = BeanUtils.findPropertyType(criteria.getKey(), entityPath.getType());
         BooleanExpression result = null;
-        if (keyInstance == Date.class) {
+        if (keyInstance == Date.class || keyInstance == DateTime.class) {
             result = getDatePredicate(entityPath);
         } else if (keyInstance == BigDecimal.class) {
             result = getNumericPredicate(entityPath);

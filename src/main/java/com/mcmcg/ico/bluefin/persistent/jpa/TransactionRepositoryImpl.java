@@ -341,13 +341,6 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                             .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
                                     matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
                             .append(")");
-                } else if (attribute.equalsIgnoreCase("customer")) {
-                    result.append("(")
-                            .append(appendCriteriaToQuery(prefix + ".FirstName", matcher.group(2), "customerParam",
-                                    matcher.group(3)))
-                            .append(OR).append(appendCriteriaToQuery(prefix + ".LastName", matcher.group(2),
-                                    "customerParam", matcher.group(3)))
-                            .append(")");
                 } else {
                     attributeParam = attribute + "Param" + id;
                     attribute = getPropertyNativeName(attribute);
@@ -394,7 +387,7 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                 if (prefix.equals("REFUND") || prefix.equals("VOID")) {
                     if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount")
                             || attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
-                            || attribute.equalsIgnoreCase("customer")) {
+                            || attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")) {
                         continue;
                     }
                 } else {
@@ -414,13 +407,6 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
                                     "applicationTransactionIdParam", matcher.group(3)))
                             .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
                                     matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
-                            .append(")");
-                } else if (attribute.equalsIgnoreCase("customer")) {
-                    result.append("(")
-                            .append(appendCriteriaToQuery(prefix + ".FirstName", matcher.group(2), "customerParam",
-                                    matcher.group(3)))
-                            .append(OR).append(appendCriteriaToQuery(prefix + ".LastName", matcher.group(2),
-                                    "customerParam", matcher.group(3)))
                             .append(")");
                 } else {
                     attributeParam = attribute + "Param" + id;
@@ -538,7 +524,8 @@ class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         nativePropertyHashMapping.put("internalStatusDescription", "InternalStatusDescription");
         nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
         nativePropertyHashMapping.put("amount", "ChargeAmount");
-        nativePropertyHashMapping.put("customer", "FirstName");
+        nativePropertyHashMapping.put("firstName", "FirstName");
+        nativePropertyHashMapping.put("lastName", "LastName");
         nativePropertyHashMapping.put("cardType", "CardType");
         nativePropertyHashMapping.put("legalEntity", "LegalEntityApp");
         nativePropertyHashMapping.put("accountNumber", "AccountId");
