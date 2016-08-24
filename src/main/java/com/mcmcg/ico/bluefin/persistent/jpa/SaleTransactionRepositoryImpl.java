@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,22 +44,15 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
 
-    private static final String LIKE = " LIKE ";
     private static final String EQUALS = " = ";
-    private static final String OR = " OR ";
-    private static final String AND = " AND ";
     private static final String LOE = " <= ";
     private static final String GOE = " >= ";
-
-    private static final String SALE_TABLE = " Sale_Transaction ";
-    private static final String VOID_TABLE = " Void_Transaction ";
-    private static final String REFUND_TABLE = " Refund_Transaction ";
 
     @PersistenceContext
     private EntityManager em;
 
     private HashMap<String, String> dynamicParametersMap = new HashMap<String, String>();
-    private HashMap<String, String> nativePropertyHashMapping = new HashMap<String, String>();
+    private HashMap<String, String> predicatesHashMapping = new HashMap<String, String>();
 
     @Value("${bluefin.wp.services.transactions.report.max.size}")
     private String maxSizeReport;
@@ -70,46 +64,15 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     @Override
     public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException {
-        int pageNumber = page.getPageNumber();
-        int pageSize = page.getPageSize();
         // Creates the query for the total and for the retrieved data
         String query = getQueryByCriteria(search);
 
-        Query queryTotal = em
-                .createNativeQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
-        Query result = em.createNativeQuery(query + addSort(page.getSort()), "CustomMappingResult");
-        LOGGER.info("Dynamic Query {}", query);
-        LOGGER.info("Dynamic Parameters {}", dynamicParametersMap);
-        // Sets all parameters to the Query result
-        for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
-            if (entry.getKey().contains("amountParam")) {
-                result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
-                queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
-            } else if (entry.getKey().contains("transactionDateTimeParam")
-                    || entry.getKey().contains("transactionDateTimeParam")) {
+        Map<String, Query> queriesMap = createQueries(query, page);
+        Query result = queriesMap.get("result");
+        Query queryTotal = queriesMap.get("queryTotal");
 
-                if (!validFormatDate(entry.getValue())) {
-                    throw new CustomNotFoundException(
-                            "Unable to process find transaction, due an error with date formatting");
-                }
-                // Special case for the dates
-                result.setParameter(entry.getKey(), entry.getValue());
-                queryTotal.setParameter(entry.getKey(), entry.getValue());
-            } else if (entry.getKey().contains("legalEntityParam")) {
-                // Special case for legal entity
-                result.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
-                queryTotal.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
-            } else if (entry.getKey().contains("internalStatusCodeParam")) {
-                // Special case for status code
-                result.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
-                queryTotal.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
-            } else {
-                result.setParameter(entry.getKey(), entry.getValue());
-                queryTotal.setParameter(entry.getKey(), entry.getValue());
-            }
-        }
-        dynamicParametersMap.clear();
-
+        int pageNumber = page.getPageNumber();
+        int pageSize = page.getPageSize();
         // Set the paging for the created select
         final int countResult = (Integer) queryTotal.getSingleResult();
         result.setFirstResult(pageSize * pageNumber);
@@ -126,19 +89,33 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Override
     public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
         String query = getQueryByCriteria(search);
+        LOGGER.info("Dynamic Query {}", query);
 
+        Map<String, Query> queriesMap = createQueries(query, null);
+        Query result = queriesMap.get("result");
+
+        dynamicParametersMap.clear();
+        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        @SuppressWarnings("unchecked")
+        List<SaleTransaction> tr = result.getResultList();
+
+        return tr;
+    }
+
+    public Map<String, Query> createQueries(String query, PageRequest page) throws ParseException {
         Query queryTotal = em
                 .createNativeQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
-        Query result = em.createNativeQuery(query, "CustomMappingResult");
-        LOGGER.info("Dynamic Query {}", query);
+
+        Query result = em.createNativeQuery(page == null ? query : query + addSort(page.getSort()),
+                "CustomMappingResult");
+
         LOGGER.info("Dynamic Parameters {}", dynamicParametersMap);
         // Sets all parameters to the Query result
         for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
             if (entry.getKey().contains("amountParam")) {
                 result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
-            } else if (entry.getKey().contains("transactionDateTimeParam")
-                    || entry.getKey().contains("transactionDateTimeParam")) {
+            } else if (entry.getKey().contains("transactionDateTimeParam")) {
 
                 if (!validFormatDate(entry.getValue())) {
                     throw new CustomNotFoundException(
@@ -149,8 +126,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 queryTotal.setParameter(entry.getKey(), entry.getValue());
             } else if (entry.getKey().contains("legalEntityParam")) {
                 // Special case for legal entity
-                result.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
-                queryTotal.setParameter(entry.getKey(), Arrays.asList(entry.getValue().split(",")));
+                String value = entry.getValue().replaceAll("[^\\w\\-\\,]", "");
+                result.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
+                queryTotal.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
             } else if (entry.getKey().contains("internalStatusCodeParam")) {
                 // Special case for status code
                 result.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
@@ -160,13 +138,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 queryTotal.setParameter(entry.getKey(), entry.getValue());
             }
         }
-
         dynamicParametersMap.clear();
-        result.setMaxResults(Integer.parseInt(maxSizeReport));
-        @SuppressWarnings("unchecked")
-        List<SaleTransaction> tr = result.getResultList();
-
-        return tr;
+        HashMap<String, Query> queriesMap = new HashMap<String, Query>();
+        queriesMap.put("result", result);
+        queriesMap.put("queryTotal", queryTotal);
+        return queriesMap;
     }
 
     /**
@@ -184,7 +160,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         Order order = null;
         while (list.hasNext()) {
             order = list.next();
-            result.append(getPropertyNativeName(order.getProperty()));
+            String predicate = getPropertyPredicate(order.getProperty());
+            result.append(predicate.substring(predicate.indexOf(":prefix.") + 8, predicate.indexOf(" ")));
             result.append(" ");
             result.append(order.getDirection().toString());
             if (list.hasNext()) {
@@ -241,8 +218,18 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String getSelectForSaleTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
-        querySb.append(createSelectFromTransactionTypeBased("MAINSALE", "MAINSALE", "SALE", SALE_TABLE));
-        querySb.append(createWhereStatementForSale(search, "MAINSALE"));
+
+        // create select from transaction type
+        querySb.append(
+                " SELECT MAINSALE.SaleTransactionID,MAINSALE.ApplicationTransactionID,MAINSALE.ProcessorTransactionID,")
+                .append("MAINSALE.MerchantID,MAINSALE.TransactionType,MAINSALE.Processor,MAINSALE.InternalStatusCode,")
+                .append("MAINSALE.InternalStatusDescription,MAINSALE.DateCreated,MAINSALE.TransactionDateTime,MAINSALE.ChargeAmount,")
+                .append("MAINSALE.FirstName,MAINSALE.LastName,MAINSALE.CardNumberLast4Char,MAINSALE.CardType,MAINSALE.LegalEntityApp,")
+                .append("MAINSALE.AccountId,(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,")
+                .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded ")
+                .append("FROM Sale_Transaction MAINSALE ");
+
+        querySb.append(createWhereStatement(search, "MAINSALE"));
 
         return querySb.toString();
     }
@@ -255,15 +242,23 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String getSelectForVoidTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
-        querySb.append(createSelectFromTransactionTypeBased("VOID", "VOIDSALE", "VOID", VOID_TABLE));
-        querySb.append(" JOIN (");
+        querySb.append(
+                " SELECT VOID.SaleTransactionID,VOID.ApplicationTransactionID,VOID.ProcessorTransactionID,VOID.MerchantID,'VOID' as TransactionType,")
+                .append("VOID.Processor,VOID.InternalStatusCode,VOID.InternalStatusDescription,VOID.DateCreated,VOID.TransactionDateTime,VOIDSALE.ChargeAmount,")
+                .append("VOIDSALE.FirstName,VOIDSALE.LastName,VOIDSALE.CardNumberLast4Char,VOIDSALE.CardType,VOIDSALE.LegalEntityApp,VOIDSALE.AccountId,")
+                .append("0 AS IsVoided, 0 AS IsRefunded FROM  Void_Transaction VOID ")
 
-        querySb.append(createSelectFromTransactionTypeBased("SALEINNERVOID", "SALEINNERVOID", "SALE", SALE_TABLE));
-        querySb.append(createWhereStatement(search, "SALEINNERVOID"));
+                .append(" JOIN (")
 
-        querySb.append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ");
-        querySb.append(createWhereStatement(search, "VOID"));
+                .append(" SELECT SALEINNERVOID.SaleTransactionID,SALEINNERVOID.ApplicationTransactionID,SALEINNERVOID.ProcessorTransactionID,")
+                .append("SALEINNERVOID.MerchantID,SALEINNERVOID.TransactionType,SALEINNERVOID.Processor,SALEINNERVOID.InternalStatusCode,")
+                .append("SALEINNERVOID.InternalStatusDescription,SALEINNERVOID.DateCreated,SALEINNERVOID.TransactionDateTime,")
+                .append("SALEINNERVOID.ChargeAmount,SALEINNERVOID.FirstName,SALEINNERVOID.LastName,SALEINNERVOID.CardNumberLast4Char,")
+                .append("SALEINNERVOID.CardType,SALEINNERVOID.LegalEntityApp,SALEINNERVOID.AccountId FROM  Sale_Transaction SALEINNERVOID ")
 
+                .append(createWhereStatement(search, "SALEINNERVOID"))
+                .append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
+                .append(createWhereStatement(search, "VOID"));
         return querySb.toString();
 
     }
@@ -276,14 +271,24 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String getSelectForRefundTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
-        querySb.append(createSelectFromTransactionTypeBased("REFUND", "REFUNDSALE", "REFUND", REFUND_TABLE));
-        querySb.append(" JOIN (");
+        querySb.append(
+                " SELECT REFUND.SaleTransactionID,REFUND.ApplicationTransactionID,REFUND.ProcessorTransactionID,REFUND.MerchantID,")
+                .append("'REFUND' as TransactionType,REFUND.Processor,REFUND.InternalStatusCode,REFUND.InternalStatusDescription,")
+                .append("REFUND.DateCreated,REFUND.TransactionDateTime,REFUNDSALE.ChargeAmount,REFUNDSALE.FirstName,REFUNDSALE.LastName,")
+                .append("REFUNDSALE.CardNumberLast4Char,REFUNDSALE.CardType,REFUNDSALE.LegalEntityApp,REFUNDSALE.AccountId, 0 AS IsVoided,")
+                .append(" 0 AS IsRefunded FROM  Refund_Transaction REFUND ")
 
-        querySb.append(createSelectFromTransactionTypeBased("SALEINNERREFUND", "SALEINNERREFUND", "SALE", SALE_TABLE));
-        querySb.append(createWhereStatement(search, "SALEINNERREFUND"));
+                .append(" JOIN (")
 
-        querySb.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ");
-        querySb.append(createWhereStatement(search, "REFUND"));
+                .append(" SELECT SALEINNERREFUND.SaleTransactionID,SALEINNERREFUND.ApplicationTransactionID,SALEINNERREFUND.ProcessorTransactionID,")
+                .append("SALEINNERREFUND.MerchantID,SALEINNERREFUND.TransactionType,SALEINNERREFUND.Processor,SALEINNERREFUND.InternalStatusCode,")
+                .append("SALEINNERREFUND.InternalStatusDescription,SALEINNERREFUND.DateCreated,SALEINNERREFUND.TransactionDateTime,SALEINNERREFUND.ChargeAmount,")
+                .append("SALEINNERREFUND.FirstName,SALEINNERREFUND.LastName,SALEINNERREFUND.CardNumberLast4Char,SALEINNERREFUND.CardType,")
+                .append("SALEINNERREFUND.LegalEntityApp,SALEINNERREFUND.AccountId FROM  Sale_Transaction SALEINNERREFUND ")
+
+                .append(createWhereStatement(search, "SALEINNERREFUND"))
+                .append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
+                .append(createWhereStatement(search, "REFUND"));
 
         return querySb.toString();
     }
@@ -317,60 +322,13 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @param prefix
      * @return where element that is going to be attached to the select element
      */
-    private String createWhereStatementForSale(String search, String prefix) {
-        StringBuilder result = new StringBuilder();
-        String attribute = StringUtils.EMPTY;
-        String attributeParam = StringUtils.EMPTY;
-        boolean and = false;
-        int id = 1;
-
-        if (search != null && !search.isEmpty()) {
-            Pattern pattern = Pattern.compile(SEARCH_REGEX);
-            Matcher matcher = pattern.matcher(search + ",");
-
-            while (matcher.find()) {
-                attribute = matcher.group(1);
-
-                if (and)
-                    result.append(AND);
-
-                if (attribute.equalsIgnoreCase("transactionId")) {
-                    result.append("(")
-                            .append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
-                                    "applicationTransactionIdParam", matcher.group(3)))
-                            .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
-                                    matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
-                            .append(")");
-                } else {
-                    attributeParam = attribute + "Param" + id;
-                    attribute = getPropertyNativeName(attribute);
-                    result.append(appendCriteriaToQuery(prefix + "." + attribute, matcher.group(2), attributeParam,
-                            matcher.group(3)));
-                }
-                and = true;
-                id++;
-            }
-        }
-
-        return result.length() == 0 ? result.toString() : " WHERE " + result.toString();
-    }
-
-    /**
-     * Creates the WHERE element in the select, it will verify each element in
-     * the search string. Specials cases are taken into account, like
-     * transactionId, this element will create an OR with the attributes
-     * applicationTransactionId and processorTransactionId if found
-     * 
-     * @param search
-     * @param prefix
-     * @return where element that is going to be attached to the select element
-     */
     private String createWhereStatement(String search, String prefix) {
-        StringBuilder result = new StringBuilder();
+        StringJoiner statement = new StringJoiner(" AND ");
         String attribute = StringUtils.EMPTY;
+        String operator = StringUtils.EMPTY;
+        String value = StringUtils.EMPTY;
         String attributeParam = StringUtils.EMPTY;
-        boolean and = false;
-        int id = 1;
+        String predicate = StringUtils.EMPTY;
 
         if (search != null && !search.isEmpty()) {
             Pattern pattern = Pattern.compile(SEARCH_REGEX);
@@ -378,89 +336,48 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
             while (matcher.find()) {
                 attribute = matcher.group(1);
-                // Transaction type is not part of the query, this criteria is
-                // filtered in the method getQueryByCriteria
-                if (attribute.equalsIgnoreCase("transactionType")) {
+                operator = matcher.group(2);
+                value = matcher.group(3);
+                attributeParam = attribute + "Param1";
+                predicate = getPropertyPredicate(attribute);
+
+                if (!prefix.equals("MAINSALE") && skipFilter(attribute, prefix)) {
                     continue;
                 }
-
-                if (prefix.equals("REFUND") || prefix.equals("VOID")) {
-                    if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount")
-                            || attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
-                            || attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")) {
-                        continue;
-                    }
-                } else {
-                    if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
-                            || attribute.equalsIgnoreCase("transactionDateTime")
-                            || attribute.equalsIgnoreCase("processorName")) {
-                        continue;
+                // Specific cases for transactionDateTime, amount
+                if (attribute.equals("transactionDateTime") || attribute.equals("amount")) {
+                    predicate = predicate.replace(":atributeOperator", getOperation(operator));
+                    if (dynamicParametersMap.containsKey(attribute + "Param1")) {
+                        attributeParam = attribute + "Param2";
+                        predicate = predicate.replace(attribute + "Param1", attributeParam);
                     }
                 }
-
-                if (and)
-                    result.append(AND);
-
-                if (attribute.equalsIgnoreCase("transactionId")) {
-                    result.append("(")
-                            .append(appendCriteriaToQuery(prefix + ".ApplicationTransactionID", matcher.group(2),
-                                    "applicationTransactionIdParam", matcher.group(3)))
-                            .append(OR).append(appendCriteriaToQuery(prefix + ".ProcessorTransactionID",
-                                    matcher.group(2), "processorTransactionIdParam", matcher.group(3)))
-                            .append(")");
-                } else {
-                    attributeParam = attribute + "Param" + id;
-                    attribute = getPropertyNativeName(attribute);
-                    result.append(appendCriteriaToQuery(prefix + "." + attribute, matcher.group(2), attributeParam,
-                            matcher.group(3)));
-                }
-                and = true;
-                id++;
+                statement.add(predicate.replace(":prefix", prefix));
+                dynamicParametersMap.put(attributeParam, value);
             }
         }
-        return result.length() == 0 ? result.toString() : " WHERE " + result.toString();
+        return statement.length() == 0 ? "" : " WHERE " + statement.toString();
+
     }
 
-    /**
-     * This method will append all elements and will add it to the query and
-     * also fills a hashmap with the parameter values. Special cases are
-     * considered like LegalEntity array, Dates and Amount value. For legal
-     * entities will add the clause IN, for dates and amount will change the
-     * like for = or > or <
-     * 
-     * @param name
-     * @param operator
-     * @param param
-     * @param value
-     * @return element to be added to the query
-     */
-    private String appendCriteriaToQuery(String name, String operator, String param, String value) {
-        StringBuilder inputCriteria = new StringBuilder();
-        inputCriteria.append(name);
-        if (name.contains("LegalEntityApp")) {
-            inputCriteria.append(" IN (");
-            inputCriteria.append(":");
-            inputCriteria.append(param);
-            inputCriteria.append(")");
-            // replace all elements that are not words and commas leaving it
-            // like MCM-R2K,AA-WARDATA
-            dynamicParametersMap.put(param, value.replaceAll("[^\\w\\-\\,]", ""));
-            return inputCriteria.toString();
-        } else {
-            if (name.contains("ChargeAmount") || name.contains("Date") || name.contains("InternalStatusCode")) {
-                inputCriteria.append(getOperation(operator));
-            } else if (name.contains("FirstName") || name.contains("LastName")) {
-                inputCriteria.append(operator.equalsIgnoreCase(":") ? LIKE : operator);
-            } else {
-                inputCriteria.append(operator.equalsIgnoreCase(":") ? EQUALS : operator);
-            }
-
+    public boolean skipFilter(String attribute, String prefix) {
+        if (attribute.equalsIgnoreCase("transactionType")) {
+            return true;
         }
-        inputCriteria.append(":").append(param);
-
-        dynamicParametersMap.put(param, value);
-
-        return inputCriteria.toString();
+        if (prefix.equals("REFUND") || prefix.equals("VOID")) {
+            if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount")
+                    || attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
+                    || attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")) {
+                return true;
+            }
+        } else {
+            if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
+                    || attribute.equalsIgnoreCase("transactionDateTime")
+                    || attribute.equalsIgnoreCase("processorName")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -501,82 +418,35 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @param property
      * @return Native name of the element passed by parameter
      */
-    private String getPropertyNativeName(String property) {
-        String nativePropertyName = nativePropertyHashMapping.get(property);
-        if (nativePropertyName == null) {
+    private String getPropertyPredicate(String property) {
+        String predicate = predicatesHashMapping.get(property);
+        if (predicate == null) {
             LOGGER.error("Property not found, unable to parse {}", property);
             throw new CustomBadRequestException(String.format("Property not found, unable to parse [%s]", property));
         }
-        return nativePropertyName;
+        return predicate;
     }
 
     /**
-     * Loads the native names mapping the elements in the saletransaction entity
+     * Loads the predicates mapping the elements in the saletransaction entity
      */
     private void loadSaleTransactionMappings() {
-        nativePropertyHashMapping.put("saleTransactionId", "SaleTransactionID");
-        nativePropertyHashMapping.put("applicationTransactionId", "ApplicationTransactionID");
-        nativePropertyHashMapping.put("processorTransactionId", "ProcessorTransactionID");
-        nativePropertyHashMapping.put("merchantId", "MerchantID");
-        nativePropertyHashMapping.put("transactionType", "TransactionType");
-        nativePropertyHashMapping.put("processorName", "Processor");
-        nativePropertyHashMapping.put("internalStatusCode", "InternalStatusCode");
-        nativePropertyHashMapping.put("internalStatusDescription", "InternalStatusDescription");
-        nativePropertyHashMapping.put("transactionDateTime", "TransactionDateTime");
-        nativePropertyHashMapping.put("amount", "ChargeAmount");
-        nativePropertyHashMapping.put("firstName", "FirstName");
-        nativePropertyHashMapping.put("lastName", "LastName");
-        nativePropertyHashMapping.put("cardType", "CardType");
-        nativePropertyHashMapping.put("legalEntity", "LegalEntityApp");
-        nativePropertyHashMapping.put("accountNumber", "AccountId");
-    }
-
-    /**
-     * Creates the select element based on the transaction type using an alias
-     * for the sale transaction table, an alias for the REFUND/VOID table
-     * 
-     * @param alias
-     * @param saleAlias
-     * @param transactionType
-     * @param tableName
-     * @return String with the select based on the transaction type
-     */
-    private String createSelectFromTransactionTypeBased(String alias, String saleAlias, String transactionType,
-            String tableName) {
-        StringBuilder select = new StringBuilder(" SELECT ");
-
-        select.append(alias).append(".SaleTransactionID,");
-        select.append(alias).append(".ApplicationTransactionID,");
-        select.append(alias).append(".ProcessorTransactionID,");
-        select.append(alias).append(".MerchantID,");
-
-        if ("sale".equalsIgnoreCase(transactionType) || "tokenize".equalsIgnoreCase(transactionType)) {
-            select.append(alias).append(".TransactionType,");
-        } else {
-            select.append("'" + transactionType + "' as TransactionType,");
-        }
-        select.append(alias).append(".Processor,");
-        select.append(alias).append(".InternalStatusCode,");
-        select.append(alias).append(".InternalStatusDescription,");
-        select.append(alias).append(".DateCreated,");
-        select.append(alias).append(".TransactionDateTime,");
-        select.append(saleAlias).append(".ChargeAmount,");
-        select.append(saleAlias).append(".FirstName,");
-        select.append(saleAlias).append(".LastName,");
-        select.append(saleAlias).append(".CardNumberLast4Char,");
-        select.append(saleAlias).append(".CardType,");
-        select.append(saleAlias).append(".LegalEntityApp,");
-        select.append(saleAlias).append(".AccountId");
-        if (saleAlias.equals("MAINSALE")) {
-            select.append(
-                    ",(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,");
-            select.append(
-                    "(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded");
-        } else if (saleAlias.equals("VOIDSALE") || saleAlias.equals("REFUNDSALE")) {
-            select.append(", 0 AS IsVoided, 0 AS IsRefunded");
-        }
-        select.append(" FROM ").append(tableName).append(alias).append(" ");
-
-        return select.toString();
+        predicatesHashMapping.put("saleTransactionId", ":prefix.SaleTransactionID = :saleTransactionIdParam1");
+        predicatesHashMapping.put("transactionId",
+                "(:prefix.ApplicationTransactionID = :transactionIdParam1 OR :prefix.ProcessorTransactionID = :transactionIdParam1)");
+        predicatesHashMapping.put("merchantId", ":prefix.MerchantID = :merchantIdParam1");
+        predicatesHashMapping.put("transactionType", ":prefix.TransactionType = :transactionTypeParam1");
+        predicatesHashMapping.put("processorName", ":prefix.Processor = :processorNameParam1");
+        predicatesHashMapping.put("internalStatusCode", ":prefix.InternalStatusCode = :internalStatusCodeParam1");
+        predicatesHashMapping.put("internalStatusDescription",
+                ":prefix.InternalStatusDescription = :internalStatusDescriptionParam1");
+        predicatesHashMapping.put("transactionDateTime",
+                ":prefix.TransactionDateTime :atributeOperator :transactionDateTimeParam1");
+        predicatesHashMapping.put("amount", ":prefix.ChargeAmount :atributeOperator :amountParam1");
+        predicatesHashMapping.put("firstName", ":prefix.FirstName =  :firstNameParam1");
+        predicatesHashMapping.put("lastName", ":prefix.LastName = :lastNameParam1");
+        predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
+        predicatesHashMapping.put("legalEntity", ":prefix.LegalEntityApp IN (:legalEntityParam1)");
+        predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
     }
 }
