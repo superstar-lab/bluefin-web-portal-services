@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -19,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import com.mcmcg.ico.bluefin.model.CardType;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
-import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
+import com.mcmcg.ico.bluefin.service.PaymentProcessorRuleService;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -33,106 +32,103 @@ import io.swagger.annotations.ApiResponses;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
-@RequestMapping(value = "/api/payment-processors")
-public class PaymentProcessorController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorController.class);
+@RequestMapping(value = "/api/payment-processor-rules")
+public class PaymentProcessorRuleRestController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorRuleRestController.class);
 
     @Autowired
-    private PaymentProcessorService paymentProcessorService;
+    private PaymentProcessorRuleService paymentProcessorRuleService;
 
-    @ApiOperation(value = "getPaymentProcessor", nickname = "getPaymentProcessor")
+    @ApiOperation(value = "Get payment processor rule by id", nickname = "getPaymentProcessorRule")
     @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessor get(@PathVariable Long id) {
+    public PaymentProcessorRule get(@PathVariable Long id) {
         LOGGER.info("Getting information with the following id: {}", id);
-        return paymentProcessorService.getPaymentProcessorById(id);
+
+        return paymentProcessorRuleService.getPaymentProcessorRule(id);
     }
 
-    @ApiOperation(value = "getPaymentProcessors", nickname = "getPaymentProcessors")
+    @ApiOperation(value = "Get payment processor rules", nickname = "getPaymentProcessorRules")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public List<PaymentProcessor> get() {
+    public List<PaymentProcessorRule> get() {
         LOGGER.info("Getting information with the following filters: {}");
-        return paymentProcessorService.getPaymentProcessors();
+        return paymentProcessorRuleService.getPaymentProcessorRules();
     }
 
-    @ApiOperation(value = "createPaymentProcessor", nickname = "createPaymentProcessor")
+    @ApiOperation(value = "Get payment processor rule transaction types", nickname = "getPaymentProcessorTransactionTypes")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json", value = "/transaction-types")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class, responseContainer = "List"),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public List<CardType> getTransactionTypes() {
+        LOGGER.info("Getting transaction types: {}");
+        return paymentProcessorRuleService.getTransactionTypes();
+    }
+
+    @ApiOperation(value = "Create payment processor rule", nickname = "createPaymentProcessorRule")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = PaymentProcessor.class),
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = PaymentProcessorRule.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<PaymentProcessor> create(
-            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
-        // First checks if all required data is given
+    public ResponseEntity<PaymentProcessorRule> create(
+            @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
+            @ApiIgnore Errors errors) {
+        // First checks if all required fields are set
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Creating new payment processor: {}", paymentProcessorResource.getProcessorName());
-        return new ResponseEntity<PaymentProcessor>(
-                paymentProcessorService.createPaymentProcessor(paymentProcessorResource), HttpStatus.CREATED);
+        LOGGER.info("Creating new payment processor rule: {}", paymentProcessorRuleResource);
+        return new ResponseEntity<PaymentProcessorRule>(paymentProcessorRuleService.createPaymentProcessorRule(
+                paymentProcessorRuleResource.getPaymentProcessorId(),
+                paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "updatePaymentProcessor", nickname = "updatePaymentProcessor")
+    @ApiOperation(value = "Update payment processor rule", nickname = "updatePaymentProcessor")
     @RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessor update(@PathVariable Long id,
-            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
-        if (errors.hasErrors()) {
-            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
-            throw new CustomBadRequestException(errorDescription);
-        }
-
-        LOGGER.info("Updating Payment Processor {}", paymentProcessorToUpdate);
-        return paymentProcessorService.updatePaymentProcessor(id, paymentProcessorToUpdate);
-    }
-
-    @ApiOperation(value = "Update payment processor merchants from payment processor", nickname = "updatePaymentProcessorMerchantsFromPaymentProcessor")
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}/payment-processor-merchants", produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
-            @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
+    public PaymentProcessorRule update(@PathVariable Long id,
+            @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors) {
-        LOGGER.info("Updating payment processors merchants = [{}] from payment processor id = [{}]",
-                paymentProcessorMerchants, id);
-
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
 
-        return paymentProcessorService.updatePaymentProcessorMerchants(id, paymentProcessorMerchants);
+        LOGGER.info("Updating payment processor rule: {}", paymentProcessorRuleResource);
+        return paymentProcessorRuleService.updatePaymentProcessorRule(
+                paymentProcessorRuleResource.toPaymentProcessorRule(id),
+                paymentProcessorRuleResource.getPaymentProcessorId());
     }
 
-    @ApiOperation(value = "deletePaymentProcessor", nickname = "deletePaymentProcessor")
+    @ApiOperation(value = "Delete payment processor rule", nickname = "deletePaymentProcessorRule")
     @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
@@ -141,9 +137,9 @@ public class PaymentProcessorController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Payment Processor {}", id);
-        paymentProcessorService.deletePaymentProcessor(id);
-        LOGGER.info("Payment Processor {} has been deleted.", id);
+        LOGGER.info("Deleting payment processor rule {}", id);
+        paymentProcessorRuleService.delete(id);
+        LOGGER.info("Payment processor rule {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }

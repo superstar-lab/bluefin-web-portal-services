@@ -21,9 +21,9 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping(value = "/api/transaction-types")
-public class TransactionTypeController {
+public class TransactionTypeRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionTypeController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionTypeRestController.class);
 
     @Autowired
     private TransactionTypeService transactionTypeService;

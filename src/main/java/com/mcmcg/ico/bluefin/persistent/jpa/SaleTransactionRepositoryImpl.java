@@ -31,8 +31,8 @@ import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
-class TransactionRepositoryImpl implements TransactionRepositoryCustom {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRepositoryImpl.class);
+class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaleTransactionRepositoryImpl.class);
 
     private static final String TRANSACTION_TYPE = "(transactionType)(:|<|>)([\\w]+)";
     private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";

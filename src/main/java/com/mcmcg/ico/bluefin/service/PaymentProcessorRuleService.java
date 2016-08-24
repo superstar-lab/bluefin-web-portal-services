@@ -30,6 +30,8 @@ public class PaymentProcessorRuleService {
     @Autowired
     private PaymentProcessorRuleRepository paymentProcessorRuleRepository;
     @Autowired
+    private TransactionService transactionService;
+    @Autowired
     private PaymentProcessorService paymentProcessorService;
 
     /**
@@ -148,7 +150,15 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule doesn't exist
      */
     public void delete(final long id) {
-        paymentProcessorRuleRepository.delete(getPaymentProcessorRule(id));
+        PaymentProcessorRule paymentProcessorRule = getPaymentProcessorRule(id);
+
+        // Validate if there is a transaction referencing a rule id
+        if (transactionService.countTransactionsWithPaymentProcessorRuleID(id) > 0) {
+            throw new CustomBadRequestException(
+                    "Unable to delete payment processor rule, because it has at least one reference to transactions.");
+        }
+
+        paymentProcessorRuleRepository.delete(paymentProcessorRule);
     }
 
     public List<CardType> getTransactionTypes() {

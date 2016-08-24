@@ -27,15 +27,15 @@ import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
-public class TransactionsService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsService.class);
+public class TransactionService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
 
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
@@ -45,7 +45,7 @@ public class TransactionsService {
             "Processor", "Status", "Transaction Type" };
 
     @Autowired
-    private TransactionRepository transactionRepository;
+    private SaleTransactionRepository saleTransactionRepository;
     @Autowired
     private VoidTransactionRepository voidTransactionRepository;
     @Autowired
@@ -67,7 +67,7 @@ public class TransactionsService {
             result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
             break;
         default:
-            result = transactionRepository.findByApplicationTransactionId(transactionId);
+            result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         }
 
         if (result == null) {
@@ -77,10 +77,14 @@ public class TransactionsService {
         return result;
     }
 
+    public Long countTransactionsWithPaymentProcessorRuleID(final Long paymentProcessorRuleId) {
+        return saleTransactionRepository.countByPaymentProcessorRuleID(paymentProcessorRuleId);
+    }
+
     public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
         Page<SaleTransaction> result;
         try {
-            result = transactionRepository.findTransaction(search, paging);
+            result = saleTransactionRepository.findTransaction(search, paging);
         } catch (ParseException e) {
             throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
         }
@@ -105,7 +109,7 @@ public class TransactionsService {
 
         File file = null;
         try {
-            result = transactionRepository.findTransactionsReport(search);
+            result = saleTransactionRepository.findTransactionsReport(search);
         } catch (ParseException e) {
             throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
         }

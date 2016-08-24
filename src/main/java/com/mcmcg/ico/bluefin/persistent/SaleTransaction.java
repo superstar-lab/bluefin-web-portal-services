@@ -211,6 +211,9 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "Origin")
     private String origin;
 
+    @Column(name = "PaymentProcessorRuleID")
+    private Long paymentProcessorRuleID;
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
@@ -228,13 +231,10 @@ public class SaleTransaction implements Serializable, Transaction {
     @Transient
     private String transactionId;
 
-    public String getCardNumberLast4Char() {
-        return CARD_MASK + cardNumberLast4Char;
-    }
-
     @Transient
     @JsonIgnore
     private Integer isVoided = 0;
+
     @Transient
     @JsonIgnore
     private Integer isRefunded = 0;
@@ -249,4 +249,7 @@ public class SaleTransaction implements Serializable, Transaction {
         return (refundedTransactions != null && !refundedTransactions.isEmpty()) || isRefunded > 0;
     }
 
+    public String getCardNumberLast4Char() {
+        return CARD_MASK + cardNumberLast4Char;
+    }
 }

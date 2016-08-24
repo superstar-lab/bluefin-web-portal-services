@@ -25,7 +25,7 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
-import com.mcmcg.ico.bluefin.service.TransactionsService;
+import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -41,7 +41,7 @@ public class ReportRestController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportRestController.class);
 
     @Autowired
-    private TransactionsService transactionService;
+    private TransactionService transactionService;
     @Autowired
     private SessionService sessionService;
 

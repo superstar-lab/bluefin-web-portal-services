@@ -42,7 +42,7 @@ public class PaymentProcessorControllerTest {
     MockMvc mockMvc;
 
     @InjectMocks
-    private PaymentProcessorController PaymentProcessorControllerMock;
+    private PaymentProcessorRestController PaymentProcessorControllerMock;
 
     @Mock
     private PaymentProcessorService paymentProcessorService;

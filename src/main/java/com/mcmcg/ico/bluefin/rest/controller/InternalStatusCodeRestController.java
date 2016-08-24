@@ -39,9 +39,9 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping(value = "/api/internal-status-codes")
-public class InternalStatusCodeController {
+public class InternalStatusCodeRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InternalStatusCodeController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InternalStatusCodeRestController.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

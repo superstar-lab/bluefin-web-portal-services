@@ -5,8 +5,10 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 
-public interface TransactionRepository
-        extends JpaRepository<SaleTransaction, Long>, QueryDslPredicateExecutor<SaleTransaction>, TransactionRepositoryCustom {
+public interface SaleTransactionRepository extends JpaRepository<SaleTransaction, Long>,
+        QueryDslPredicateExecutor<SaleTransaction>, TransactionRepositoryCustom {
+
     public SaleTransaction findByApplicationTransactionId(String transactionId);
 
+    public Long countByPaymentProcessorRuleID(Long paymentProcessorRuleId);
 }

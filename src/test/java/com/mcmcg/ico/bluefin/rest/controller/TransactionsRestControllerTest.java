@@ -31,7 +31,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
-import com.mcmcg.ico.bluefin.service.TransactionsService;
+import com.mcmcg.ico.bluefin.service.TransactionService;
 
 public class TransactionsRestControllerTest {
 
@@ -41,7 +41,7 @@ public class TransactionsRestControllerTest {
     private TransactionsRestController transactionsRestControllerMock;
 
     @Mock
-    private TransactionsService transactionService;
+    private TransactionService transactionService;
 
     private Authentication auth;
 
