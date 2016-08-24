@@ -94,7 +94,6 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         Map<String, Query> queriesMap = createQueries(query, null);
         Query result = queriesMap.get("result");
 
-        dynamicParametersMap.clear();
         result.setMaxResults(Integer.parseInt(maxSizeReport));
         @SuppressWarnings("unchecked")
         List<SaleTransaction> tr = result.getResultList();
@@ -187,22 +186,23 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(" SELECT * FROM (");
 
         switch (getTransactionType(search).toLowerCase()) {
-        case "sale":
-        case "tokenize":
-            querySb.append(getSelectForSaleTransaction(search));
-            break;
         case "void":
             querySb.append(getSelectForVoidTransaction(search));
             break;
         case "refund":
             querySb.append(getSelectForRefundTransaction(search));
             break;
-        default:
+        case "all":
             querySb.append(getSelectForSaleTransaction(search));
             querySb.append(" UNION ");
             querySb.append(getSelectForVoidTransaction(search));
             querySb.append(" UNION ");
             querySb.append(getSelectForRefundTransaction(search));
+            break;
+        case "sale":
+        case "tokenize":
+        default:
+            querySb.append(getSelectForSaleTransaction(search));
             break;
         }
         querySb.append(" ) RESULTINFO ");
@@ -324,22 +324,17 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String createWhereStatement(String search, String prefix) {
         StringJoiner statement = new StringJoiner(" AND ");
-        String attribute = StringUtils.EMPTY;
-        String operator = StringUtils.EMPTY;
-        String value = StringUtils.EMPTY;
-        String attributeParam = StringUtils.EMPTY;
-        String predicate = StringUtils.EMPTY;
 
         if (search != null && !search.isEmpty()) {
             Pattern pattern = Pattern.compile(SEARCH_REGEX);
             Matcher matcher = pattern.matcher(search + ",");
 
             while (matcher.find()) {
-                attribute = matcher.group(1);
-                operator = matcher.group(2);
-                value = matcher.group(3);
-                attributeParam = attribute + "Param1";
-                predicate = getPropertyPredicate(attribute);
+                final String attribute = matcher.group(1);
+                final String operator = matcher.group(2);
+                final String value = matcher.group(3);
+                String attributeParam = attribute + "Param1";
+                String predicate = getPropertyPredicate(attribute);
 
                 if (!prefix.equals("MAINSALE") && skipFilter(attribute, prefix)) {
                     continue;
@@ -443,8 +438,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("transactionDateTime",
                 ":prefix.TransactionDateTime :atributeOperator :transactionDateTimeParam1");
         predicatesHashMapping.put("amount", ":prefix.ChargeAmount :atributeOperator :amountParam1");
-        predicatesHashMapping.put("firstName", ":prefix.FirstName =  :firstNameParam1");
-        predicatesHashMapping.put("lastName", ":prefix.LastName = :lastNameParam1");
+        predicatesHashMapping.put("firstName", ":prefix.FirstName LIKE :firstNameParam1");
+        predicatesHashMapping.put("lastName", ":prefix.LastName LIKE :lastNameParam1");
         predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
         predicatesHashMapping.put("legalEntity", ":prefix.LegalEntityApp IN (:legalEntityParam1)");
         predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
