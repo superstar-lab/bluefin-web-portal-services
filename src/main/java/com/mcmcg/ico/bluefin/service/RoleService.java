@@ -18,6 +18,7 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 
 @Service
@@ -93,4 +94,22 @@ public class RoleService {
         return roleRepository.findByRoleName(roleName);
     }
 
+    /**
+     * Get role by id
+     * 
+     * @param id
+     *            of the role
+     * @return Role object
+     * @throws CustomNotFoundException
+     *             when role is not found
+     */
+    public Role getRoleById(Long id) {
+        Role role = roleRepository.findOne(id);
+
+        if (role == null) {
+            throw new CustomNotFoundException(String.format("Unable to find role with id = [%s]", id));
+        }
+
+        return role;
+    }
 }

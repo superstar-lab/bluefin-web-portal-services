@@ -150,6 +150,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                             // Roles
                             .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
+                            .antMatchers(HttpMethod.GET, rolesApiBaseURL + "/{id}", rolesApiBaseURL + "/{id}/").authenticated()
 
                             // Internal Response Codes
                             .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/").hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")

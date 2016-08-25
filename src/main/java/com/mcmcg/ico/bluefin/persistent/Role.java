@@ -2,6 +2,8 @@ package com.mcmcg.ico.bluefin.persistent;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,7 +18,9 @@ import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +31,7 @@ import lombok.ToString;
 @ToString(exclude = { "rolePermissions", "userRoles" })
 @Entity
 @Table(name = "Role_Lookup")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "roleId")
 public class Role implements Serializable {
     private static final long serialVersionUID = -2465130966357082906L;
 
@@ -60,5 +65,9 @@ public class Role implements Serializable {
 
     public Role(String roleName) {
         this.roleName = roleName;
+    }
+
+    public List<Permission> getPermissions() {
+        return rolePermissions.stream().map(RolePermission::getPermission).collect(Collectors.toList());
     }
 }
