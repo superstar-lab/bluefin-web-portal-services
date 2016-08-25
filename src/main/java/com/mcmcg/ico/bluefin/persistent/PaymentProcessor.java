@@ -98,4 +98,10 @@ public class PaymentProcessor implements Serializable {
     public boolean hasMerchantsAssociated() {
         return paymentProcessorMerchants == null || paymentProcessorMerchants.isEmpty() ? false : true;
     }
+
+    @JsonIgnore
+    public boolean hasRulesAssociated() {
+        return paymentProcessorRules == null || paymentProcessorRules.isEmpty() ? false : true;
+    }
+
 }

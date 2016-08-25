@@ -24,6 +24,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorStatusResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -64,6 +65,19 @@ public class PaymentProcessorRestController {
     public List<PaymentProcessor> get() {
         LOGGER.info("Getting information with the following filters: {}");
         return paymentProcessorService.getPaymentProcessors();
+    }
+
+    @ApiOperation(value = "getPaymentProcessorStatus", nickname = "getPaymentProcessorStatus")
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}/status", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public PaymentProcessorStatusResource getStatus(@PathVariable Long id) {
+        LOGGER.info("Getting Payment Processor status with the following id: {}", id);
+        return paymentProcessorService.getPaymentProcessorStatusById(id);
     }
 
     @ApiOperation(value = "createPaymentProcessor", nickname = "createPaymentProcessor")
