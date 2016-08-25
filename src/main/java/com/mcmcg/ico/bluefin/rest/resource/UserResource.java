@@ -23,15 +23,15 @@ public class UserResource implements Serializable {
     private static final long serialVersionUID = -1742184663149300007L;
 
     @NotBlank(message = "username must not be empty")
-    @Pattern(regexp = "^[\\w-\\'\\s\\.\\,]*$", message = "Username must be alphanumeric")
+    @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Username must be alphanumeric")
     private String username;
 
     @NotBlank(message = "firstName must not be empty")
-    @Pattern(regexp = "^[\\w-\\'\\s\\.\\,]*$", message = "Firstname must be alphanumeric")
+    @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Firstname must be alphanumeric")
     private String firstName;
 
     @NotBlank(message = "lastName must not be empty")
-    @Pattern(regexp = "^[\\w-\\'\\s\\.\\,]*$", message = "Lastname must be alphanumeric")
+    @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Lastname must be alphanumeric")
     private String lastName;
 
     @NotBlank(message = "email must not be empty")
