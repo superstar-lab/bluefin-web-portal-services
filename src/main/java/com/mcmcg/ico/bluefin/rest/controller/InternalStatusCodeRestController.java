@@ -58,8 +58,8 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public String getInternalStatusCodesByTransactionType(
-            @RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
-            @RequestParam(value = "extended", required = false, defaultValue = "true") Boolean extended,
+            @RequestParam(value = "transactionType", required = false, defaultValue = "ALL") String transactionType,
+            @RequestParam(value = "extended", required = false, defaultValue = "false") Boolean extended,
             @ApiIgnore Authentication authentication) throws JsonProcessingException {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");

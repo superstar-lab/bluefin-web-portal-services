@@ -27,7 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
-import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -128,10 +127,6 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 String value = entry.getValue().replaceAll("[^\\w\\-\\,]", "");
                 result.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
                 queryTotal.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
-            } else if (entry.getKey().contains("internalStatusCodeParam")) {
-                // Special case for status code
-                result.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
-                queryTotal.setParameter(entry.getKey(), StatusCode.getStatusCodeByString(entry.getValue()));
             } else {
                 result.setParameter(entry.getKey(), entry.getValue());
                 queryTotal.setParameter(entry.getKey(), entry.getValue());
