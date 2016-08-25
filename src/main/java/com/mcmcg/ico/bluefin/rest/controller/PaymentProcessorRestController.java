@@ -70,7 +70,7 @@ public class PaymentProcessorRestController {
     @ApiOperation(value = "getPaymentProcessorStatus", nickname = "getPaymentProcessorStatus")
     @RequestMapping(method = RequestMethod.GET, value = "/{id}/status", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessorStatusResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),

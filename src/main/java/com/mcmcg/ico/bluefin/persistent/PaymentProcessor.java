@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -72,6 +73,9 @@ public class PaymentProcessor implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
+    
+    @Transient
+    private boolean readyToBeActivated;
 
     public PaymentProcessor() {
     }

@@ -60,6 +60,10 @@ public class PaymentProcessorService {
      */
     public List<PaymentProcessor> getPaymentProcessors() {
         List<PaymentProcessor> result = paymentProcessorRepository.findAll();
+        for (PaymentProcessor processor : result) {
+            processor.setReadyToBeActivated(
+                    processor.isActive() ? true : isReadyToBeActivated(processor.getPaymentProcessorId()));
+        }
 
         return result == null ? new ArrayList<PaymentProcessor>() : result;
     }
@@ -99,7 +103,7 @@ public class PaymentProcessorService {
             BasicPaymentProcessorResource paymentProcessorResource) {
         PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
-        if (paymentProcessorResource.getIsActive() == 1 && !ableToBeActive(id)) {
+        if (paymentProcessorResource.getIsActive() == 1 && !isReadyToBeActivated(id)) {
             LOGGER.error("Unable to activate Payment Processor, processor has some pending steps: [{}]",
                     paymentProcessorToUpdate.getProcessorName());
             throw new CustomBadRequestException(
@@ -114,7 +118,7 @@ public class PaymentProcessorService {
         return paymentProcessorToUpdate;
     }
 
-    public boolean ableToBeActive(final long id) {
+    public boolean isReadyToBeActivated(final long id) {
         PaymentProcessorStatusResource paymentProcessorStatus = getPaymentProcessorStatusById(id);
         return paymentProcessorStatus.getHasPaymentProcessorName().getCompleted()
                 && paymentProcessorStatus.getHasMerchantsAssociated().getCompleted()
