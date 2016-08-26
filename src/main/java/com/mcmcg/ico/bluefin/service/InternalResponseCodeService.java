@@ -3,9 +3,11 @@ package com.mcmcg.ico.bluefin.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -176,6 +178,7 @@ public class InternalResponseCodeService {
         internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
         internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
+        Set<Long> paymentProcessorResponseCodeToDelete = new HashSet<Long>();
         if (internalResponseCodeResource.getPaymentProcessorCodes() != null
                 || !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
             // New payment processor response codes that need to be created or
@@ -271,6 +274,8 @@ public class InternalResponseCodeService {
                 PaymentProcessorResponseCode ppmr = newMapOfPaymentProcessorResponseCodes
                         .get(element.getPaymentProcessorInternalResponseCodeId());
                 if (ppmr == null) {
+                    paymentProcessorResponseCodeToDelete
+                            .add(element.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
                     iter.remove();
                 } else {
                     element.setPaymentProcessorResponseCode(ppmr);
@@ -286,6 +291,12 @@ public class InternalResponseCodeService {
             }
 
         }
+
+        if (paymentProcessorResponseCodeToDelete != null && !paymentProcessorResponseCodeToDelete.isEmpty()) {
+            List<PaymentProcessorResponseCode> paymentProcessorResponseCodeEntitiesToDelete = paymentProcessorResponseCodeRepository
+                    .findAll(paymentProcessorResponseCodeToDelete);
+            paymentProcessorResponseCodeRepository.delete(paymentProcessorResponseCodeEntitiesToDelete);
+        }
         return internalResponseCodeRepository.save(internalResponseCode);
     }
 
@@ -296,7 +307,14 @@ public class InternalResponseCodeService {
             throw new CustomNotFoundException(
                     String.format("Unable to find internal response code with id = [%s]", id));
         }
+        List<PaymentProcessorResponseCode> paymentProcessorResponseCodeToDelete = new ArrayList<PaymentProcessorResponseCode>();
+        for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCodeToDelete
+                .getPaymentProcessorInternalResponseCodes()) {
+            paymentProcessorResponseCodeToDelete
+                    .add(paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode());
+        }
         internalResponseCodeToDelete.getPaymentProcessorInternalResponseCodes().clear();
         internalResponseCodeRepository.delete(internalResponseCodeToDelete);
+        paymentProcessorResponseCodeRepository.delete(paymentProcessorResponseCodeToDelete);
     }
 }

@@ -3,10 +3,12 @@ package com.mcmcg.ico.bluefin.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -195,6 +197,7 @@ public class InternalStatusCodeService {
         internalStatusCode.setInternalStatusCodeDescription(internalStatusCodeResource.getDescription());
         internalStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
+        Set<Long> paymentProcessorStatusCodeToDelete = new HashSet<Long>();
         if (internalStatusCodeResource.getPaymentProcessorCodes() != null
                 || !internalStatusCodeResource.getPaymentProcessorCodes().isEmpty()) {
             // New payment processor Status codes that need to be created or
@@ -288,6 +291,8 @@ public class InternalStatusCodeService {
                 PaymentProcessorStatusCode ppmr = newMapOfPaymentProcessorStatusCodes
                         .get(element.getPaymentProcessorInternalStatusCodeId());
                 if (ppmr == null) {
+                    paymentProcessorStatusCodeToDelete
+                            .add(element.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeId());
                     iter.remove();
                 } else {
                     element.setPaymentProcessorStatusCode(ppmr);
@@ -303,6 +308,12 @@ public class InternalStatusCodeService {
             }
 
         }
+
+        if (paymentProcessorStatusCodeToDelete != null && !paymentProcessorStatusCodeToDelete.isEmpty()) {
+            List<PaymentProcessorStatusCode> paymentProcessorStatusCodeEntitiesToDelete = paymentProcessorStatusCodeRepository
+                    .findAll(paymentProcessorStatusCodeToDelete);
+            paymentProcessorStatusCodeRepository.delete(paymentProcessorStatusCodeEntitiesToDelete);
+        }
         return internalStatusCodeRepository.save(internalStatusCode);
     }
 
@@ -312,7 +323,13 @@ public class InternalStatusCodeService {
         if (internalStatusCodeToDelete == null) {
             throw new CustomNotFoundException(String.format("Unable to find internal Status code with id = [%s]", id));
         }
+        List<PaymentProcessorStatusCode> paymentProcessorStatusCodeToDelete = new ArrayList<PaymentProcessorStatusCode>();
+        for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : internalStatusCodeToDelete
+                .getPaymentProcessorInternalStatusCodes()) {
+            paymentProcessorStatusCodeToDelete.add(paymentProcessorInternalStatusCode.getPaymentProcessorStatusCode());
+        }
         internalStatusCodeToDelete.getPaymentProcessorInternalStatusCodes().clear();
         internalStatusCodeRepository.delete(internalStatusCodeToDelete);
+        paymentProcessorStatusCodeRepository.delete(paymentProcessorStatusCodeToDelete);
     }
 }
