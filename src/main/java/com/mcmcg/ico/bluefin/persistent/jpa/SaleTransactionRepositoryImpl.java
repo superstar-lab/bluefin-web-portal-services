@@ -334,14 +334,21 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 if (!prefix.equals("MAINSALE") && skipFilter(attribute, prefix)) {
                     continue;
                 }
-                // Specific cases for transactionDateTime, amount
-                if (attribute.equals("transactionDateTime") || attribute.equals("amount")) {
+
+                // Special scenarios, be careful when you change this
+                if (attribute.equals("processUser") && (prefix.equals("REFUND") || prefix.equals("VOID"))) {
+                    // Special case for pUser in VOID and REFUND tables
+                    predicate = getPropertyPredicate("pUser");
+                    attributeParam = "pUserParam1";
+                } else if (attribute.equals("transactionDateTime") || attribute.equals("amount")) {
+                    // Specific cases for transactionDateTime, amount
                     predicate = predicate.replace(":atributeOperator", getOperation(operator));
                     if (dynamicParametersMap.containsKey(attribute + "Param1")) {
                         attributeParam = attribute + "Param2";
                         predicate = predicate.replace(attribute + "Param1", attributeParam);
                     }
                 }
+
                 statement.add(predicate.replace(":prefix", prefix));
                 dynamicParametersMap.put(attributeParam, value);
             }
@@ -357,16 +364,19 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         if (prefix.equals("REFUND") || prefix.equals("VOID")) {
             if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount")
                     || attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
-                    || attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")) {
+                    || attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")
+                    || attribute.equalsIgnoreCase("accountPeriod") || attribute.equalsIgnoreCase("desk")
+                    || attribute.equalsIgnoreCase("invoiceNumber")) {
                 return true;
             }
-        } else {
-            if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
-                    || attribute.equalsIgnoreCase("transactionDateTime")
-                    || attribute.equalsIgnoreCase("processorName")) {
-                return true;
-            }
+        } else if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
+                || attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("processorName")) {
+            // This are special cases where we don't need to apply this filters
+            // for the inner sale tables, because we will never get the sale
+            // transaction
+            return true;
         }
+
         return false;
     }
 
@@ -438,5 +448,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
         predicatesHashMapping.put("legalEntity", ":prefix.LegalEntityApp IN (:legalEntityParam1)");
         predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
+        predicatesHashMapping.put("application", ":prefix.Application = :applicationParam1");
+        predicatesHashMapping.put("processUser", ":prefix.ProcessUser = :processUserParam1"); // This is ONLY for sale
+        predicatesHashMapping.put("pUser", ":prefix.pUser = :pUserParam1"); // This is ONLY for void and refund
+        predicatesHashMapping.put("accountPeriod", ":prefix.AccountPeriod = :accountPeriodParam1");
+        predicatesHashMapping.put("desk", ":prefix.Desk = :deskParam1");
+        predicatesHashMapping.put("invoiceNumber", ":prefix.InvoiceNumber = :invoiceNumberParam1");
     }
 }

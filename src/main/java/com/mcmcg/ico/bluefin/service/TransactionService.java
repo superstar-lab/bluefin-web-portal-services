@@ -78,7 +78,7 @@ public class TransactionService {
     }
 
     public Long countTransactionsWithPaymentProcessorRuleID(final Long paymentProcessorRuleId) {
-        return saleTransactionRepository.countByPaymentProcessorRuleID(paymentProcessorRuleId);
+        return saleTransactionRepository.countByPaymentProcessorRuleId(paymentProcessorRuleId);
     }
 
     public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {

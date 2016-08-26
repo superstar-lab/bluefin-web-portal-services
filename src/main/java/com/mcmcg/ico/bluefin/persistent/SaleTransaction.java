@@ -198,6 +198,25 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "PaymentProcessorStatusCodeDescription")
     private String paymentProcessorStatusCodeDescription;
 
+    // Rule
+    @Column(name = "PaymentProcessorRuleID")
+    private Long paymentProcessorRuleId;
+
+    @Column(name = "RulePaymentProcessorID")
+    private Long rulePaymentProcessorId;
+
+    @Column(name = "RuleCardType")
+    private String ruleCardType;
+
+    @Column(name = "RuleMaximumMonthlyAmount", columnDefinition = "money")
+    private BigDecimal ruleMaximumMonthlyAmount;
+
+    @Column(name = "RuleNoMaximumMonthlyAmountFlag")
+    private Short ruleNoMaximumMonthlyAmountFlag;
+
+    @Column(name = "RulePriority")
+    private Short rulePriority;
+
     // Misc
     @Column(name = "ProcessUser")
     private String processUser;
@@ -211,8 +230,23 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "Origin")
     private String origin;
 
-    @Column(name = "PaymentProcessorRuleID")
-    private Long paymentProcessorRuleID;
+    @Column(name = "AccountPeriod")
+    private String accountPeriod;
+
+    @Column(name = "Desk")
+    private String desk;
+
+    @Column(name = "InvoiceNumber")
+    private String invoiceNumber;
+
+    @Column(name = "UserDefinedField1")
+    private String userDefinedField1;
+
+    @Column(name = "UserDefinedField2")
+    private String userDefinedField2;
+
+    @Column(name = "UserDefinedField3")
+    private String userDefinedField3;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")

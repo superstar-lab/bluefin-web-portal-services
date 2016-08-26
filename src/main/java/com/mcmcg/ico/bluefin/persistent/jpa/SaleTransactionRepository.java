@@ -10,5 +10,5 @@ public interface SaleTransactionRepository extends JpaRepository<SaleTransaction
 
     public SaleTransaction findByApplicationTransactionId(String transactionId);
 
-    public Long countByPaymentProcessorRuleID(Long paymentProcessorRuleId);
+    public Long countByPaymentProcessorRuleId(Long paymentProcessorRuleId);
 }
