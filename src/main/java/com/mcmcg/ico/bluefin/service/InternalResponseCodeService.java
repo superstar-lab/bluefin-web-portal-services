@@ -272,7 +272,7 @@ public class InternalResponseCodeService {
                 PaymentProcessorInternalResponseCode element = iter.next();
 
                 PaymentProcessorResponseCode ppmr = newMapOfPaymentProcessorResponseCodes
-                        .get(element.getPaymentProcessorInternalResponseCodeId());
+                        .get(element.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
                 if (ppmr == null) {
                     paymentProcessorResponseCodeToDelete
                             .add(element.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
@@ -291,13 +291,14 @@ public class InternalResponseCodeService {
             }
 
         }
+        InternalResponseCode result = internalResponseCodeRepository.save(internalResponseCode);
 
         if (paymentProcessorResponseCodeToDelete != null && !paymentProcessorResponseCodeToDelete.isEmpty()) {
             List<PaymentProcessorResponseCode> paymentProcessorResponseCodeEntitiesToDelete = paymentProcessorResponseCodeRepository
                     .findAll(paymentProcessorResponseCodeToDelete);
             paymentProcessorResponseCodeRepository.delete(paymentProcessorResponseCodeEntitiesToDelete);
         }
-        return internalResponseCodeRepository.save(internalResponseCode);
+        return result;
     }
 
     public void deleteInternalResponseCode(Long id) {

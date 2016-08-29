@@ -289,7 +289,7 @@ public class InternalStatusCodeService {
                 PaymentProcessorInternalStatusCode element = iter.next();
 
                 PaymentProcessorStatusCode ppmr = newMapOfPaymentProcessorStatusCodes
-                        .get(element.getPaymentProcessorInternalStatusCodeId());
+                        .get(element.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeId());
                 if (ppmr == null) {
                     paymentProcessorStatusCodeToDelete
                             .add(element.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeId());
@@ -308,13 +308,15 @@ public class InternalStatusCodeService {
             }
 
         }
+        InternalStatusCode result = internalStatusCodeRepository.save(internalStatusCode);
 
         if (paymentProcessorStatusCodeToDelete != null && !paymentProcessorStatusCodeToDelete.isEmpty()) {
             List<PaymentProcessorStatusCode> paymentProcessorStatusCodeEntitiesToDelete = paymentProcessorStatusCodeRepository
                     .findAll(paymentProcessorStatusCodeToDelete);
             paymentProcessorStatusCodeRepository.delete(paymentProcessorStatusCodeEntitiesToDelete);
         }
-        return internalStatusCodeRepository.save(internalStatusCode);
+
+        return result;
     }
 
     public void deleteInternalStatusCode(Long id) {
