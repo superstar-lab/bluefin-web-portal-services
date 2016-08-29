@@ -17,15 +17,15 @@ import lombok.Data;
 public class UpdateUserResource implements Serializable {
     private static final long serialVersionUID = 5100870250264827468L;
 
-    @NotBlank(message = "firstName must not be empty")
+    @NotBlank(message = "Please provide a first name for the user")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "firstName must be alphanumeric")
     private String firstName;
 
-    @NotBlank(message = "lastName must not be empty")
+    @NotBlank(message = "Please provide a last name for the user")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "lastName must be alphanumeric")
     private String lastName;
 
-    @NotBlank(message = "email must not be empty")
+    @NotBlank(message = "Please provide an email address for the user")
     private String email;
 
     public UserResource toUserResource(Set<Role> roles, Set<LegalEntityApp> entities) {

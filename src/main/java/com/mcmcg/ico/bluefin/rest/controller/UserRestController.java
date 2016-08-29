@@ -128,7 +128,7 @@ public class UserRestController {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("<br /> "));
             throw new CustomBadRequestException(errorDescription);
         }
 
@@ -172,7 +172,7 @@ public class UserRestController {
 
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("<br /> "));
             throw new CustomBadRequestException(errorDescription);
         }
 
@@ -249,7 +249,7 @@ public class UserRestController {
             HttpServletRequest request, Authentication authentication) {
         if (errors.hasErrors()) {
             final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("<br /> "));
             throw new CustomBadRequestException(errorDescription);
         }
 

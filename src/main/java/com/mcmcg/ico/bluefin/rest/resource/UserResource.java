@@ -22,27 +22,27 @@ import lombok.Data;
 public class UserResource implements Serializable {
     private static final long serialVersionUID = -1742184663149300007L;
 
-    @NotBlank(message = "username must not be empty")
+    @NotBlank(message = "Please provide a user name")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Username must be alphanumeric")
     private String username;
 
-    @NotBlank(message = "firstName must not be empty")
+    @NotBlank(message = "Please provide a first name for the user")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Firstname must be alphanumeric")
     private String firstName;
 
-    @NotBlank(message = "lastName must not be empty")
+    @NotBlank(message = "Please provide a last name for the user")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Lastname must be alphanumeric")
     private String lastName;
 
-    @NotBlank(message = "email must not be empty")
+    @NotBlank(message = "Please provide an email address for the user")
     private String email;
 
-    @Size(min = 1, message = "roleList must not be empty")
-    @NotNull(message = "roleList must not be null")
+    @Size(min = 1, message = "Please provide a role for the user")
+    @NotNull(message = "Please provide a role for the user")
     private Set<Role> roles;
 
-    @Size(min = 1, message = "legalEntityAppsList must not be empty")
-    @NotNull(message = "legalEntityAppsList must not be null")
+    @Size(min = 1, message = "Please provide a legal entity for the user")
+    @NotNull(message = "Please provide a legal entity for the user")
     private Set<LegalEntityApp> legalEntityApps;
 
     public UserResource() {

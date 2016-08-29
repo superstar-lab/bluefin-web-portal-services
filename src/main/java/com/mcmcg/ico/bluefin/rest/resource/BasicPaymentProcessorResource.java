@@ -14,7 +14,7 @@ import lombok.Data;
 public class BasicPaymentProcessorResource implements Serializable {
     private static final long serialVersionUID = -602175101416750669L;
 
-    @NotBlank(message = "Processor name cannot be null or empty")
+    @NotBlank(message = "Please provide a processor name")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Processor name must be alphanumeric")
     private String processorName;
     private Short isActive = 0;

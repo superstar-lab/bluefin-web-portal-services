@@ -11,6 +11,6 @@ public class SessionRequestResource implements Serializable {
 
     private static final long serialVersionUID = 4390649295743233923L;
 
-    @NotBlank(message = "username cannot be empty or null")
+    @NotBlank(message = "Please provide a user name")
     private String username;
 }

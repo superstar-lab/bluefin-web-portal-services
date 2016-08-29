@@ -11,11 +11,11 @@ import lombok.Data;
 @Data
 public class InternalCodeResource {
 
-    @NotBlank(message = "code value into Internal Code object cannot be null or empty")
+    @NotBlank(message = "Please provide a code for the internal code")
     private String code;
-    @NotBlank(message = "description value into Internal Code object cannot be null or empty")
+    @NotBlank(message = "Please provide a description for the internal code")
     private String description;
-    @NotBlank(message = "transactionTypeName cannot be null or empty")
+    @NotBlank(message = "Please provide a transaction type name for the internal code")
     private String transactionTypeName;
 
     @Valid

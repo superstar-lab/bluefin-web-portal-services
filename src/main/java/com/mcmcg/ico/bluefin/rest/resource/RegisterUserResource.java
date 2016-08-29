@@ -20,27 +20,27 @@ import lombok.Data;
 public class RegisterUserResource implements Serializable {
     private static final long serialVersionUID = 3833640597296293196L;
 
-    @NotBlank(message = "Username must not be empty")
+    @NotBlank(message = "Please provide a user name")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Username must be alphanumeric")
     private String username;
 
-    @NotBlank(message = "Firstname must not be empty")
+    @NotBlank(message = "Please provide a first name for the user")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Firstname must be alphanumeric")
     private String firstName;
 
-    @NotBlank(message = "Lastname must not be empty")
+    @NotBlank(message = "Please provide a last name for the user")
     @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Lastname must be alphanumeric")
     private String lastName;
 
-    @NotBlank(message = "Email must not be empty")
+    @NotBlank(message = "Please provide an email address for the user")
     private String email;
 
-    @Size(min = 1, message = "rolesIdsList must not be empty")
-    @NotNull(message = "roles must not be null")
+    @Size(min = 1, message = "Please provide a role for the user")
+    @NotNull(message = "Please provide a role for the user")
     private Set<Long> roles;
 
-    @Size(min = 1, message = "legalEntityApps must not be empty")
-    @NotNull(message = "legalEntityApps must not be null")
+    @Size(min = 1, message = "Please provide a legal entity for the user")
+    @NotNull(message = "Please provide a legal entity for the user")
     private Set<Long> legalEntityApps;
 
     public User toUser(Collection<Role> roles, Collection<LegalEntityApp> legalEntityApps) {
