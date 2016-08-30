@@ -15,7 +15,7 @@ public class BasicLegalEntityAppResource implements Serializable {
     private static final long serialVersionUID = 8649893596541033808L;
 
     @NotBlank(message = "Please provide a legal entity name")
-    @Pattern(regexp = "^[\\w-\\'\\s\\.]*$", message = "Legal entity name must be alphanumeric")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Legal entity name must be alphanumeric")
     private String legalEntityAppName;
 
     public LegalEntityApp toLegalEntityApp() {

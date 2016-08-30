@@ -30,18 +30,10 @@ import org.springframework.data.domain.Sort.Order;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     private static final Logger LOGGER = LoggerFactory.getLogger(SaleTransactionRepositoryImpl.class);
-
-    private static final String TRANSACTION_TYPE = "(transactionType)(:|<|>)([\\w]+)";
-    private static final String EMAIL_PATTERN = "(\\w+?)@(\\w+?).(\\w+?)";
-    private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
-    private static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
-    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
-    private static final String NUMBERS_AND_WORDS_REGEX = "[\\w\\s|\\d+(?:\\.\\d+)?]+";
-    private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
-            + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
 
     private static final String EQUALS = " = ";
     private static final String LOE = " <= ";
@@ -124,7 +116,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 queryTotal.setParameter(entry.getKey(), entry.getValue());
             } else if (entry.getKey().contains("legalEntityParam")) {
                 // Special case for legal entity
-                String value = entry.getValue().replaceAll("[^\\w\\-\\,]", "");
+                String value = entry.getValue().replace("[", "").replace("]", "");
+
                 result.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
                 queryTotal.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
             } else {
@@ -340,9 +333,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @return type of transaction
      */
     private String getTransactionType(String search) {
+        final String TRANSACTION_TYPE = "(transactionType)(:|<|>)([\\w]+)";
+
         String transactionType = "ALL";
         Pattern pattern = Pattern.compile(TRANSACTION_TYPE);
-        Matcher matcher = pattern.matcher(search + ",");
+        Matcher matcher = pattern.matcher(search + QueryDSLUtil.SEARCH_DELIMITER_CHAR);
         while (matcher.find()) {
             transactionType = matcher.group(3);
         }
@@ -364,8 +359,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         StringJoiner statement = new StringJoiner(" AND ");
 
         if (search != null && !search.isEmpty()) {
-            Pattern pattern = Pattern.compile(SEARCH_REGEX);
-            Matcher matcher = pattern.matcher(search + ",");
+            Pattern pattern = Pattern.compile(QueryDSLUtil.SEARCH_REGEX);
+            Matcher matcher = pattern.matcher(search + QueryDSLUtil.SEARCH_DELIMITER_CHAR);
 
             while (matcher.find()) {
                 final String attribute = matcher.group(1);

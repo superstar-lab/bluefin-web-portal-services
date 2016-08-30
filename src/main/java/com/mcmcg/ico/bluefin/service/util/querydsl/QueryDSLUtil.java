@@ -26,16 +26,21 @@ public class QueryDSLUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryDSLUtil.class);
 
-    private static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
-    private static final String EMAIL_PATTERN = "[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+    public static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
+    public static final String EMAIL_PATTERN = "[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
             + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
-    private static final String ANY_LIST_REGEX = "\\[(.*?)\\]";
-    private static final String NUMBER_LIST_REGEX = "\\[(\\d+)(,\\d+)*\\]";
-    public static final String WORD_LIST_REGEX = "\\[(\\w+(-\\w+)?(,\\s?\\w+(-\\w+)?)*)*\\]";
-    private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
-    private static final String NUMBERS_AND_WORDS_REGEX = "[\\w\\s|\\d+(?:\\.\\d+)?]+";
-    private static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
-            + EMAIL_PATTERN + "|" + NUMBER_LIST_REGEX + "|" + WORD_LIST_REGEX + "),";
+    public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|-|\\w)*";
+    public static final String DECIMAL_NUMBER_REGEX = "\\d+(?:\\.\\d+)?";
+    public static final String ANY_LIST_REGEX = "\\[(.*?)\\]";
+    public static final String INTEGER_LIST_REGEX = "\\[\\d[\\d,\\s*]*\\]";
+    public static final String WORD_LIST_REGEX = "\\[" + WORD_REGEX + "(,\\s*" + WORD_REGEX + ")*\\]";
+    public static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
+    public static final String NUMBERS_AND_WORDS_REGEX = WORD_REGEX + "|" + DECIMAL_NUMBER_REGEX;
+
+    public static final String SEARCH_DELIMITER_CHAR = "$$";
+    public static final String SEARCH_DELIMITER_CHAR_REGEX = "\\$\\$";
+    public static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
+            + EMAIL_PATTERN + "|" + INTEGER_LIST_REGEX + "|" + WORD_LIST_REGEX + ")" + SEARCH_DELIMITER_CHAR_REGEX;
 
     private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
     private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
@@ -45,7 +50,7 @@ public class QueryDSLUtil {
 
         if (search != null) {
             Pattern pattern = Pattern.compile(SEARCH_REGEX);
-            Matcher matcher = pattern.matcher(search + ",");
+            Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
             while (matcher.find()) {
                 builder.with(matcher.group(1), matcher.group(2), matcher.group(3));
             }
@@ -65,7 +70,7 @@ public class QueryDSLUtil {
 
     private static List<Order> getOrderList(String sort) {
         Pattern pattern = Pattern.compile(SORT_REGEX);
-        Matcher matcher = pattern.matcher(sort + ",");
+        Matcher matcher = pattern.matcher(sort + SEARCH_DELIMITER_CHAR);
         List<Order> sortList = new ArrayList<Order>();
         while (matcher.find()) {
             Sort.Direction sortDirection = null;
@@ -95,7 +100,7 @@ public class QueryDSLUtil {
     private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
         if (!search.contains(filterKey)) {
             if (!search.isEmpty()) {
-                search = search + ",";
+                search = search + SEARCH_DELIMITER_CHAR;
             }
             search = search + filterKey + userLegalEntities;
         } else {
@@ -204,7 +209,7 @@ public class QueryDSLUtil {
         String result = StringUtils.EMPTY;
         Boolean validSearch = false;
         Pattern pattern = Pattern.compile(SEARCH_REGEX);
-        Matcher matcher = pattern.matcher(search + ",");
+        Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
         while (matcher.find()) {
             if (filter.contains(matcher.group(1).toString())) {
                 result = matcher.group(3);
