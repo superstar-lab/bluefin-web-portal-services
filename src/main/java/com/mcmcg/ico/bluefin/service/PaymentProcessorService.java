@@ -61,8 +61,13 @@ public class PaymentProcessorService {
     public List<PaymentProcessor> getPaymentProcessors() {
         List<PaymentProcessor> result = paymentProcessorRepository.findAll();
         for (PaymentProcessor processor : result) {
-            processor.setReadyToBeActivated(
-                    processor.isActive() ? true : isReadyToBeActivated(processor.getPaymentProcessorId()));
+            boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
+            if (processor.isActive() && !isReadyToBeActivated) {
+                processor.setIsActive((short) 0);
+                paymentProcessorRepository.save(processor);
+                isReadyToBeActivated = false;
+            }
+            processor.setReadyToBeActivated(isReadyToBeActivated);
         }
 
         return result == null ? new ArrayList<PaymentProcessor>() : result;
@@ -103,6 +108,10 @@ public class PaymentProcessorService {
             BasicPaymentProcessorResource paymentProcessorResource) {
         PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
+        if (paymentProcessorToUpdate.getIsActive() == 1 && !isReadyToBeActivated(id)) {
+            paymentProcessorToUpdate.setIsActive((short) 0);
+            paymentProcessorRepository.save(paymentProcessorToUpdate);
+        }
         if (paymentProcessorResource.getIsActive() == 1 && !isReadyToBeActivated(id)) {
             LOGGER.error("Unable to activate Payment Processor, processor has some pending steps: [{}]",
                     paymentProcessorToUpdate.getProcessorName());
@@ -266,6 +275,17 @@ public class PaymentProcessorService {
         paymentProcessorStatusResource.setHasRulesAssociated(hasRulesAssociated);
         paymentProcessorStatusResource.setHasResponseCodesAssociated(hasResponseCodesAssociated);
         paymentProcessorStatusResource.setHasStatusCodesAssociated(hasStatusCodesAssociated);
+
+        if (paymentProcessor.getIsActive() == 1
+                && !(paymentProcessorStatusResource.getHasPaymentProcessorName().getCompleted()
+                        && paymentProcessorStatusResource.getHasMerchantsAssociated().getCompleted()
+                        && paymentProcessorStatusResource.getHasResponseCodesAssociated().getCompleted()
+                        && paymentProcessorStatusResource.getHasRulesAssociated().getCompleted()
+                        && paymentProcessorStatusResource.getHasStatusCodesAssociated().getCompleted())) {
+            paymentProcessor.setIsActive((short) 0);
+            paymentProcessorRepository.save(paymentProcessor);
+        }
+
         return paymentProcessorStatusResource;
     }
 
