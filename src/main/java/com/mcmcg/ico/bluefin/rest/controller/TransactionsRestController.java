@@ -13,11 +13,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
@@ -64,10 +69,11 @@ public class TransactionsRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<SaleTransaction> get(@RequestParam(value = "search", required = true) String search,
+    public String get(@RequestParam(value = "search", required = true) String search,
             @RequestParam(value = "page", required = true) Integer page,
             @RequestParam(value = "size", required = true) Integer size,
-            @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication) {
+            @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication)
+            throws JsonProcessingException {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -80,6 +86,11 @@ public class TransactionsRestController {
         LOGGER.info("Generating report with the following filters: {}", search);
 
         QueryDSLUtil.createExpression(search, SaleTransaction.class);
-        return transactionService.getTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort));
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JodaModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        
+        return objectMapper.writerWithView(Views.Public.class).writeValueAsString(
+                transactionService.getTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort)));
     }
 }

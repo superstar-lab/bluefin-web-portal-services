@@ -216,12 +216,20 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         // create select from transaction type
         querySb.append(
-                " SELECT MAINSALE.SaleTransactionID,MAINSALE.ApplicationTransactionID,MAINSALE.ProcessorTransactionID,")
-                .append("MAINSALE.MerchantID,MAINSALE.TransactionType,MAINSALE.Processor,MAINSALE.InternalStatusCode,")
-                .append("MAINSALE.InternalStatusDescription,MAINSALE.DateCreated,MAINSALE.TransactionDateTime,MAINSALE.ChargeAmount,")
-                .append("MAINSALE.FirstName,MAINSALE.LastName,MAINSALE.CardNumberLast4Char,MAINSALE.CardType,MAINSALE.LegalEntityApp,")
-                .append("MAINSALE.AccountId,(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,")
-                .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded ")
+                " SELECT MAINSALE.SaleTransactionID,MAINSALE.TransactionType,MAINSALE.LegalEntityApp,MAINSALE.AccountId,MAINSALE.ApplicationTransactionID,MAINSALE.ProcessorTransactionID,")
+                .append("MAINSALE.MerchantID,MAINSALE.TransactionDateTime,MAINSALE.CardNumberFirst6Char,MAINSALE.CardNumberLast4Char,")
+                .append("MAINSALE.CardType,MAINSALE.ChargeAmount,MAINSALE.ExpiryDate,MAINSALE.FirstName,MAINSALE.LastName,")
+                .append("MAINSALE.Address1,MAINSALE.Address2,MAINSALE.City,MAINSALE.State,MAINSALE.PostalCode,MAINSALE.Country,")
+                .append("MAINSALE.TestMode,MAINSALE.Token,MAINSALE.Tokenized,MAINSALE.PaymentProcessorResponseCode,MAINSALE.PaymentProcessorResponseCodeDescription,")
+                .append("MAINSALE.ApprovalCode,MAINSALE.InternalResponseCode,MAINSALE.InternalResponseDescription,MAINSALE.InternalStatusCode,")
+                .append("MAINSALE.InternalStatusDescription,MAINSALE.PaymentProcessorStatusCode,MAINSALE.PaymentProcessorStatusCodeDescription,")
+                .append("MAINSALE.PaymentProcessorRuleId,MAINSALE.RulePaymentProcessorId,MAINSALE.RuleCardType,MAINSALE.RuleMaximumMonthlyAmount,")
+                .append("MAINSALE.RuleNoMaximumMonthlyAmountFlag,MAINSALE.RulePriority,MAINSALE.ProcessUser,MAINSALE.Processor,")
+                .append("MAINSALE.Application,MAINSALE.Origin,MAINSALE.AccountPeriod,MAINSALE.Desk,MAINSALE.InvoiceNumber,MAINSALE.UserDefinedField1,")
+                .append("MAINSALE.UserDefinedField2,MAINSALE.UserDefinedField3,MAINSALE.DateCreated,")
+                .append("(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,")
+                .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded, ")
+                .append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Sale_Transaction MAINSALE ");
 
         querySb.append(createWhereStatement(search, "MAINSALE"));
@@ -237,19 +245,37 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String getSelectForVoidTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
+
         querySb.append(
-                " SELECT VOID.SaleTransactionID,VOID.ApplicationTransactionID,VOID.ProcessorTransactionID,VOID.MerchantID,'VOID' as TransactionType,")
-                .append("VOID.Processor,VOID.InternalStatusCode,VOID.InternalStatusDescription,VOID.DateCreated,VOID.TransactionDateTime,VOIDSALE.ChargeAmount,")
-                .append("VOIDSALE.FirstName,VOIDSALE.LastName,VOIDSALE.CardNumberLast4Char,VOIDSALE.CardType,VOIDSALE.LegalEntityApp,VOIDSALE.AccountId,")
-                .append("0 AS IsVoided, 0 AS IsRefunded FROM  Void_Transaction VOID ")
+                " SELECT VOID.SaleTransactionID,'VOID' AS TransactionType,VOIDSALE.LegalEntityApp,VOIDSALE.AccountId,VOID.ApplicationTransactionID,VOID.ProcessorTransactionID,")
+                .append("VOID.MerchantID,VOID.TransactionDateTime,VOIDSALE.CardNumberFirst6Char,VOIDSALE.CardNumberLast4Char,")
+                .append("VOIDSALE.CardType,VOIDSALE.ChargeAmount,VOIDSALE.ExpiryDate,VOIDSALE.FirstName,VOIDSALE.LastName,")
+                .append("VOIDSALE.Address1,VOIDSALE.Address2,VOIDSALE.City,VOIDSALE.State,VOIDSALE.PostalCode,VOIDSALE.Country,")
+                .append("VOIDSALE.TestMode,VOIDSALE.Token,VOIDSALE.Tokenized,VOID.PaymentProcessorResponseCode,VOID.PaymentProcessorResponseCodeDescription,")
+                .append("VOID.ApprovalCode,VOID.InternalResponseCode,VOID.InternalResponseDescription,VOID.InternalStatusCode,")
+                .append("VOID.InternalStatusDescription,VOID.PaymentProcessorStatusCode,VOID.PaymentProcessorStatusCodeDescription,")
+                .append("VOIDSALE.PaymentProcessorRuleId,VOIDSALE.RulePaymentProcessorId,VOIDSALE.RuleCardType,VOIDSALE.RuleMaximumMonthlyAmount,")
+                .append("VOIDSALE.RuleNoMaximumMonthlyAmountFlag,VOIDSALE.RulePriority,VOID.pUser,VOID.Processor,")
+                .append("VOID.Application,VOIDSALE.Origin,VOIDSALE.AccountPeriod,VOIDSALE.Desk,VOIDSALE.InvoiceNumber,VOIDSALE.UserDefinedField1,")
+                .append("VOIDSALE.UserDefinedField2,VOIDSALE.UserDefinedField3,VOID.DateCreated,0 AS IsVOIDed, 0 AS IsVoided, ")
+                .append("VOIDSALE.PaymentProcessorInternalStatusCodeID, VOIDSALE.PaymentProcessorInternalResponseCodeID ")
+                .append("FROM Void_Transaction VOID ")
 
                 .append(" JOIN (")
 
-                .append(" SELECT SALEINNERVOID.SaleTransactionID,SALEINNERVOID.ApplicationTransactionID,SALEINNERVOID.ProcessorTransactionID,")
-                .append("SALEINNERVOID.MerchantID,SALEINNERVOID.TransactionType,SALEINNERVOID.Processor,SALEINNERVOID.InternalStatusCode,")
-                .append("SALEINNERVOID.InternalStatusDescription,SALEINNERVOID.DateCreated,SALEINNERVOID.TransactionDateTime,")
-                .append("SALEINNERVOID.ChargeAmount,SALEINNERVOID.FirstName,SALEINNERVOID.LastName,SALEINNERVOID.CardNumberLast4Char,")
-                .append("SALEINNERVOID.CardType,SALEINNERVOID.LegalEntityApp,SALEINNERVOID.AccountId FROM  Sale_Transaction SALEINNERVOID ")
+                .append(" SELECT SALEINNERVOID.SaleTransactionID,SALEINNERVOID.TransactionType,SALEINNERVOID.LegalEntityApp,SALEINNERVOID.AccountId,SALEINNERVOID.ApplicationTransactionID,SALEINNERVOID.ProcessorTransactionID,")
+                .append("SALEINNERVOID.MerchantID,SALEINNERVOID.TransactionDateTime,SALEINNERVOID.CardNumberFirst6Char,SALEINNERVOID.CardNumberLast4Char,")
+                .append("SALEINNERVOID.CardType,SALEINNERVOID.ChargeAmount,SALEINNERVOID.ExpiryDate,SALEINNERVOID.FirstName,SALEINNERVOID.LastName,")
+                .append("SALEINNERVOID.Address1,SALEINNERVOID.Address2,SALEINNERVOID.City,SALEINNERVOID.State,SALEINNERVOID.PostalCode,SALEINNERVOID.Country,")
+                .append("SALEINNERVOID.TestMode,SALEINNERVOID.Token,SALEINNERVOID.Tokenized,SALEINNERVOID.PaymentProcessorResponseCode,SALEINNERVOID.PaymentProcessorResponseCodeDescription,")
+                .append("SALEINNERVOID.ApprovalCode,SALEINNERVOID.InternalResponseCode,SALEINNERVOID.InternalResponseDescription,SALEINNERVOID.InternalStatusCode,")
+                .append("SALEINNERVOID.InternalStatusDescription,SALEINNERVOID.PaymentProcessorStatusCode,SALEINNERVOID.PaymentProcessorStatusCodeDescription,")
+                .append("SALEINNERVOID.PaymentProcessorRuleId,SALEINNERVOID.RulePaymentProcessorId,SALEINNERVOID.RuleCardType,SALEINNERVOID.RuleMaximumMonthlyAmount,")
+                .append("SALEINNERVOID.RuleNoMaximumMonthlyAmountFlag,SALEINNERVOID.RulePriority,SALEINNERVOID.ProcessUser,SALEINNERVOID.Processor,")
+                .append("SALEINNERVOID.Application,SALEINNERVOID.Origin,SALEINNERVOID.AccountPeriod,SALEINNERVOID.Desk,SALEINNERVOID.InvoiceNumber,SALEINNERVOID.UserDefinedField1,")
+                .append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated, ")
+                .append("SALEINNERVOID.PaymentProcessorInternalStatusCodeID, SALEINNERVOID.PaymentProcessorInternalResponseCodeID ")
+                .append("FROM Sale_Transaction SALEINNERVOID ")
 
                 .append(createWhereStatement(search, "SALEINNERVOID"))
                 .append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
@@ -266,20 +292,37 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      */
     private String getSelectForRefundTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
+
         querySb.append(
-                " SELECT REFUND.SaleTransactionID,REFUND.ApplicationTransactionID,REFUND.ProcessorTransactionID,REFUND.MerchantID,")
-                .append("'REFUND' as TransactionType,REFUND.Processor,REFUND.InternalStatusCode,REFUND.InternalStatusDescription,")
-                .append("REFUND.DateCreated,REFUND.TransactionDateTime,REFUNDSALE.ChargeAmount,REFUNDSALE.FirstName,REFUNDSALE.LastName,")
-                .append("REFUNDSALE.CardNumberLast4Char,REFUNDSALE.CardType,REFUNDSALE.LegalEntityApp,REFUNDSALE.AccountId, 0 AS IsVoided,")
-                .append(" 0 AS IsRefunded FROM  Refund_Transaction REFUND ")
+                " SELECT REFUND.SaleTransactionID,'REFUND' AS TransactionType,REFUNDSALE.LegalEntityApp,REFUNDSALE.AccountId,REFUND.ApplicationTransactionID,REFUND.ProcessorTransactionID,")
+                .append("REFUND.MerchantID,REFUND.TransactionDateTime,REFUNDSALE.CardNumberFirst6Char,REFUNDSALE.CardNumberLast4Char,")
+                .append("REFUNDSALE.CardType,REFUNDSALE.ChargeAmount,REFUNDSALE.ExpiryDate,REFUNDSALE.FirstName,REFUNDSALE.LastName,")
+                .append("REFUNDSALE.Address1,REFUNDSALE.Address2,REFUNDSALE.City,REFUNDSALE.State,REFUNDSALE.PostalCode,REFUNDSALE.Country,")
+                .append("REFUNDSALE.TestMode,REFUNDSALE.Token,REFUNDSALE.Tokenized,REFUND.PaymentProcessorResponseCode,REFUND.PaymentProcessorResponseCodeDescription,")
+                .append("REFUND.ApprovalCode,REFUND.InternalResponseCode,REFUND.InternalResponseDescription,REFUND.InternalStatusCode,")
+                .append("REFUND.InternalStatusDescription,REFUND.PaymentProcessorStatusCode,REFUND.PaymentProcessorStatusCodeDescription,")
+                .append("REFUNDSALE.PaymentProcessorRuleId,REFUNDSALE.RulePaymentProcessorId,REFUNDSALE.RuleCardType,REFUNDSALE.RuleMaximumMonthlyAmount,")
+                .append("REFUNDSALE.RuleNoMaximumMonthlyAmountFlag,REFUNDSALE.RulePriority,REFUND.pUser,REFUND.Processor,")
+                .append("REFUND.Application,REFUNDSALE.Origin,REFUNDSALE.AccountPeriod,REFUNDSALE.Desk,REFUNDSALE.InvoiceNumber,REFUNDSALE.UserDefinedField1,")
+                .append("REFUNDSALE.UserDefinedField2,REFUNDSALE.UserDefinedField3,REFUND.DateCreated,0 AS IsRefunded, 0 AS IsRefunded, ")
+                .append("REFUNDSALE.PaymentProcessorInternalStatusCodeID, REFUNDSALE.PaymentProcessorInternalResponseCodeID ")
+                .append("FROM Refund_Transaction REFUND ")
 
                 .append(" JOIN (")
 
-                .append(" SELECT SALEINNERREFUND.SaleTransactionID,SALEINNERREFUND.ApplicationTransactionID,SALEINNERREFUND.ProcessorTransactionID,")
-                .append("SALEINNERREFUND.MerchantID,SALEINNERREFUND.TransactionType,SALEINNERREFUND.Processor,SALEINNERREFUND.InternalStatusCode,")
-                .append("SALEINNERREFUND.InternalStatusDescription,SALEINNERREFUND.DateCreated,SALEINNERREFUND.TransactionDateTime,SALEINNERREFUND.ChargeAmount,")
-                .append("SALEINNERREFUND.FirstName,SALEINNERREFUND.LastName,SALEINNERREFUND.CardNumberLast4Char,SALEINNERREFUND.CardType,")
-                .append("SALEINNERREFUND.LegalEntityApp,SALEINNERREFUND.AccountId FROM  Sale_Transaction SALEINNERREFUND ")
+                .append(" SELECT SALEINNERREFUND.SaleTransactionID,SALEINNERREFUND.TransactionType,SALEINNERREFUND.LegalEntityApp,SALEINNERREFUND.AccountId,SALEINNERREFUND.ApplicationTransactionID,SALEINNERREFUND.ProcessorTransactionID,")
+                .append("SALEINNERREFUND.MerchantID,SALEINNERREFUND.TransactionDateTime,SALEINNERREFUND.CardNumberFirst6Char,SALEINNERREFUND.CardNumberLast4Char,")
+                .append("SALEINNERREFUND.CardType,SALEINNERREFUND.ChargeAmount,SALEINNERREFUND.ExpiryDate,SALEINNERREFUND.FirstName,SALEINNERREFUND.LastName,")
+                .append("SALEINNERREFUND.Address1,SALEINNERREFUND.Address2,SALEINNERREFUND.City,SALEINNERREFUND.State,SALEINNERREFUND.PostalCode,SALEINNERREFUND.Country,")
+                .append("SALEINNERREFUND.TestMode,SALEINNERREFUND.Token,SALEINNERREFUND.Tokenized,SALEINNERREFUND.PaymentProcessorResponseCode,SALEINNERREFUND.PaymentProcessorResponseCodeDescription,")
+                .append("SALEINNERREFUND.ApprovalCode,SALEINNERREFUND.InternalResponseCode,SALEINNERREFUND.InternalResponseDescription,SALEINNERREFUND.InternalStatusCode,")
+                .append("SALEINNERREFUND.InternalStatusDescription,SALEINNERREFUND.PaymentProcessorStatusCode,SALEINNERREFUND.PaymentProcessorStatusCodeDescription,")
+                .append("SALEINNERREFUND.PaymentProcessorRuleId,SALEINNERREFUND.RulePaymentProcessorId,SALEINNERREFUND.RuleCardType,SALEINNERREFUND.RuleMaximumMonthlyAmount,")
+                .append("SALEINNERREFUND.RuleNoMaximumMonthlyAmountFlag,SALEINNERREFUND.RulePriority,SALEINNERREFUND.ProcessUser,SALEINNERREFUND.Processor,")
+                .append("SALEINNERREFUND.Application,SALEINNERREFUND.Origin,SALEINNERREFUND.AccountPeriod,SALEINNERREFUND.Desk,SALEINNERREFUND.InvoiceNumber,SALEINNERREFUND.UserDefinedField1,")
+                .append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated, ")
+                .append("SALEINNERREFUND.PaymentProcessorInternalStatusCodeID, SALEINNERREFUND.PaymentProcessorInternalResponseCodeID ")
+                .append("FROM Sale_Transaction SALEINNERREFUND ")
 
                 .append(createWhereStatement(search, "SALEINNERREFUND"))
                 .append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")

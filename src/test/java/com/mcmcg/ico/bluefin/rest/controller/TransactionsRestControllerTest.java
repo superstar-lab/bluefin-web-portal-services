@@ -63,7 +63,7 @@ public class TransactionsRestControllerTest {
         result.setAccountNumber("67326509");
         result.setAmount(new BigDecimal(4592.36));
         result.setCardNumberLast4Char("5162");
-        result.setCreatedDate(date);
+//        result.setCreatedDate(date);
         result.setFirstName("Natalia");
         result.setLastName("Quiros");
         result.setLegalEntity("MCM-R2K");

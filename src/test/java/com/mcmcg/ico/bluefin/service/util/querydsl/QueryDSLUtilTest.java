@@ -33,7 +33,7 @@ public class QueryDSLUtilTest {
         result.setAccountNumber("67326509");
         result.setAmount(new BigDecimal(4592.36));
         result.setCardNumberLast4Char("5162");
-        result.setCreatedDate(date);
+//        result.setCreatedDate(date);
         result.setFirstName("Natalia");
         result.setLastName("Quiros");
         result.setLegalEntity("MCMR2K");
@@ -73,7 +73,7 @@ public class QueryDSLUtilTest {
         BooleanExpression expected = entityPath.getString(accountNumber).containsIgnoreCase(tv.getAccountNumber())// accountNumber:1234
                 .and(entityPath.getNumber(amount, BigDecimal.class).goe(tv.getAmount()))// amount>1234
                 .and(entityPath.getNumber(amount, BigDecimal.class).loe(amountValue))// amount<1234
-                .and(entityPath.getDate(createdDate, DateTime.class).goe(tv.getCreatedDate()))// createdDate>date
+//                .and(entityPath.getDate(createdDate, DateTime.class).goe(tv.getCreatedDate()))// createdDate>date
                 .and(entityPath.getDate(createdDate, DateTime.class).loe(createdDateValue))// createdDate<date
                 .and(entityPath.getString(processorName).containsIgnoreCase(tv.getProcessorName()))// processorName:test
                 .and(entityPath.getString(legalEntity).containsIgnoreCase(tv.getLegalEntity())) // legalEntity:test

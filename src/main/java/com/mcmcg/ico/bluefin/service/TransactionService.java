@@ -10,8 +10,6 @@ import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +38,16 @@ public class TransactionService {
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
     // CSV file header
-    private static final Object[] FILE_HEADER = { "#", "Bluefin Transaction ID", "Processor Transaction ID",
-            "Transaction Date", "Account Number", "Amount", "Legal Entity", "Card Number", "Card Type", "Customer",
-            "Processor", "Status", "Transaction Type" };
+    private static final Object[] FILE_HEADER = { "#", "First Name", "Last Name", "Process User", "Transaction Type",
+            "Address 1", "Address 2", "City", "State", "Postal Code", "Country", "Card Number Last 4 Char", "Card Type",
+            "Token", "Amount", "Legal Entity", "Account Number", "Application Transaction ID", "Merchant ID",
+            "Processor", "Application", "Origin", "Processor Transaction ID", "Transaction Date Time", "Approval Code",
+            "Tokenized", "Payment Processor Status Code", "Payment Processor Status Code Description",
+            "Payment Processor Response Code", "Payment Processor Response Code Description", "Internal Status Code",
+            "Internal Status Description", "Internal Response Code", "Internal Response Description",
+            "PaymentProcessorInternalStatusCodeID", "PaymentProcessorInternalResponseCodeID", "Date Created",
+            "Account Period", "Desk", "Invoice Number", "User Defined Field 1", "User Defined Field 2",
+            "User Defined Field 3" };
 
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
@@ -105,6 +110,7 @@ public class TransactionService {
     }
 
     public File getTransactionsReport(String search) throws IOException {
+        DateTimeFormatter fmt = org.joda.time.format.DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         List<SaleTransaction> result;
 
         File file = null;
@@ -134,27 +140,64 @@ public class TransactionService {
 
             // Create CSV file header
             csvFilePrinter.printRecord(FILE_HEADER);
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
 
             Integer count = 1;
             // Write a new transaction object list to the CSV file
             for (SaleTransaction transaction : result) {
                 List<String> transactionDataRecord = new ArrayList<String>();
                 transactionDataRecord.add(count.toString());
-                transactionDataRecord.add(transaction.getApplicationTransactionId());
-                transactionDataRecord.add(transaction.getProcessorTransactionId());
-                transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
-                        : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));
-                transactionDataRecord.add(transaction.getAccountNumber());
-                transactionDataRecord
-                        .add(transaction.getAmount() == null ? "" : "$" + transaction.getAmount().toString());
-                transactionDataRecord.add(transaction.getLegalEntity());
+                // Removed field: SaleTransactionId();
+                transactionDataRecord.add(transaction.getFirstName());
+                transactionDataRecord.add(transaction.getLastName());
+                transactionDataRecord.add(transaction.getProcessUser());
+                transactionDataRecord.add(transaction.getTransactionType());
+                transactionDataRecord.add(transaction.getAddress1());
+                transactionDataRecord.add(transaction.getAddress2());
+                transactionDataRecord.add(transaction.getCity());
+                transactionDataRecord.add(transaction.getState());
+                transactionDataRecord.add(transaction.getPostalCode());
+                transactionDataRecord.add(transaction.getCountry());
+                // Removed field: CardNumberFirst6Char());
                 transactionDataRecord.add(transaction.getCardNumberLast4Char());
                 transactionDataRecord.add(transaction.getCardType());
-                transactionDataRecord.add(transaction.getFirstName() + " " + transaction.getLastName());
+                transactionDataRecord.add(transaction.getToken());
+                transactionDataRecord
+                        .add(transaction.getAmount() == null ? " " : "$" + transaction.getAmount().toString());
+                transactionDataRecord.add(transaction.getLegalEntity());
+                transactionDataRecord.add(transaction.getAccountNumber());
+                transactionDataRecord.add(transaction.getApplicationTransactionId());
+                transactionDataRecord.add(transaction.getMerchantId());
                 transactionDataRecord.add(transaction.getProcessorName());
+                transactionDataRecord.add(transaction.getApplication());
+                transactionDataRecord.add(transaction.getOrigin());
+                transactionDataRecord.add(transaction.getProcessorTransactionId());
+                transactionDataRecord.add(fmt.print(transaction.getTransactionDateTime()));
+                // Removed field: TestMode()
+                transactionDataRecord.add(transaction.getApprovalCode());
+                transactionDataRecord.add(transaction.getTokenized());
+                transactionDataRecord.add(transaction.getPaymentProcessorStatusCode());
+                transactionDataRecord.add(transaction.getPaymentProcessorStatusCodeDescription());
+                transactionDataRecord.add(transaction.getProcessorResponseCode());
+                transactionDataRecord.add(transaction.getProcessorResponseCodeDescription());
+                transactionDataRecord.add(transaction.getInternalStatusCode());
                 transactionDataRecord.add(transaction.getInternalStatusDescription());
-                transactionDataRecord.add(transaction.getTransactionType());
+                transactionDataRecord.add(transaction.getInternalResponseCode());
+                transactionDataRecord.add(transaction.getInternalResponseDescription());
+                transactionDataRecord.add(transaction.getPaymentProcessorInternalStatusCodeId() == null ? " "
+                        : transaction.getPaymentProcessorInternalStatusCodeId().toString());
+                transactionDataRecord.add(transaction.getPaymentProcessorInternalResponseCodeId() == null ? " "
+                        : transaction.getPaymentProcessorInternalResponseCodeId().toString());
+                transactionDataRecord.add(fmt.print(transaction.getCreatedDate()));
+                // Removed fields: PaymentProcessorRuleId(),
+                // RulePaymentProcessorId(), RuleCardType(),
+                // RuleMaximumMonthlyAmount(), RuleNoMaximumMonthlyAmountFlag(),
+                // RulePriority()
+                transactionDataRecord.add(transaction.getAccountPeriod());
+                transactionDataRecord.add(transaction.getDesk());
+                transactionDataRecord.add(transaction.getInvoiceNumber());
+                transactionDataRecord.add(transaction.getUserDefinedField1());
+                transactionDataRecord.add(transaction.getUserDefinedField2());
+                transactionDataRecord.add(transaction.getUserDefinedField3());
                 csvFilePrinter.printRecord(transactionDataRecord);
                 count++;
             }
