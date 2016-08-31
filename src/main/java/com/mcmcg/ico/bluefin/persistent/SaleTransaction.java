@@ -295,11 +295,11 @@ public class SaleTransaction implements Serializable, Transaction {
     @Column(name = "InternalResponseDescription")
     private String internalResponseDescription;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
     @Column(name = "InternalStatusCode")
     private String internalStatusCode;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
     @Column(name = "InternalStatusDescription")
     private String internalStatusDescription;
 
