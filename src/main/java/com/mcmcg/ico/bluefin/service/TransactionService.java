@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +112,6 @@ public class TransactionService {
     }
 
     public File getTransactionsReport(String search) throws IOException {
-        DateTimeFormatter fmt = org.joda.time.format.DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         List<SaleTransaction> result;
 
         File file = null;
@@ -141,6 +142,7 @@ public class TransactionService {
             // Create CSV file header
             csvFilePrinter.printRecord(FILE_HEADER);
 
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
             Integer count = 1;
             // Write a new transaction object list to the CSV file
             for (SaleTransaction transaction : result) {
@@ -171,7 +173,8 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getApplication());
                 transactionDataRecord.add(transaction.getOrigin());
                 transactionDataRecord.add(transaction.getProcessorTransactionId());
-                transactionDataRecord.add(fmt.print(transaction.getTransactionDateTime()));
+                transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
+                        : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));
                 // Removed field: TestMode()
                 transactionDataRecord.add(transaction.getApprovalCode());
                 transactionDataRecord.add(transaction.getTokenized());
@@ -187,7 +190,8 @@ public class TransactionService {
                         : transaction.getPaymentProcessorInternalStatusCodeId().toString());
                 transactionDataRecord.add(transaction.getPaymentProcessorInternalResponseCodeId() == null ? " "
                         : transaction.getPaymentProcessorInternalResponseCodeId().toString());
-                transactionDataRecord.add(fmt.print(transaction.getCreatedDate()));
+                transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
+                        : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));
                 // Removed fields: PaymentProcessorRuleId(),
                 // RulePaymentProcessorId(), RuleCardType(),
                 // RuleMaximumMonthlyAmount(), RuleNoMaximumMonthlyAmountFlag(),

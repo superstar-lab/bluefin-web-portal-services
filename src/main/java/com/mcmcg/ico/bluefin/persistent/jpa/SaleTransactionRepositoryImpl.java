@@ -248,9 +248,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("VOID.ApprovalCode,VOID.InternalResponseCode,VOID.InternalResponseDescription,VOID.InternalStatusCode,")
                 .append("VOID.InternalStatusDescription,VOID.PaymentProcessorStatusCode,VOID.PaymentProcessorStatusCodeDescription,")
                 .append("VOIDSALE.PaymentProcessorRuleId,VOIDSALE.RulePaymentProcessorId,VOIDSALE.RuleCardType,VOIDSALE.RuleMaximumMonthlyAmount,")
-                .append("VOIDSALE.RuleNoMaximumMonthlyAmountFlag,VOIDSALE.RulePriority,VOID.pUser,VOID.Processor,")
+                .append("VOIDSALE.RuleNoMaximumMonthlyAmountFlag,VOIDSALE.RulePriority,VOID.pUser AS ProcessUser,VOID.Processor,")
                 .append("VOID.Application,VOIDSALE.Origin,VOIDSALE.AccountPeriod,VOIDSALE.Desk,VOIDSALE.InvoiceNumber,VOIDSALE.UserDefinedField1,")
-                .append("VOIDSALE.UserDefinedField2,VOIDSALE.UserDefinedField3,VOID.DateCreated,0 AS IsVOIDed, 0 AS IsVoided, ")
+                .append("VOIDSALE.UserDefinedField2,VOIDSALE.UserDefinedField3,VOID.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
                 .append("VOIDSALE.PaymentProcessorInternalStatusCodeID, VOIDSALE.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Void_Transaction VOID ")
 
@@ -295,9 +295,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("REFUND.ApprovalCode,REFUND.InternalResponseCode,REFUND.InternalResponseDescription,REFUND.InternalStatusCode,")
                 .append("REFUND.InternalStatusDescription,REFUND.PaymentProcessorStatusCode,REFUND.PaymentProcessorStatusCodeDescription,")
                 .append("REFUNDSALE.PaymentProcessorRuleId,REFUNDSALE.RulePaymentProcessorId,REFUNDSALE.RuleCardType,REFUNDSALE.RuleMaximumMonthlyAmount,")
-                .append("REFUNDSALE.RuleNoMaximumMonthlyAmountFlag,REFUNDSALE.RulePriority,REFUND.pUser,REFUND.Processor,")
+                .append("REFUNDSALE.RuleNoMaximumMonthlyAmountFlag,REFUNDSALE.RulePriority,REFUND.pUser AS ProcessUser,REFUND.Processor,")
                 .append("REFUND.Application,REFUNDSALE.Origin,REFUNDSALE.AccountPeriod,REFUNDSALE.Desk,REFUNDSALE.InvoiceNumber,REFUNDSALE.UserDefinedField1,")
-                .append("REFUNDSALE.UserDefinedField2,REFUNDSALE.UserDefinedField3,REFUND.DateCreated,0 AS IsRefunded, 0 AS IsRefunded, ")
+                .append("REFUNDSALE.UserDefinedField2,REFUNDSALE.UserDefinedField3,REFUND.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
                 .append("REFUNDSALE.PaymentProcessorInternalStatusCodeID, REFUNDSALE.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Refund_Transaction REFUND ")
 
