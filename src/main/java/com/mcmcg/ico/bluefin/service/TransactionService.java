@@ -43,7 +43,7 @@ public class TransactionService {
     private static final Object[] FILE_HEADER = { "#", "First Name", "Last Name", "Process User", "Transaction Type",
             "Address 1", "Address 2", "City", "State", "Postal Code", "Country", "Card Number Last 4 Char", "Card Type",
             "Token", "Amount", "Legal Entity", "Account Number", "Application Transaction ID", "Merchant ID",
-            "Processor", "Application", "Origin", "Processor Transaction ID", "Transaction Date Time", "Approval Code",
+            "Processor", "Application", "Origin", "Payment Frequency", "Processor Transaction ID", "Transaction Date Time", "Approval Code",
             "Tokenized", "Payment Processor Status Code", "Payment Processor Status Code Description",
             "Payment Processor Response Code", "Payment Processor Response Code Description", "Internal Status Code",
             "Internal Status Description", "Internal Response Code", "Internal Response Description",
@@ -172,6 +172,7 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getProcessorName());
                 transactionDataRecord.add(transaction.getApplication());
                 transactionDataRecord.add(transaction.getOrigin());
+                transactionDataRecord.add(transaction.getPaymentFrequency());
                 transactionDataRecord.add(transaction.getProcessorTransactionId());
                 transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
                         : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));

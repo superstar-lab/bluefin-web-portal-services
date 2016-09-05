@@ -90,7 +90,7 @@ public class TransactionsRestController {
         objectMapper.registerModule(new JodaModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         
-        return objectMapper.writerWithView(Views.Public.class).writeValueAsString(
+        return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
                 transactionService.getTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort)));
     }
 }

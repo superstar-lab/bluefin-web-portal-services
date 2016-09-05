@@ -45,18 +45,18 @@ public class InternalStatusCode implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "InternalStatusCodeID")
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     private Long internalStatusCodeId;
 
     @Column(name = "InternalStatusCode", unique = true)
-    @JsonView({Views.ExtendPublic.class, Views.Public.class})
+    @JsonView({Views.Extend.class, Views.Summary.class})
     private String internalStatusCode;
 
-    @JsonView({Views.ExtendPublic.class, Views.Public.class})
+    @JsonView({Views.Extend.class, Views.Summary.class})
     @Column(name = "InternalStatusCodeDescription")
     private String internalStatusCodeDescription;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @OneToMany(mappedBy = "internalStatusCode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Collection<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes;
 
@@ -72,7 +72,7 @@ public class InternalStatusCode implements Serializable {
     private DateTime modifiedDate;
 
     @Column(name = "TransactionType")
-    @JsonView({Views.ExtendPublic.class, Views.Public.class})
+    @JsonView({Views.Extend.class, Views.Summary.class})
     private String transactionTypeName; 
 
     @JsonIgnore

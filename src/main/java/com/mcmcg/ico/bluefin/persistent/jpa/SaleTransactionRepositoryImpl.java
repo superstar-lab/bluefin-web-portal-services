@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
+import com.mcmcg.ico.bluefin.model.PaymentFrequency;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -369,22 +370,28 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 String attributeParam = attribute + "Param1";
                 String predicate = getPropertyPredicate(attribute);
 
-                if (!prefix.equals("MAINSALE") && skipFilter(attribute, prefix)) {
+                if (!prefix.equalsIgnoreCase("MAINSALE") && skipFilter(attribute, prefix)) {
                     continue;
                 }
 
                 // Special scenarios, be careful when you change this
-                if (attribute.equals("processUser") && (prefix.equals("REFUND") || prefix.equals("VOID"))) {
+                if (attribute.equalsIgnoreCase("processUser") && (prefix.equalsIgnoreCase("REFUND") || prefix.equalsIgnoreCase("VOID"))) {
                     // Special case for pUser in VOID and REFUND tables
                     predicate = getPropertyPredicate("pUser");
                     attributeParam = "pUserParam1";
-                } else if (attribute.equals("transactionDateTime") || attribute.equals("amount")) {
+                } else if (attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("amount")) {
                     // Specific cases for transactionDateTime, amount
                     predicate = predicate.replace(":atributeOperator", getOperation(operator));
                     if (dynamicParametersMap.containsKey(attribute + "Param1")) {
                         attributeParam = attribute + "Param2";
                         predicate = predicate.replace(attribute + "Param1", attributeParam);
                     }
+                } else if (attribute.equalsIgnoreCase("paymentFrequency")
+                        && (PaymentFrequency.getPaymentFrequency(value) == PaymentFrequency.ONE_TIME)) {
+                    // Specific case for paymentFrequency, when paymentFrequency
+                    // is NOT 'Recurring' then we need to search by all the
+                    // values except 'Recurring'
+                    predicate = predicate.replace("=", "<>");
                 }
 
                 statement.add(predicate.replace(":prefix", prefix));
@@ -404,7 +411,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     || attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
                     || attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")
                     || attribute.equalsIgnoreCase("accountPeriod") || attribute.equalsIgnoreCase("desk")
-                    || attribute.equalsIgnoreCase("invoiceNumber")) {
+                    || attribute.equalsIgnoreCase("invoiceNumber") || attribute.equalsIgnoreCase("paymentFrequency")) {
                 return true;
             }
         } else if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
@@ -492,5 +499,6 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("accountPeriod", ":prefix.AccountPeriod = :accountPeriodParam1");
         predicatesHashMapping.put("desk", ":prefix.Desk = :deskParam1");
         predicatesHashMapping.put("invoiceNumber", ":prefix.InvoiceNumber = :invoiceNumberParam1");
+        predicatesHashMapping.put("paymentFrequency", ":prefix.Origin = :paymentFrequencyParam1");
     }
 }

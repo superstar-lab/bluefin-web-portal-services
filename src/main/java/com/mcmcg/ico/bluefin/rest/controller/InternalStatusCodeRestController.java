@@ -67,9 +67,9 @@ public class InternalStatusCodeRestController {
         LOGGER.info("Getting internal status code list");
         ObjectWriter objectWriter;
         if (extended) {
-            objectWriter = objectMapper.writerWithView(Views.ExtendPublic.class);
+            objectWriter = objectMapper.writerWithView(Views.Extend.class);
         } else {
-            objectWriter = objectMapper.writerWithView(Views.Public.class);
+            objectWriter = objectMapper.writerWithView(Views.Summary.class);
         }
         return objectWriter
                 .writeValueAsString(internalStatusCodeService.getInternalStatusCodesByTransactionType(transactionType));

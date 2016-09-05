@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.mcmcg.ico.bluefin.model.PaymentFrequency;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
@@ -177,101 +178,101 @@ public class SaleTransaction implements Serializable, Transaction {
 
     @Id
     @Column(name = "SaleTransactionID")
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long saleTransactionId;
 
     // Transaction Detail
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "TransactionType")
     private String transactionType;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "LegalEntityApp")
     private String legalEntity;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "AccountId")
     private String accountNumber;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ApplicationTransactionID")
     private String applicationTransactionId;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ProcessorTransactionID")
     private String processorTransactionId;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "MerchantID")
     private String merchantId;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "TransactionDateTime")
     private DateTime transactionDateTime;
 
     // Credit Card Information
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "CardNumberFirst6Char")
     private String cardNumberFirst6Char;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "CardNumberLast4Char")
     private String cardNumberLast4Char;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "CardType")
     private String cardType;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ChargeAmount", columnDefinition = "money")
     private BigDecimal amount;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/yy")
     @Column(name = "ExpiryDate")
     private Date expiryDate;
 
     // Billing Address
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "FirstName")
     private String firstName;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "LastName")
     private String lastName;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "Address1")
     private String address1;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "Address2")
     private String address2;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "City")
     private String city;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "State")
     private String state;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PostalCode")
     private String postalCode;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "Country")
     private String country;
 
     // Other
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "TestMode")
     private Short testMode;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "Token")
     private String token;
 
@@ -279,117 +280,121 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonIgnore
     private Short tokenized;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorResponseCode")
     private String processorResponseCode;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorResponseCodeDescription")
     private String processorResponseCodeDescription;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "ApprovalCode")
     private String approvalCode;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalResponseCode")
     private String internalResponseCode;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalResponseDescription")
     private String internalResponseDescription;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalStatusCode")
     private String internalStatusCode;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalStatusDescription")
     private String internalStatusDescription;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorStatusCode")
     private String paymentProcessorStatusCode;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorStatusCodeDescription")
     private String paymentProcessorStatusCodeDescription;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorInternalStatusCodeID")
     private Long paymentProcessorInternalStatusCodeId;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorInternalResponseCodeID")
     private Long paymentProcessorInternalResponseCodeId;
 
     // Rule
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorRuleID")
     private Long paymentProcessorRuleId;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "RulePaymentProcessorID")
     private Long rulePaymentProcessorId;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "RuleCardType")
     private String ruleCardType;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "RuleMaximumMonthlyAmount", columnDefinition = "money")
     private BigDecimal ruleMaximumMonthlyAmount;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "RuleNoMaximumMonthlyAmountFlag")
     private Short ruleNoMaximumMonthlyAmountFlag;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "RulePriority")
     private Short rulePriority;
 
     // Misc
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "ProcessUser")
     private String processUser;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "Processor")
     private String processorName;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "Application")
     private String application;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "Origin")
     private String origin;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonIgnore
+    @Transient
+    private PaymentFrequency paymentFrequency;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "AccountPeriod")
     private String accountPeriod;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "Desk")
     private String desk;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InvoiceNumber")
     private String invoiceNumber;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "UserDefinedField1")
     private String userDefinedField1;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "UserDefinedField2")
     private String userDefinedField2;
 
-    @JsonView(Views.ExtendPublic.class)
+    @JsonView(Views.Extend.class)
     @Column(name = "UserDefinedField3")
     private String userDefinedField3;
 
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
@@ -415,21 +420,27 @@ public class SaleTransaction implements Serializable, Transaction {
     private Integer isRefunded = 0;
 
     @JsonProperty("isVoided")
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     private boolean getIsVoided() {
         return (voidedTransactions != null && !voidedTransactions.isEmpty()) || isVoided > 0;
     }
 
     @JsonProperty("isRefunded")
-    @JsonView({ Views.ExtendPublic.class, Views.Public.class })
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     private boolean isRefunded() {
         return (refundedTransactions != null && !refundedTransactions.isEmpty()) || isRefunded > 0;
     }
 
     @JsonProperty("tokenized")
-    @JsonView({ Views.ExtendPublic.class })
+    @JsonView({ Views.Extend.class })
     public String getTokenized() {
-        return tokenized == 1 ? "YES" : "NO";
+        return tokenized == 1 ? "Yes" : "No";
+    }
+
+    @JsonProperty("paymentFrequency")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    public String getPaymentFrequency() {
+        return PaymentFrequency.getPaymentFrequency(origin).toString();
     }
 
     public String getCardNumberLast4Char() {
