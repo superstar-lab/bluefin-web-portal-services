@@ -219,7 +219,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("MAINSALE.PaymentProcessorRuleId,MAINSALE.RulePaymentProcessorId,MAINSALE.RuleCardType,MAINSALE.RuleMaximumMonthlyAmount,")
                 .append("MAINSALE.RuleNoMaximumMonthlyAmountFlag,MAINSALE.RulePriority,MAINSALE.ProcessUser,MAINSALE.Processor,")
                 .append("MAINSALE.Application,MAINSALE.Origin,MAINSALE.AccountPeriod,MAINSALE.Desk,MAINSALE.InvoiceNumber,MAINSALE.UserDefinedField1,")
-                .append("MAINSALE.UserDefinedField2,MAINSALE.UserDefinedField3,MAINSALE.DateCreated,")
+                .append("MAINSALE.UserDefinedField2,MAINSALE.UserDefinedField3,MAINSALE.ReconciliationStatusID,MAINSALE.ReconciliationDate,MAINSALE.DateCreated,")
                 .append("(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,")
                 .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded, ")
                 .append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID ")
@@ -250,7 +250,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("VOIDSALE.PaymentProcessorRuleId,VOIDSALE.RulePaymentProcessorId,VOIDSALE.RuleCardType,VOIDSALE.RuleMaximumMonthlyAmount,")
                 .append("VOIDSALE.RuleNoMaximumMonthlyAmountFlag,VOIDSALE.RulePriority,VOID.pUser AS ProcessUser,VOID.Processor,")
                 .append("VOID.Application,VOIDSALE.Origin,VOIDSALE.AccountPeriod,VOIDSALE.Desk,VOIDSALE.InvoiceNumber,VOIDSALE.UserDefinedField1,")
-                .append("VOIDSALE.UserDefinedField2,VOIDSALE.UserDefinedField3,VOID.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
+                .append("VOIDSALE.UserDefinedField2,VOIDSALE.UserDefinedField3,VOIDSALE.ReconciliationStatusID,VOIDSALE.ReconciliationDate,VOID.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
                 .append("VOIDSALE.PaymentProcessorInternalStatusCodeID, VOIDSALE.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Void_Transaction VOID ")
 
@@ -266,7 +266,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("SALEINNERVOID.PaymentProcessorRuleId,SALEINNERVOID.RulePaymentProcessorId,SALEINNERVOID.RuleCardType,SALEINNERVOID.RuleMaximumMonthlyAmount,")
                 .append("SALEINNERVOID.RuleNoMaximumMonthlyAmountFlag,SALEINNERVOID.RulePriority,SALEINNERVOID.ProcessUser,SALEINNERVOID.Processor,")
                 .append("SALEINNERVOID.Application,SALEINNERVOID.Origin,SALEINNERVOID.AccountPeriod,SALEINNERVOID.Desk,SALEINNERVOID.InvoiceNumber,SALEINNERVOID.UserDefinedField1,")
-                .append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated, ")
+                .append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.ReconciliationStatusID,SALEINNERVOID.ReconciliationDate,SALEINNERVOID.DateCreated, ")
                 .append("SALEINNERVOID.PaymentProcessorInternalStatusCodeID, SALEINNERVOID.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Sale_Transaction SALEINNERVOID ")
 
@@ -297,7 +297,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("REFUNDSALE.PaymentProcessorRuleId,REFUNDSALE.RulePaymentProcessorId,REFUNDSALE.RuleCardType,REFUNDSALE.RuleMaximumMonthlyAmount,")
                 .append("REFUNDSALE.RuleNoMaximumMonthlyAmountFlag,REFUNDSALE.RulePriority,REFUND.pUser AS ProcessUser,REFUND.Processor,")
                 .append("REFUND.Application,REFUNDSALE.Origin,REFUNDSALE.AccountPeriod,REFUNDSALE.Desk,REFUNDSALE.InvoiceNumber,REFUNDSALE.UserDefinedField1,")
-                .append("REFUNDSALE.UserDefinedField2,REFUNDSALE.UserDefinedField3,REFUND.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
+                .append("REFUNDSALE.UserDefinedField2,REFUNDSALE.UserDefinedField3,REFUNDSALE.ReconciliationStatusID, REFUNDSALE.ReconciliationDate, REFUND.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
                 .append("REFUNDSALE.PaymentProcessorInternalStatusCodeID, REFUNDSALE.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Refund_Transaction REFUND ")
 
@@ -313,7 +313,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("SALEINNERREFUND.PaymentProcessorRuleId,SALEINNERREFUND.RulePaymentProcessorId,SALEINNERREFUND.RuleCardType,SALEINNERREFUND.RuleMaximumMonthlyAmount,")
                 .append("SALEINNERREFUND.RuleNoMaximumMonthlyAmountFlag,SALEINNERREFUND.RulePriority,SALEINNERREFUND.ProcessUser,SALEINNERREFUND.Processor,")
                 .append("SALEINNERREFUND.Application,SALEINNERREFUND.Origin,SALEINNERREFUND.AccountPeriod,SALEINNERREFUND.Desk,SALEINNERREFUND.InvoiceNumber,SALEINNERREFUND.UserDefinedField1,")
-                .append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated, ")
+                .append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate,SALEINNERREFUND.DateCreated, ")
                 .append("SALEINNERREFUND.PaymentProcessorInternalStatusCodeID, SALEINNERREFUND.PaymentProcessorInternalResponseCodeID ")
                 .append("FROM Sale_Transaction SALEINNERREFUND ")
 

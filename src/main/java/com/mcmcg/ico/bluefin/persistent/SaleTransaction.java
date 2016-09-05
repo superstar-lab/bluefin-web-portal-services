@@ -85,8 +85,9 @@ import lombok.ToString;
                 @ColumnResult(name = "IsVoided", type = Integer.class),
                 @ColumnResult(name = "IsRefunded", type = Integer.class),
                 @ColumnResult(name = "PaymentProcessorInternalStatusCodeID", type = Long.class),
-                @ColumnResult(name = "PaymentProcessorInternalResponseCodeID", type = Long.class) }) })
-
+                @ColumnResult(name = "PaymentProcessorInternalResponseCodeID", type = Long.class),
+                @ColumnResult(name = "ReconciliationStatusID", type = Long.class),
+                @ColumnResult(name = "ReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class) }) })
 @Data
 @EqualsAndHashCode(exclude = { "refundedTransactions", "voidedTransactions" })
 @ToString(exclude = { "refundedTransactions", "voidedTransactions" })
@@ -114,7 +115,8 @@ public class SaleTransaction implements Serializable, Transaction {
             Short rulePriority, String processUser, String processorName, String application, String origin,
             String accountPeriod, String desk, String invoiceNumber, String userDefinedField1, String userDefinedField2,
             String userDefinedField3, DateTime createdDate, Integer isVoided, Integer isRefunded,
-            Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId) {
+            Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId, 
+            Long reconciliationStatusID, DateTime reconciliationDate) {
         this.saleTransactionId = saleTransactionId;
         this.transactionType = transactionType;
         this.legalEntity = legalEntity;
@@ -169,6 +171,8 @@ public class SaleTransaction implements Serializable, Transaction {
         this.isRefunded = isRefunded;
         this.paymentProcessorInternalStatusCodeId = paymentProcessorInternalStatusCodeId;
         this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
+        this.reconciliationStatusID = reconciliationStatusID;
+        this.reconciliationDate = reconciliationDate;
     }
 
     @Id
@@ -431,4 +435,13 @@ public class SaleTransaction implements Serializable, Transaction {
     public String getCardNumberLast4Char() {
         return CARD_MASK + cardNumberLast4Char;
     }
+    
+    // Reconciliation Status
+    @Column(name = "ReconciliationStatusID")
+    private Long reconciliationStatusID;
+    
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "ReconciliationDate", insertable = false, updatable = false)
+    private DateTime reconciliationDate;
 }

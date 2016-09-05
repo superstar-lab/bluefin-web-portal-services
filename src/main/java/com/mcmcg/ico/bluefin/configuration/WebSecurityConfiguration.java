@@ -74,6 +74,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String sessionApiBaseURL = apiBaseURL + "/session";
         final String usersApiBaseURL = apiBaseURL + "/users";
         final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
+        final String reconciliationStatusApiBaseURL = apiBaseURL + "/reconciliation-status";
         final String rolesApiBaseURL = apiBaseURL + "/roles";
         final String internalResponseCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
         final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
@@ -135,6 +136,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
+                            
+                            // Reconciliation Status
+                            .antMatchers(HttpMethod.GET, reconciliationStatusApiBaseURL, reconciliationStatusApiBaseURL + "/", reconciliationStatusApiBaseURL + "/{id}", reconciliationStatusApiBaseURL + "/{id}/").authenticated()
 
                             // Payment Processors
                             .antMatchers(HttpMethod.GET, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/", paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/").authenticated()

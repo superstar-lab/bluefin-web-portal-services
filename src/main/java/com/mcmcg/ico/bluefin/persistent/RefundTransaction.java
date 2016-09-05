@@ -14,6 +14,7 @@ import javax.persistence.Transient;
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mcmcg.ico.bluefin.model.TransactionType;
@@ -102,4 +103,13 @@ public class RefundTransaction implements Serializable, Transaction {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
+    
+    // Reconciliation Status
+    @Column(name = "ReconciliationStatusID")
+    private Long reconciliationStatusID;
+    
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "ReconciliationDate", insertable = false, updatable = false)
+    private DateTime reconciliationDate;
 }
