@@ -18,11 +18,11 @@ public class UpdateUserResource implements Serializable {
     private static final long serialVersionUID = 5100870250264827468L;
 
     @NotBlank(message = "Please provide a first name for the user")
-    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "firstName must be alphanumeric")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field first name must be alphanumeric")
     private String firstName;
 
     @NotBlank(message = "Please provide a last name for the user")
-    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "lastName must be alphanumeric")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field last name must be alphanumeric")
     private String lastName;
 
     @NotBlank(message = "Please provide an email address for the user")

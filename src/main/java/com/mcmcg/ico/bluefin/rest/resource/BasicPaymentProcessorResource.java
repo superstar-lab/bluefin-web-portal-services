@@ -15,7 +15,7 @@ public class BasicPaymentProcessorResource implements Serializable {
     private static final long serialVersionUID = -602175101416750669L;
 
     @NotBlank(message = "Please provide a processor name")
-    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Processor name must be alphanumeric")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field processor name must be alphanumeric")
     private String processorName;
     private Short isActive = 0;
 
