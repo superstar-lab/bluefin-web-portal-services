@@ -116,8 +116,8 @@ public class SaleTransaction implements Serializable, Transaction {
             Short rulePriority, String processUser, String processorName, String application, String origin,
             String accountPeriod, String desk, String invoiceNumber, String userDefinedField1, String userDefinedField2,
             String userDefinedField3, DateTime createdDate, Integer isVoided, Integer isRefunded,
-            Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId, 
-            Long reconciliationStatusID, DateTime reconciliationDate) {
+            Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId,
+            Long reconciliationStatusId, DateTime reconciliationDate) {
         this.saleTransactionId = saleTransactionId;
         this.transactionType = transactionType;
         this.legalEntity = legalEntity;
@@ -172,7 +172,7 @@ public class SaleTransaction implements Serializable, Transaction {
         this.isRefunded = isRefunded;
         this.paymentProcessorInternalStatusCodeId = paymentProcessorInternalStatusCodeId;
         this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
-        this.reconciliationStatusID = reconciliationStatusID;
+        this.reconciliationStatusId = reconciliationStatusId;
         this.reconciliationDate = reconciliationDate;
     }
 
@@ -350,7 +350,7 @@ public class SaleTransaction implements Serializable, Transaction {
     private Short rulePriority;
 
     // Misc
-    @JsonView(Views.Extend.class)
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ProcessUser")
     private String processUser;
 
@@ -393,6 +393,16 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonView(Views.Extend.class)
     @Column(name = "UserDefinedField3")
     private String userDefinedField3;
+
+    // Reconciliation Status
+    @JsonView(Views.Extend.class)
+    @Column(name = "ReconciliationStatusID")
+    private Long reconciliationStatusId;
+
+    @JsonView(Views.Extend.class)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "ReconciliationDate")
+    private DateTime reconciliationDate;
 
     @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -446,13 +456,4 @@ public class SaleTransaction implements Serializable, Transaction {
     public String getCardNumberLast4Char() {
         return CARD_MASK + cardNumberLast4Char;
     }
-    
-    // Reconciliation Status
-    @Column(name = "ReconciliationStatusID")
-    private Long reconciliationStatusID;
-    
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "ReconciliationDate", insertable = false, updatable = false)
-    private DateTime reconciliationDate;
 }
