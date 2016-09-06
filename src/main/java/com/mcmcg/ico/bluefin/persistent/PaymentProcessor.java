@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.persistent;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -21,7 +22,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -62,18 +62,22 @@ public class PaymentProcessor implements Serializable {
     @Column(name = "IsActive")
     private Short isActive = 0;
 
+    @Column(name = "RemitTransactionOpenTime")
+    private Time remitTransactionOpenTime;
+
+    @Column(name = "RemitTransactionCloseTime")
+    private Time remitTransactionCloseTime;
+
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DatedModified", insertable = false, updatable = false)
     private DateTime modifiedDate;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
-    
+
     @Transient
     private boolean readyToBeActivated;
 

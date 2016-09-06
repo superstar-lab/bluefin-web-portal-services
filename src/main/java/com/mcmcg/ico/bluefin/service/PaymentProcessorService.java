@@ -122,6 +122,8 @@ public class PaymentProcessorService {
 
         // Update fields for existing Payment Processor
         paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
+        paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
+        paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
         paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
 
         return paymentProcessorToUpdate;
