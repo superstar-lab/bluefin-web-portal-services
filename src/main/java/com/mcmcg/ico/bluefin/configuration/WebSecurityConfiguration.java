@@ -79,6 +79,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String internalResponseCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
         final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
         final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
+        final String paymentProcessorRemittanceApiBaseURL = apiBaseURL + "/payment-processor-remittances";
         final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
         final String reportsApiBaseURL = apiBaseURL + "/reports";
 
@@ -151,7 +152,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.POST, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.PUT, paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
-
+                            
+                            // Payment Processor Remittance
+                            .antMatchers(HttpMethod.GET, paymentProcessorRemittanceApiBaseURL, paymentProcessorRemittanceApiBaseURL + "/", paymentProcessorRemittanceApiBaseURL + "/{id}", paymentProcessorRemittanceApiBaseURL + "/{id}/").authenticated()
+                            
                             // Roles
                             .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
                             .antMatchers(HttpMethod.GET, rolesApiBaseURL + "/{id}", rolesApiBaseURL + "/{id}/").authenticated()
