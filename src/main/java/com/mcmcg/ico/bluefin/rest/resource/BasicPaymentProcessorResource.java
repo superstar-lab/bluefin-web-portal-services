@@ -3,7 +3,6 @@ package com.mcmcg.ico.bluefin.rest.resource;
 import java.io.Serializable;
 import java.sql.Time;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -20,9 +19,7 @@ public class BasicPaymentProcessorResource implements Serializable {
     @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field processor name must be alphanumeric")
     private String processorName;
     private Short isActive = 0;
-    @NotNull(message = "Please provide a remit transaction open time")
     private Time remitTransactionOpenTime;
-    @NotNull(message = "Please provide a remit transaction close time")
     private Time remitTransactionCloseTime;
     
     public PaymentProcessor toPaymentProcessor() {

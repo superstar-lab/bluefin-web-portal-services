@@ -9,6 +9,7 @@ import lombok.Data;
 @JsonInclude(Include.NON_NULL)
 public class PaymentProcessorStatusResource {
     private ItemStatusResource hasPaymentProcessorName;
+    private ItemStatusResource hasSameDayProcessing;
     private ItemStatusResource hasMerchantsAssociated;
     private ItemStatusResource hasRulesAssociated;
     private ItemStatusResource hasResponseCodesAssociated;

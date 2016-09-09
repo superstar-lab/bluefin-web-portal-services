@@ -132,6 +132,7 @@ public class PaymentProcessorService {
     public boolean isReadyToBeActivated(final long id) {
         PaymentProcessorStatusResource paymentProcessorStatus = getPaymentProcessorStatusById(id);
         return paymentProcessorStatus.getHasPaymentProcessorName().getCompleted()
+                && paymentProcessorStatus.getHasSameDayProcessing().getCompleted()
                 && paymentProcessorStatus.getHasMerchantsAssociated().getCompleted()
                 && paymentProcessorStatus.getHasResponseCodesAssociated().getCompleted()
                 && paymentProcessorStatus.getHasRulesAssociated().getCompleted()
@@ -256,23 +257,27 @@ public class PaymentProcessorService {
         }
         ItemStatusResource hasPaymentProcessorName = new ItemStatusResource(1, "Add Payment Processor Name", null,
                 true);
-        ItemStatusResource hasMerchantsAssociated = new ItemStatusResource(2, "Add MIDs", null,
+        ItemStatusResource hasSameDayProcessing = new ItemStatusResource(2, "Same Day Processing Window", null,
+                paymentProcessor.getRemitTransactionOpenTime() != null
+                        && paymentProcessor.getRemitTransactionCloseTime() != null);
+        ItemStatusResource hasMerchantsAssociated = new ItemStatusResource(3, "Add MIDs", null,
                 paymentProcessor.hasMerchantsAssociated());
-        ItemStatusResource hasRulesAssociated = new ItemStatusResource(3, "Update volume assignment", null,
+        ItemStatusResource hasRulesAssociated = new ItemStatusResource(4, "Update volume assignment", null,
                 paymentProcessor.hasRulesAssociated());
 
         List<ItemStatusCodeResource> responseCodeItems = paymentProcessorCodeService
                 .hasResponseCodesAssociated(paymentProcessor);
-        ItemStatusResource hasResponseCodesAssociated = new ItemStatusResource(4, "Add response codes",
+        ItemStatusResource hasResponseCodesAssociated = new ItemStatusResource(5, "Add response codes",
                 responseCodeItems, hasCodesAssociated(responseCodeItems));
 
         List<ItemStatusCodeResource> statusCodeItems = paymentProcessorCodeService
                 .hasStatusCodesAssociated(paymentProcessor);
-        ItemStatusResource hasStatusCodesAssociated = new ItemStatusResource(5, "Add status codes", statusCodeItems,
+        ItemStatusResource hasStatusCodesAssociated = new ItemStatusResource(6, "Add status codes", statusCodeItems,
                 hasCodesAssociated(statusCodeItems));
 
         PaymentProcessorStatusResource paymentProcessorStatusResource = new PaymentProcessorStatusResource();
         paymentProcessorStatusResource.setHasPaymentProcessorName(hasPaymentProcessorName);
+        paymentProcessorStatusResource.setHasSameDayProcessing(hasSameDayProcessing);
         paymentProcessorStatusResource.setHasMerchantsAssociated(hasMerchantsAssociated);
         paymentProcessorStatusResource.setHasRulesAssociated(hasRulesAssociated);
         paymentProcessorStatusResource.setHasResponseCodesAssociated(hasResponseCodesAssociated);
@@ -280,6 +285,7 @@ public class PaymentProcessorService {
 
         if (paymentProcessor.getIsActive() == 1
                 && !(paymentProcessorStatusResource.getHasPaymentProcessorName().getCompleted()
+                        && paymentProcessorStatusResource.getHasSameDayProcessing().getCompleted()
                         && paymentProcessorStatusResource.getHasMerchantsAssociated().getCompleted()
                         && paymentProcessorStatusResource.getHasResponseCodesAssociated().getCompleted()
                         && paymentProcessorStatusResource.getHasRulesAssociated().getCompleted()
