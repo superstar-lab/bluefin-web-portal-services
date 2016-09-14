@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Column;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
@@ -11,7 +13,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -24,6 +28,25 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+@SqlResultSetMapping(name = "PaymentProcessorRemittanceCustomMappingResult", classes = {
+        @ConstructorResult(targetClass = PaymentProcessorRemittance.class, columns = {
+                @ColumnResult(name = "PaymentProcessorRemittanceID", type = Long.class),
+                @ColumnResult(name = "DateCreated", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "ReconciliationStatusID", type = Long.class),
+                @ColumnResult(name = "ReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "PaymentMethod", type = String.class),
+                @ColumnResult(name = "TransactionAmount", type = BigDecimal.class),
+                @ColumnResult(name = "TransactionType", type = String.class),
+                @ColumnResult(name = "TransactionTime", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "AccountId", type = String.class),
+                @ColumnResult(name = "Application", type = String.class),
+                @ColumnResult(name = "ProcessorTransactionID", type = String.class),
+                @ColumnResult(name = "MerchantID", type = String.class),
+                @ColumnResult(name = "TransactionSource", type = String.class),
+                @ColumnResult(name = "FirstName", type = String.class),
+                @ColumnResult(name = "LastName", type = String.class),
+                @ColumnResult(name = "RemittanceCreationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "PaymentProcessorID", type = Long.class) }) })
 @Data
 @EqualsAndHashCode(exclude = { "reconciliationStatus", "paymentProcessor" })
 @ToString(exclude = { "reconciliationStatus", "paymentProcessor" })
@@ -33,6 +56,29 @@ import lombok.ToString;
 public class PaymentProcessorRemittance implements Serializable {
 	
 	private static final long serialVersionUID = -1312687866731930904L;
+	
+	public PaymentProcessorRemittance() {
+	}
+	
+	public PaymentProcessorRemittance(Long paymentProcessorRemittanceId, DateTime createdDate, Long reconciliationStatusId, DateTime reconciliationDate,
+			String paymentMethod, BigDecimal transactionAmount, String transactionType, DateTime transactionTime, String accountID, String application,
+			String processorTransactionID, String merchantID, String transactionSource, String firstName, String lastName, DateTime remittanceCreationDate, Long paymentProcessorId) {
+		this.paymentProcessorRemittanceId = paymentProcessorRemittanceId;
+		this.createdDate = createdDate;
+		this.reconciliationDate = reconciliationDate;
+		this.paymentMethod = paymentMethod;
+		this.transactionAmount = transactionAmount;
+		this.transactionType = transactionType;
+		this.transactionTime = transactionTime;
+		this.accountID = accountID;
+		this.application = application;
+		this.processorTransactionID = processorTransactionID;
+		this.merchantID = merchantID;
+		this.transactionSource = transactionSource;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.remittanceCreationDate = remittanceCreationDate;
+	}
 
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,7 +97,6 @@ public class PaymentProcessorRemittance implements Serializable {
     
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "ReconciliationDate", insertable = false, updatable = false)
     private DateTime reconciliationDate;
     
@@ -93,18 +138,13 @@ public class PaymentProcessorRemittance implements Serializable {
     
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "RemittanceCreationDate", insertable = false, updatable = false)
     private DateTime remittanceCreationDate;
     
     @ManyToOne
 	@JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
-
-    public PaymentProcessorRemittance() {
-    }
-
-    public PaymentProcessorRemittance(Long value) {
-    	paymentProcessorRemittanceId = value;
-    }
+    
+    @Transient
+    private String transactionId;
 }

@@ -28,6 +28,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
 import com.mcmcg.ico.bluefin.model.PaymentFrequency;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -106,7 +107,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
             if (entry.getKey().contains("amountParam")) {
                 result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
-            } else if (entry.getKey().contains("transactionDateTimeParam")) {
+            } else if (entry.getKey().contains("transactionDateTimeParam") || (entry.getKey().contains("reconciliationDate"))) {
 
                 if (!validFormatDate(entry.getValue())) {
                     throw new CustomNotFoundException(
@@ -377,7 +378,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     // Special case for pUser in VOID and REFUND tables
                     predicate = getPropertyPredicate("pUser");
                     attributeParam = "pUserParam1";
-                } else if (attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("amount")) {
+                } else if (attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("amount") || attribute.equalsIgnoreCase("reconciliationDate")) {
                     // Specific cases for transactionDateTime, amount
                     predicate = predicate.replace(":atributeOperator", getOperation(operator));
                     if (dynamicParametersMap.containsKey(attribute + "Param1")) {
@@ -390,7 +391,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     // is NOT 'Recurring' then we need to search by all the
                     // values except 'Recurring'
                     predicate = predicate.replace("=", "<>");
-                }
+                } 
 
                 statement.add(predicate.replace(":prefix", prefix));
                 dynamicParametersMap.put(attributeParam, value);
@@ -498,5 +499,274 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("desk", ":prefix.Desk = :deskParam1");
         predicatesHashMapping.put("invoiceNumber", ":prefix.InvoiceNumber = :invoiceNumberParam1");
         predicatesHashMapping.put("paymentFrequency", ":prefix.Origin = :paymentFrequencyParam1");
+        // Payment Processor Remittance
+        predicatesHashMapping.put("paymentProcessorId", ":prefix.PaymentProcessorID = :paymentProcessorIdParam1");
+        predicatesHashMapping.put("reconciliationStatusId", ":prefix.ReconciliationStatusID = :reconciliationStatusIdParam1");
+        predicatesHashMapping.put("reconciliationDate",
+                ":prefix.ReconciliationDate :atributeOperator :reconciliationDateParam1");
+    }
+    
+    /**
+     * Creates the select for table SALE_TRANSACTION
+     * 
+     * @param search
+     * @return String with the select of the sale transaction table
+     */
+    private String getSelectForSettledTransaction(String search) {
+        StringBuilder querySb = new StringBuilder();
+        
+        querySb.append(
+        		" SELECT st.SaleTransactionID,st.FirstName,st.LastName,st.ProcessUser,st.TransactionType,st.Address1,st.Address2,")
+				.append("st.City,st.State,st.PostalCode,st.Country,st.CardNumberFirst6Char,st.CardNumberLast4Char,st.CardType,st.ExpiryDate,")
+				.append("st.Token,st.ChargeAmount,st.LegalEntityApp,st.AccountId,st.ApplicationTransactionID,st.MerchantID,st.Processor,")
+				.append("st.Application,st.Origin,st.ProcessorTransactionID,st.TransactionDateTime,st.TestMode,st.ApprovalCode,st.Tokenized,")
+				.append("st.PaymentProcessorStatusCode,st.PaymentProcessorStatusCodeDescription,st.PaymentProcessorResponseCode,")
+				.append("st.PaymentProcessorResponseCodeDescription,st.InternalStatusCode,st.InternalStatusDescription,st.InternalResponseCode,")
+				.append("st.InternalResponseDescription,st.PaymentProcessorInternalStatusCodeID,st.PaymentProcessorInternalResponseCodeID,")
+				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
+				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
+				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
+				.append("0 AS IsVoided,0 AS IsRefunded ")
+				.append("FROM Sale_Transaction st ")
+				.append(" JOIN (")
+        		.append("SELECT rt.RefundTransactionID,rt.SaleTransactionID,rt.ApprovalCode,rt.Processor,rt.RefundAmount,rt.MerchantID,rt.ProcessorTransactionID,")
+        		.append("rt.TransactionDateTime,rt.ApplicationTransactionID,rt.Application,rt.pUser,rt.OriginalSaleTransactionID,")
+        		.append("rt.PaymentProcessorStatusCode,rt.PaymentProcessorStatusCodeDescription,rt.PaymentProcessorResponseCode,rt.PaymentProcessorResponseCodeDescription,")
+        		.append("rt.InternalStatusCode,rt.InternalStatusDescription,rt.InternalResponseCode,rt.InternalResponseDescription,rt.PaymentProcessorInternalStatusCodeID,")
+        		.append("rt.PaymentProcessorInternalResponseCodeID,rt.DateCreated,rt.ReconciliationStatusID,rt.ReconciliationDate ")
+        		.append("FROM Refund_Transaction rt ")
+        		.append(" ) rt ON (st.saleTransactionID = rt.saleTransactionID) ");
+        
+        querySb.append(createWhereStatement(search, "st"));
+        
+        return querySb.toString();
+    }
+    
+    /**
+     * Creates the select for table SALE_TRANSACTION, PAYMENTPROCESSOR_REMITTANCE
+     * 
+     * @param search
+     * @return String with the select of the payment processor remittance table
+     */
+    private String getSelectForAmountMismatchTransaction(String search) {
+        StringBuilder querySb = new StringBuilder();
+        
+        querySb.append(
+        		" SELECT st.SaleTransactionID,st.FirstName,st.LastName,st.ProcessUser,st.TransactionType,st.Address1,st.Address2,")
+				.append("st.City,st.State,st.PostalCode,st.Country,st.CardNumberFirst6Char,st.CardNumberLast4Char,st.CardType,st.ExpiryDate,")
+				.append("st.Token,st.ChargeAmount,st.LegalEntityApp,st.AccountId,st.ApplicationTransactionID,st.MerchantID,st.Processor,")
+				.append("st.Application,st.Origin,st.ProcessorTransactionID,st.TransactionDateTime,st.TestMode,st.ApprovalCode,st.Tokenized,")
+				.append("st.PaymentProcessorStatusCode,st.PaymentProcessorStatusCodeDescription,st.PaymentProcessorResponseCode,")
+				.append("st.PaymentProcessorResponseCodeDescription,st.InternalStatusCode,st.InternalStatusDescription,st.InternalResponseCode,")
+				.append("st.InternalResponseDescription,st.PaymentProcessorInternalStatusCodeID,st.PaymentProcessorInternalResponseCodeID,")
+				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
+				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
+				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
+				.append("ppr.TransactionAmount,ppr.RemittanceCreationDate,")
+				.append("0 AS IsVoided,0 AS IsRefunded ")
+				.append("FROM Sale_Transaction st ")
+				.append(" JOIN (")
+        		.append("SELECT rt.RefundTransactionID,rt.SaleTransactionID,rt.ApprovalCode,rt.Processor,rt.RefundAmount,rt.MerchantID,rt.ProcessorTransactionID,")
+        		.append("rt.TransactionDateTime,rt.ApplicationTransactionID,rt.Application,rt.pUser,rt.OriginalSaleTransactionID,")
+        		.append("rt.PaymentProcessorStatusCode,rt.PaymentProcessorStatusCodeDescription,rt.PaymentProcessorResponseCode,rt.PaymentProcessorResponseCodeDescription,")
+        		.append("rt.InternalStatusCode,rt.InternalStatusDescription,rt.InternalResponseCode,rt.InternalResponseDescription,rt.PaymentProcessorInternalStatusCodeID,")
+        		.append("rt.PaymentProcessorInternalResponseCodeID,rt.DateCreated,rt.ReconciliationStatusID,rt.ReconciliationDate ")
+        		.append("FROM Refund_Transaction rt ")
+        		.append(" ) rt ON (st.saleTransactionID = rt.saleTransactionID) ")
+        		.append(" JOIN PaymentProcessor_Remittance ppr ON (st.ReconciliationStatusID = ppr.ReconciliationStatusID) ");
+        
+        querySb.append(createWhereStatement(search, "st"));
+
+        return querySb.toString();
+    }
+    
+    /**
+     * Creates the select for table PAYMENTPROCESSOR_REMITTANCE
+     * 
+     * @param search
+     * @return String with the select of the payment processor remittance table
+     */
+    private String getSelectForRemitWithoutSaleTransaction(String search) {
+        StringBuilder querySb = new StringBuilder();
+        
+        querySb.append(
+                " SELECT ppr.PaymentProcessorRemittanceID, ppr.DateCreated, ppr.ReconciliationStatusID, ppr.ReconciliationDate, ppr.PaymentMethod, ppr.TransactionAmount, ppr.TransactionType,")
+        		.append("ppr.TransactionTime, ppr.AccountID, ppr.Application, ppr.ProcessorTransactionID, ppr.MerchantID, ppr.TransactionSource, ppr.FirstName, ppr.LastName,")
+        		.append("ppr.RemittanceCreationDate, ppr.PaymentProcessorID ")
+        		.append("FROM PaymentProcessor_Remittance ppr ");
+        
+        querySb.append(createWhereStatement(search, "ppr"));
+
+        return querySb.toString();
+    }
+    
+    /**
+     * Get the value of reconciliationStatusId from the URL
+     * 
+     * @param search
+     * @return reconciliationStatusId
+     */
+    private String getReconciliationStatus(String search) {
+    	
+    	String reconciliationStatusId = "";
+    	int index1 = search.indexOf("reconciliationStatusId");
+    	
+    	if (index1 != -1) {
+    		String reconciliationStatusStr = search.substring(index1, search.length());
+    		int index2 = reconciliationStatusStr.indexOf("=");
+    		reconciliationStatusId = reconciliationStatusStr.substring(index2+1, reconciliationStatusStr.length());
+    	}
+    	
+        return reconciliationStatusId;
+    }
+    
+    @SuppressWarnings("rawtypes")
+	@Override
+    public HashMap<String, String> getReconciliationStatusMap() {
+    	HashMap<String, String> reconciliationStatusMap = new HashMap<String, String>();
+    	
+    	String sql = "SELECT rsl.ReconciliationStatusID, rsl.ReconciliationStatus FROM ReconciliationStatus_Lookup rsl";
+    	Query query = em.createNativeQuery(sql);
+    	
+    	List list = query.getResultList();
+    	
+		Iterator iterator = list.iterator();
+    	while (iterator.hasNext()) {
+    		Object[] result = (Object[])iterator.next();
+    		reconciliationStatusMap.put(result[0].toString(), result[1].toString());
+    	}
+    	
+    	return reconciliationStatusMap;
+    }
+    
+    /**
+     * Handles the type of transaction that is going to be retrieved, according
+     * with the transactionType element. if transactionType is Sale will bring
+     * the select from the sale table, if refund will bring the union with the
+     * table sale and the table refund
+     * 
+     * @param search
+     * @return String query
+     */
+    private String getQueryByStatus(String search, String reconciliationStatusId) {
+        StringBuilder querySb = new StringBuilder();
+        HashMap<String, String> reconciliationStatusMap = getReconciliationStatusMap();
+        querySb.append(" SELECT * FROM (");
+        
+        switch (reconciliationStatusMap.get(reconciliationStatusId).toLowerCase()) {
+        case "settled":
+        	querySb.append(getSelectForSettledTransaction(search));
+            break;
+        case "amount mismatch":
+        	querySb.append(getSelectForAmountMismatchTransaction(search));
+            break;
+        case "missing from processor":
+        	querySb.append(getSelectForSettledTransaction(search));
+            break;
+        case "remit without sale":
+        	querySb.append(getSelectForRemitWithoutSaleTransaction(search));
+            break;
+        default:
+        	// If user does not select a status.
+            querySb.append(getSelectForSettledTransaction(search));
+            break;
+        }
+        querySb.append(" ) RESULTINFO ");
+
+        return querySb.toString();
+    }
+    
+    @Override
+    public Page<SaleTransaction> findSalesRefundTransaction(String search, PageRequest page) throws ParseException {
+    	
+    	// Get reconciliation status
+		String reconciliationStatus = getReconciliationStatus(search);
+        // Creates the query for the total and for the retrieved data
+    	String query = getQueryByStatus(search, reconciliationStatus);
+
+        Map<String, Query> queriesMap = createQueries(query, page);
+        Query result = queriesMap.get("result");
+        Query queryTotal = queriesMap.get("queryTotal");
+
+        int pageNumber = page.getPageNumber();
+        int pageSize = page.getPageSize();
+        // Set the paging for the created select
+        final int countResult = (Integer) queryTotal.getSingleResult();
+        result.setFirstResult(pageSize * pageNumber);
+        result.setMaxResults(pageSize);
+
+        // Brings the data and transform it into a Page value list
+        @SuppressWarnings("unchecked")
+        List<SaleTransaction> tr = result.getResultList();
+        Page<SaleTransaction> list = new PageImpl<SaleTransaction>(tr, page, countResult);
+
+        return list;
+    }
+    
+    public Map<String, Query> createRemittanceQueries(String query, PageRequest page) throws ParseException {
+        //Query queryTotal = em.createNativeQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
+    	Query queryTotal = em.createNativeQuery(query);
+
+        Query result = em.createNativeQuery(page == null ? query : query + addSort(page.getSort()), "PaymentProcessorRemittanceCustomMappingResult");
+
+        LOGGER.info("Dynamic Parameters {}", dynamicParametersMap);
+        // Sets all parameters to the Query result
+        for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
+            if (entry.getKey().contains("amountParam")) {
+                result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+                queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+            } else if (entry.getKey().contains("transactionDateTimeParam") || (entry.getKey().contains("reconciliationDate"))) {
+
+                if (!validFormatDate(entry.getValue())) {
+                    throw new CustomNotFoundException(
+                            "Unable to process find transaction, due an error with date formatting");
+                }
+                // Special case for the dates
+                result.setParameter(entry.getKey(), entry.getValue());
+                queryTotal.setParameter(entry.getKey(), entry.getValue());
+            } else if (entry.getKey().contains("legalEntityParam")) {
+                // Special case for legal entity
+                String value = entry.getValue().replace("[", "").replace("]", "");
+
+                result.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
+                queryTotal.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
+            } else {
+                result.setParameter(entry.getKey(), entry.getValue());
+                queryTotal.setParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        dynamicParametersMap.clear();
+        HashMap<String, Query> queriesMap = new HashMap<String, Query>();
+        queriesMap.put("result", result);
+        queriesMap.put("queryTotal", queryTotal);
+        return queriesMap;
+    }
+    
+    @Override
+    public Page<PaymentProcessorRemittance> findRemittanceTransaction(String search, PageRequest page) throws ParseException {
+    	
+    	// Get reconciliation status
+		String reconciliationStatus = getReconciliationStatus(search);
+        // Creates the query for the total and for the retrieved data
+    	String query = getQueryByStatus(search, reconciliationStatus);
+
+        Map<String, Query> queriesMap = createRemittanceQueries(query, page);
+        Query result = queriesMap.get("result");
+        Query queryTotal = queriesMap.get("queryTotal");
+
+        int pageNumber = page.getPageNumber();
+        int pageSize = page.getPageSize();
+        // Set the paging for the created select
+        //final int countResult = (Integer) queryTotal.getSingleResult();
+        final int countResult = 1;
+        //result.setFirstResult(pageSize * pageNumber);
+        //result.setMaxResults(pageSize);
+
+        // Brings the data and transform it into a Page value list
+        @SuppressWarnings("unchecked")
+        List<PaymentProcessorRemittance> tr = result.getResultList();
+        Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
+
+        return list;
     }
 }

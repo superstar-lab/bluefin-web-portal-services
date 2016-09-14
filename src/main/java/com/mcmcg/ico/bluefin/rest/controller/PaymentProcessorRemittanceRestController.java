@@ -1,18 +1,25 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.util.List;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
+import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorRemittanceService;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -28,19 +35,6 @@ public class PaymentProcessorRemittanceRestController {
     @Autowired
     private PaymentProcessorRemittanceService paymentProcessorRemittanceService;
     
-    @ApiOperation(value = "getPaymentProcessorRemittance", nickname = "getPaymentProcessorRemittance")
-    @RequestMapping(method = RequestMethod.GET, value = "{id}", produces = "application/json")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRemittance.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessorRemittance get(@PathVariable Long id) {
-        LOGGER.info(String.format("Getting payment processor remittance with id = [%s]", id));
-        return paymentProcessorRemittanceService.getPaymentProcessorRemittanceById(id);
-    }
-    
     @ApiOperation(value = "getPaymentProcessorRemittances", nickname = "getPaymentProcessorRemittances")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -50,8 +44,58 @@ public class PaymentProcessorRemittanceRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public List<PaymentProcessorRemittance> get() {
-        LOGGER.info("Getting all payment processor remittances");
-        return paymentProcessorRemittanceService.getPaymentProcessorRemittances();
+    public String get(@RequestParam(value = "search", required = true) String search,
+            @RequestParam(value = "page", required = true) Integer page,
+            @RequestParam(value = "size", required = true) Integer size,
+            @RequestParam(value = "sort", required = false) String sort)
+            throws JsonProcessingException {
+        LOGGER.info("Generating report with the following filters: {}", search);
+        
+        String json = "";
+        
+        // Get reconciliation status map
+        HashMap<String, String> reconciliationStatusMap = paymentProcessorRemittanceService.getReconciliationStatusMap();
+        String key = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Sale");
+        
+        // Get reconciliation status
+     	String reconciliationStatus = getReconciliationStatus(search);
+     	
+     	if (reconciliationStatus.equals(key)) {
+     		QueryDSLUtil.createExpression(search, PaymentProcessorRemittance.class);
+     		ObjectMapper objectMapper = new ObjectMapper();
+     		objectMapper.registerModule(new JodaModule());
+     		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        
+     		json = objectMapper.writerWithView(Views.Summary.class).writeValueAsString(paymentProcessorRemittanceService.getPaymentProcessorRemittances(search, QueryDSLUtil.getPageRequest(page, size, sort)));
+     	} else {
+     		QueryDSLUtil.createExpression(search, SaleTransaction.class);
+     		ObjectMapper objectMapper = new ObjectMapper();
+     		objectMapper.registerModule(new JodaModule());
+     		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        
+     		json = objectMapper.writerWithView(Views.Summary.class).writeValueAsString(paymentProcessorRemittanceService.getSalesRefundTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort)));
+     	}
+        
+     	return json;
+    }
+    
+    /**
+     * Get the value of reconciliationStatusId from the URL
+     * 
+     * @param search
+     * @return reconciliationStatusId
+     */
+    private String getReconciliationStatus(String search) {
+    	
+    	String reconciliationStatusId = "";
+    	int index1 = search.indexOf("reconciliationStatusId");
+    	
+    	if (index1 != -1) {
+    		String reconciliationStatusStr = search.substring(index1, search.length());
+    		int index2 = reconciliationStatusStr.indexOf("=");
+    		reconciliationStatusId = reconciliationStatusStr.substring(index2+1, reconciliationStatusStr.length());
+    	}
+    	
+        return reconciliationStatusId;
     }
 }
