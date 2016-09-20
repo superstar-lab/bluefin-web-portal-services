@@ -154,7 +154,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
                             
                             // Payment Processor Remittance
-                            .antMatchers(HttpMethod.GET, paymentProcessorRemittanceApiBaseURL, paymentProcessorRemittanceApiBaseURL + "/", paymentProcessorRemittanceApiBaseURL + "/{id}", paymentProcessorRemittanceApiBaseURL + "/{id}/").authenticated()
+                            .antMatchers(HttpMethod.GET, paymentProcessorRemittanceApiBaseURL, paymentProcessorRemittanceApiBaseURL + "/", paymentProcessorRemittanceApiBaseURL + "/{id}", paymentProcessorRemittanceApiBaseURL + "/{id}/").hasAuthority("SEARCH_RECONCILIATION")
                             
                             // Roles
                             .antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
