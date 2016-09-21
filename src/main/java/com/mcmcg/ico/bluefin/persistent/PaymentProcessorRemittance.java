@@ -15,7 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -144,7 +143,4 @@ public class PaymentProcessorRemittance implements Serializable {
     @ManyToOne
 	@JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
-    
-    @Transient
-    private String transactionId;
 }

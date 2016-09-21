@@ -55,12 +55,13 @@ public class PaymentProcessorRemittanceRestController {
         
         // Get reconciliation status map
         HashMap<String, String> reconciliationStatusMap = paymentProcessorRemittanceService.getReconciliationStatusMap();
-        String key = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Sale");
+        String salesKey = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Sale");
+        String refundKey = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Refund");
         
         // Get reconciliation status
      	String reconciliationStatus = getReconciliationStatus(search);
      	
-     	if (reconciliationStatus.equals(key)) {
+     	if ((reconciliationStatus.equals(salesKey)) || (reconciliationStatus.equals(refundKey))) {
      		QueryDSLUtil.createExpression(search, PaymentProcessorRemittance.class);
      		ObjectMapper objectMapper = new ObjectMapper();
      		objectMapper.registerModule(new JodaModule());
