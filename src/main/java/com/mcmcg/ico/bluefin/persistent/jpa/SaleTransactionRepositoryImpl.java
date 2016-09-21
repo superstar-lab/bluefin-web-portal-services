@@ -222,8 +222,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("MAINSALE.RuleNoMaximumMonthlyAmountFlag,MAINSALE.RulePriority,MAINSALE.ProcessUser,MAINSALE.Processor,")
                 .append("MAINSALE.Application,MAINSALE.Origin,MAINSALE.AccountPeriod,MAINSALE.Desk,MAINSALE.InvoiceNumber,MAINSALE.UserDefinedField1,")
                 .append("MAINSALE.UserDefinedField2,MAINSALE.UserDefinedField3,MAINSALE.DateCreated,")
-                .append("(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid) AS IsVoided,")
-                .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid) AS IsRefunded, ")
+                .append("(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid AND InternalStatusCode = '1') AS IsVoided,")
+                .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid AND InternalStatusCode = '1') AS IsRefunded, ")
                 .append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate,")
                 .append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
                 .append("FROM Sale_Transaction MAINSALE ");
