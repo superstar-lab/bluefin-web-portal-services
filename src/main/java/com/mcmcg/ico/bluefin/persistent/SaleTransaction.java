@@ -400,11 +400,11 @@ public class SaleTransaction implements Serializable, Transaction {
     private String userDefinedField3;
 
     // Reconciliation Status
-    @JsonView(Views.Extend.class)
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ReconciliationStatusID")
     private Long reconciliationStatusId;
 
-    @JsonView(Views.Extend.class)
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "ReconciliationDate")
     private DateTime reconciliationDate;

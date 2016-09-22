@@ -39,7 +39,7 @@ public class PaymentProcessorRemittanceRestController {
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRemittance.class, responseContainer = "List"),
+            @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
@@ -58,8 +58,8 @@ public class PaymentProcessorRemittanceRestController {
         String salesKey = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Sale");
         String refundKey = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Refund");
         
-        // Get reconciliation status
-     	String reconciliationStatus = getReconciliationStatus(search);
+        // Get reconciliation status ID
+        String reconciliationStatus = paymentProcessorRemittanceService.getValueFromParameter(search, "reconciliationStatusId");
      	
      	if ((reconciliationStatus.equals(salesKey)) || (reconciliationStatus.equals(refundKey))) {
      		QueryDSLUtil.createExpression(search, PaymentProcessorRemittance.class);
@@ -78,25 +78,5 @@ public class PaymentProcessorRemittanceRestController {
      	}
         
      	return json;
-    }
-    
-    /**
-     * Get the value of reconciliationStatusId from the URL
-     * 
-     * @param search
-     * @return reconciliationStatusId
-     */
-    private String getReconciliationStatus(String search) {
-    	
-    	String reconciliationStatusId = "";
-    	int index1 = search.indexOf("reconciliationStatusId");
-    	
-    	if (index1 != -1) {
-    		String reconciliationStatusStr = search.substring(index1, search.length());
-    		int index2 = reconciliationStatusStr.indexOf("=");
-    		reconciliationStatusId = reconciliationStatusStr.substring(index2+1, reconciliationStatusStr.length());
-    	}
-    	
-        return reconciliationStatusId;
     }
 }

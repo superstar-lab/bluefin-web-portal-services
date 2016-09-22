@@ -515,9 +515,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * Creates the select for table Sale_Transaction, Refund_Transaction, and PaymentProcessor_Remittance
      * 
      * @param search
+     * @param processorName
+     * 
      * @return String with the select of the sale transaction table
      */
-    private String getSelectForDefaultTransaction(String search) {
+    private String getSelectForDefaultTransaction(String search, String processorName) {
         StringBuilder querySb = new StringBuilder();
         
         querySb.append(
@@ -551,6 +553,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         
         querySb.append(createWhereStatement(search, "st"));
         
+        if (!processorName.equals("")) {
+        	querySb.append(" AND (st.Processor = '" + processorName + "')");
+        }
+        
         return querySb.toString();
     }
     
@@ -558,9 +564,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * Creates the select for table Sale_Transaction and Refund_Transaction
      * 
      * @param search
+     * @param processorName
+     * 
      * @return String with the select of the sale transaction table
      */
-    private String getSelectForReconciledTransaction(String search) {
+    private String getSelectForReconciledTransaction(String search, String processorName) {
         StringBuilder querySb = new StringBuilder();
         
         querySb.append(
@@ -588,6 +596,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         
         querySb.append(createWhereStatement(search, "st"));
         
+        if (!processorName.equals("")) {
+        	querySb.append(" AND (st.Processor = '" + processorName + "')");
+        }
+        
         return querySb.toString();
     }
     
@@ -595,9 +607,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * Creates the select for table Sale_Transaction, Refund_Transaction, and PaymentProcessor_Remittance
      * 
      * @param search
+     * @param processorName
+     * 
      * @return String with the select of the sale transaction, payment processor remittance table
      */
-    private String getSelectForAmountMismatchTransaction(String search) {
+    private String getSelectForAmountMismatchTransaction(String search, String processorName) {
         StringBuilder querySb = new StringBuilder();
         
         querySb.append(
@@ -626,6 +640,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         		.append("ON (st.ReconciliationStatusID = ppr.ReconciliationStatusID) ");
         
         querySb.append(createWhereStatement(search, "st"));
+        
+        if (!processorName.equals("")) {
+        	querySb.append(" AND (st.Processor = '" + processorName + "')");
+        }
 
         return querySb.toString();
     }
@@ -634,51 +652,66 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * Creates the select for table Sale_Transaction and Refund_Transaction
      * 
      * @param search
+     * @param processorName
+     * 
      * @return String with the select of the sale transaction table
      */
-    private String getSelectForMissingFromRemitTransaction(String search) {
-        return getSelectForReconciledTransaction(search);
+    private String getSelectForMissingFromRemitTransaction(String search, String processorName) {
+        return getSelectForReconciledTransaction(search, processorName);
     }
     
     /**
      * Creates the select for table PaymentProcessor_Remittance
      * 
      * @param search
+     * @param reconciliationStatusId
+     * @param processorName
+     * 
      * @return String with the select of the payment processor remittance table
      */
-    private String getSelectForRemitWithoutSaleTransaction(String search, String reconciliationStatusId) {
-        StringBuilder querySb = new StringBuilder();
-        
-        querySb.append(
-                " SELECT ppr.PaymentProcessorRemittanceID, ppr.DateCreated, ppr.ReconciliationStatusID, ppr.ReconciliationDate, ppr.PaymentMethod, ppr.TransactionAmount, ppr.TransactionType,")
-        		.append("ppr.TransactionTime, ppr.AccountID, ppr.Application, ppr.ProcessorTransactionID, ppr.MerchantID, ppr.TransactionSource, ppr.FirstName, ppr.LastName,")
-        		.append("ppr.RemittanceCreationDate, ppr.PaymentProcessorID ")
-        		.append("FROM PaymentProcessor_Remittance ppr ");
-        
-        querySb.append(createWhereStatement(search, "ppr"));
-        querySb.append(" AND (ReconciliationStatusID = " + reconciliationStatusId + ")");
-
-        return querySb.toString();
+    private String getSelectForRemitWithoutSaleTransaction(String search, String reconciliationStatusId, String processorName) {
+    	return getSelectForRemitWithoutSaleOrRefundTransaction(search, reconciliationStatusId, processorName);
     }
     
     /**
      * Creates the select for table PaymentProcessor_Remittance
      * 
      * @param search
+     * @param reconciliationStatusId
+     * @param processorName
+     * 
      * @return String with the select of the payment processor remittance table
      */
-    private String getSelectForRemitWithoutRefundTransaction(String search, String reconciliationStatusId) {
+    private String getSelectForRemitWithoutRefundTransaction(String search, String reconciliationStatusId, String processorName) {
+    	return getSelectForRemitWithoutSaleOrRefundTransaction(search, reconciliationStatusId, processorName);
+    }
+    
+    /**
+     * Creates the select for table PaymentProcessor_Remittance and PaymentProcessor_Lookup
+     * 
+     * @param search
+     * @param reconciliationStatusId
+     * @param processorName
+     * 
+     * @return String with the select of the payment processor remittance table
+     */
+    private String getSelectForRemitWithoutSaleOrRefundTransaction(String search, String reconciliationStatusId, String processorName) {
         StringBuilder querySb = new StringBuilder();
-        System.out.println("reconciliationStatusId: "+reconciliationStatusId);
         
         querySb.append(
                 " SELECT ppr.PaymentProcessorRemittanceID, ppr.DateCreated, ppr.ReconciliationStatusID, ppr.ReconciliationDate, ppr.PaymentMethod, ppr.TransactionAmount, ppr.TransactionType,")
         		.append("ppr.TransactionTime, ppr.AccountID, ppr.Application, ppr.ProcessorTransactionID, ppr.MerchantID, ppr.TransactionSource, ppr.FirstName, ppr.LastName,")
         		.append("ppr.RemittanceCreationDate, ppr.PaymentProcessorID ")
-        		.append("FROM PaymentProcessor_Remittance ppr ");
+        		.append("FROM PaymentProcessor_Remittance ppr ")
+        		.append("JOIN PaymentProcessor_Lookup ppl ")
+        		.append("ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
         
         querySb.append(createWhereStatement(search, "ppr"));
-        querySb.append(" AND (ReconciliationStatusID = " + reconciliationStatusId + ")");
+        querySb.append(" AND (ppr.ReconciliationStatusID = " + reconciliationStatusId + ")");
+        
+        if (!processorName.equals("")) {
+        	querySb.append(" AND (ppl.ProcessorName = '" + processorName + "')");
+        }
 
         return querySb.toString();
     }
@@ -687,30 +720,59 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * Creates the select for table Sale_Transaction
      * 
      * @param search
+     * @param processorName
+     * 
      * @return String with the select of the sale transaction table
      */
-    private String getSelectForFailedVoidTransaction(String search) {
-        return getSelectForSaleTransaction(search);
+    private String getSelectForFailedVoidTransaction(String search, String processorName) {
+    	StringBuilder querySb = new StringBuilder();
+        
+        querySb.append(
+        		" SELECT st.SaleTransactionID,st.FirstName,st.LastName,st.ProcessUser,st.TransactionType,st.Address1,st.Address2,")
+				.append("st.City,st.State,st.PostalCode,st.Country,st.CardNumberFirst6Char,st.CardNumberLast4Char,st.CardType,st.ExpiryDate,")
+				.append("st.Token,st.ChargeAmount,st.LegalEntityApp,st.AccountId,st.ApplicationTransactionID,st.MerchantID,st.Processor,")
+				.append("st.Application,st.Origin,st.ProcessorTransactionID,st.TransactionDateTime,st.TestMode,st.ApprovalCode,st.Tokenized,")
+				.append("st.PaymentProcessorStatusCode,st.PaymentProcessorStatusCodeDescription,st.PaymentProcessorResponseCode,")
+				.append("st.PaymentProcessorResponseCodeDescription,st.InternalStatusCode,st.InternalStatusDescription,st.InternalResponseCode,")
+				.append("st.InternalResponseDescription,st.PaymentProcessorInternalStatusCodeID,st.PaymentProcessorInternalResponseCodeID,")
+				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
+				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
+				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
+				.append("0 AS IsVoided,0 AS IsRefunded,")
+				.append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+				.append("FROM Sale_Transaction st ");
+        
+        querySb.append(createWhereStatement(search, "st"));
+        
+        if (!processorName.equals("")) {
+        	querySb.append(" AND (st.Processor = '" + processorName + "')");
+        }
+        
+        return querySb.toString();
     }
     
     /**
-     * Get the value of reconciliationStatusId from the URL
+     * Get the value of parameter in search string
      * 
-     * @param search
-     * @return reconciliationStatusId
+     * @param search string
+     * @param parameter in search string
+     * 
+     * @return value of parameter
      */
-    private String getReconciliationStatus(String search) {
+    private String getValueFromParameter(String search, String parameter) {
     	
-    	String reconciliationStatusId = "";
-    	int index1 = search.indexOf("reconciliationStatusId");
+    	String value = "";
+    	String[] array1 = search.split("\\$\\$");
     	
-    	if (index1 != -1) {
-    		String reconciliationStatusStr = search.substring(index1, search.length());
-    		int index2 = reconciliationStatusStr.indexOf("=");
-    		reconciliationStatusId = reconciliationStatusStr.substring(index2+1, reconciliationStatusStr.length());
+    	for (String pair : array1) {
+    		if (pair.startsWith(parameter)) {
+    			String[] array2 = pair.split("=");
+    			value = array2[1];
+    			break;
+    		}
     	}
     	
-        return reconciliationStatusId;
+        return value;
     }
     
     @SuppressWarnings("rawtypes")
@@ -741,7 +803,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
      * @param search
      * @return String query
      */
-    private String getQueryByStatus(String search, String reconciliationStatusId) {
+    private String getQueryByStatus(String search, String reconciliationStatusId, String processorName) {
         StringBuilder querySb = new StringBuilder();
         querySb.append(" SELECT * FROM (");
         
@@ -754,25 +816,25 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         
         switch (reconciliationStatus) {
         case "reconciled":
-        	querySb.append(getSelectForReconciledTransaction(search));
+        	querySb.append(getSelectForReconciledTransaction(search, processorName));
             break;
         case "amount mismatch":
-        	querySb.append(getSelectForAmountMismatchTransaction(search));
+        	querySb.append(getSelectForAmountMismatchTransaction(search, processorName));
             break;
         case "missing from remit":
-        	querySb.append(getSelectForMissingFromRemitTransaction(search));
+        	querySb.append(getSelectForMissingFromRemitTransaction(search, processorName));
             break;
         case "remit without sale":
-        	querySb.append(getSelectForRemitWithoutSaleTransaction(search, reconciliationStatusId));
+        	querySb.append(getSelectForRemitWithoutSaleTransaction(search, reconciliationStatusId, processorName));
             break;
         case "remit without refund":
-        	querySb.append(getSelectForRemitWithoutRefundTransaction(search, reconciliationStatusId));
+        	querySb.append(getSelectForRemitWithoutRefundTransaction(search, reconciliationStatusId, processorName));
             break;
         case "failed void":
-        	querySb.append(getSelectForFailedVoidTransaction(search));
+        	querySb.append(getSelectForFailedVoidTransaction(search, processorName));
             break;
         default:
-            querySb.append(getSelectForDefaultTransaction(search));
+            querySb.append(getSelectForDefaultTransaction(search, processorName));
             break;
         }
         querySb.append(" ) RESULTINFO ");
@@ -783,10 +845,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Override
     public Page<SaleTransaction> findSalesRefundTransaction(String search, PageRequest page) throws ParseException {
     	
-    	// Get reconciliation status
-		String reconciliationStatus = getReconciliationStatus(search);
+    	// Get reconciliation status and processor name
+    	String reconciliationStatusId = getValueFromParameter(search, "reconciliationStatusId");
+    	String processorName = getValueFromParameter(search, "processorName");
         // Creates the query for the total and for the retrieved data
-    	String query = getQueryByStatus(search, reconciliationStatus);
+    	String query = getQueryByStatus(search, reconciliationStatusId, processorName);
 
         Map<String, Query> queriesMap = createQueries(query, page);
         Query result = queriesMap.get("result");
@@ -849,10 +912,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Override
     public Page<PaymentProcessorRemittance> findRemittanceTransaction(String search, PageRequest page) throws ParseException {
     	
-    	// Get reconciliation status
-		String reconciliationStatus = getReconciliationStatus(search);
+    	// Get reconciliation status and processor name
+    	String reconciliationStatusId = getValueFromParameter(search, "reconciliationStatusId");
+    	String processorName = getValueFromParameter(search, "processorName");
         // Creates the query for the total and for the retrieved data
-    	String query = getQueryByStatus(search, reconciliationStatus);
+    	String query = getQueryByStatus(search, reconciliationStatusId, processorName);
 
         Map<String, Query> queriesMap = createRemittanceQueries(query, page);
         Query result = queriesMap.get("result");
