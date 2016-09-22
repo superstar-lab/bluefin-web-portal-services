@@ -52,7 +52,7 @@ import lombok.ToString;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "PaymentProcessor_Remittance")
-public class PaymentProcessorRemittance implements Serializable {
+public class PaymentProcessorRemittance implements Serializable, Transaction {
 	
 	private static final long serialVersionUID = -1312687866731930904L;
 	
@@ -143,4 +143,24 @@ public class PaymentProcessorRemittance implements Serializable {
     @ManyToOne
 	@JoinColumn(name = "PaymentProcessorID")
     private PaymentProcessor paymentProcessor;
+
+	@Override
+	public String getApplicationTransactionId() {
+		return null;
+	}
+
+	@Override
+	public String getProcessorTransactionId() {
+		return null;
+	}
+
+	@Override
+	public String getMerchantId() {
+		return null;
+	}
+
+	@Override
+	public DateTime getTransactionDateTime() {
+		return null;
+	}
 }

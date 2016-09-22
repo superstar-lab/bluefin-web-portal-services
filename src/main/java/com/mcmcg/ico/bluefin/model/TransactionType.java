@@ -1,7 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 public enum TransactionType {
-    SALE("SALE"), VOID("VOID"), REFUND("REFUND");
+    SALE("SALE"), VOID("VOID"), REFUND("REFUND"), REMITTANCE("REMITTANCE");
 
     private final String type;
 

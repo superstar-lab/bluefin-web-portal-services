@@ -766,7 +766,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     	
     	for (String pair : array1) {
     		if (pair.startsWith(parameter)) {
-    			String[] array2 = pair.split("=");
+    			String[] array2 = pair.split(":");
     			value = array2[1];
     			break;
     		}

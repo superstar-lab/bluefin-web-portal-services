@@ -14,9 +14,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.persistent.Transaction;
+import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
@@ -27,6 +32,53 @@ public class PaymentProcessorRemittanceService {
 	
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
+    @Autowired
+    private VoidTransactionRepository voidTransactionRepository;
+    @Autowired
+    private RefundTransactionRepository refundTransactionRepository;
+    @Autowired
+    private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
+    
+    public Transaction getTransactionInformation(final String transactionId, TransactionType transactionType, final String processorTransactionType) {
+        Transaction result = null;
+
+        switch (transactionType) {
+        case VOID:
+        	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
+        		result = voidTransactionRepository.findByApplicationTransactionId(transactionId);
+        	} else {
+        		result = voidTransactionRepository.findByProcessorTransactionId(transactionId);
+        	}
+            break;
+        case REFUND:
+        	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
+        		result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
+        	} else {
+        		result = refundTransactionRepository.findByProcessorTransactionId(transactionId);
+        	}
+            break;
+        case REMITTANCE:
+        	// PaymentProcessor_Remittance does not have ApplicationTransactionId
+        	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
+        		result = null;
+        	} else {
+        		result = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
+        	}
+            break;
+        default:
+        	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
+        		result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
+        	} else {
+        		result = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+        	}
+        }
+
+        if (result == null) {
+            throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
+        }
+
+        return result;
+    }
     
     public Iterable<SaleTransaction> getSalesRefundTransactions(String search, PageRequest paging) {
         Page<SaleTransaction> result;
@@ -96,7 +148,7 @@ public class PaymentProcessorRemittanceService {
     	
     	for (String pair : array1) {
     		if (pair.startsWith(parameter)) {
-    			String[] array2 = pair.split("=");
+    			String[] array2 = pair.split(":");
     			value = array2[1];
     			break;
     		}

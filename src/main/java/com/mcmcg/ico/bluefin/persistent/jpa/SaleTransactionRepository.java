@@ -9,6 +9,6 @@ public interface SaleTransactionRepository extends JpaRepository<SaleTransaction
         QueryDslPredicateExecutor<SaleTransaction>, TransactionRepositoryCustom {
 
     public SaleTransaction findByApplicationTransactionId(String transactionId);
-
+    public SaleTransaction findByProcessorTransactionId(String transactionId);
     public Long countByPaymentProcessorRuleId(Long paymentProcessorRuleId);
 }
