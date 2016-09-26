@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent.jpa;
 
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -14,7 +13,7 @@ public interface TransactionRepositoryCustom {
 	
     public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException;
     public List<SaleTransaction> findTransactionsReport(String search) throws ParseException;
-    public HashMap<String, String> getReconciliationStatusMap();
+    public String getProcessorNameById(String id);
     public Page<SaleTransaction> findSalesRefundTransaction(String search, PageRequest page) throws ParseException;
     public Page<PaymentProcessorRemittance> findRemittanceTransaction(String search, PageRequest page) throws ParseException;
 }

@@ -51,7 +51,8 @@ import lombok.ToString;
                 @ColumnResult(name = "LastName", type = String.class),
                 @ColumnResult(name = "Address1", type = String.class),
                 @ColumnResult(name = "Address2", type = String.class),
-                @ColumnResult(name = "City", type = String.class), @ColumnResult(name = "State", type = String.class),
+                @ColumnResult(name = "City", type = String.class),
+                @ColumnResult(name = "State", type = String.class),
                 @ColumnResult(name = "PostalCode", type = String.class),
                 @ColumnResult(name = "Country", type = String.class),
                 @ColumnResult(name = "TestMode", type = Short.class),
@@ -85,8 +86,6 @@ import lombok.ToString;
                 @ColumnResult(name = "DateCreated", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "IsVoided", type = Integer.class),
                 @ColumnResult(name = "IsRefunded", type = Integer.class),
-                @ColumnResult(name = "TransactionAmount", type = BigDecimal.class),
-                @ColumnResult(name = "RemittanceCreationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "PaymentProcessorInternalStatusCodeID", type = Long.class),
                 @ColumnResult(name = "PaymentProcessorInternalResponseCodeID", type = Long.class),
                 @ColumnResult(name = "ReconciliationStatusID", type = Long.class),
@@ -118,7 +117,6 @@ public class SaleTransaction implements Serializable, Transaction {
             Short rulePriority, String processUser, String processorName, String application, String origin,
             String accountPeriod, String desk, String invoiceNumber, String userDefinedField1, String userDefinedField2,
             String userDefinedField3, DateTime createdDate, Integer isVoided, Integer isRefunded,
-            BigDecimal transactionAmount, DateTime remittanceCreationDate,
             Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId,
             Long reconciliationStatusId, DateTime reconciliationDate) {
         this.saleTransactionId = saleTransactionId;
@@ -173,8 +171,6 @@ public class SaleTransaction implements Serializable, Transaction {
         this.createdDate = createdDate;
         this.isVoided = isVoided;
         this.isRefunded = isRefunded;
-        this.transactionAmount = transactionAmount;
-        this.remittanceCreationDate = remittanceCreationDate;
         this.paymentProcessorInternalStatusCodeId = paymentProcessorInternalStatusCodeId;
         this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
         this.reconciliationStatusId = reconciliationStatusId;
@@ -398,8 +394,7 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonView(Views.Extend.class)
     @Column(name = "UserDefinedField3")
     private String userDefinedField3;
-
-    // Reconciliation Status
+    
     @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ReconciliationStatusID")
     private Long reconciliationStatusId;
@@ -433,14 +428,6 @@ public class SaleTransaction implements Serializable, Transaction {
     @Transient
     @JsonIgnore
     private Integer isRefunded = 0;
-    
-    @Transient
-    @JsonIgnore
-    private BigDecimal transactionAmount;
-    
-    @Transient
-    @JsonIgnore
-    private DateTime remittanceCreationDate;
 
     @JsonProperty("isVoided")
     @JsonView({ Views.Extend.class, Views.Summary.class })
@@ -452,18 +439,6 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private boolean isRefunded() {
         return (refundedTransactions != null && !refundedTransactions.isEmpty()) || isRefunded > 0;
-    }
-    
-    @JsonProperty("transactionAmount")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private BigDecimal getTransactionAmount() {
-        return this.transactionAmount;
-    }
-    
-    @JsonProperty("remittanceCreationDate")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private DateTime getRemittanceCreationDate() {
-        return this.remittanceCreationDate;
     }
 
     @JsonProperty("tokenized")

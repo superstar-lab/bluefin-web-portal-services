@@ -11,10 +11,9 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.joda.time.DateTime;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,10 +21,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 @SqlResultSetMapping(name = "PaymentProcessorRemittanceCustomMappingResult", classes = {
         @ConstructorResult(targetClass = PaymentProcessorRemittance.class, columns = {
@@ -45,10 +45,9 @@ import lombok.ToString;
                 @ColumnResult(name = "FirstName", type = String.class),
                 @ColumnResult(name = "LastName", type = String.class),
                 @ColumnResult(name = "RemittanceCreationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
-                @ColumnResult(name = "PaymentProcessorID", type = Long.class) }) })
+                @ColumnResult(name = "PaymentProcessorID", type = Long.class),
+                @ColumnResult(name = "ProcessorName", type = String.class)}) })
 @Data
-@EqualsAndHashCode(exclude = { "reconciliationStatus", "paymentProcessor" })
-@ToString(exclude = { "reconciliationStatus", "paymentProcessor" })
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "PaymentProcessor_Remittance")
@@ -61,9 +60,11 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	
 	public PaymentProcessorRemittance(Long paymentProcessorRemittanceId, DateTime createdDate, Long reconciliationStatusId, DateTime reconciliationDate,
 			String paymentMethod, BigDecimal transactionAmount, String transactionType, DateTime transactionTime, String accountID, String application,
-			String processorTransactionID, String merchantID, String transactionSource, String firstName, String lastName, DateTime remittanceCreationDate, Long paymentProcessorId) {
+			String processorTransactionID, String merchantID, String transactionSource, String firstName, String lastName, DateTime remittanceCreationDate,
+			Long paymentProcessorId, String processorName) {
 		this.paymentProcessorRemittanceId = paymentProcessorRemittanceId;
 		this.createdDate = createdDate;
+		this.reconciliationStatusId = reconciliationStatusId;
 		this.reconciliationDate = reconciliationDate;
 		this.paymentMethod = paymentMethod;
 		this.transactionAmount = transactionAmount;
@@ -77,6 +78,8 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.remittanceCreationDate = remittanceCreationDate;
+		this.paymentProcessorId = paymentProcessorId;
+		this.processorName = processorName;
 	}
 
 	@Id
@@ -90,13 +93,13 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	@Column(name = "DateCreated", insertable = false, updatable = false)
 	private DateTime createdDate;
     
-	@ManyToOne
-	@JoinColumn(name = "ReconciliationStatusID")
-	private ReconciliationStatus reconciliationStatus;
+	@JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "ReconciliationStatusID")
+    private Long reconciliationStatusId;
     
-    @JsonIgnore
+	@JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "ReconciliationDate", insertable = false, updatable = false)
+    @Column(name = "ReconciliationDate")
     private DateTime reconciliationDate;
     
     @Column(name = "PaymentMethod")
@@ -140,9 +143,27 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @Column(name = "RemittanceCreationDate", insertable = false, updatable = false)
     private DateTime remittanceCreationDate;
     
-    @ManyToOne
-	@JoinColumn(name = "PaymentProcessorID")
-    private PaymentProcessor paymentProcessor;
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "PaymentProcessorID")
+    private Long paymentProcessorId;
+    
+    @Transient
+    @JsonIgnore
+    private String transactionId;
+    
+    @Transient
+    @JsonIgnore
+    private String legalEntity;
+    
+    @Transient
+    @JsonIgnore
+    private String processorName;
+    
+    @JsonProperty("processorName")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String getProcessorName() {
+        return processorName;
+    }
 
 	@Override
 	public String getApplicationTransactionId() {

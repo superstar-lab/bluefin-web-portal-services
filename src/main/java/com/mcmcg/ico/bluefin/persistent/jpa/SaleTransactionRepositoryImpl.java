@@ -224,8 +224,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("MAINSALE.UserDefinedField2,MAINSALE.UserDefinedField3,MAINSALE.DateCreated,")
                 .append("(SELECT Count(*) FROM void_transaction WHERE saletransactionid = MAINSALE.saletransactionid AND InternalStatusCode = '1') AS IsVoided,")
                 .append("(SELECT Count(*) FROM refund_transaction WHERE  saletransactionid = MAINSALE.saletransactionid AND InternalStatusCode = '1') AS IsRefunded, ")
-                .append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate,")
-                .append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+                .append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate ")
                 .append("FROM Sale_Transaction MAINSALE ");
 
         querySb.append(createWhereStatement(search, "MAINSALE"));
@@ -254,8 +253,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("VOIDSALE.RuleNoMaximumMonthlyAmountFlag,VOIDSALE.RulePriority,VOID.pUser AS ProcessUser,VOID.Processor,")
                 .append("VOID.Application,VOIDSALE.Origin,VOIDSALE.AccountPeriod,VOIDSALE.Desk,VOIDSALE.InvoiceNumber,VOIDSALE.UserDefinedField1,")
                 .append("VOIDSALE.UserDefinedField2,VOIDSALE.UserDefinedField3,VOID.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
-                .append("VOID.PaymentProcessorInternalStatusCodeID, VOID.PaymentProcessorInternalResponseCodeID, NULL AS ReconciliationStatusID, CAST(NULL AS DATETIME) AS ReconciliationDate,")
-                .append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+                .append("VOID.PaymentProcessorInternalStatusCodeID, VOID.PaymentProcessorInternalResponseCodeID, NULL AS ReconciliationStatusID, CAST(NULL AS DATETIME) AS ReconciliationDate ")
                 .append("FROM Void_Transaction VOID ")
 
                 .append(" JOIN (")
@@ -270,8 +268,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("SALEINNERVOID.PaymentProcessorRuleId,SALEINNERVOID.RulePaymentProcessorId,SALEINNERVOID.RuleCardType,SALEINNERVOID.RuleMaximumMonthlyAmount,")
                 .append("SALEINNERVOID.RuleNoMaximumMonthlyAmountFlag,SALEINNERVOID.RulePriority,SALEINNERVOID.ProcessUser,SALEINNERVOID.Processor,")
                 .append("SALEINNERVOID.Application,SALEINNERVOID.Origin,SALEINNERVOID.AccountPeriod,SALEINNERVOID.Desk,SALEINNERVOID.InvoiceNumber,SALEINNERVOID.UserDefinedField1,")
-                .append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated,")
-                .append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+                .append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated ")
                 .append("FROM Sale_Transaction SALEINNERVOID ")
 
                 .append(createWhereStatement(search, "SALEINNERVOID"))
@@ -302,8 +299,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("REFUNDSALE.RuleNoMaximumMonthlyAmountFlag,REFUNDSALE.RulePriority,REFUND.pUser AS ProcessUser,REFUND.Processor,")
                 .append("REFUND.Application,REFUNDSALE.Origin,REFUNDSALE.AccountPeriod,REFUNDSALE.Desk,REFUNDSALE.InvoiceNumber,REFUNDSALE.UserDefinedField1,")
                 .append("REFUNDSALE.UserDefinedField2,REFUNDSALE.UserDefinedField3, REFUND.DateCreated, 0 AS IsVoided, 0 AS IsRefunded, ")
-                .append("REFUND.PaymentProcessorInternalStatusCodeID, REFUND.PaymentProcessorInternalResponseCodeID, REFUND.ReconciliationStatusID, REFUND.ReconciliationDate,")
-                .append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+                .append("REFUND.PaymentProcessorInternalStatusCodeID, REFUND.PaymentProcessorInternalResponseCodeID, REFUND.ReconciliationStatusID, REFUND.ReconciliationDate ")
                 .append("FROM Refund_Transaction REFUND ")
 
                 .append(" JOIN (")
@@ -318,8 +314,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("SALEINNERREFUND.PaymentProcessorRuleId,SALEINNERREFUND.RulePaymentProcessorId,SALEINNERREFUND.RuleCardType,SALEINNERREFUND.RuleMaximumMonthlyAmount,")
                 .append("SALEINNERREFUND.RuleNoMaximumMonthlyAmountFlag,SALEINNERREFUND.RulePriority,SALEINNERREFUND.ProcessUser,SALEINNERREFUND.Processor,")
                 .append("SALEINNERREFUND.Application,SALEINNERREFUND.Origin,SALEINNERREFUND.AccountPeriod,SALEINNERREFUND.Desk,SALEINNERREFUND.InvoiceNumber,SALEINNERREFUND.UserDefinedField1,")
-                .append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate,")
-                .append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+                .append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate ")
                 .append("FROM Sale_Transaction SALEINNERREFUND ")
 
                 .append(createWhereStatement(search, "SALEINNERREFUND"))
@@ -407,6 +402,15 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
 
     public boolean skipFilter(String attribute, String prefix) {
+    	// For payment processor remittance, processorName is a filter,
+    	// so this should not be skipped.
+    	if (prefix.equals("st") && attribute.equalsIgnoreCase("processorName")) {
+    		return false;
+    	}
+    	// For payment processor remittance, legalEntity is not a filter.
+    	if (prefix.equals("ppr") && attribute.equalsIgnoreCase("legalEntity")) {
+    		return true;
+    	}
         if (attribute.equalsIgnoreCase("transactionType")) {
             return true;
         }
@@ -506,69 +510,19 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("paymentFrequency", ":prefix.Origin = :paymentFrequencyParam1");
         // Payment Processor Remittance
         predicatesHashMapping.put("paymentProcessorId", ":prefix.PaymentProcessorID = :paymentProcessorIdParam1");
+        predicatesHashMapping.put("processorName", ":prefix.Processor = :processorNameParam1");
         predicatesHashMapping.put("reconciliationStatusId", ":prefix.ReconciliationStatusID = :reconciliationStatusIdParam1");
-        predicatesHashMapping.put("reconciliationDate",
-                ":prefix.ReconciliationDate :atributeOperator :reconciliationDateParam1");
-    }
-    
-    /**
-     * Creates the select for table Sale_Transaction, Refund_Transaction, and PaymentProcessor_Remittance
-     * 
-     * @param search
-     * @param processorName
-     * 
-     * @return String with the select of the sale transaction table
-     */
-    private String getSelectForDefaultTransaction(String search, String processorName) {
-        StringBuilder querySb = new StringBuilder();
-        
-        querySb.append(
-        		" SELECT st.SaleTransactionID,st.FirstName,st.LastName,st.ProcessUser,st.TransactionType,st.Address1,st.Address2,")
-				.append("st.City,st.State,st.PostalCode,st.Country,st.CardNumberFirst6Char,st.CardNumberLast4Char,st.CardType,st.ExpiryDate,")
-				.append("st.Token,st.ChargeAmount,st.LegalEntityApp,st.AccountId,st.ApplicationTransactionID,st.MerchantID,st.Processor,")
-				.append("st.Application,st.Origin,st.ProcessorTransactionID,st.TransactionDateTime,st.TestMode,st.ApprovalCode,st.Tokenized,")
-				.append("st.PaymentProcessorStatusCode,st.PaymentProcessorStatusCodeDescription,st.PaymentProcessorResponseCode,")
-				.append("st.PaymentProcessorResponseCodeDescription,st.InternalStatusCode,st.InternalStatusDescription,st.InternalResponseCode,")
-				.append("st.InternalResponseDescription,st.PaymentProcessorInternalStatusCodeID,st.PaymentProcessorInternalResponseCodeID,")
-				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
-				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
-				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
-				.append("0 AS IsVoided,0 AS IsRefunded,")
-				.append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
-				.append("FROM Sale_Transaction st ")
-				.append("FULL JOIN (")
-        		.append("SELECT rt.RefundTransactionID,rt.SaleTransactionID,rt.ApprovalCode,rt.Processor,rt.RefundAmount,rt.MerchantID,rt.ProcessorTransactionID,")
-        		.append("rt.TransactionDateTime,rt.ApplicationTransactionID,rt.Application,rt.pUser,rt.OriginalSaleTransactionID,")
-        		.append("rt.PaymentProcessorStatusCode,rt.PaymentProcessorStatusCodeDescription,rt.PaymentProcessorResponseCode,rt.PaymentProcessorResponseCodeDescription,")
-        		.append("rt.InternalStatusCode,rt.InternalStatusDescription,rt.InternalResponseCode,rt.InternalResponseDescription,rt.PaymentProcessorInternalStatusCodeID,")
-        		.append("rt.PaymentProcessorInternalResponseCodeID,rt.DateCreated,rt.ReconciliationStatusID,rt.ReconciliationDate ")
-        		.append("FROM Refund_Transaction rt) rt ")
-        		.append("ON (st.saleTransactionID = rt.saleTransactionID) ")
-        		.append("FULL JOIN (")
-        		.append("SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,")
-        		.append("ppr.TransactionType,ppr.TransactionTime,ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,ppr.TransactionSource,ppr.FirstName,")
-        		.append("ppr.LastName,ppr.RemittanceCreationDate,ppr.PaymentProcessorID ")
-        		.append("FROM PaymentProcessor_Remittance ppr) ppr ")
-        		.append("ON (st.ReconciliationStatusID = ppr.ReconciliationStatusID) ");
-        
-        querySb.append(createWhereStatement(search, "st"));
-        
-        if (!processorName.equals("")) {
-        	querySb.append(" AND (st.Processor = '" + processorName + "')");
-        }
-        
-        return querySb.toString();
+        predicatesHashMapping.put("reconciliationDate", ":prefix.ReconciliationDate :atributeOperator :reconciliationDateParam1");
     }
     
     /**
      * Creates the select for table Sale_Transaction and Refund_Transaction
      * 
      * @param search
-     * @param processorName
      * 
      * @return String with the select of the sale transaction table
      */
-    private String getSelectForReconciledTransaction(String search, String processorName) {
+    private String getSelectForSaleRefundTransaction(String search) {
         StringBuilder querySb = new StringBuilder();
         
         querySb.append(
@@ -582,8 +536,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
 				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
 				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
-				.append("0 AS IsVoided,0 AS IsRefunded,")
-				.append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
+				.append("0 AS IsVoided,0 AS IsRefunded ")
 				.append("FROM Sale_Transaction st ")
 				.append("JOIN (")
         		.append("SELECT rt.RefundTransactionID,rt.SaleTransactionID,rt.ApprovalCode,rt.Processor,rt.RefundAmount,rt.MerchantID,rt.ProcessorTransactionID,")
@@ -596,247 +549,65 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         
         querySb.append(createWhereStatement(search, "st"));
         
-        if (!processorName.equals("")) {
-        	querySb.append(" AND (st.Processor = '" + processorName + "')");
-        }
-        
         return querySb.toString();
-    }
-    
-    /**
-     * Creates the select for table Sale_Transaction, Refund_Transaction, and PaymentProcessor_Remittance
-     * 
-     * @param search
-     * @param processorName
-     * 
-     * @return String with the select of the sale transaction, payment processor remittance table
-     */
-    private String getSelectForAmountMismatchTransaction(String search, String processorName) {
-        StringBuilder querySb = new StringBuilder();
-        
-        querySb.append(
-        		" SELECT st.SaleTransactionID,st.FirstName,st.LastName,st.ProcessUser,st.TransactionType,st.Address1,st.Address2,")
-				.append("st.City,st.State,st.PostalCode,st.Country,st.CardNumberFirst6Char,st.CardNumberLast4Char,st.CardType,st.ExpiryDate,")
-				.append("st.Token,st.ChargeAmount,st.LegalEntityApp,st.AccountId,st.ApplicationTransactionID,st.MerchantID,st.Processor,")
-				.append("st.Application,st.Origin,st.ProcessorTransactionID,st.TransactionDateTime,st.TestMode,st.ApprovalCode,st.Tokenized,")
-				.append("st.PaymentProcessorStatusCode,st.PaymentProcessorStatusCodeDescription,st.PaymentProcessorResponseCode,")
-				.append("st.PaymentProcessorResponseCodeDescription,st.InternalStatusCode,st.InternalStatusDescription,st.InternalResponseCode,")
-				.append("st.InternalResponseDescription,st.PaymentProcessorInternalStatusCodeID,st.PaymentProcessorInternalResponseCodeID,")
-				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
-				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
-				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
-				.append("0 AS IsVoided,0 AS IsRefunded,")
-				.append("ppr.TransactionAmount,ppr.RemittanceCreationDate ")
-				.append("FROM Sale_Transaction st ")
-				.append("JOIN (")
-        		.append("SELECT rt.RefundTransactionID,rt.SaleTransactionID,rt.ApprovalCode,rt.Processor,rt.RefundAmount,rt.MerchantID,rt.ProcessorTransactionID,")
-        		.append("rt.TransactionDateTime,rt.ApplicationTransactionID,rt.Application,rt.pUser,rt.OriginalSaleTransactionID,")
-        		.append("rt.PaymentProcessorStatusCode,rt.PaymentProcessorStatusCodeDescription,rt.PaymentProcessorResponseCode,rt.PaymentProcessorResponseCodeDescription,")
-        		.append("rt.InternalStatusCode,rt.InternalStatusDescription,rt.InternalResponseCode,rt.InternalResponseDescription,rt.PaymentProcessorInternalStatusCodeID,")
-        		.append("rt.PaymentProcessorInternalResponseCodeID,rt.DateCreated,rt.ReconciliationStatusID,rt.ReconciliationDate ")
-        		.append("FROM Refund_Transaction rt) rt ")
-        		.append("ON (st.saleTransactionID = rt.saleTransactionID) ")
-        		.append("JOIN PaymentProcessor_Remittance ppr ")
-        		.append("ON (st.ReconciliationStatusID = ppr.ReconciliationStatusID) ");
-        
-        querySb.append(createWhereStatement(search, "st"));
-        
-        if (!processorName.equals("")) {
-        	querySb.append(" AND (st.Processor = '" + processorName + "')");
-        }
-
-        return querySb.toString();
-    }
-    
-    /**
-     * Creates the select for table Sale_Transaction and Refund_Transaction
-     * 
-     * @param search
-     * @param processorName
-     * 
-     * @return String with the select of the sale transaction table
-     */
-    private String getSelectForMissingFromRemitTransaction(String search, String processorName) {
-        return getSelectForReconciledTransaction(search, processorName);
-    }
-    
-    /**
-     * Creates the select for table PaymentProcessor_Remittance
-     * 
-     * @param search
-     * @param reconciliationStatusId
-     * @param processorName
-     * 
-     * @return String with the select of the payment processor remittance table
-     */
-    private String getSelectForRemitWithoutSaleTransaction(String search, String reconciliationStatusId, String processorName) {
-    	return getSelectForRemitWithoutSaleOrRefundTransaction(search, reconciliationStatusId, processorName);
-    }
-    
-    /**
-     * Creates the select for table PaymentProcessor_Remittance
-     * 
-     * @param search
-     * @param reconciliationStatusId
-     * @param processorName
-     * 
-     * @return String with the select of the payment processor remittance table
-     */
-    private String getSelectForRemitWithoutRefundTransaction(String search, String reconciliationStatusId, String processorName) {
-    	return getSelectForRemitWithoutSaleOrRefundTransaction(search, reconciliationStatusId, processorName);
     }
     
     /**
      * Creates the select for table PaymentProcessor_Remittance and PaymentProcessor_Lookup
      * 
      * @param search
-     * @param reconciliationStatusId
-     * @param processorName
      * 
      * @return String with the select of the payment processor remittance table
      */
-    private String getSelectForRemitWithoutSaleOrRefundTransaction(String search, String reconciliationStatusId, String processorName) {
+    private String getSelectForPaymentProcessorRemittance(String search) {
         StringBuilder querySb = new StringBuilder();
         
         querySb.append(
-                " SELECT ppr.PaymentProcessorRemittanceID, ppr.DateCreated, ppr.ReconciliationStatusID, ppr.ReconciliationDate, ppr.PaymentMethod, ppr.TransactionAmount, ppr.TransactionType,")
-        		.append("ppr.TransactionTime, ppr.AccountID, ppr.Application, ppr.ProcessorTransactionID, ppr.MerchantID, ppr.TransactionSource, ppr.FirstName, ppr.LastName,")
-        		.append("ppr.RemittanceCreationDate, ppr.PaymentProcessorID ")
+                " SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,")
+        		.append("ppr.TransactionTime,ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,ppr.TransactionSource,ppr.FirstName,ppr.LastName,")
+        		.append("ppr.RemittanceCreationDate,ppr.PaymentProcessorID, ppl.ProcessorName AS ProcessorName ")
         		.append("FROM PaymentProcessor_Remittance ppr ")
         		.append("JOIN PaymentProcessor_Lookup ppl ")
         		.append("ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
         
         querySb.append(createWhereStatement(search, "ppr"));
-        querySb.append(" AND (ppr.ReconciliationStatusID = " + reconciliationStatusId + ")");
         
-        if (!processorName.equals("")) {
-        	querySb.append(" AND (ppl.ProcessorName = '" + processorName + "')");
-        }
+        return querySb.toString();
+    }
+    
+    @SuppressWarnings("unchecked")
+	public String getProcessorNameById(String id) {
+    	
+    	String processorName = null;
+    	
+    	String sql = "SELECT ppl.ProcessorName FROM PaymentProcessor_Lookup ppl WHERE ppl.PaymentProcessorID = " + id;
+    	Query query = em.createNativeQuery(sql);
+    	
+    	List<String> list = query.getResultList();
+    	
+    	// Should return a list of one 
+    	Iterator<String> iterator = list.iterator();
+    	while (iterator.hasNext()) {
+    		processorName = (String) iterator.next();
+    		break;
+    	}
+    	
+    	return processorName;
+    }
+    
+    private String getQueryForSaleRefund(String search) {
+    	StringBuilder querySb = new StringBuilder();
+        querySb.append(" SELECT * FROM (");
+        querySb.append(getSelectForSaleRefundTransaction(search));
+        querySb.append(" ) RESULTINFO ");
 
         return querySb.toString();
     }
     
-    /**
-     * Creates the select for table Sale_Transaction
-     * 
-     * @param search
-     * @param processorName
-     * 
-     * @return String with the select of the sale transaction table
-     */
-    private String getSelectForFailedVoidTransaction(String search, String processorName) {
+    private String getQueryForRemittance(String search) {
     	StringBuilder querySb = new StringBuilder();
-        
-        querySb.append(
-        		" SELECT st.SaleTransactionID,st.FirstName,st.LastName,st.ProcessUser,st.TransactionType,st.Address1,st.Address2,")
-				.append("st.City,st.State,st.PostalCode,st.Country,st.CardNumberFirst6Char,st.CardNumberLast4Char,st.CardType,st.ExpiryDate,")
-				.append("st.Token,st.ChargeAmount,st.LegalEntityApp,st.AccountId,st.ApplicationTransactionID,st.MerchantID,st.Processor,")
-				.append("st.Application,st.Origin,st.ProcessorTransactionID,st.TransactionDateTime,st.TestMode,st.ApprovalCode,st.Tokenized,")
-				.append("st.PaymentProcessorStatusCode,st.PaymentProcessorStatusCodeDescription,st.PaymentProcessorResponseCode,")
-				.append("st.PaymentProcessorResponseCodeDescription,st.InternalStatusCode,st.InternalStatusDescription,st.InternalResponseCode,")
-				.append("st.InternalResponseDescription,st.PaymentProcessorInternalStatusCodeID,st.PaymentProcessorInternalResponseCodeID,")
-				.append("st.DateCreated,st.PaymentProcessorRuleID,st.RulePaymentProcessorID,st.RuleCardType,st.RuleMaximumMonthlyAmount,")
-				.append("st.RuleNoMaximumMonthlyAmountFlag,st.RulePriority,st.AccountPeriod,st.Desk,st.InvoiceNumber,st.UserDefinedField1,")
-				.append("st.UserDefinedField2,st.UserDefinedField3,st.ReconciliationStatusID,st.ReconciliationDate,st.BatchUploadID,")
-				.append("0 AS IsVoided,0 AS IsRefunded,")
-				.append("NULL AS TransactionAmount, CAST(NULL AS DATETIME) AS RemittanceCreationDate ")
-				.append("FROM Sale_Transaction st ");
-        
-        querySb.append(createWhereStatement(search, "st"));
-        
-        if (!processorName.equals("")) {
-        	querySb.append(" AND (st.Processor = '" + processorName + "')");
-        }
-        
-        return querySb.toString();
-    }
-    
-    /**
-     * Get the value of parameter in search string
-     * 
-     * @param search string
-     * @param parameter in search string
-     * 
-     * @return value of parameter
-     */
-    private String getValueFromParameter(String search, String parameter) {
-    	
-    	String value = "";
-    	String[] array1 = search.split("\\$\\$");
-    	
-    	for (String pair : array1) {
-    		if (pair.startsWith(parameter)) {
-    			String[] array2 = pair.split(":");
-    			value = array2[1];
-    			break;
-    		}
-    	}
-    	
-        return value;
-    }
-    
-    @SuppressWarnings("rawtypes")
-	@Override
-    public HashMap<String, String> getReconciliationStatusMap() {
-    	HashMap<String, String> reconciliationStatusMap = new HashMap<String, String>();
-    	
-    	String sql = "SELECT rsl.ReconciliationStatusID, rsl.ReconciliationStatus FROM ReconciliationStatus_Lookup rsl";
-    	Query query = em.createNativeQuery(sql);
-    	
-    	List list = query.getResultList();
-    	
-		Iterator iterator = list.iterator();
-    	while (iterator.hasNext()) {
-    		Object[] result = (Object[])iterator.next();
-    		reconciliationStatusMap.put(result[0].toString(), result[1].toString());
-    	}
-    	
-    	return reconciliationStatusMap;
-    }
-    
-    /**
-     * Handles the type of transaction that is going to be retrieved, according
-     * with the transactionType element. if transactionType is Sale will bring
-     * the select from the sale table, if refund will bring the union with the
-     * table sale and the table refund
-     * 
-     * @param search
-     * @return String query
-     */
-    private String getQueryByStatus(String search, String reconciliationStatusId, String processorName) {
-        StringBuilder querySb = new StringBuilder();
         querySb.append(" SELECT * FROM (");
-        
-        HashMap<String, String> reconciliationStatusMap = getReconciliationStatusMap();
-        String reconciliationStatus = "";
-        
-        if (reconciliationStatusMap.containsKey(reconciliationStatusId)) {
-        	reconciliationStatus = reconciliationStatusMap.get(reconciliationStatusId).toLowerCase();
-        }
-        
-        switch (reconciliationStatus) {
-        case "reconciled":
-        	querySb.append(getSelectForReconciledTransaction(search, processorName));
-            break;
-        case "amount mismatch":
-        	querySb.append(getSelectForAmountMismatchTransaction(search, processorName));
-            break;
-        case "missing from remit":
-        	querySb.append(getSelectForMissingFromRemitTransaction(search, processorName));
-            break;
-        case "remit without sale":
-        	querySb.append(getSelectForRemitWithoutSaleTransaction(search, reconciliationStatusId, processorName));
-            break;
-        case "remit without refund":
-        	querySb.append(getSelectForRemitWithoutRefundTransaction(search, reconciliationStatusId, processorName));
-            break;
-        case "failed void":
-        	querySb.append(getSelectForFailedVoidTransaction(search, processorName));
-            break;
-        default:
-            querySb.append(getSelectForDefaultTransaction(search, processorName));
-            break;
-        }
+        querySb.append(getSelectForPaymentProcessorRemittance(search));
         querySb.append(" ) RESULTINFO ");
 
         return querySb.toString();
@@ -845,11 +616,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Override
     public Page<SaleTransaction> findSalesRefundTransaction(String search, PageRequest page) throws ParseException {
     	
-    	// Get reconciliation status and processor name
-    	String reconciliationStatusId = getValueFromParameter(search, "reconciliationStatusId");
-    	String processorName = getValueFromParameter(search, "processorName");
         // Creates the query for the total and for the retrieved data
-    	String query = getQueryByStatus(search, reconciliationStatusId, processorName);
+    	String query = getQueryForSaleRefund(search);
 
         Map<String, Query> queriesMap = createQueries(query, page);
         Query result = queriesMap.get("result");
@@ -912,11 +680,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Override
     public Page<PaymentProcessorRemittance> findRemittanceTransaction(String search, PageRequest page) throws ParseException {
     	
-    	// Get reconciliation status and processor name
-    	String reconciliationStatusId = getValueFromParameter(search, "reconciliationStatusId");
-    	String processorName = getValueFromParameter(search, "processorName");
         // Creates the query for the total and for the retrieved data
-    	String query = getQueryByStatus(search, reconciliationStatusId, processorName);
+    	String query = getQueryForRemittance(search);
 
         Map<String, Query> queriesMap = createRemittanceQueries(query, page);
         Query result = queriesMap.get("result");

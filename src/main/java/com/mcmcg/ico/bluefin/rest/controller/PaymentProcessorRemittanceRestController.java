@@ -1,7 +1,5 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.util.HashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
-import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorRemittanceService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
@@ -55,7 +49,7 @@ public class PaymentProcessorRemittanceRestController {
         return paymentProcessorRemittanceService.getTransactionInformation(transactionId, TransactionType.valueOf(transactionType.toUpperCase()), processorTransactionType);
     }
     
-    @ApiOperation(value = "getPaymentProcessorRemittances", nickname = "getPaymentProcessorRemittances")
+	@ApiOperation(value = "getPaymentProcessorRemittances", nickname = "getPaymentProcessorRemittances")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
@@ -71,32 +65,29 @@ public class PaymentProcessorRemittanceRestController {
             throws JsonProcessingException {
         LOGGER.info("Generating report with the following filters: {}", search);
         
-        String json = "";
+        Iterable<PaymentProcessorRemittance> paymentProcessorRemittanceList = getPaymentProcessorRemittanceList(search, page, size, sort);
+        Iterable<SaleTransaction> saleTransactionList = getSaleTransactionList(search, page, size, sort);
         
-        // Get reconciliation status map
-        HashMap<String, String> reconciliationStatusMap = paymentProcessorRemittanceService.getReconciliationStatusMap();
-        String salesKey = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Sale");
-        String refundKey = paymentProcessorRemittanceService.getKeyFromValue(reconciliationStatusMap, "Remit without Refund");
-        
-        // Get reconciliation status ID
-        String reconciliationStatus = paymentProcessorRemittanceService.getValueFromParameter(search, "reconciliationStatusId");
-     	
-     	if ((reconciliationStatus.equals(salesKey)) || (reconciliationStatus.equals(refundKey))) {
-     		QueryDSLUtil.createExpression(search, PaymentProcessorRemittance.class);
-     		ObjectMapper objectMapper = new ObjectMapper();
-     		objectMapper.registerModule(new JodaModule());
-     		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
-     		json = objectMapper.writerWithView(Views.Summary.class).writeValueAsString(paymentProcessorRemittanceService.getPaymentProcessorRemittances(search, QueryDSLUtil.getPageRequest(page, size, sort)));
-     	} else {
-     		QueryDSLUtil.createExpression(search, SaleTransaction.class);
-     		ObjectMapper objectMapper = new ObjectMapper();
-     		objectMapper.registerModule(new JodaModule());
-     		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
-     		json = objectMapper.writerWithView(Views.Summary.class).writeValueAsString(paymentProcessorRemittanceService.getSalesRefundTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort)));
-     	}
+        String json = paymentProcessorRemittanceService.getAdjustedTransactions(paymentProcessorRemittanceList, saleTransactionList, QueryDSLUtil.getPageRequest(page, size, sort));
         
      	return json;
+    }
+    
+    private Iterable<PaymentProcessorRemittance> getPaymentProcessorRemittanceList(String search, Integer page, Integer size, String sort) {
+    	QueryDSLUtil.createExpression(search, PaymentProcessorRemittance.class);
+ 		return paymentProcessorRemittanceService.getPaymentProcessorRemittances(search, QueryDSLUtil.getPageRequest(page, size, sort));
+    }
+    
+    private Iterable<SaleTransaction> getSaleTransactionList(String search, Integer page, Integer size, String sort) {
+    	
+    	// SaleTransaction uses processorName not paymentProcessorId.
+    	String id = paymentProcessorRemittanceService.getValueFromParameter(search, "paymentProcessorId");
+    	if (id != null) {
+    		String processorName = paymentProcessorRemittanceService.getProcessorNameById(id);
+        	search = search.replaceAll("paymentProcessorId:" + id, "processorName:" + processorName);
+    	}
+    	
+    	QueryDSLUtil.createExpression(search, SaleTransaction.class);
+ 		return paymentProcessorRemittanceService.getSalesRefundTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort));
     }
 }
