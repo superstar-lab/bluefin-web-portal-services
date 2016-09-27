@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,14 +77,36 @@ public class PaymentProcessorRemittanceService {
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = null;
         	} else {
-        		result = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
+        		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
+        		Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
+        		// SaleTransaction uses processorName not paymentProcessorId.
+        		// Update processorName with correct value.
+            	if (paymentProcessorId != null) {
+            		String processorName = getProcessorNameById(paymentProcessorId.toString());
+            		paymentProcessorRemittance.setProcessorName(processorName);
+            	}
+            	// Add Sale transaction which is required for the UI.
+            	SaleTransaction saleTransaction = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+            	RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
+            	result = remittanceSale;
         	}
             break;
         default:
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         	} else {
-        		result = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+        		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
+        		Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
+        		// SaleTransaction uses processorName not paymentProcessorId.
+        		// Update processorName with correct value.
+            	if (paymentProcessorId != null) {
+            		String processorName = getProcessorNameById(paymentProcessorId.toString());
+            		paymentProcessorRemittance.setProcessorName(processorName);
+            	}
+            	// Add Sale transaction which is required for the UI.
+            	SaleTransaction saleTransaction = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+            	RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
+            	result = remittanceSale;
         	}
         }
 
@@ -277,7 +300,7 @@ public class PaymentProcessorRemittanceService {
      * It's a requirement of the UI.
      *
      */
-    public class RemittanceSale {
+    public class RemittanceSale implements Transaction {
     	
     	private PaymentProcessorRemittance paymentProcessorRemittance;
     	private SaleTransaction saleTransaction;
@@ -296,6 +319,31 @@ public class PaymentProcessorRemittanceService {
     	
     	public SaleTransaction getSaleTransaction() {
     		return saleTransaction;
+    	}
+
+    	@Override
+    	public String getApplicationTransactionId() {
+    		return null;
+    	}
+
+    	@Override
+    	public String getProcessorTransactionId() {
+    		return null;
+    	}
+
+    	@Override
+    	public String getMerchantId() {
+    		return null;
+    	}
+
+    	@Override
+    	public String getTransactionType() {
+    		return null;
+    	}
+
+    	@Override
+    	public DateTime getTransactionDateTime() {
+    		return null;
     	}
     }
 }

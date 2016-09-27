@@ -172,16 +172,16 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 
 	@Override
 	public String getProcessorTransactionId() {
-		return null;
+		return processorTransactionID;
 	}
 
 	@Override
 	public String getMerchantId() {
-		return null;
+		return merchantID;
 	}
 
 	@Override
 	public DateTime getTransactionDateTime() {
-		return null;
+		return transactionTime;
 	}
 }

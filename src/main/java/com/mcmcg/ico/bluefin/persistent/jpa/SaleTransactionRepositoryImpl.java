@@ -639,9 +639,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
     
     public Map<String, Query> createRemittanceQueries(String query, PageRequest page) throws ParseException {
-        //Query queryTotal = em.createNativeQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
-    	Query queryTotal = em.createNativeQuery(query);
-
+        
+    	Query queryTotal = em.createNativeQuery("SELECT COUNT(finalCount.ProcessorTransactionID) FROM (" + query + ") finalCount");
         Query result = em.createNativeQuery(page == null ? query : query + addSort(page.getSort()), "PaymentProcessorRemittanceCustomMappingResult");
 
         LOGGER.info("Dynamic Parameters {}", dynamicParametersMap);
@@ -690,10 +689,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         int pageNumber = page.getPageNumber();
         int pageSize = page.getPageSize();
         // Set the paging for the created select
-        //final int countResult = (Integer) queryTotal.getSingleResult();
-        final int countResult = 1;
-        //result.setFirstResult(pageSize * pageNumber);
-        //result.setMaxResults(pageSize);
+        final int countResult = (Integer) queryTotal.getSingleResult();
+        result.setFirstResult(pageSize * pageNumber);
+        result.setMaxResults(pageSize);
 
         // Brings the data and transform it into a Page value list
         @SuppressWarnings("unchecked")
