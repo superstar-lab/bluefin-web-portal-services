@@ -77,16 +77,24 @@ public class PaymentProcessorRemittanceService {
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = null;
         	} else {
+        		// Find record in remittance table.
         		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
-        		Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
-        		// SaleTransaction uses processorName not paymentProcessorId.
-        		// Update processorName with correct value.
-            	if (paymentProcessorId != null) {
-            		String processorName = getProcessorNameById(paymentProcessorId.toString());
-            		paymentProcessorRemittance.setProcessorName(processorName);
-            	}
-            	// Add Sale transaction which is required for the UI.
+        		// The record should exist in the remittance table, but check.
+        		if (paymentProcessorRemittance != null) {
+        			Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
+            		// SaleTransaction uses processorName not paymentProcessorId.
+            		// Update processorName with correct value.
+                	if (paymentProcessorId != null) {
+                		String processorName = getProcessorNameById(paymentProcessorId.toString());
+                		paymentProcessorRemittance.setProcessorName(processorName);
+                	}
+        		} else {
+        			// Create an empty result
+        			paymentProcessorRemittance = new PaymentProcessorRemittance();
+        		}
+        		// Find record in sale table.
             	SaleTransaction saleTransaction = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+            	// Add remittance and sale transactions which are required for the UI.
             	RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
             	result = remittanceSale;
         	}
@@ -97,16 +105,24 @@ public class PaymentProcessorRemittanceService {
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         	} else {
+        		// Find record in remittance table.
         		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
-        		Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
-        		// SaleTransaction uses processorName not paymentProcessorId.
-        		// Update processorName with correct value.
-            	if (paymentProcessorId != null) {
-            		String processorName = getProcessorNameById(paymentProcessorId.toString());
-            		paymentProcessorRemittance.setProcessorName(processorName);
-            	}
-            	// Add Sale transaction which is required for the UI.
+        		// It's possible the record doesn't exist in the remittance table.
+        		if (paymentProcessorRemittance != null) {
+        			Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
+            		// SaleTransaction uses processorName not paymentProcessorId.
+            		// Update processorName with correct value.
+                	if (paymentProcessorId != null) {
+                		String processorName = getProcessorNameById(paymentProcessorId.toString());
+                		paymentProcessorRemittance.setProcessorName(processorName);
+                	}
+        		} else {
+        			// Create an empty result
+        			paymentProcessorRemittance = new PaymentProcessorRemittance();
+        		}
+        		// Find record in sale table.
             	SaleTransaction saleTransaction = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+            	// Add remittance and sale transactions which are required for the UI.
             	RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
             	result = remittanceSale;
         	}
