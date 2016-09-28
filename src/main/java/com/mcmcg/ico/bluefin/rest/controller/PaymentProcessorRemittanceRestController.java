@@ -65,20 +65,32 @@ public class PaymentProcessorRemittanceRestController {
             throws JsonProcessingException {
         LOGGER.info("Generating report with the following filters: {}", search);
         
-        Iterable<PaymentProcessorRemittance> paymentProcessorRemittanceList = getPaymentProcessorRemittanceList(search, page, size, sort);
-        Iterable<SaleTransaction> saleTransactionList = getSaleTransactionList(search, page, size, sort);
+        boolean negate = false;
+        
+        // For 'Not Reconciled' status, which is not in the database, simply use: WHERE ReconciliationID != 'Reconciled'
+        String reconciliationStatusId = paymentProcessorRemittanceService.getValueFromParameter(search, "reconciliationStatusId");
+        if (reconciliationStatusId != null) {
+        	if (reconciliationStatusId.equals("notReconciled")) {
+        		String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
+        		search = search.replaceAll("notReconciled", id);
+        		negate = true;
+        	}
+        }
+        
+        Iterable<PaymentProcessorRemittance> paymentProcessorRemittanceList = getPaymentProcessorRemittanceList(search, page, size, sort, negate);
+        Iterable<SaleTransaction> saleTransactionList = getSaleTransactionList(search, page, size, sort, negate);
         
         String json = paymentProcessorRemittanceService.getAdjustedTransactions(paymentProcessorRemittanceList, saleTransactionList, QueryDSLUtil.getPageRequest(page, size, sort));
         
      	return json;
     }
     
-    private Iterable<PaymentProcessorRemittance> getPaymentProcessorRemittanceList(String search, Integer page, Integer size, String sort) {
+    private Iterable<PaymentProcessorRemittance> getPaymentProcessorRemittanceList(String search, Integer page, Integer size, String sort, boolean negate) {
     	QueryDSLUtil.createExpression(search, PaymentProcessorRemittance.class);
- 		return paymentProcessorRemittanceService.getPaymentProcessorRemittances(search, QueryDSLUtil.getPageRequest(page, size, sort));
+ 		return paymentProcessorRemittanceService.getPaymentProcessorRemittances(search, QueryDSLUtil.getPageRequest(page, size, sort), negate);
     }
     
-    private Iterable<SaleTransaction> getSaleTransactionList(String search, Integer page, Integer size, String sort) {
+    private Iterable<SaleTransaction> getSaleTransactionList(String search, Integer page, Integer size, String sort, boolean negate) {
     	
     	// SaleTransaction uses processorName not paymentProcessorId.
     	String id = paymentProcessorRemittanceService.getValueFromParameter(search, "paymentProcessorId");
@@ -88,6 +100,6 @@ public class PaymentProcessorRemittanceRestController {
     	}
     	
     	QueryDSLUtil.createExpression(search, SaleTransaction.class);
- 		return paymentProcessorRemittanceService.getSalesRefundTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort));
+ 		return paymentProcessorRemittanceService.getSalesRefundTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort), negate);
     }
 }

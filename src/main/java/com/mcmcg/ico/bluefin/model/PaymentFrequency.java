@@ -18,7 +18,10 @@ public enum PaymentFrequency {
     }
 
     public static PaymentFrequency getPaymentFrequency(final String origin) {
-        return origin.equalsIgnoreCase(PaymentFrequency.RECURRING.toString()) ? PaymentFrequency.RECURRING
-                : PaymentFrequency.ONE_TIME;
+    	if (origin != null) {
+    		return origin.equalsIgnoreCase(PaymentFrequency.RECURRING.toString()) ? PaymentFrequency.RECURRING : PaymentFrequency.ONE_TIME;
+    	}
+    	// What is the default?
+        return PaymentFrequency.ONE_TIME;
     }
 }

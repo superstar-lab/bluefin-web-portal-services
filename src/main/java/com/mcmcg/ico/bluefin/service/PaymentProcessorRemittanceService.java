@@ -91,6 +91,8 @@ public class PaymentProcessorRemittanceService {
             	result = remittanceSale;
         	}
             break;
+        case SALE:
+        case TOKENIZE:	
         default:
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
@@ -125,10 +127,10 @@ public class PaymentProcessorRemittanceService {
      * 
      * @return SaleTransaction list
      */
-    public Iterable<SaleTransaction> getSalesRefundTransactions(String search, PageRequest paging) {
+    public Iterable<SaleTransaction> getSalesRefundTransactions(String search, PageRequest paging, boolean negate) {
         Page<SaleTransaction> result;
         try {
-        	result = saleTransactionRepository.findSalesRefundTransaction(search, paging);
+        	result = saleTransactionRepository.findSalesRefundTransaction(search, paging, negate);
         } catch (ParseException e) {
             throw new CustomNotFoundException("Unable to process find payment processor remittance, due an error with date formatting");
         }
@@ -150,10 +152,10 @@ public class PaymentProcessorRemittanceService {
      * 
      * @return PaymentProcessorRemittance list
      */
-    public Iterable<PaymentProcessorRemittance> getPaymentProcessorRemittances(String search, PageRequest paging) {
+    public Iterable<PaymentProcessorRemittance> getPaymentProcessorRemittances(String search, PageRequest paging, boolean negate) {
         Page<PaymentProcessorRemittance> result;
         try {
-        	result = saleTransactionRepository.findRemittanceTransaction(search, paging);
+        	result = saleTransactionRepository.findRemittanceTransaction(search, paging, negate);
         } catch (ParseException e) {
             throw new CustomNotFoundException("Unable to process find payment processor remittance, due an error with date formatting");
         }
@@ -248,7 +250,7 @@ public class PaymentProcessorRemittanceService {
     }
     
 	/**
-	 * Get processorNmae by id
+	 * Get processorName by id
 	 * 
 	 * @param id
 	 * 
@@ -256,6 +258,17 @@ public class PaymentProcessorRemittanceService {
 	 */
     public String getProcessorNameById(String id) {
     	return saleTransactionRepository.getProcessorNameById(id);
+    }
+    
+    /**
+     * Get reconciliationStatusId by reconciliationStatus
+     * 
+     * @param reconciliationStatus
+     * 
+     * @return reconciliationStatusId
+     */
+    public String getReconciliationStatusId(String reconciliationStatus) {
+    	return saleTransactionRepository.getReconciliationStatusId(reconciliationStatus);
     }
     
     /**

@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.persistent.jpa;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -595,6 +596,27 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     	return processorName;
     }
     
+    // This will probably always return 1, but in case the database is changed this query is necessary.
+    @SuppressWarnings("unchecked")
+	public String getReconciliationStatusId(String reconciliationStatus) {
+    	
+    	String reconciliationStatusId = null;
+    	
+    	String sql = "SELECT rsl.ReconciliationStatusID FROM ReconciliationStatus_Lookup rsl WHERE rsl.ReconciliationStatus = '" + reconciliationStatus + "'";
+    	Query query = em.createNativeQuery(sql);
+    	
+    	List<BigInteger> list = query.getResultList();
+    	
+    	// Should return a list of one 
+    	Iterator<BigInteger> iterator = (Iterator<BigInteger>) list.iterator();
+    	while (iterator.hasNext()) {
+    		reconciliationStatusId = ((BigInteger) iterator.next()).toString();
+    		break;
+    	}
+    	
+    	return reconciliationStatusId;
+    }
+    
     private String getQueryForSaleRefund(String search) {
     	StringBuilder querySb = new StringBuilder();
         querySb.append(" SELECT * FROM (");
@@ -614,10 +636,16 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
     
     @Override
-    public Page<SaleTransaction> findSalesRefundTransaction(String search, PageRequest page) throws ParseException {
+    public Page<SaleTransaction> findSalesRefundTransaction(String search, PageRequest page, boolean negate) throws ParseException {
     	
         // Creates the query for the total and for the retrieved data
     	String query = getQueryForSaleRefund(search);
+    	
+    	// Currently this is only used if the user selects 'Not Reconcilied' on the UI.
+    	// Change to: WHERE ReconciliationID != 'Reconciled'
+    	if (negate) {
+    		query = query.replaceAll("st.ReconciliationStatusID =", "st.ReconciliationStatusID !=");
+    	}
 
         Map<String, Query> queriesMap = createQueries(query, page);
         Query result = queriesMap.get("result");
@@ -677,10 +705,16 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
     
     @Override
-    public Page<PaymentProcessorRemittance> findRemittanceTransaction(String search, PageRequest page) throws ParseException {
+    public Page<PaymentProcessorRemittance> findRemittanceTransaction(String search, PageRequest page, boolean negate) throws ParseException {
     	
         // Creates the query for the total and for the retrieved data
     	String query = getQueryForRemittance(search);
+    	
+    	// Currently this is only used if the user selects 'Not Reconcilied' on the UI.
+    	// Change to: WHERE ReconciliationID != 'Reconciled'
+    	if (negate) {
+    		query = query.replaceAll("ppr.ReconciliationStatusID =", "ppr.ReconciliationStatusID !=");
+    	}
 
         Map<String, Query> queriesMap = createRemittanceQueries(query, page);
         Query result = queriesMap.get("result");
