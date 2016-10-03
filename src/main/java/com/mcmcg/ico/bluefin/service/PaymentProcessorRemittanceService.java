@@ -1,34 +1,26 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import javax.transaction.Transactional;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
-import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
-import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.rest.resource.Views;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
 @Transactional
@@ -43,7 +35,9 @@ public class PaymentProcessorRemittanceService {
     @Autowired
     private RefundTransactionRepository refundTransactionRepository;
     @Autowired
-    private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
+    private PaymentProcessorRepository paymentProcessorRepository;
+    @Autowired
+    private ReconciliationStatusRepository reconciliationStatusRepository;
     
     /**
      * Get transaction information for details page.
@@ -77,54 +71,24 @@ public class PaymentProcessorRemittanceService {
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = null;
         	} else {
-        		// Find record in remittance table.
-        		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
-        		// The record should exist in the remittance table, but check.
-        		if (paymentProcessorRemittance != null) {
-        			Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
-            		// SaleTransaction uses processorName not paymentProcessorId.
-            		// Update processorName with correct value.
-                	if (paymentProcessorId != null) {
-                		String processorName = getProcessorNameById(paymentProcessorId.toString());
-                		paymentProcessorRemittance.setProcessorName(processorName);
-                	}
-        		} else {
-        			// Create an empty result
-        			paymentProcessorRemittance = new PaymentProcessorRemittance();
+        		try {
+        			result = saleTransactionRepository.getRemittanceSaleRefundVoidByProcessorTransactionId("processorTransactionId:" + transactionId, QueryDSLUtil.getPageRequest(0, 1, ""));
+        		} catch (ParseException e) {
+        			e.printStackTrace();
         		}
-        		// Find record in sale table.
-            	SaleTransaction saleTransaction = saleTransactionRepository.findByProcessorTransactionId(transactionId);
-            	// Add remittance and sale transactions which are required for the UI.
-            	RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
-            	result = remittanceSale;
         	}
-            break;
+        	break;
         case SALE:
         case TOKENIZE:	
         default:
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         	} else {
-        		// Find record in remittance table.
-        		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceRepository.findByProcessorTransactionID(transactionId);
-        		// It's possible the record doesn't exist in the remittance table.
-        		if (paymentProcessorRemittance != null) {
-        			Long paymentProcessorId = paymentProcessorRemittance.getPaymentProcessorId();
-            		// SaleTransaction uses processorName not paymentProcessorId.
-            		// Update processorName with correct value.
-                	if (paymentProcessorId != null) {
-                		String processorName = getProcessorNameById(paymentProcessorId.toString());
-                		paymentProcessorRemittance.setProcessorName(processorName);
-                	}
-        		} else {
-        			// Create an empty result
-        			paymentProcessorRemittance = new PaymentProcessorRemittance();
+        		try {
+        			result = saleTransactionRepository.getRemittanceSaleRefundVoidByProcessorTransactionId("processorTransactionId:" + transactionId, QueryDSLUtil.getPageRequest(0, 1, ""));
+        		} catch (ParseException e) {
+        			e.printStackTrace();
         		}
-        		// Find record in sale table.
-            	SaleTransaction saleTransaction = saleTransactionRepository.findByProcessorTransactionId(transactionId);
-            	// Add remittance and sale transactions which are required for the UI.
-            	RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
-            	result = remittanceSale;
         	}
         }
 
@@ -136,44 +100,20 @@ public class PaymentProcessorRemittanceService {
     }
     
     /**
-     * Get sales and refund transactions. This will be one column of the UI.
+     * Get remittance, sale, refund, and void transactions. This will be one column of the UI.
      * 
      * @param search
      * @param paging
+     * @param negate
      * 
-     * @return SaleTransaction list
+     * @return list of objects containing these transactions
      */
-    public Iterable<SaleTransaction> getSalesRefundTransactions(String search, PageRequest paging, boolean negate) {
-        Page<SaleTransaction> result;
-        try {
-        	result = saleTransactionRepository.findSalesRefundTransaction(search, paging, negate);
-        } catch (ParseException e) {
-            throw new CustomNotFoundException("Unable to process find payment processor remittance, due an error with date formatting");
-        }
-        final int page = paging.getPageNumber();
-
-        if (page > result.getTotalPages() && page != 0) {
-            LOGGER.error("Unable to find the page requested");
-            throw new CustomNotFoundException("Unable to find the page requested");
-        }
-
-        return result;
-    }
-    
-    /**
-     * Get payment process remittance transactions. This will be one column of the UI.
-     * 
-     * @param search
-     * @param paging
-     * 
-     * @return PaymentProcessorRemittance list
-     */
-    public Iterable<PaymentProcessorRemittance> getPaymentProcessorRemittances(String search, PageRequest paging, boolean negate) {
+    public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging, boolean negate) {
         Page<PaymentProcessorRemittance> result;
         try {
-        	result = saleTransactionRepository.findRemittanceTransaction(search, paging, negate);
+        	result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactions(search, paging, negate);
         } catch (ParseException e) {
-            throw new CustomNotFoundException("Unable to process find payment processor remittance, due an error with date formatting");
+            throw new CustomNotFoundException("Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
         }
         final int page = paging.getPageNumber();
 
@@ -183,86 +123,6 @@ public class PaymentProcessorRemittanceService {
         }
 
         return result;
-    }
-    
-    /**
-     * Because the UI needs to display remittance and sale data as pairs, the lists need to be padded empty data.
-     * 
-     * @param paymentProcessorRemittanceIterable
-     * @param saleTransactionIterable
-     * @param paging
-     * 
-     * @return JSON string for the UI.
-     */
-	public String getAdjustedTransactions(Iterable<PaymentProcessorRemittance> paymentProcessorRemittanceIterable, Iterable<SaleTransaction> saleTransactionIterable, PageRequest paging) {
-        
-    	String json = "";
-    	
-        Page<RemittanceSale> result = createAdjustedList(paymentProcessorRemittanceIterable, saleTransactionIterable, paging);
-        final int page = paging.getPageNumber();
-
-        if (page > result.getTotalPages() && page != 0) {
-            LOGGER.error("Unable to find the page requested");
-            throw new CustomNotFoundException("Unable to find the page requested");
-        }
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.registerModule(new JodaModule());
-		try {
-			json = objectMapper.writerWithView(Views.Summary.class).writeValueAsString(result);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
-		
-		return json;
-    }
-    
-	/**
-	 * Because the UI needs to display remittance and sale data as pairs, the lists need to be padded empty data.
-	 * 
-	 * @param paymentProcessorRemittanceIterable
-	 * @param saleTransactionIterable
-	 * @param page
-	 * 
-	 * @return list of pairs (RemittanceSale object)
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
-    public Page<RemittanceSale> createAdjustedList(Iterable<PaymentProcessorRemittance> paymentProcessorRemittanceIterable, Iterable<SaleTransaction> saleTransactionIterable, PageRequest page) {
-    	
-    	List<PaymentProcessorRemittance> paymentProcessorRemittanceList = (List) iterableToCollection(paymentProcessorRemittanceIterable);
-    	List<SaleTransaction> saleTransactionList = (List) iterableToCollection(saleTransactionIterable);
-    	
-    	int differenceSize = paymentProcessorRemittanceList.size() - saleTransactionList.size();
-    	if (differenceSize > 0) {
-    		for (int i=0; i<differenceSize; i++) {
-    			SaleTransaction saleTransactionEmpty = new SaleTransaction();
-    			saleTransactionList.add(saleTransactionEmpty);
-    		}
-    	} else if (differenceSize < 0) {
-    		for (int i=0; i<(-differenceSize); i++) {
-    			PaymentProcessorRemittance paymentProcessorRemittanceEmpty = new PaymentProcessorRemittance();
-    			paymentProcessorRemittanceList.add(paymentProcessorRemittanceEmpty);
-    		}
-    	} else {
-    		// Lists are equal in size, do nothing.
-    	}
-    	
-    	// Both lists should be the same size.
-    	// Add pairs of remittance and sale object to list.
-    	// This is the format required by the UI (list of pairs).
-    	List<RemittanceSale> remittanceSaleList = new ArrayList<>();
-    	int pageNumber = page.getPageNumber();
-        int pageSize = page.getPageSize();
-    	int countResult = paymentProcessorRemittanceList.size();
-    	for (int i=0; i<paymentProcessorRemittanceList.size(); i++) {
-    		PaymentProcessorRemittance paymentProcessorRemittance = paymentProcessorRemittanceList.get(i);
-    		SaleTransaction saleTransaction = saleTransactionList.get(i);
-    		RemittanceSale remittanceSale = new RemittanceSale(paymentProcessorRemittance, saleTransaction);
-    		remittanceSaleList.add(remittanceSale);
-    	}
-    	Page<RemittanceSale> list = new PageImpl<RemittanceSale>(remittanceSaleList, page, countResult);
-    	
-    	return list;
     }
     
 	/**
@@ -272,8 +132,8 @@ public class PaymentProcessorRemittanceService {
 	 * 
 	 * @return processorName
 	 */
-    public String getProcessorNameById(String id) {
-    	return saleTransactionRepository.getProcessorNameById(id);
+    public String getProcessorNameById(String paymentProcessorId) {
+    	return paymentProcessorRepository.findByPaymentProcessorId(Long.parseLong(paymentProcessorId)).getProcessorName();
     }
     
     /**
@@ -284,7 +144,7 @@ public class PaymentProcessorRemittanceService {
      * @return reconciliationStatusId
      */
     public String getReconciliationStatusId(String reconciliationStatus) {
-    	return saleTransactionRepository.getReconciliationStatusId(reconciliationStatus);
+    	return reconciliationStatusRepository.findByReconciliationStatus(reconciliationStatus).getReconciliationStatusId().toString();
     }
     
     /**
@@ -309,70 +169,5 @@ public class PaymentProcessorRemittanceService {
     	}
     	
         return value;
-    }
-    
-    /**
-     * Convert iterable to collection.
-     * 
-     * @param iterable
-     * 
-     * @return collection
-     */
-    public static <T> Collection<T> iterableToCollection(Iterable<T> iterable) {
-    	Collection<T> collection = new ArrayList<>();
-    	iterable.forEach(collection::add);
-    	return collection;
-    }
-    
-    /**
-     * This class will contain a pair of sale and remittance objects.
-     * It's a requirement of the UI.
-     *
-     */
-    public class RemittanceSale implements Transaction {
-    	
-    	private PaymentProcessorRemittance paymentProcessorRemittance;
-    	private SaleTransaction saleTransaction;
-    	
-    	public RemittanceSale() {
-    	}
-    	
-    	public RemittanceSale(PaymentProcessorRemittance paymentProcessorRemittance, SaleTransaction saleTransaction) {
-    		this.paymentProcessorRemittance = paymentProcessorRemittance;
-    		this.saleTransaction = saleTransaction;
-    	}
-    	
-    	public PaymentProcessorRemittance getPaymentProcessorRemittance() {
-    		return paymentProcessorRemittance;
-    	}
-    	
-    	public SaleTransaction getSaleTransaction() {
-    		return saleTransaction;
-    	}
-
-    	@Override
-    	public String getApplicationTransactionId() {
-    		return null;
-    	}
-
-    	@Override
-    	public String getProcessorTransactionId() {
-    		return null;
-    	}
-
-    	@Override
-    	public String getMerchantId() {
-    		return null;
-    	}
-
-    	@Override
-    	public String getTransactionType() {
-    		return null;
-    	}
-
-    	@Override
-    	public DateTime getTransactionDateTime() {
-    		return null;
-    	}
     }
 }

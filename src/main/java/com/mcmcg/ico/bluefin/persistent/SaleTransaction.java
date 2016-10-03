@@ -428,6 +428,10 @@ public class SaleTransaction implements Serializable, Transaction {
     @Transient
     @JsonIgnore
     private Integer isRefunded = 0;
+    
+    @Transient
+    @JsonIgnore
+    private String paymentProcessorId;
 
     @JsonProperty("isVoided")
     @JsonView({ Views.Extend.class, Views.Summary.class })

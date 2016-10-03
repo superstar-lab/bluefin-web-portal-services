@@ -6,5 +6,5 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 
 public interface PaymentProcessorRemittanceRepository extends JpaRepository<PaymentProcessorRemittance, Long>, QueryDslPredicateExecutor<PaymentProcessorRemittance>, PaymentProcessorRemittanceRepositoryCustom {
-	public PaymentProcessorRemittance findByProcessorTransactionID(String transactionId);
+	public PaymentProcessorRemittance findByProcessorTransactionId(String transactionId);
 }
