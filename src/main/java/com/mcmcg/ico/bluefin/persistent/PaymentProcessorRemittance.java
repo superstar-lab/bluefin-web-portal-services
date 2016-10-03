@@ -312,277 +312,277 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     private Long saleTransactionId;
     
     @Transient
-    @JsonProperty("sale.saleTransactionType")
+    @JsonProperty("sale.transactionType")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleTransactionType;
     
     @Transient
-    @JsonProperty("sale.saleLegalEntityApp")
+    @JsonProperty("sale.legalEntityApp")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleLegalEntityApp;
     
     @Transient
-    @JsonProperty("sale.saleAccountNumber")
+    @JsonProperty("sale.accountNumber")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleAccountNumber;
     
     @Transient
-    @JsonProperty("sale.saleApplicationTransactionId")
+    @JsonProperty("sale.applicationTransactionId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleApplicationTransactionId;
     
     @Transient
-    @JsonProperty("sale.saleProcessorTransactionId")
+    @JsonProperty("sale.processorTransactionId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleProcessorTransactionId;
     
     @Transient
-    @JsonProperty("sale.saleMerchantId")
+    @JsonProperty("sale.merchantId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleMerchantId;
     
     @Transient
-    @JsonProperty("sale.saleTransactionDateTime")
+    @JsonProperty("sale.transactionDateTime")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private DateTime saleTransactionDateTime;
     
     @Transient
-    @JsonProperty("sale.saleCardNumberFirst6Char")
+    @JsonProperty("sale.cardNumberFirst6Char")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleCardNumberFirst6Char;
     
     @Transient
-    @JsonProperty("sale.saleCardNumberLast4Char")
+    @JsonProperty("sale.cardNumberLast4Char")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleCardNumberLast4Char;
     
     @Transient
-    @JsonProperty("sale.saleCardType")
+    @JsonProperty("sale.cardType")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleCardType;
     
     @Transient
-    @JsonProperty("sale.saleAmount")
+    @JsonProperty("sale.amount")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private BigDecimal saleAmount;
     
     @Transient
-    @JsonProperty("sale.saleExpiryDate")
+    @JsonProperty("sale.expiryDate")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Date saleExpiryDate;
     
     @Transient
-    @JsonProperty("sale.saleFirstName")
+    @JsonProperty("sale.firstName")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleFirstName;
     
     @Transient
-    @JsonProperty("sale.saleLastName")
+    @JsonProperty("sale.lastName")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleLastName;
     
     @Transient
-    @JsonProperty("sale.saleAddress1")
+    @JsonProperty("sale.address1")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleAddress1;
     
     @Transient
-    @JsonProperty("sale.saleAddress2")
+    @JsonProperty("sale.address2")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleAddress2;
     
     @Transient
-    @JsonProperty("sale.saleCity")
+    @JsonProperty("sale.city")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleCity;
     
     @Transient
-    @JsonProperty("sale.saleState")
+    @JsonProperty("sale.state")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleState;
     
     @Transient
-    @JsonProperty("sale.salePostalCode")
+    @JsonProperty("sale.postalCode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String salePostalCode;
     
     @Transient
-    @JsonProperty("sale.saleCountry")
+    @JsonProperty("sale.country")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleCountry;
     
     @Transient
-    @JsonProperty("sale.saleTestMode")
+    @JsonProperty("sale.testMode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Short saleTestMode;
     
     @Transient
-    @JsonProperty("sale.saleToken")
+    @JsonProperty("sale.token")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleToken;
     
     @Transient
-    @JsonProperty("sale.saleTokenized")
+    @JsonProperty("sale.tokenized")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Short saleTokenized;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorResponseCode")
+    @JsonProperty("sale.paymentProcessorResponseCode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String salePaymentProcessorResponseCode;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorResponseCodeDescription")
+    @JsonProperty("sale.paymentProcessorResponseCodeDescription")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String salePaymentProcessorResponseCodeDescription;
     
     @Transient
-    @JsonProperty("sale.saleApprovalCode")
+    @JsonProperty("sale.approvalCode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleApprovalCode;
     
     @Transient
-    @JsonProperty("sale.saleInternalResponseCode")
+    @JsonProperty("sale.internalResponseCode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleInternalResponseCode;
     
     @Transient
-    @JsonProperty("sale.saleInternalResponseDescription")
+    @JsonProperty("sale.internalResponseDescription")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleInternalResponseDescription;
     
     @Transient
-    @JsonProperty("sale.saleInternalStatusCode")
+    @JsonProperty("sale.internalStatusCode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleInternalStatusCode;
     
     @Transient
-    @JsonProperty("sale.saleInternalStatusDescription")
+    @JsonProperty("sale.internalStatusDescription")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleInternalStatusDescription;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorStatusCode")
+    @JsonProperty("sale.paymentProcessorStatusCode")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String salePaymentProcessorStatusCode;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorStatusCodeDescription")
+    @JsonProperty("sale.paymentProcessorStatusCodeDescription")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String salePaymentProcessorStatusCodeDescription;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorInternalStatusCodeId")
+    @JsonProperty("sale.paymentProcessorInternalStatusCodeId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long salePaymentProcessorInternalStatusCodeId;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorInternalResponseCodeId")
+    @JsonProperty("sale.paymentProcessorInternalResponseCodeId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long salePaymentProcessorInternalResponseCodeId;
     
     @Transient
-    @JsonProperty("sale.salePaymentProcessorRuleId")
+    @JsonProperty("sale.paymentProcessorRuleId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long salePaymentProcessorRuleId;
     
     @Transient
-    @JsonProperty("sale.saleRulePaymentProcessorId")
+    @JsonProperty("sale.rulePaymentProcessorId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long saleRulePaymentProcessorId;
     
     @Transient
-    @JsonProperty("sale.saleRuleCardType")
+    @JsonProperty("sale.ruleCardType")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleRuleCardType;
     
     @Transient
-    @JsonProperty("sale.saleRuleMaximumMonthlyAmount")
+    @JsonProperty("sale.ruleMaximumMonthlyAmount")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private BigDecimal saleRuleMaximumMonthlyAmount;
     
     @Transient
-    @JsonProperty("sale.saleRuleNoMaximumMonthlyAmountFlag")
+    @JsonProperty("sale.ruleNoMaximumMonthlyAmountFlag")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Short saleRuleNoMaximumMonthlyAmountFlag;
     
     @Transient
-    @JsonProperty("sale.saleRulePriority")
+    @JsonProperty("sale.rulePriority")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Short saleRulePriority;
     
     @Transient
-    @JsonProperty("sale.saleProcessUser")
+    @JsonProperty("sale.processUser")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleProcessUser;
     
     @Transient
-    @JsonProperty("sale.saleProcessorName")
+    @JsonProperty("sale.processorName")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleProcessorName;
     
     @Transient
-    @JsonProperty("sale.saleApplication")
+    @JsonProperty("sale.application")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleApplication;
     
     @Transient
-    @JsonProperty("sale.saleOrigin")
+    @JsonProperty("sale.origin")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleOrigin;
     
     @Transient
-    @JsonProperty("sale.saleAccountPeriod")
+    @JsonProperty("sale.accountPeriod")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleAccountPeriod;
     
     @Transient
-    @JsonProperty("sale.saleDesk")
+    @JsonProperty("sale.desk")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleDesk;
     
     @Transient
-    @JsonProperty("sale.saleInvoiceNumber")
+    @JsonProperty("sale.invoiceNumber")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleInvoiceNumber;
     
     @Transient
-    @JsonProperty("sale.saleUserDefinedField1")
+    @JsonProperty("sale.userDefinedField1")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleUserDefinedField1;
     
     @Transient
-    @JsonProperty("sale.saleUserDefinedField2")
+    @JsonProperty("sale.userDefinedField2")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleUserDefinedField2;
     
     @Transient
-    @JsonProperty("sale.saleUserDefinedField3")
+    @JsonProperty("sale.userDefinedField3")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private String saleUserDefinedField3;
     
     @Transient
-    @JsonProperty("sale.saleReconciliationStatusId")
+    @JsonProperty("sale.reconciliationStatusId")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long saleReconciliationStatusId;
     
     @Transient
-    @JsonProperty("sale.saleReconciliationDate")
+    @JsonProperty("sale.reconciliationDate")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private DateTime saleReconciliationDate;
     
     @Transient
-    @JsonProperty("sale.saleCreatedDate")
+    @JsonProperty("sale.createdDate")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private DateTime saleCreatedDate;
     
     @Transient
-    @JsonProperty("sale.saleIsVoided")
+    @JsonProperty("sale.isVoided")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsVoided;
     
     @Transient
-    @JsonProperty("sale.saleIsRefunded")
+    @JsonProperty("sale.isRefunded")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsRefunded;
 
