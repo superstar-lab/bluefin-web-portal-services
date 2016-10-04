@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.mcmcg.ico.bluefin.model.PaymentFrequency;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
@@ -585,6 +586,12 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @JsonProperty("sale.isRefunded")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsRefunded;
+    
+    @JsonProperty("sale.paymentFrequency")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    public String getSalePaymentFrequency() {
+        return PaymentFrequency.getPaymentFrequency(saleOrigin).toString();
+    }
 
     @JsonProperty("remittance.applicationTransactionId")
 	@Override

@@ -3,9 +3,12 @@ package com.mcmcg.ico.bluefin.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
@@ -23,15 +26,21 @@ import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
+import com.mcmcg.ico.bluefin.persistent.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
 public class TransactionService {
@@ -50,7 +59,12 @@ public class TransactionService {
             "PaymentProcessorInternalStatusCodeID", "PaymentProcessorInternalResponseCodeID", "Date Created",
             "Account Period", "Desk", "Invoice Number", "User Defined Field 1", "User Defined Field 2",
             "User Defined Field 3" };
-
+    
+    private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor", "Status",
+    		"Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount", "Bluefin Date/Time",
+    		"Remittance Transaction ID", "Remittance Account Number", "Remittance Amount", "Remittance Date/Time",
+    		"Card Type", "Card Number (last 4)", "Legal Entity" };
+    
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
     @Autowired
@@ -59,6 +73,10 @@ public class TransactionService {
     private RefundTransactionRepository refundTransactionRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PaymentProcessorRepository paymentProcessorRepository;
+    @Autowired
+    private ReconciliationStatusRepository reconciliationStatusRepository;
 
     @Value("${bluefin.wp.services.transactions.report.path}")
     private String reportPath;
@@ -73,6 +91,15 @@ public class TransactionService {
         case REFUND:
             result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
             break;
+        case REMITTANCE:
+        	// PaymentProcessor_Remittance does not have ApplicationTransactionId
+        	// It is assumed that ProcessorTransactionID is used here.
+        	try {
+    			result = saleTransactionRepository.getRemittanceSaleRefundVoidByProcessorTransactionId("processorTransactionId:" + transactionId, QueryDSLUtil.getPageRequest(0, 1, ""));
+    		} catch (ParseException e) {
+    			e.printStackTrace();
+    		}
+        	break;
         default:
             result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         }
@@ -210,5 +237,174 @@ public class TransactionService {
         }
         return file;
     }
+    
+    /**
+     * Get remittance, sale, refund, and void transactions. This will be one column of the UI.
+     * 
+     * @param search
+     * @param paging
+     * @param negate
+     * 
+     * @return list of objects containing these transactions
+     */
+    public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging, boolean negate) {
+        Page<PaymentProcessorRemittance> result;
+        try {
+        	result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactions(search, paging, negate);
+        } catch (ParseException e) {
+            throw new CustomNotFoundException("Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
+        }
+        final int page = paging.getPageNumber();
 
+        if (page > result.getTotalPages() && page != 0) {
+            LOGGER.error("Unable to find the page requested");
+            throw new CustomNotFoundException("Unable to find the page requested");
+        }
+
+        return result;
+    }
+    
+    /**
+     * Create CSV file for remittance.
+     * 
+     * @param search
+     * 
+     * @return CSV file
+     * 
+     * @throws IOException
+     */
+    public File getRemittanceTransactionsReport(String search) throws IOException {
+        List<PaymentProcessorRemittance> result;
+
+        File file = null;
+        try {
+            result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactionsReport(search);
+        } catch (ParseException e) {
+            throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+        }
+
+        // Create the CSVFormat object with "\n" as a record delimiter
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
+
+        try {
+            File dir = new File(reportPath);
+            dir.mkdirs();
+            file = new File(dir, UUID.randomUUID() + ".csv");
+            file.createNewFile();
+        } catch (Exception e) {
+            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+        }
+        // initialize FileWriter object
+        try (FileWriter fileWriter = new FileWriter(file);
+                CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
+        	
+        	// Create PaymentProcessor hashmap
+        	Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
+        	List<PaymentProcessor> paymentProcessorList = paymentProcessorRepository.findAll();
+        	for (PaymentProcessor pp : paymentProcessorList) {
+        		paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
+        	}
+        	
+        	// Create ReconciliationStatus hashmap
+        	Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
+        	List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusRepository.findAll();
+        	for (ReconciliationStatus rs : reconciliationStatusList) {
+        		reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
+        	}
+        	
+            // initialize CSVPrinter object
+
+            // Create CSV file header
+            csvFilePrinter.printRecord(REMITTANCE_FILE_HEADER);
+
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
+            Integer count = 1;
+            // Write a new transaction object list to the CSV file
+            for (PaymentProcessorRemittance transaction : result) {
+                List<String> transactionDataRecord = new ArrayList<String>();
+                transactionDataRecord.add(count.toString());
+                
+                // Sale information section
+                // Bluefin Transaction ID
+                transactionDataRecord.add(transaction.getSaleApplicationTransactionId());
+                
+                // Payment Processor
+                String processorName = transaction.getSaleProcessorName();
+                if (processorName == null) {
+                	processorName = paymentProcessorMap.get(transaction.getPaymentProcessorId());
+                }
+                transactionDataRecord.add(processorName);
+                
+                // Status
+                String status = null;
+                Long reconciliationStatusId = transaction.getSaleReconciliationStatusId();
+                if (reconciliationStatusId != null) {
+                	status = reconciliationStatusId.toString();
+                } else {
+                	status = reconciliationStatusMap.get(transaction.getReconciliationStatusId());
+                }
+                transactionDataRecord.add(status);
+                
+                // Amount Difference
+                BigDecimal amountDifference = null;
+                BigDecimal saleAmount = transaction.getSaleAmount();
+                BigDecimal transactionAmount = transaction.getTransactionAmount();
+                if (saleAmount != null && transactionAmount != null) {
+                	amountDifference = saleAmount.subtract(transactionAmount);
+                }
+                transactionDataRecord.add(amountDifference == null ? ""
+                		: "$" + amountDifference.toString());
+                
+                // Transaction Type
+                String transactionType = transaction.getSaleTransactionType();
+                if (transactionType == null) {
+                	transactionType = transaction.getTransactionType();
+                }
+                transactionDataRecord.add(transactionType);
+                
+                // Bluefin information section
+                // Bluefin Account Number
+                transactionDataRecord.add(transaction.getSaleAccountNumber());
+                
+                // Bluefin Amount
+                transactionDataRecord.add(transaction.getSaleAmount() == null ? ""
+                		: "$" + transaction.getSaleAmount().toString());
+                
+                // Bluefin Date/Time
+                transactionDataRecord.add(transaction.getSaleTransactionDateTime() == null ? ""
+                        : fmt.print(transaction.getSaleTransactionDateTime().toDateTime(DateTimeZone.UTC)));
+                
+                // Remittance information section
+                // Remittance Transaction ID
+                transactionDataRecord.add(transaction.getProcessorTransactionId());
+                
+                // Remittance Account Number
+                transactionDataRecord.add(transaction.getAccountId());
+                
+                // Remittance Amount
+                transactionDataRecord.add(transaction.getTransactionAmount() == null ? ""
+                		: transaction.getTransactionAmount().toString());
+                
+                // Remittance Date/Time
+                transactionDataRecord.add(transaction.getTransactionTime() == null ? ""
+                        : fmt.print(transaction.getTransactionTime().toDateTime(DateTimeZone.UTC)));
+                
+                // Sale information section
+                // Card Type
+                transactionDataRecord.add(transaction.getSaleCardType());
+                
+                // Card Number (last 4)
+                transactionDataRecord.add(transaction.getSaleCardNumberLast4Char());
+                
+                // Legal Entity
+                transactionDataRecord.add(transaction.getSaleLegalEntityApp());
+                
+                csvFilePrinter.printRecord(transactionDataRecord);
+                count++;
+            }
+            LOGGER.info("CSV file report was created successfully !!!");
+        }
+        return file;
+    }
 }

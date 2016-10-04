@@ -6,5 +6,6 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 import com.mcmcg.ico.bluefin.persistent.ReconciliationStatus;
 
 public interface ReconciliationStatusRepository extends JpaRepository<ReconciliationStatus, Long>, QueryDslPredicateExecutor<ReconciliationStatus> {
+	public ReconciliationStatus findByReconciliationStatusId(Long reconciliationStatusId);
 	public ReconciliationStatus findByReconciliationStatus(String reconciliationStatus);
 }

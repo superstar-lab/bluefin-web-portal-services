@@ -661,6 +661,21 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
     
     @Override
+    public List<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactionsReport(String search) throws ParseException {
+        String query = getQueryForRemittanceSaleRefundVoid(search);
+        LOGGER.info("Dynamic Query {}", query);
+
+        Map<String, Query> queriesMap = createRemittanceQueries(query, null);
+        Query result = queriesMap.get("result");
+
+        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        @SuppressWarnings("unchecked")
+        List<PaymentProcessorRemittance> tr = result.getResultList();
+
+        return tr;
+    }
+    
+    @Override
 	public PaymentProcessorRemittance getRemittanceSaleRefundVoidByProcessorTransactionId(String search, PageRequest page) throws ParseException {
     	
 		PaymentProcessorRemittance paymentProcessorRemittance = null;
