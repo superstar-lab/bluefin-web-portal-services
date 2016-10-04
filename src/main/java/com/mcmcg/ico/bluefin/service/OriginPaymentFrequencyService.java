@@ -16,7 +16,7 @@ import com.mcmcg.ico.bluefin.persistent.jpa.OriginPaymentFrequencyRepository;
 @Transactional
 public class OriginPaymentFrequencyService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchUploadService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OriginPaymentFrequencyService.class);
 
     @Autowired
     private OriginPaymentFrequencyRepository originPaymentFrequencyRepository;
