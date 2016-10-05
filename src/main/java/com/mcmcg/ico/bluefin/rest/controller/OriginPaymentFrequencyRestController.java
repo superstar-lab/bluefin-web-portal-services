@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.OriginPaymentFrequency;
-import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.OriginPaymentFrequencyService;
 
@@ -32,7 +31,8 @@ public class OriginPaymentFrequencyRestController {
     @ApiOperation(value = "getOriginPaymentFrequencies", nickname = "Get Origin Payment Frequencies")
     @RequestMapping(method = RequestMethod.GET, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Role.class, responseContainer = "List"),
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OriginPaymentFrequency.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),

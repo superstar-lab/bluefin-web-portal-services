@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.persistent.Application;
-import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.ApplicationService;
 
@@ -41,7 +40,7 @@ public class ApplicationRestController {
     @ApiOperation(value = "getApplications", nickname = "Get applications")
     @RequestMapping(method = RequestMethod.GET, value = "/applications", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Role.class, responseContainer = "List"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Application.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
