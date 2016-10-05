@@ -238,7 +238,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     private String paymentMethod;
     
 	@JsonProperty("remittance.transactionAmount")
-    @Column(name = "TransactionAmount")
+    @Column(name = "TransactionAmount", columnDefinition = "money")
     private BigDecimal transactionAmount;
     
 	@JsonProperty("remittance.transactionType")

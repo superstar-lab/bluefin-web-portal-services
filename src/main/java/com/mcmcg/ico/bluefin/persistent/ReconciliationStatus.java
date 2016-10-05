@@ -45,7 +45,7 @@ public class ReconciliationStatus implements Serializable {
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "DateModified", insertable = false, updatable = false)
+    @Column(name = "DatedModified", insertable = false, updatable = false)
     private DateTime modifiedDate;
 
     @JsonIgnore

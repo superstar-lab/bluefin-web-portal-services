@@ -65,7 +65,7 @@ public class PaymentProcessorMerchant implements Serializable {
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateModified", insertable = false, updatable = false)
+    @Column(name = "DatedModified", insertable = false, updatable = false)
     private DateTime modifiedDate;
 
     @JsonIgnore

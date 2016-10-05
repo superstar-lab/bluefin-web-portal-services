@@ -61,7 +61,7 @@ public class PaymentProcessorRule implements Serializable {
     @Column(name = "CardType")
     private CardType cardType;
 
-    @Column(name = "MaximumMonthlyAmount")
+    @Column(name = "MaximumMonthlyAmount", columnDefinition = "money")
     private BigDecimal maximumMonthlyAmount = BigDecimal.ZERO;
 
     @Column(name = "NoMaximumMonthlyAmountFlag")
@@ -70,7 +70,7 @@ public class PaymentProcessorRule implements Serializable {
     @Column(name = "Priority")
     private Short priority;
 
-    @Column(name = "MonthToDateCumulativeAmount")
+    @Column(name = "MonthToDateCumulativeAmount", columnDefinition = "money")
     private BigDecimal monthToDateCumulativeAmount;
 
     @JsonIgnore

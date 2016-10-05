@@ -56,7 +56,7 @@ public class RefundTransaction implements Serializable, Transaction {
     @Column(name = "MerchantID")
     private String merchantId;
 
-    @Column(name = "RefundAmount")
+    @Column(name = "RefundAmount", columnDefinition = "money")
     private BigDecimal refundAmount;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

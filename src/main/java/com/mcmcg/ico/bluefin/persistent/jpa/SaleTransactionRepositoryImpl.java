@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.persistent.jpa;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -74,7 +73,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         int pageNumber = page.getPageNumber();
         int pageSize = page.getPageSize();
         // Set the paging for the created select
-        final int countResult = ((BigInteger) queryTotal.getSingleResult()).intValue();
+        final int countResult = (Integer) queryTotal.getSingleResult();
         result.setFirstResult(pageSize * pageNumber);
         result.setMaxResults(pageSize);
 
@@ -683,7 +682,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         int pageNumber = page.getPageNumber();
         int pageSize = page.getPageSize();
         // Set the paging for the created select
-        final int countResult = ((BigInteger) queryTotal.getSingleResult()).intValue();
+        final int countResult = (Integer) queryTotal.getSingleResult();
         result.setFirstResult(pageSize * pageNumber);
         result.setMaxResults(pageSize);
 
