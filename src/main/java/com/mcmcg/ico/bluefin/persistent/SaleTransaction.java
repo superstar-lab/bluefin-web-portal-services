@@ -226,7 +226,7 @@ public class SaleTransaction implements Serializable, Transaction {
     private String cardType;
 
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    @Column(name = "ChargeAmount", columnDefinition = "money")
+    @Column(name = "ChargeAmount")
     private BigDecimal amount;
 
     @JsonView(Views.Extend.class)
@@ -339,7 +339,7 @@ public class SaleTransaction implements Serializable, Transaction {
     private String ruleCardType;
 
     @JsonView(Views.Extend.class)
-    @Column(name = "RuleMaximumMonthlyAmount", columnDefinition = "money")
+    @Column(name = "RuleMaximumMonthlyAmount")
     private BigDecimal ruleMaximumMonthlyAmount;
 
     @JsonView(Views.Extend.class)
