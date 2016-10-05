@@ -2,6 +2,8 @@ package com.mcmcg.ico.bluefin.service;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +43,17 @@ public class BatchUploadService {
 
         return result;
     }
-  
+
+    public Iterable<BatchUpload> getBatchUploadsFilteredByNoofdays(Integer page, Integer size, String sort,
+            Integer noofdays) {
+        DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).plus(-noofdays);
+        Page<BatchUpload> result = batchUploadRepository.findByDateUploadedAfter(dateBeforeNoofdays,
+                QueryDSLUtil.getPageRequest(page, size, sort));
+        if (page > result.getTotalPages() && page != 0) {
+            throw new CustomNotFoundException("Unable to find the page requested");
+        }
+
+        return result;
+    }
+
 }

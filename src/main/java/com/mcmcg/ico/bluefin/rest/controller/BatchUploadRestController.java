@@ -1,28 +1,15 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
 
@@ -65,8 +52,13 @@ public class BatchUploadRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Iterable<BatchUpload> get(@RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", required = false, defaultValue = "15") int size,
-            @RequestParam(value = "sort", required = false) String sort) {
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "noofdays", required = false) Integer noofdays) {
         LOGGER.info("Getting all batch uploads");
-        return batchUploadService.getAllBatchUploads(page, size, sort);
+        if (noofdays == null) {
+            return batchUploadService.getAllBatchUploads(page, size, sort);
+        } else {
+            return batchUploadService.getBatchUploadsFilteredByNoofdays(page, size, sort, noofdays);
+        }
     }
 }
