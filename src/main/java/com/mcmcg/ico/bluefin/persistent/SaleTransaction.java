@@ -448,7 +448,11 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonProperty("tokenized")
     @JsonView({ Views.Extend.class })
     public String getTokenized() {
-        return tokenized == 1 ? "Yes" : "No";
+    	if (tokenized == null) {
+    		return null;
+    	} else {
+    		return tokenized == 1 ? "Yes" : "No";
+    	}
     }
 
     @JsonProperty("paymentFrequency")

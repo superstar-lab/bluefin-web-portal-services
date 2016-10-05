@@ -108,33 +108,7 @@ public class PaymentProcessorRemittanceService {
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = null;
         	} else {
-        		PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository.findByProcessorTransactionId(transactionId);
-        		SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
-        		String processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId()).getProcessorName();
-        		Short tokenized = null;
-        		if (st.getTokenized().equalsIgnoreCase("no")) {
-        			tokenized = 0;
-        		} else {
-        			tokenized = 1;
-        		}
-        		
-        		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(ppr.getPaymentProcessorRemittanceId(),
-        				ppr.getCreatedDate(),ppr.getReconciliationStatusId(),ppr.getReconciliationDate(),ppr.getPaymentMethod(),ppr.getTransactionAmount(),
-        				ppr.getTransactionType(),ppr.getTransactionTime(),ppr.getAccountId(),ppr.getApplication(),ppr.getProcessorTransactionId(),
-        				ppr.getMerchantId(),ppr.getTransactionSource(),ppr.getFirstName(),ppr.getLastName(),ppr.getRemittanceCreationDate(),
-        				ppr.getPaymentProcessorId(),processorName,st.getSaleTransactionId(),st.getTransactionType(),st.getLegalEntity(),st.getAccountNumber(),
-        	            st.getApplicationTransactionId(),st.getProcessorTransactionId(),st.getMerchantId(),st.getTransactionDateTime(),st.getCardNumberFirst6Char(),
-        	            st.getCardNumberLast4Char(),st.getCardType(),st.getAmount(),st.getExpiryDate(),st.getFirstName(),st.getLastName(),st.getAddress1(),
-        	            st.getAddress2(),st.getCity(),st.getState(),st.getPostalCode(),st.getCountry(),st.getTestMode(),st.getToken(),tokenized,
-        	            st.getProcessorResponseCode(),st.getProcessorResponseCodeDescription(),st.getApprovalCode(),st.getInternalResponseCode(),
-        	            st.getInternalResponseDescription(),st.getInternalStatusCode(),st.getInternalStatusDescription(),st.getPaymentProcessorStatusCode(),
-        	            st.getPaymentProcessorStatusCodeDescription(),st.getPaymentProcessorRuleId(),st.getRulePaymentProcessorId(),st.getRuleCardType(),
-        	            st.getRuleMaximumMonthlyAmount(),st.getRuleNoMaximumMonthlyAmountFlag(),st.getRulePriority(),st.getProcessUser(),st.getProcessorName(),
-        	            st.getApplication(),st.getOrigin(),st.getAccountPeriod(),st.getDesk(),st.getInvoiceNumber(),st.getUserDefinedField1(),st.getUserDefinedField2(),
-        	            st.getUserDefinedField3(),st.getCreatedDate(),st.getIsVoided(),st.getIsRefunded(),st.getPaymentProcessorInternalStatusCodeId(),
-        	            st.getPaymentProcessorInternalResponseCodeId(),st.getReconciliationStatusId(),st.getReconciliationDate());
-        		
-        		result = paymentProcessorRemittance;
+        		result = getRemittanceSaleResult(transactionId);
         	}
         	break;
         case SALE:
@@ -143,33 +117,7 @@ public class PaymentProcessorRemittanceService {
         	if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
         		result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         	} else {
-        		PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository.findByProcessorTransactionId(transactionId);
-        		SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
-        		String processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId()).getProcessorName();
-        		Short tokenized = null;
-        		if (st.getTokenized().equalsIgnoreCase("no")) {
-        			tokenized = 0;
-        		} else {
-        			tokenized = 1;
-        		}
-        		
-        		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(ppr.getPaymentProcessorRemittanceId(),
-        				ppr.getCreatedDate(),ppr.getReconciliationStatusId(),ppr.getReconciliationDate(),ppr.getPaymentMethod(),ppr.getTransactionAmount(),
-        				ppr.getTransactionType(),ppr.getTransactionTime(),ppr.getAccountId(),ppr.getApplication(),ppr.getProcessorTransactionId(),
-        				ppr.getMerchantId(),ppr.getTransactionSource(),ppr.getFirstName(),ppr.getLastName(),ppr.getRemittanceCreationDate(),
-        				ppr.getPaymentProcessorId(),processorName,st.getSaleTransactionId(),st.getTransactionType(),st.getLegalEntity(),st.getAccountNumber(),
-        	            st.getApplicationTransactionId(),st.getProcessorTransactionId(),st.getMerchantId(),st.getTransactionDateTime(),st.getCardNumberFirst6Char(),
-        	            st.getCardNumberLast4Char(),st.getCardType(),st.getAmount(),st.getExpiryDate(),st.getFirstName(),st.getLastName(),st.getAddress1(),
-        	            st.getAddress2(),st.getCity(),st.getState(),st.getPostalCode(),st.getCountry(),st.getTestMode(),st.getToken(),tokenized,
-        	            st.getProcessorResponseCode(),st.getProcessorResponseCodeDescription(),st.getApprovalCode(),st.getInternalResponseCode(),
-        	            st.getInternalResponseDescription(),st.getInternalStatusCode(),st.getInternalStatusDescription(),st.getPaymentProcessorStatusCode(),
-        	            st.getPaymentProcessorStatusCodeDescription(),st.getPaymentProcessorRuleId(),st.getRulePaymentProcessorId(),st.getRuleCardType(),
-        	            st.getRuleMaximumMonthlyAmount(),st.getRuleNoMaximumMonthlyAmountFlag(),st.getRulePriority(),st.getProcessUser(),st.getProcessorName(),
-        	            st.getApplication(),st.getOrigin(),st.getAccountPeriod(),st.getDesk(),st.getInvoiceNumber(),st.getUserDefinedField1(),st.getUserDefinedField2(),
-        	            st.getUserDefinedField3(),st.getCreatedDate(),st.getIsVoided(),st.getIsRefunded(),st.getPaymentProcessorInternalStatusCodeId(),
-        	            st.getPaymentProcessorInternalResponseCodeId(),st.getReconciliationStatusId(),st.getReconciliationDate());
-        		
-        		result = paymentProcessorRemittance;
+        		result = getRemittanceSaleResult(transactionId);
         	}
         }
 
@@ -178,6 +126,54 @@ public class PaymentProcessorRemittanceService {
         }
 
         return result;
+    }
+    
+    public Transaction getRemittanceSaleResult(String transactionId) {
+    	Transaction result = null;
+    	
+    	PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository.findByProcessorTransactionId(transactionId);
+    	if (ppr == null) {
+    		ppr = new PaymentProcessorRemittance();
+    	}
+		SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+		if (st == null) {
+			st = new SaleTransaction();
+		}
+		String processorName = null;
+		if (ppr != null) {
+			processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId()).getProcessorName();
+		}
+		Short tokenized = null;
+		if (st != null) {
+			String tokenizedStr = st.getTokenized();
+			if (tokenizedStr != null) {
+				if (tokenizedStr.equalsIgnoreCase("No")) {
+	    			tokenized = 0;
+	    		} else {
+	    			tokenized = 1;
+	    		}
+			}
+		}
+		
+		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(ppr.getPaymentProcessorRemittanceId(),
+				ppr.getCreatedDate(),ppr.getReconciliationStatusId(),ppr.getReconciliationDate(),ppr.getPaymentMethod(),ppr.getTransactionAmount(),
+				ppr.getTransactionType(),ppr.getTransactionTime(),ppr.getAccountId(),ppr.getApplication(),ppr.getProcessorTransactionId(),
+				ppr.getMerchantId(),ppr.getTransactionSource(),ppr.getFirstName(),ppr.getLastName(),ppr.getRemittanceCreationDate(),
+				ppr.getPaymentProcessorId(),processorName,st.getSaleTransactionId(),st.getTransactionType(),st.getLegalEntity(),st.getAccountNumber(),
+	            st.getApplicationTransactionId(),st.getProcessorTransactionId(),st.getMerchantId(),st.getTransactionDateTime(),st.getCardNumberFirst6Char(),
+	            st.getCardNumberLast4Char(),st.getCardType(),st.getAmount(),st.getExpiryDate(),st.getFirstName(),st.getLastName(),st.getAddress1(),
+	            st.getAddress2(),st.getCity(),st.getState(),st.getPostalCode(),st.getCountry(),st.getTestMode(),st.getToken(),tokenized,
+	            st.getProcessorResponseCode(),st.getProcessorResponseCodeDescription(),st.getApprovalCode(),st.getInternalResponseCode(),
+	            st.getInternalResponseDescription(),st.getInternalStatusCode(),st.getInternalStatusDescription(),st.getPaymentProcessorStatusCode(),
+	            st.getPaymentProcessorStatusCodeDescription(),st.getPaymentProcessorRuleId(),st.getRulePaymentProcessorId(),st.getRuleCardType(),
+	            st.getRuleMaximumMonthlyAmount(),st.getRuleNoMaximumMonthlyAmountFlag(),st.getRulePriority(),st.getProcessUser(),st.getProcessorName(),
+	            st.getApplication(),st.getOrigin(),st.getAccountPeriod(),st.getDesk(),st.getInvoiceNumber(),st.getUserDefinedField1(),st.getUserDefinedField2(),
+	            st.getUserDefinedField3(),st.getCreatedDate(),st.getIsVoided(),st.getIsRefunded(),st.getPaymentProcessorInternalStatusCodeId(),
+	            st.getPaymentProcessorInternalResponseCodeId(),st.getReconciliationStatusId(),st.getReconciliationDate());
+		
+		result = paymentProcessorRemittance;
+    	
+    	return result;
     }
     
     /**
