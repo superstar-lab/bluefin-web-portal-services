@@ -32,6 +32,7 @@ import com.mcmcg.ico.bluefin.persistent.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
@@ -40,7 +41,6 @@ import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
 public class TransactionService {
@@ -77,6 +77,8 @@ public class TransactionService {
     private PaymentProcessorRepository paymentProcessorRepository;
     @Autowired
     private ReconciliationStatusRepository reconciliationStatusRepository;
+    @Autowired
+    private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
 
     @Value("${bluefin.wp.services.transactions.report.path}")
     private String reportPath;
@@ -92,13 +94,33 @@ public class TransactionService {
             result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
             break;
         case REMITTANCE:
-        	// PaymentProcessor_Remittance does not have ApplicationTransactionId
-        	// It is assumed that ProcessorTransactionID is used here.
-        	try {
-    			result = saleTransactionRepository.getRemittanceSaleRefundVoidByProcessorTransactionId("processorTransactionId:" + transactionId, QueryDSLUtil.getPageRequest(0, 1, ""));
-    		} catch (ParseException e) {
-    			e.printStackTrace();
+        	PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository.findByProcessorTransactionId(transactionId);
+    		SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+    		String processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId()).getProcessorName();
+    		Short tokenized = null;
+    		if (st.getTokenized().equalsIgnoreCase("no")) {
+    			tokenized = 0;
+    		} else {
+    			tokenized = 1;
     		}
+    		
+    		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(ppr.getPaymentProcessorRemittanceId(),
+    				ppr.getCreatedDate(),ppr.getReconciliationStatusId(),ppr.getReconciliationDate(),ppr.getPaymentMethod(),ppr.getTransactionAmount(),
+    				ppr.getTransactionType(),ppr.getTransactionTime(),ppr.getAccountId(),ppr.getApplication(),ppr.getProcessorTransactionId(),
+    				ppr.getMerchantId(),ppr.getTransactionSource(),ppr.getFirstName(),ppr.getLastName(),ppr.getRemittanceCreationDate(),
+    				ppr.getPaymentProcessorId(),processorName,st.getSaleTransactionId(),st.getTransactionType(),st.getLegalEntity(),st.getAccountNumber(),
+    	            st.getApplicationTransactionId(),st.getProcessorTransactionId(),st.getMerchantId(),st.getTransactionDateTime(),st.getCardNumberFirst6Char(),
+    	            st.getCardNumberLast4Char(),st.getCardType(),st.getAmount(),st.getExpiryDate(),st.getFirstName(),st.getLastName(),st.getAddress1(),
+    	            st.getAddress2(),st.getCity(),st.getState(),st.getPostalCode(),st.getCountry(),st.getTestMode(),st.getToken(),tokenized,
+    	            st.getProcessorResponseCode(),st.getProcessorResponseCodeDescription(),st.getApprovalCode(),st.getInternalResponseCode(),
+    	            st.getInternalResponseDescription(),st.getInternalStatusCode(),st.getInternalStatusDescription(),st.getPaymentProcessorStatusCode(),
+    	            st.getPaymentProcessorStatusCodeDescription(),st.getPaymentProcessorRuleId(),st.getRulePaymentProcessorId(),st.getRuleCardType(),
+    	            st.getRuleMaximumMonthlyAmount(),st.getRuleNoMaximumMonthlyAmountFlag(),st.getRulePriority(),st.getProcessUser(),st.getProcessorName(),
+    	            st.getApplication(),st.getOrigin(),st.getAccountPeriod(),st.getDesk(),st.getInvoiceNumber(),st.getUserDefinedField1(),st.getUserDefinedField2(),
+    	            st.getUserDefinedField3(),st.getCreatedDate(),st.getIsVoided(),st.getIsRefunded(),st.getPaymentProcessorInternalStatusCodeId(),
+    	            st.getPaymentProcessorInternalResponseCodeId(),st.getReconciliationStatusId(),st.getReconciliationDate());
+    		
+    		result = paymentProcessorRemittance;
         	break;
         default:
             result = saleTransactionRepository.findByApplicationTransactionId(transactionId);

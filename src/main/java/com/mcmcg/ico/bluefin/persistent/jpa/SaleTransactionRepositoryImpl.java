@@ -674,29 +674,4 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         return tr;
     }
-    
-    @Override
-	public PaymentProcessorRemittance getRemittanceSaleRefundVoidByProcessorTransactionId(String search, PageRequest page) throws ParseException {
-    	
-		PaymentProcessorRemittance paymentProcessorRemittance = null;
-    	
-    	// Creates the query for the total and for the retrieved data
-    	String query = getQueryForRemittanceSaleRefundVoid(search);
-
-        Map<String, Query> queriesMap = createRemittanceQueries(query, page);
-        Query result = queriesMap.get("result");
-        Query queryTotal = queriesMap.get("queryTotal");
-
-        int pageNumber = page.getPageNumber();
-        int pageSize = page.getPageSize();
-        // Set the paging for the created select
-        @SuppressWarnings("unused")
-		final int countResult = (Integer) queryTotal.getSingleResult();
-        result.setFirstResult(pageSize * pageNumber);
-        result.setMaxResults(pageSize);
-        
-        paymentProcessorRemittance = (PaymentProcessorRemittance) result.getSingleResult();
-        
-        return paymentProcessorRemittance;
-    }
 }

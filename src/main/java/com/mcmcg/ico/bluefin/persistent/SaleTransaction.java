@@ -435,7 +435,7 @@ public class SaleTransaction implements Serializable, Transaction {
 
     @JsonProperty("isVoided")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private boolean getIsVoided() {
+    private boolean isVoided() {
         return (voidedTransactions != null && !voidedTransactions.isEmpty()) || isVoided > 0;
     }
 

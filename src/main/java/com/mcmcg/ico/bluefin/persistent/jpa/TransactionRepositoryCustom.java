@@ -14,5 +14,4 @@ public interface TransactionRepositoryCustom {
     public List<SaleTransaction> findTransactionsReport(String search) throws ParseException;
     public Page<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactions(String search, PageRequest page, boolean negate) throws ParseException;
     public List<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactionsReport(String search) throws ParseException;
-    public PaymentProcessorRemittance getRemittanceSaleRefundVoidByProcessorTransactionId(String search, PageRequest page) throws ParseException;
 }
