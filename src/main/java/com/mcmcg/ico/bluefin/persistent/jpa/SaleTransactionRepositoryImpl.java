@@ -606,8 +606,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     private String getQueryForRemittanceSaleRefundVoid(String search) {
         StringBuilder querySb = new StringBuilder();
         querySb.append(" SELECT * FROM (");
-        querySb.append(
-                " SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,")
+        
+        String selectRemittanceQuery = new StringBuilder()
+                .append(" SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,")
                 .append("ppr.TransactionTime,ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,ppr.TransactionSource,ppr.FirstName,ppr.LastName,")
                 .append("ppr.RemittanceCreationDate,ppr.PaymentProcessorID, ppl.ProcessorName AS ProcessorName,")
                 .append("st.SaleTransactionID AS SaleTransactionID,st.FirstName AS SaleFirstName,st.LastName AS SaleLastName,st.ProcessUser AS SaleProcessUser,st.TransactionType AS SaleTransactionType,")
@@ -624,19 +625,29 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("st.RulePriority AS SaleRulePriority,st.AccountPeriod AS SaleAccountPeriod,st.Desk AS SaleDesk,st.InvoiceNumber AS SaleInvoiceNumber,st.UserDefinedField1 AS SaleUserDefinedField1,st.UserDefinedField2 AS SaleUserDefinedField2,")
                 .append("st.UserDefinedField3 AS SaleUserDefinedField3,st.ReconciliationStatusID AS SaleReconciliationStatusID,st.ReconciliationDate AS SaleReconciliationDate,0 AS SaleIsVoided,0 AS SaleIsRefunded ")
                 .append("FROM PaymentProcessor_Remittance ppr ").append("JOIN PaymentProcessor_Lookup ppl ")
-                .append("ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
-        querySb.append(getSaleRefundVoidQueryForRemittance(search));
+                .append("ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ").toString();
+        
+        querySb.append(selectRemittanceQuery);
+        querySb.append(getSaleRefundVoidQueryForRemittance(search, " LEFT "));
+        String whereStatement = createWhereStatement(search, "ppr");
+        querySb.append(whereStatement);
 
-        querySb.append(createWhereStatement(search, "ppr"));
+        querySb.append(" UNION ");
+        
+        querySb.append(selectRemittanceQuery);
+        querySb.append(getSaleRefundVoidQueryForRemittance(search, " RIGHT "));
+        querySb.append(whereStatement);
+
         querySb.append(" ) RESULTINFO ");
 
         return querySb.toString();
     }
 
-    private String getSaleRefundVoidQueryForRemittance(String search) {
+    private String getSaleRefundVoidQueryForRemittance(String search, String joinType) {
         StringBuilder querySb = new StringBuilder();
 
-        querySb.append(" FULL JOIN (");
+        querySb.append(joinType);
+        querySb.append(" OUTER JOIN (");
         querySb.append(getSelectForSaleTransaction(search));
         querySb.append(" UNION ");
         querySb.append(getSelectForVoidTransaction(search));
@@ -647,7 +658,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         return querySb.toString();
     }
-
+    
     @Override
     public Page<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactions(String search, PageRequest page,
             boolean negate) throws ParseException {
@@ -672,7 +683,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         int pageNumber = page.getPageNumber();
         int pageSize = page.getPageSize();
         // Set the paging for the created select
-        final int countResult = (Integer) queryTotal.getSingleResult();
+        final int countResult = ((BigInteger) queryTotal.getSingleResult()).intValue();
         result.setFirstResult(pageSize * pageNumber);
         result.setMaxResults(pageSize);
 
