@@ -21,11 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.persistent.BatchUpload;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.BatchUploadService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
@@ -45,6 +47,8 @@ public class ReportRestController {
     private TransactionService transactionService;
     @Autowired
     private SessionService sessionService;
+    @Autowired
+    private BatchUploadService batchUploadService;
 
     @ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
     @RequestMapping(method = RequestMethod.GET, value = "/transactions")
@@ -77,7 +81,7 @@ public class ReportRestController {
         downloadFile.delete();
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
-    
+
     @ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
     @RequestMapping(method = RequestMethod.GET, value = "/payment-processor-remittances")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -87,7 +91,8 @@ public class ReportRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> getRemittanceTransactionsReport(@RequestParam(value = "search", required = true) String search,
+    public ResponseEntity<String> getRemittanceTransactionsReport(
+            @RequestParam(value = "search", required = true) String search,
             @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication,
             HttpServletResponse response) throws IOException {
         if (authentication == null) {
@@ -98,8 +103,32 @@ public class ReportRestController {
             List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
             search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
         }
-        
+
         File downloadFile = transactionService.getRemittanceTransactionsReport(search);
+        InputStream targetStream = FileUtils.openInputStream(downloadFile);
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+
+        FileCopyUtils.copy(targetStream, response.getOutputStream());
+        LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+        downloadFile.delete();
+        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
+    @RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public ResponseEntity<String> get(@RequestParam(value = "noofdays", required = false) Integer noofdays,
+            HttpServletResponse response) throws IOException {
+        LOGGER.info("Getting all batch uploads");
+        File downloadFile = batchUploadService.getBatchUploadsReport(noofdays);
+
         InputStream targetStream = FileUtils.openInputStream(downloadFile);
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
