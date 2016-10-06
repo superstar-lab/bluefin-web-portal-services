@@ -52,19 +52,19 @@ public class TransactionService {
     private static final Object[] FILE_HEADER = { "#", "First Name", "Last Name", "Process User", "Transaction Type",
             "Address 1", "Address 2", "City", "State", "Postal Code", "Country", "Card Number Last 4 Char", "Card Type",
             "Token", "Amount", "Legal Entity", "Account Number", "Application Transaction ID", "Merchant ID",
-            "Processor", "Application", "Origin", "Payment Frequency", "Processor Transaction ID", "Transaction Date Time", "Approval Code",
-            "Tokenized", "Payment Processor Status Code", "Payment Processor Status Code Description",
-            "Payment Processor Response Code", "Payment Processor Response Code Description", "Internal Status Code",
-            "Internal Status Description", "Internal Response Code", "Internal Response Description",
-            "PaymentProcessorInternalStatusCodeID", "PaymentProcessorInternalResponseCodeID", "Date Created",
-            "Account Period", "Desk", "Invoice Number", "User Defined Field 1", "User Defined Field 2",
-            "User Defined Field 3" };
-    
-    private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor", "Status",
-    		"Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount", "Bluefin Date/Time",
-    		"Remittance Transaction ID", "Remittance Account Number", "Remittance Amount", "Remittance Date/Time",
-    		"Card Type", "Card Number (last 4)", "Legal Entity" };
-    
+            "Processor", "Application", "Origin", "Payment Frequency", "Processor Transaction ID",
+            "Transaction Date Time", "Approval Code", "Tokenized", "Payment Processor Status Code",
+            "Payment Processor Status Code Description", "Payment Processor Response Code",
+            "Payment Processor Response Code Description", "Internal Status Code", "Internal Status Description",
+            "Internal Response Code", "Internal Response Description", "PaymentProcessorInternalStatusCodeID",
+            "PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk", "Invoice Number",
+            "User Defined Field 1", "User Defined Field 2", "User Defined Field 3" };
+
+    private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor",
+            "Status", "Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount",
+            "Bluefin Date/Time", "Remittance Transaction ID", "Remittance Account Number", "Remittance Amount",
+            "Remittance Date/Time", "Card Type", "Card Number (last 4)", "Legal Entity" };
+
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
     @Autowired
@@ -94,8 +94,8 @@ public class TransactionService {
             result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
             break;
         case REMITTANCE:
-        	result = getRemittanceSaleResult(transactionId);
-        	break;
+            result = getRemittanceSaleResult(transactionId);
+            break;
         default:
             result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
         }
@@ -106,53 +106,62 @@ public class TransactionService {
 
         return result;
     }
-    
+
     public Transaction getRemittanceSaleResult(String transactionId) {
-    	Transaction result = null;
-    	
-    	PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository.findByProcessorTransactionId(transactionId);
-    	if (ppr == null) {
-    		ppr = new PaymentProcessorRemittance();
-    	}
-		SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
-		if (st == null) {
-			st = new SaleTransaction();
-		}
-		String processorName = null;
-		if (ppr != null) {
-			processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId()).getProcessorName();
-		}
-		Short tokenized = null;
-		if (st != null) {
-			String tokenizedStr = st.getTokenized();
-			if (tokenizedStr != null) {
-				if (tokenizedStr.equalsIgnoreCase("No")) {
-	    			tokenized = 0;
-	    		} else {
-	    			tokenized = 1;
-	    		}
-			}
-		}
-		
-		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(ppr.getPaymentProcessorRemittanceId(),
-				ppr.getCreatedDate(),ppr.getReconciliationStatusId(),ppr.getReconciliationDate(),ppr.getPaymentMethod(),ppr.getTransactionAmount(),
-				ppr.getTransactionType(),ppr.getTransactionTime(),ppr.getAccountId(),ppr.getApplication(),ppr.getProcessorTransactionId(),
-				ppr.getMerchantId(),ppr.getTransactionSource(),ppr.getFirstName(),ppr.getLastName(),ppr.getRemittanceCreationDate(),
-				ppr.getPaymentProcessorId(),processorName,st.getSaleTransactionId(),st.getTransactionType(),st.getLegalEntity(),st.getAccountNumber(),
-	            st.getApplicationTransactionId(),st.getProcessorTransactionId(),st.getMerchantId(),st.getTransactionDateTime(),st.getCardNumberFirst6Char(),
-	            st.getCardNumberLast4Char(),st.getCardType(),st.getAmount(),st.getExpiryDate(),st.getFirstName(),st.getLastName(),st.getAddress1(),
-	            st.getAddress2(),st.getCity(),st.getState(),st.getPostalCode(),st.getCountry(),st.getTestMode(),st.getToken(),tokenized,
-	            st.getProcessorResponseCode(),st.getProcessorResponseCodeDescription(),st.getApprovalCode(),st.getInternalResponseCode(),
-	            st.getInternalResponseDescription(),st.getInternalStatusCode(),st.getInternalStatusDescription(),st.getPaymentProcessorStatusCode(),
-	            st.getPaymentProcessorStatusCodeDescription(),st.getPaymentProcessorRuleId(),st.getRulePaymentProcessorId(),st.getRuleCardType(),
-	            st.getRuleMaximumMonthlyAmount(),st.getRuleNoMaximumMonthlyAmountFlag(),st.getRulePriority(),st.getProcessUser(),st.getProcessorName(),
-	            st.getApplication(),st.getOrigin(),st.getAccountPeriod(),st.getDesk(),st.getInvoiceNumber(),st.getUserDefinedField1(),st.getUserDefinedField2(),
-	            st.getUserDefinedField3(),st.getCreatedDate(),st.getIsVoided(),st.getIsRefunded(),st.getPaymentProcessorInternalStatusCodeId(),
-	            st.getPaymentProcessorInternalResponseCodeId(),st.getReconciliationStatusId(),st.getReconciliationDate());
-		
-		result = paymentProcessorRemittance;
-    	
-    	return result;
+        Transaction result = null;
+
+        PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository
+                .findByProcessorTransactionId(transactionId);
+        if (ppr == null) {
+            ppr = new PaymentProcessorRemittance();
+        }
+        SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+        if (st == null) {
+            st = new SaleTransaction();
+        }
+        String processorName = null;
+        if (ppr != null) {
+            processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId())
+                    .getProcessorName();
+        }
+        Short tokenized = null;
+        if (st != null) {
+            String tokenizedStr = st.getTokenized();
+            if (tokenizedStr != null) {
+                if (tokenizedStr.equalsIgnoreCase("No")) {
+                    tokenized = 0;
+                } else {
+                    tokenized = 1;
+                }
+            }
+        }
+
+        PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(
+                ppr.getPaymentProcessorRemittanceId(), ppr.getCreatedDate(), ppr.getReconciliationStatusId(),
+                ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
+                ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
+                ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(), ppr.getFirstName(),
+                ppr.getLastName(), ppr.getRemittanceCreationDate(), ppr.getPaymentProcessorId(), processorName,
+                st.getSaleTransactionId(), st.getTransactionType(), st.getLegalEntity(), st.getAccountNumber(),
+                st.getApplicationTransactionId(), st.getProcessorTransactionId(), st.getMerchantId(),
+                st.getTransactionDateTime(), st.getCardNumberFirst6Char(), st.getCardNumberLast4Char(),
+                st.getCardType(), st.getAmount(), st.getExpiryDate(), st.getFirstName(), st.getLastName(),
+                st.getAddress1(), st.getAddress2(), st.getCity(), st.getState(), st.getPostalCode(), st.getCountry(),
+                st.getTestMode(), st.getToken(), tokenized, st.getProcessorResponseCode(),
+                st.getProcessorResponseCodeDescription(), st.getApprovalCode(), st.getInternalResponseCode(),
+                st.getInternalResponseDescription(), st.getInternalStatusCode(), st.getInternalStatusDescription(),
+                st.getPaymentProcessorStatusCode(), st.getPaymentProcessorStatusCodeDescription(),
+                st.getPaymentProcessorRuleId(), st.getRulePaymentProcessorId(), st.getRuleCardType(),
+                st.getRuleMaximumMonthlyAmount(), st.getRuleNoMaximumMonthlyAmountFlag(), st.getRulePriority(),
+                st.getProcessUser(), st.getProcessorName(), st.getApplication(), st.getOrigin(), st.getAccountPeriod(),
+                st.getDesk(), st.getInvoiceNumber(), st.getUserDefinedField1(), st.getUserDefinedField2(),
+                st.getUserDefinedField3(), st.getCreatedDate(), st.getIsVoided(), st.getIsRefunded(),
+                st.getPaymentProcessorInternalStatusCodeId(), st.getPaymentProcessorInternalResponseCodeId(),
+                st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId());
+
+        result = paymentProcessorRemittance;
+
+        return result;
     }
 
     public Long countTransactionsWithPaymentProcessorRuleID(final Long paymentProcessorRuleId) {
@@ -281,9 +290,10 @@ public class TransactionService {
         }
         return file;
     }
-    
+
     /**
-     * Get remittance, sale, refund, and void transactions. This will be one column of the UI.
+     * Get remittance, sale, refund, and void transactions. This will be one
+     * column of the UI.
      * 
      * @param search
      * @param paging
@@ -291,12 +301,14 @@ public class TransactionService {
      * 
      * @return list of objects containing these transactions
      */
-    public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging, boolean negate) {
+    public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search,
+            PageRequest paging, boolean negate) {
         Page<PaymentProcessorRemittance> result;
         try {
-        	result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactions(search, paging, negate);
+            result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactions(search, paging, negate);
         } catch (ParseException e) {
-            throw new CustomNotFoundException("Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
+            throw new CustomNotFoundException(
+                    "Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
         }
         final int page = paging.getPageNumber();
 
@@ -307,7 +319,7 @@ public class TransactionService {
 
         return result;
     }
-    
+
     /**
      * Create CSV file for remittance.
      * 
@@ -342,21 +354,21 @@ public class TransactionService {
         // initialize FileWriter object
         try (FileWriter fileWriter = new FileWriter(file);
                 CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
-        	
-        	// Create PaymentProcessor hashmap
-        	Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
-        	List<PaymentProcessor> paymentProcessorList = paymentProcessorRepository.findAll();
-        	for (PaymentProcessor pp : paymentProcessorList) {
-        		paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
-        	}
-        	
-        	// Create ReconciliationStatus hashmap
-        	Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
-        	List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusRepository.findAll();
-        	for (ReconciliationStatus rs : reconciliationStatusList) {
-        		reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
-        	}
-        	
+
+            // Create PaymentProcessor hashmap
+            Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
+            List<PaymentProcessor> paymentProcessorList = paymentProcessorRepository.findAll();
+            for (PaymentProcessor pp : paymentProcessorList) {
+                paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
+            }
+
+            // Create ReconciliationStatus hashmap
+            Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
+            List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusRepository.findAll();
+            for (ReconciliationStatus rs : reconciliationStatusList) {
+                reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
+            }
+
             // initialize CSVPrinter object
 
             // Create CSV file header
@@ -368,82 +380,81 @@ public class TransactionService {
             for (PaymentProcessorRemittance transaction : result) {
                 List<String> transactionDataRecord = new ArrayList<String>();
                 transactionDataRecord.add(count.toString());
-                
+
                 // Sale information section
                 // Bluefin Transaction ID
                 transactionDataRecord.add(transaction.getSaleApplicationTransactionId());
-                
+
                 // Payment Processor
                 String processorName = transaction.getSaleProcessorName();
                 if (processorName == null) {
-                	processorName = paymentProcessorMap.get(transaction.getPaymentProcessorId());
+                    processorName = paymentProcessorMap.get(transaction.getPaymentProcessorId());
                 }
                 transactionDataRecord.add(processorName);
-                
+
                 // Status
                 String status = null;
                 Long reconciliationStatusId = transaction.getSaleReconciliationStatusId();
                 if (reconciliationStatusId != null) {
-                	status = reconciliationStatusId.toString();
+                    status = reconciliationStatusId.toString();
                 } else {
-                	status = reconciliationStatusMap.get(transaction.getReconciliationStatusId());
+                    status = reconciliationStatusMap.get(transaction.getReconciliationStatusId());
                 }
                 transactionDataRecord.add(status);
-                
+
                 // Amount Difference
                 BigDecimal amountDifference = null;
                 BigDecimal saleAmount = transaction.getSaleAmount();
                 BigDecimal transactionAmount = transaction.getTransactionAmount();
                 if (saleAmount != null && transactionAmount != null) {
-                	amountDifference = saleAmount.subtract(transactionAmount);
+                    amountDifference = saleAmount.subtract(transactionAmount);
                 }
-                transactionDataRecord.add(amountDifference == null ? ""
-                		: "$" + amountDifference.toString());
-                
+                transactionDataRecord.add(amountDifference == null ? "" : "$" + amountDifference.toString());
+
                 // Transaction Type
                 String transactionType = transaction.getSaleTransactionType();
                 if (transactionType == null) {
-                	transactionType = transaction.getTransactionType();
+                    transactionType = transaction.getTransactionType();
                 }
                 transactionDataRecord.add(transactionType);
-                
+
                 // Bluefin information section
                 // Bluefin Account Number
                 transactionDataRecord.add(transaction.getSaleAccountNumber());
-                
+
                 // Bluefin Amount
-                transactionDataRecord.add(transaction.getSaleAmount() == null ? ""
-                		: "$" + transaction.getSaleAmount().toString());
-                
+                transactionDataRecord
+                        .add(transaction.getSaleAmount() == null ? "" : "$" + transaction.getSaleAmount().toString());
+
                 // Bluefin Date/Time
                 transactionDataRecord.add(transaction.getSaleTransactionDateTime() == null ? ""
                         : fmt.print(transaction.getSaleTransactionDateTime().toDateTime(DateTimeZone.UTC)));
-                
+
                 // Remittance information section
                 // Remittance Transaction ID
                 transactionDataRecord.add(transaction.getProcessorTransactionId());
-                
+
                 // Remittance Account Number
                 transactionDataRecord.add(transaction.getAccountId());
-                
+
                 // Remittance Amount
                 transactionDataRecord.add(transaction.getTransactionAmount() == null ? ""
-                		: transaction.getTransactionAmount().toString());
-                
+                        : transaction.getTransactionAmount().toString());
+
                 // Remittance Date/Time
                 transactionDataRecord.add(transaction.getTransactionTime() == null ? ""
                         : fmt.print(transaction.getTransactionTime().toDateTime(DateTimeZone.UTC)));
-                
+
                 // Sale information section
                 // Card Type
                 transactionDataRecord.add(transaction.getSaleCardType());
-                
+
                 // Card Number (last 4)
                 transactionDataRecord.add(transaction.getSaleCardNumberLast4Char());
-                
+
                 // Legal Entity
                 transactionDataRecord.add(transaction.getSaleLegalEntityApp());
-                
+
                 csvFilePrinter.printRecord(transactionDataRecord);
                 count++;
             }

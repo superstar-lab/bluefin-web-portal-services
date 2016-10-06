@@ -51,8 +51,7 @@ import lombok.ToString;
                 @ColumnResult(name = "LastName", type = String.class),
                 @ColumnResult(name = "Address1", type = String.class),
                 @ColumnResult(name = "Address2", type = String.class),
-                @ColumnResult(name = "City", type = String.class),
-                @ColumnResult(name = "State", type = String.class),
+                @ColumnResult(name = "City", type = String.class), @ColumnResult(name = "State", type = String.class),
                 @ColumnResult(name = "PostalCode", type = String.class),
                 @ColumnResult(name = "Country", type = String.class),
                 @ColumnResult(name = "TestMode", type = Short.class),
@@ -89,7 +88,8 @@ import lombok.ToString;
                 @ColumnResult(name = "PaymentProcessorInternalStatusCodeID", type = Long.class),
                 @ColumnResult(name = "PaymentProcessorInternalResponseCodeID", type = Long.class),
                 @ColumnResult(name = "ReconciliationStatusID", type = Long.class),
-                @ColumnResult(name = "ReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class) }) })
+                @ColumnResult(name = "ReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "BatchUploadID", type = Long.class) }) })
 @Data
 @EqualsAndHashCode(exclude = { "refundedTransactions", "voidedTransactions" })
 @ToString(exclude = { "refundedTransactions", "voidedTransactions" })
@@ -118,7 +118,7 @@ public class SaleTransaction implements Serializable, Transaction {
             String accountPeriod, String desk, String invoiceNumber, String userDefinedField1, String userDefinedField2,
             String userDefinedField3, DateTime createdDate, Integer isVoided, Integer isRefunded,
             Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId,
-            Long reconciliationStatusId, DateTime reconciliationDate) {
+            Long reconciliationStatusId, DateTime reconciliationDate, Long batchUploadId) {
         this.saleTransactionId = saleTransactionId;
         this.transactionType = transactionType;
         this.legalEntity = legalEntity;
@@ -175,6 +175,7 @@ public class SaleTransaction implements Serializable, Transaction {
         this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
         this.reconciliationStatusId = reconciliationStatusId;
         this.reconciliationDate = reconciliationDate;
+        this.batchUploadId = batchUploadId;
     }
 
     @Id
@@ -394,7 +395,7 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonView(Views.Extend.class)
     @Column(name = "UserDefinedField3")
     private String userDefinedField3;
-    
+
     @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ReconciliationStatusID")
     private Long reconciliationStatusId;
@@ -403,6 +404,10 @@ public class SaleTransaction implements Serializable, Transaction {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "ReconciliationDate")
     private DateTime reconciliationDate;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "BatchUploadID")
+    private Long batchUploadId;
 
     @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -428,7 +433,7 @@ public class SaleTransaction implements Serializable, Transaction {
     @Transient
     @JsonIgnore
     private Integer isRefunded = 0;
-    
+
     @Transient
     @JsonIgnore
     private String paymentProcessorId;
@@ -448,11 +453,11 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonProperty("tokenized")
     @JsonView({ Views.Extend.class })
     public String getTokenized() {
-    	if (tokenized == null) {
-    		return null;
-    	} else {
-    		return tokenized == 1 ? "Yes" : "No";
-    	}
+        if (tokenized == null) {
+            return null;
+        } else {
+            return tokenized == 1 ? "Yes" : "No";
+        }
     }
 
     @JsonProperty("paymentFrequency")
