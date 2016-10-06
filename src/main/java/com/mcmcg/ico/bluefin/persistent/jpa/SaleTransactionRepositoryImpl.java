@@ -626,7 +626,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 .append("st.PaymentProcessorInternalResponseCodeID AS SalePaymentProcessorInternalResponseCodeID,st.DateCreated AS SaleDateCreated,st.PaymentProcessorRuleID AS SalePaymentProcessorRuleID,")
                 .append("st.RulePaymentProcessorID AS SaleRulePaymentProcessorID,st.RuleCardType AS SaleRuleCardType,st.RuleMaximumMonthlyAmount AS SaleRuleMaximumMonthlyAmount,st.RuleNoMaximumMonthlyAmountFlag AS SaleRuleNoMaximumMonthlyAmountFlag,")
                 .append("st.RulePriority AS SaleRulePriority,st.AccountPeriod AS SaleAccountPeriod,st.Desk AS SaleDesk,st.InvoiceNumber AS SaleInvoiceNumber,st.UserDefinedField1 AS SaleUserDefinedField1,st.UserDefinedField2 AS SaleUserDefinedField2,")
-                .append("st.UserDefinedField3 AS SaleUserDefinedField3,st.ReconciliationStatusID AS SaleReconciliationStatusID,st.ReconciliationDate AS SaleReconciliationDate,0 AS SaleIsVoided,0 AS SaleIsRefunded ")
+                .append("st.UserDefinedField3 AS SaleUserDefinedField3,st.ReconciliationStatusID AS SaleReconciliationStatusID,st.ReconciliationDate AS SaleReconciliationDate,st.BatchUploadID AS SaleBatchUploadID,0 AS SaleIsVoided,0 AS SaleIsRefunded ")
                 .append("FROM PaymentProcessor_Remittance ppr ").append("JOIN PaymentProcessor_Lookup ppl ")
                 .append("ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
         querySb.append(getSaleRefundVoidQueryForRemittance(search));
