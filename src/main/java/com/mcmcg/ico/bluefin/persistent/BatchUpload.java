@@ -29,10 +29,10 @@ public class BatchUpload {
     private String UpLoadedBy;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private DateTime procesStart;
+    private DateTime processStart;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private DateTime procesEnd;
+    private DateTime processEnd;
     private int numberOfTransactions;
     private int numberOfTransactionsProcessed;
     private int numberOfApprovedTransactions;

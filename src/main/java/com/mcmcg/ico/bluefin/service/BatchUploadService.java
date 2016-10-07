@@ -128,10 +128,10 @@ public class BatchUploadService {
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfErrorTransactions()));
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfRejected()));
 
-                batchUploadDataRecord.add(batchUpload.getProcesStart() == null ? ""
-                        : fmt.print(batchUpload.getProcesStart().toDateTime(DateTimeZone.UTC)));
-                batchUploadDataRecord.add(batchUpload.getProcesEnd() == null ? ""
-                        : fmt.print(batchUpload.getProcesEnd().toDateTime(DateTimeZone.UTC)));
+                batchUploadDataRecord.add(batchUpload.getProcessStart() == null ? ""
+                        : fmt.print(batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC)));
+                batchUploadDataRecord.add(batchUpload.getProcessEnd() == null ? ""
+                        : fmt.print(batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC)));
 
                 batchUploadDataRecord.add(batchUpload.getUpLoadedBy());
 
