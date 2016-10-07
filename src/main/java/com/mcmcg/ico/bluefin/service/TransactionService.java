@@ -58,7 +58,7 @@ public class TransactionService {
             "Payment Processor Response Code Description", "Internal Status Code", "Internal Status Description",
             "Internal Response Code", "Internal Response Description", "PaymentProcessorInternalStatusCodeID",
             "PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk", "Invoice Number",
-            "User Defined Field 1", "User Defined Field 2", "User Defined Field 3" };
+            "User Defined Field 1", "User Defined Field 2", "User Defined Field 3", "Batch Upload ID" };
 
     private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor",
             "Status", "Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount",
@@ -283,6 +283,8 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getUserDefinedField1());
                 transactionDataRecord.add(transaction.getUserDefinedField2());
                 transactionDataRecord.add(transaction.getUserDefinedField3());
+                transactionDataRecord
+                        .add(transaction.getBatchUploadId() == null ? " " : transaction.getBatchUploadId().toString());
                 csvFilePrinter.printRecord(transactionDataRecord);
                 count++;
             }
