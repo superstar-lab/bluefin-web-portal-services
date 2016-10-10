@@ -48,8 +48,6 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     private HashMap<String, String> dynamicParametersMap = new HashMap<String, String>();
     private HashMap<String, String> predicatesHashMapping = new HashMap<String, String>();
 
-    private int reconciliationDateIndex;
-
     @Autowired
     private PaymentProcessorRepository paymentProcessorRepository;
 
@@ -114,7 +112,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
             } else if (entry.getKey().contains("transactionDateTimeParam")
-                    || (entry.getKey().contains("reconciliationDate"))) {
+                    || (entry.getKey().contains("remittanceCreationDate"))) {
 
                 if (!validFormatDate(entry.getValue())) {
                     throw new CustomNotFoundException(
@@ -380,26 +378,26 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     continue;
                 }
 
+                // For payment processor remittance, remittanceCreationDate is
+                // not a filter, for these prefixes.
+                if (prefix.equals("MAINSALE") || prefix.equals("SALEINNERVOID") || prefix.equals("SALEINNERREFUND")) {
+                    if (attribute.equalsIgnoreCase("remittanceCreationDate")) {
+                        continue;
+                    }
+                }
+
                 // Special scenarios, be careful when you change this
                 if (attribute.equalsIgnoreCase("processUser")
                         && (prefix.equalsIgnoreCase("REFUND") || prefix.equalsIgnoreCase("VOID"))) {
                     // Special case for pUser in VOID and REFUND tables
                     predicate = getPropertyPredicate("pUser");
                     attributeParam = "pUserParam1";
-                } else if (attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("amount")) {
+                } else if (attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("amount")
+                        || attribute.equalsIgnoreCase("remittanceCreationDate")) {
                     // Specific cases for transactionDateTime, amount
                     predicate = predicate.replace(":atributeOperator", getOperation(operator));
                     if (dynamicParametersMap.containsKey(attribute + "Param1")) {
                         attributeParam = attribute + "Param2";
-                        predicate = predicate.replace(attribute + "Param1", attributeParam);
-                    }
-                } else if (attribute.equalsIgnoreCase("reconciliationDate")) {
-                    // Specific cases for reconciliationDate
-                    // The query for remittance requires multiple date pairs.
-                    predicate = predicate.replace(":atributeOperator", getOperation(operator));
-                    if (dynamicParametersMap.containsKey(attribute + "Param1")) {
-                        reconciliationDateIndex++;
-                        attributeParam = attribute + "Param" + reconciliationDateIndex;
                         predicate = predicate.replace(attribute + "Param1", attributeParam);
                     }
                 } else if (attribute.equalsIgnoreCase("paymentProcessorId")) {
@@ -452,7 +450,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     || attribute.equalsIgnoreCase("accountPeriod") || attribute.equalsIgnoreCase("desk")
                     || attribute.equalsIgnoreCase("invoiceNumber") || attribute.equalsIgnoreCase("paymentFrequency")
                     || attribute.equalsIgnoreCase("reconciliationStatusId")
-                    || attribute.equalsIgnoreCase("reconciliationDate")
+                    || attribute.equalsIgnoreCase("remittanceCreationDate")
                     || attribute.equalsIgnoreCase("batchUploadId")) {
                 return true;
             }
@@ -558,8 +556,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("processorName", ":prefix.Processor = :processorNameParam1");
         predicatesHashMapping.put("reconciliationStatusId",
                 ":prefix.ReconciliationStatusID = :reconciliationStatusIdParam1");
-        predicatesHashMapping.put("reconciliationDate",
-                ":prefix.ReconciliationDate :atributeOperator :reconciliationDateParam1");
+        predicatesHashMapping.put("remittanceCreationDate",
+                ":prefix.RemittanceCreationDate :atributeOperator :remittanceCreationDateParam1");
         predicatesHashMapping.put("processorTransactionId",
                 ":prefix.ProcessorTransactionID = :processorTransactionIdParam1");
     }
@@ -579,7 +577,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 result.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
                 queryTotal.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
             } else if (entry.getKey().contains("transactionDateTimeParam")
-                    || (entry.getKey().contains("reconciliationDate"))) {
+                    || (entry.getKey().contains("remittanceCreationDate"))) {
 
                 if (!validFormatDate(entry.getValue())) {
                     throw new CustomNotFoundException(
@@ -655,9 +653,6 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Override
     public Page<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactions(String search, PageRequest page,
             boolean negate) throws ParseException {
-
-        // Reset counter
-        reconciliationDateIndex = 1;
 
         // Creates the query for the total and for the retrieved data
         String query = getQueryForRemittanceSaleRefundVoid(search);

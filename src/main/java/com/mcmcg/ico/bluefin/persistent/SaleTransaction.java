@@ -438,6 +438,10 @@ public class SaleTransaction implements Serializable, Transaction {
     @JsonIgnore
     private String paymentProcessorId;
 
+    @Transient
+    @JsonIgnore
+    private DateTime remittanceCreationDate;
+
     @JsonProperty("isVoided")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private boolean isVoided() {
