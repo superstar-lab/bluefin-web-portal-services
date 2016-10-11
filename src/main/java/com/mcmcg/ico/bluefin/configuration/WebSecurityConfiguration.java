@@ -119,6 +119,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             // Reports
                             .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/transactions", reportsApiBaseURL + "/transactions/").hasAnyAuthority("SEARCH_REPORTING")
                             .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/batch-uploads", reportsApiBaseURL + "/batch-uploads/").hasAnyAuthority("BATCH_REPORTING")
+                            .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/batch-upload-transactions", reportsApiBaseURL + "/batch-upload-transactions/").hasAnyAuthority("BATCH_REPORTING")
                             
                             // Session
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/", sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/").permitAll()
