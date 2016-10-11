@@ -23,7 +23,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
+import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.BatchUploadRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
@@ -36,6 +38,9 @@ public class BatchUploadService {
 
     @Autowired
     private BatchUploadRepository batchUploadRepository;
+    @Autowired
+    private SaleTransactionRepository saleTransactionRepository;
+    
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
     // CSV file header
@@ -43,6 +48,8 @@ public class BatchUploadService {
             "Batch Application", "Number Of Transactions", "Transactions Processed", "Approved Transactions",
             "Declined Transactions", "Error Transactions", "Rejected Transactions", "Process Start", "Process End",
             "UpLoadedBy" };
+    private static final Object[] TRANSACTIONS_FILE_HEADER = { "#", "Date", "Time", "Invoice", "Amount",
+            "Result", "Error Message" };
 
     @Value("${bluefin.wp.services.batch.upload.report.path}")
     private String reportPath;
@@ -141,5 +148,73 @@ public class BatchUploadService {
         }
         return file;
     }
+    
+    public File getBatchUploadTransactionsReport(Long batchUploadId) throws IOException {
+        List<SaleTransaction> result = null;
+        File file = null;
+        
+        if (batchUploadId == null) {
+            result = saleTransactionRepository.findAll();
+        } else {
+            result = saleTransactionRepository.findByBatchUploadId(batchUploadId);
+        }
+        
+        // Create the CSVFormat object with "\n" as a record delimiter
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
+        try {
+            File dir = new File(reportPath);
+            dir.mkdirs();
+            file = new File(dir, UUID.randomUUID() + ".csv");
+            file.createNewFile();
+        } catch (Exception e) {
+            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+        }
+        // initialize FileWriter object
+        try (FileWriter fileWriter = new FileWriter(file);
+                CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
 
+            // initialize CSVPrinter object
+
+            // Create CSV file header
+            csvFilePrinter.printRecord(TRANSACTIONS_FILE_HEADER);
+
+            // TransactionDateTime needs to be split into two parts.
+            DateTimeFormatter fmt1 = DateTimeFormat.forPattern("MM/dd/yyyy");
+            DateTimeFormatter fmt2 = DateTimeFormat.forPattern("hh:mm:ss.SSa");
+            Integer count = 1;
+            // Write a new transaction object list to the CSV file
+            for (SaleTransaction saleTransaction : result) {
+                List<String> saleTransactionDataRecord = new ArrayList<String>();
+                saleTransactionDataRecord.add(count.toString());
+                
+                // Date (local time, not UTC)
+                saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
+                        : fmt1.print(saleTransaction.getTransactionDateTime()));
+                
+                // Time (local time, not UTC)
+                saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
+                        : fmt2.print(saleTransaction.getTransactionDateTime()));
+                
+                // Invoice
+                saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
+                
+                // Amount
+                saleTransactionDataRecord.add(saleTransaction.getAmount() == null ? ""
+                        : "$" + saleTransaction.getAmount().toString());
+                
+                // Result
+                saleTransactionDataRecord.add(saleTransaction.getInternalStatusCode());
+                
+                // Error Message
+                saleTransactionDataRecord.add(saleTransaction.getInternalStatusDescription());
+                
+                csvFilePrinter.printRecord(saleTransactionDataRecord);
+                count++;
+            }
+            LOGGER.info("CSV file report was created successfully !!!");
+        }
+        
+        return file;
+    }
 }

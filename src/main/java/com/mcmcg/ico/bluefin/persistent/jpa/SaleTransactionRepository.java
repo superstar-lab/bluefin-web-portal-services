@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.persistent.jpa;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
@@ -11,4 +13,5 @@ public interface SaleTransactionRepository extends JpaRepository<SaleTransaction
     public SaleTransaction findByApplicationTransactionId(String transactionId);
     public SaleTransaction findByProcessorTransactionId(String transactionId);
     public Long countByPaymentProcessorRuleId(Long paymentProcessorRuleId);
+    public List <SaleTransaction> findByBatchUploadId(Long batchUploadId);
 }
