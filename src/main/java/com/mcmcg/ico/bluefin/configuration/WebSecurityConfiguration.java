@@ -82,6 +82,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String paymentProcessorRemittanceApiBaseURL = apiBaseURL + "/payment-processor-remittances";
         final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
         final String reportsApiBaseURL = apiBaseURL + "/reports";
+        final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
 
         // @formatter:off
         httpSecurity
@@ -117,7 +118,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                             // Reports
                             .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/transactions", reportsApiBaseURL + "/transactions/").hasAnyAuthority("SEARCH_REPORTING")
-
+                            .antMatchers(HttpMethod.GET, reportsApiBaseURL + "/batch-uploads", reportsApiBaseURL + "/batch-uploads/").hasAnyAuthority("BATCH_REPORTING")
+                            
                             // Session
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/", sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/").permitAll()
                             .antMatchers(HttpMethod.POST, sessionApiBaseURL + "/consumer/{username}", sessionApiBaseURL + "/consumer/{username}/").hasAuthority("ADMINISTRATIVE")
@@ -172,6 +174,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                             .antMatchers(HttpMethod.PUT, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/").hasAuthority("ADMINISTRATIVE")
                             .antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{id}", internalStatusCodesApiBaseURL + "/{id}/").hasAuthority("ADMINISTRATIVE")
 
+                            //Batch Uploads
+                            .antMatchers(HttpMethod.GET, batchUploadApiBaseURL, batchUploadApiBaseURL + "/").hasAuthority("BATCH_UPLOAD")
+                            .antMatchers(HttpMethod.GET, batchUploadApiBaseURL + "/{id}", batchUploadApiBaseURL + "/{id}/").hasAuthority("BATCH_REPORTING")
+                            
                     .and()
                         .authorizeRequests()
                             .anyRequest().authenticated();
