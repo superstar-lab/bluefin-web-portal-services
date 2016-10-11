@@ -28,7 +28,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
-import com.mcmcg.ico.bluefin.model.PaymentFrequency;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -83,6 +82,15 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         return list;
     }
 
+    private List<String> getOriginFromPaymentFrequency(String paymentFrequency) {
+        Query queryTotal = em
+                .createNativeQuery("SELECT Origin FROM OriginPaymentFrequency_Lookup where PaymentFrequency = lower('"
+                        + paymentFrequency + "')");
+        @SuppressWarnings("unchecked")
+        List<String> origins = queryTotal.getResultList();
+        return origins;
+    }
+
     @Override
     public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
         String query = getQueryByCriteria(search);
@@ -121,7 +129,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 // Special case for the dates
                 result.setParameter(entry.getKey(), entry.getValue());
                 queryTotal.setParameter(entry.getKey(), entry.getValue());
-            } else if (entry.getKey().contains("legalEntityParam")) {
+            } else if (entry.getKey().contains("legalEntityParam")
+                    || entry.getKey().contains("paymentFrequencyParam")) {
                 // Special case for legal entity
                 String value = entry.getValue().replace("[", "").replace("]", "");
 
@@ -411,12 +420,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                         predicate = predicate.replace("PaymentProcessorID", "Processor");
                         predicate = predicate.replace(attribute, "processorName");
                     }
-                } else if (attribute.equalsIgnoreCase("paymentFrequency")
-                        && (PaymentFrequency.getPaymentFrequency(value) == PaymentFrequency.ONE_TIME)) {
+                } else if (attribute.equalsIgnoreCase("paymentFrequency")) {
                     // Specific case for paymentFrequency, when paymentFrequency
                     // is NOT 'Recurring' then we need to search by all the
                     // values except 'Recurring'
-                    predicate = predicate.replace("=", "<>");
+                    value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
                 }
 
                 statement.add(predicate.replace(":prefix", prefix));
@@ -550,7 +558,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         predicatesHashMapping.put("accountPeriod", ":prefix.AccountPeriod = :accountPeriodParam1");
         predicatesHashMapping.put("desk", ":prefix.Desk = :deskParam1");
         predicatesHashMapping.put("invoiceNumber", ":prefix.InvoiceNumber = :invoiceNumberParam1");
-        predicatesHashMapping.put("paymentFrequency", ":prefix.Origin = :paymentFrequencyParam1");
+        predicatesHashMapping.put("paymentFrequency", "lower(:prefix.Origin) IN (:paymentFrequencyParam1)");
+
         // Payment Processor Remittance
         predicatesHashMapping.put("paymentProcessorId", ":prefix.PaymentProcessorID = :paymentProcessorIdParam1");
         predicatesHashMapping.put("processorName", ":prefix.Processor = :processorNameParam1");
