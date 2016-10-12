@@ -148,7 +148,7 @@ public class ReportRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> getBatchUploadTransactionsReport(@RequestParam(value = "{batchUploadId}", required = true) Long batchUploadId,
+    public ResponseEntity<String> getBatchUploadTransactionsReport(@RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
             HttpServletResponse response) throws IOException {
         LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
         File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId);
