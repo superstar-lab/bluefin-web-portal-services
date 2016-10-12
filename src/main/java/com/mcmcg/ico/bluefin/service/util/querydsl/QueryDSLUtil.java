@@ -70,7 +70,7 @@ public class QueryDSLUtil {
 
     private static List<Order> getOrderList(String sort) {
         Pattern pattern = Pattern.compile(SORT_REGEX);
-        Matcher matcher = pattern.matcher(sort + SEARCH_DELIMITER_CHAR);
+        Matcher matcher = pattern.matcher(sort + ",");
         List<Order> sortList = new ArrayList<Order>();
         while (matcher.find()) {
             Sort.Direction sortDirection = null;
