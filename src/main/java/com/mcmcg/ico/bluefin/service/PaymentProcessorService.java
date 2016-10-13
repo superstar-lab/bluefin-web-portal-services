@@ -258,8 +258,7 @@ public class PaymentProcessorService {
         ItemStatusResource hasPaymentProcessorName = new ItemStatusResource(1, "Add Payment Processor Name", null,
                 true);
         ItemStatusResource hasSameDayProcessing = new ItemStatusResource(2, "Same Day Processing Window", null,
-                paymentProcessor.getRemitTransactionOpenTime() != null
-                        && paymentProcessor.getRemitTransactionCloseTime() != null);
+                paymentProcessor.getRemitTransactionCloseTime() != null);
         ItemStatusResource hasMerchantsAssociated = new ItemStatusResource(3, "Add MIDs", null,
                 paymentProcessor.hasMerchantsAssociated());
         ItemStatusResource hasRulesAssociated = new ItemStatusResource(4, "Update volume assignment", null,
