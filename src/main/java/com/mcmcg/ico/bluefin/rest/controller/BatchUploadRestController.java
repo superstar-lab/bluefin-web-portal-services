@@ -30,6 +30,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping(value = "/api/batch-upload")
@@ -74,8 +75,8 @@ public class BatchUploadRestController {
             return batchUploadService.getBatchUploadsFilteredByNoofdays(page, size, sort, noofdays);
         }
     }
-    
-  @ApiOperation(value = "createBatchUpload", nickname = "createBatchUpload")
+
+    @ApiOperation(value = "createBatchUpload", nickname = "createBatchUpload")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
@@ -84,7 +85,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public BatchUpload upload(MultipartHttpServletRequest request, Authentication authentication) {
+    public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -103,7 +104,8 @@ public class BatchUploadRestController {
             throw new CustomBadRequestException("Unable to stream file: " + file.getOriginalFilename());
         }
         String stream = new String(Base64.encodeBase64(bytes));
-        return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream, lines);
+        return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream,
+                lines);
     }
 
     private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {

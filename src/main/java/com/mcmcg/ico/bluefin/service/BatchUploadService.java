@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.transaction.Transactional;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.joda.time.DateTime;
@@ -35,7 +33,6 @@ import com.mcmcg.ico.bluefin.service.util.HttpsUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
-@Transactional
 public class BatchUploadService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchUploadService.class);
@@ -106,6 +103,7 @@ public class BatchUploadService {
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             return objectMapper.readValue(response, BatchUpload.class);
         } catch (IOException e) {
+            LOGGER.error("Unable to parse ACF batch process service response.", e);
             throw new CustomException("Unable to parse ACF batch process service response.");
         }
     }
