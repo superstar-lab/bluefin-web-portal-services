@@ -22,12 +22,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.BatchUploadRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.service.util.HttpsUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
@@ -40,7 +44,7 @@ public class BatchUploadService {
     private BatchUploadRepository batchUploadRepository;
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
-    
+
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
     // CSV file header
@@ -48,11 +52,13 @@ public class BatchUploadService {
             "Batch Application", "Number Of Transactions", "Transactions Processed", "Approved Transactions",
             "Declined Transactions", "Error Transactions", "Rejected Transactions", "Process Start", "Process End",
             "UpLoadedBy" };
-    private static final Object[] TRANSACTIONS_FILE_HEADER = { "#", "Date", "Time", "Invoice", "Amount",
-            "Result", "Error Message" };
+    private static final Object[] TRANSACTIONS_FILE_HEADER = { "#", "Date", "Time", "Invoice", "Amount", "Result",
+            "Error Message" };
 
     @Value("${bluefin.wp.services.batch.upload.report.path}")
     private String reportPath;
+    @Value("${bluefin.wp.services.batch.process.service.url}")
+    private String batchProcessServiceUrl;
 
     public BatchUpload getBatchUploadById(Long id) {
         BatchUpload batchUpload = batchUploadRepository.findOne(id);
@@ -84,6 +90,38 @@ public class BatchUploadService {
         }
 
         return result;
+    }
+
+    public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines) {
+        BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
+        batchUpload = batchUploadRepository.save(batchUpload);
+
+        // call new application to process file content (fileStream)
+        String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
+                fileStream);
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.registerModule(new JodaModule());
+            objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            return objectMapper.readValue(response, BatchUpload.class);
+        } catch (IOException e) {
+            throw new CustomException("Unable to parse ACF batch process service response.");
+        }
+    }
+
+    private BatchUpload createBasicBatchUpload(String username, String fileName, int lines) {
+        BatchUpload batchUpload = new BatchUpload();
+        batchUpload.setDateUploaded(new DateTime());
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd_HHmmss");
+        String date = fmt.print(new DateTime().toDateTime(DateTimeZone.UTC));
+        batchUpload.setName(date);
+        batchUpload.setFileName(fileName);
+        batchUpload.setUpLoadedBy(username);
+        batchUpload.setBatchApplication("GatewayPortal");
+        batchUpload.setProcessStart(new DateTime());
+        batchUpload.setNumberOfTransactions(lines);
+        return batchUpload;
     }
 
     public File getBatchUploadsReport(Integer noofdays) throws IOException {
@@ -148,17 +186,17 @@ public class BatchUploadService {
         }
         return file;
     }
-    
+
     public File getBatchUploadTransactionsReport(Long batchUploadId) throws IOException {
         List<SaleTransaction> result = null;
         File file = null;
-        
+
         if (batchUploadId == null) {
             result = saleTransactionRepository.findAll();
         } else {
             result = saleTransactionRepository.findByBatchUploadId(batchUploadId);
         }
-        
+
         // Create the CSVFormat object with "\n" as a record delimiter
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
         try {
@@ -187,34 +225,34 @@ public class BatchUploadService {
             for (SaleTransaction saleTransaction : result) {
                 List<String> saleTransactionDataRecord = new ArrayList<String>();
                 saleTransactionDataRecord.add(count.toString());
-                
+
                 // Date (local time, not UTC)
                 saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
                         : fmt1.print(saleTransaction.getTransactionDateTime()));
-                
+
                 // Time (local time, not UTC)
                 saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
                         : fmt2.print(saleTransaction.getTransactionDateTime()));
-                
+
                 // Invoice
                 saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
-                
+
                 // Amount
-                saleTransactionDataRecord.add(saleTransaction.getAmount() == null ? ""
-                        : "$" + saleTransaction.getAmount().toString());
-                
+                saleTransactionDataRecord
+                        .add(saleTransaction.getAmount() == null ? "" : "$" + saleTransaction.getAmount().toString());
+
                 // Result
                 saleTransactionDataRecord.add(saleTransaction.getInternalStatusCode());
-                
+
                 // Error Message
                 saleTransactionDataRecord.add(saleTransaction.getInternalStatusDescription());
-                
+
                 csvFilePrinter.printRecord(saleTransactionDataRecord);
                 count++;
             }
             LOGGER.info("CSV file report was created successfully !!!");
         }
-        
+
         return file;
     }
 }

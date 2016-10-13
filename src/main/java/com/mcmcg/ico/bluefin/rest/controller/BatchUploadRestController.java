@@ -1,15 +1,28 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
 
@@ -61,4 +74,77 @@ public class BatchUploadRestController {
             return batchUploadService.getBatchUploadsFilteredByNoofdays(page, size, sort, noofdays);
         }
     }
+    
+  @ApiOperation(value = "createBatchUpload", nickname = "createBatchUpload")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = BatchUpload.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public BatchUpload upload(MultipartHttpServletRequest request, Authentication authentication) {
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        Map<String, MultipartFile> filesMap = request.getFileMap();
+        MultipartFile[] filesArray = getFilesArray(filesMap);
+        if (filesArray.length != 1) {
+            throw new CustomBadRequestException("A file must be uploded");
+        }
+        MultipartFile file = filesArray[0];
+        byte[] bytes = null;
+        int lines = 0;
+        try {
+            lines = countLines(file);
+            bytes = file.getBytes();
+        } catch (IOException e1) {
+            throw new CustomBadRequestException("Unable to stream file: " + file.getOriginalFilename());
+        }
+        String stream = new String(Base64.encodeBase64(bytes));
+        return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream, lines);
+    }
+
+    private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {
+        Set<String> keysSet = filesMap.keySet();
+        MultipartFile[] fileArray = new MultipartFile[keysSet.size()];
+        int i = 0;
+        for (String key : keysSet) {
+            if (key.indexOf("file") != -1) {
+                fileArray[i] = filesMap.get(key);
+                i++;
+            }
+        }
+        return fileArray;
+
+    }
+
+    public static int countLines(MultipartFile file) {
+        InputStream is;
+        boolean empty = true;
+        int count = 0;
+        try {
+            is = file.getInputStream();
+
+            byte[] c = new byte[1024];
+
+            int readChars = 0;
+
+            while ((readChars = is.read(c)) != -1) {
+                empty = false;
+                for (int i = 0; i < readChars; ++i) {
+                    if (c[i] == '\n') {
+                        ++count;
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return (count == 0 && !empty) ? 1 : count;
+    }
+
 }
