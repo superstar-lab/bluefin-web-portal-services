@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.persistent.jpa;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -675,19 +676,28 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         Map<String, Query> queriesMap = createRemittanceQueries(query, page);
         Query result = queriesMap.get("result");
-        Query queryTotal = queriesMap.get("queryTotal");
-
-        int pageNumber = page.getPageNumber();
-        int pageSize = page.getPageSize();
-        // Set the paging for the created select
-        final int countResult = (Integer) queryTotal.getSingleResult();
-        result.setFirstResult(pageSize * pageNumber);
-        result.setMaxResults(pageSize);
 
         // Brings the data and transform it into a Page value list
         @SuppressWarnings("unchecked")
         List<PaymentProcessorRemittance> tr = result.getResultList();
-        Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
+
+        int countResult = tr.size();
+        int pageNumber = page.getPageNumber();
+        int pageSize = page.getPageSize();
+
+        List<PaymentProcessorRemittance> onePage = new ArrayList<PaymentProcessorRemittance>();
+        int index = pageSize * pageNumber;
+        int increment = pageSize;
+        // Check upper bound to avoid IndexOutOfBoundsException
+        if ((index + increment) > countResult) {
+            int adjustment = (index + increment) - countResult;
+            increment -= adjustment;
+        }
+        for (int i = index; i < (index + increment); i++) {
+            onePage.add(tr.get(i));
+        }
+
+        Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(onePage, page, countResult);
 
         return list;
     }
