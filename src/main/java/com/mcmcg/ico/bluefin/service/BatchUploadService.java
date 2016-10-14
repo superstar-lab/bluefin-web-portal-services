@@ -102,7 +102,10 @@ public class BatchUploadService {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JodaModule());
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            return objectMapper.readValue(response, BatchUpload.class);
+            BatchUpload result = objectMapper.readValue(response, BatchUpload.class);
+            batchUpload = batchUploadRepository.findOne(result.getBatchUploadId());
+            batchUpload.setProcessEnd(new DateTime().toDateTime(DateTimeZone.UTC));
+            return batchUploadRepository.save(batchUpload);
         } catch (IOException e) {
             LOGGER.error("Unable to parse ACF batch process service response.", e);
             throw new CustomException("Unable to parse ACF batch process service response.");
