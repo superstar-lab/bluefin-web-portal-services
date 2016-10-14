@@ -112,7 +112,7 @@ public class BatchUploadService {
         batchUpload.setName(date);
         batchUpload.setFileName(fileName);
         batchUpload.setUpLoadedBy(username);
-        batchUpload.setBatchApplication("GatewayPortal");
+        batchUpload.setBatchApplication("Latitude");
         batchUpload.setProcessStart(new DateTime());
         batchUpload.setNumberOfTransactions(lines);
         return batchUpload;
