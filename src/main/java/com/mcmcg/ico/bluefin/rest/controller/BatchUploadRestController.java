@@ -96,7 +96,7 @@ public class BatchUploadRestController {
         }
         MultipartFile file = filesArray[0];
         byte[] bytes = null;
-        int lines = -1; //Initializing in -1 because extra line at the end
+        int lines = 0; 
         try {
             lines = countLines(file);
             bytes = file.getBytes();
@@ -125,7 +125,7 @@ public class BatchUploadRestController {
     public static int countLines(MultipartFile file) {
         InputStream is;
         boolean empty = true;
-        int count = 0;
+        int count = -1; //Initializing in -1 because extra line at the end and HEADER
         try {
             is = file.getInputStream();
 
