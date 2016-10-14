@@ -96,7 +96,7 @@ public class BatchUploadRestController {
         }
         MultipartFile file = filesArray[0];
         byte[] bytes = null;
-        int lines = 0;
+        int lines = -1; //Initializing in -1 because extra line at the end
         try {
             lines = countLines(file);
             bytes = file.getBytes();

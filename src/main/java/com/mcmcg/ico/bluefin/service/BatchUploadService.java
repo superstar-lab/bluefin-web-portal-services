@@ -44,11 +44,6 @@ public class BatchUploadService {
 
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
-    // CSV file header
-    private static final Object[] FILE_HEADER = { "Batch Upload Id", "File Name", "Name", "Date Uploaded",
-            "Batch Application", "Number Of Transactions", "Transactions Processed", "Approved Transactions",
-            "Declined Transactions", "Error Transactions", "Rejected Transactions", "Process Start", "Process End",
-            "UpLoadedBy" };
     private static final Object[] TRANSACTIONS_FILE_HEADER = { "#", "Date", "Time", "Invoice", "Amount", "Result",
             "Error Message" };
 
@@ -69,7 +64,8 @@ public class BatchUploadService {
     }
 
     public Iterable<BatchUpload> getAllBatchUploads(Integer page, Integer size, String sort) {
-        Page<BatchUpload> result = batchUploadRepository.findAll(QueryDSLUtil.getPageRequest(page, size, sort));
+        Page<BatchUpload> result = batchUploadRepository
+                .findAllByOrderByDateUploadedDesc(QueryDSLUtil.getPageRequest(page, size, sort));
         if (page > result.getTotalPages() && page != 0) {
             throw new CustomNotFoundException("Unable to find the page requested");
         }
@@ -80,8 +76,8 @@ public class BatchUploadService {
     public Iterable<BatchUpload> getBatchUploadsFilteredByNoofdays(Integer page, Integer size, String sort,
             Integer noofdays) {
         DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
-        Page<BatchUpload> result = batchUploadRepository.findByDateUploadedAfter(dateBeforeNoofdays,
-                QueryDSLUtil.getPageRequest(page, size, sort));
+        Page<BatchUpload> result = batchUploadRepository.findByDateUploadedAfterOrderByDateUploadedDesc(
+                dateBeforeNoofdays, QueryDSLUtil.getPageRequest(page, size, sort));
         if (page > result.getTotalPages() && page != 0) {
             throw new CustomNotFoundException("Unable to find the page requested");
         }
@@ -120,69 +116,6 @@ public class BatchUploadService {
         batchUpload.setProcessStart(new DateTime());
         batchUpload.setNumberOfTransactions(lines);
         return batchUpload;
-    }
-
-    public File getBatchUploadsReport(Integer noofdays) throws IOException {
-        List<BatchUpload> result = null;
-        File file = null;
-
-        if (noofdays == null) {
-            result = batchUploadRepository.findAll();
-        } else {
-            DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
-            result = batchUploadRepository.findByDateUploadedAfter(dateBeforeNoofdays);
-        }
-
-        // Create the CSVFormat object with "\n" as a record delimiter
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-        try {
-            File dir = new File(reportPath);
-            dir.mkdirs();
-            file = new File(dir, UUID.randomUUID() + ".csv");
-            file.createNewFile();
-        } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
-        }
-        // initialize FileWriter object
-        try (FileWriter fileWriter = new FileWriter(file);
-                CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
-
-            // initialize CSVPrinter object
-
-            // Create CSV file header
-            csvFilePrinter.printRecord(FILE_HEADER);
-
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
-            // Write a new transaction object list to the CSV file
-            for (BatchUpload batchUpload : result) {
-                List<String> batchUploadDataRecord = new ArrayList<String>();
-                batchUploadDataRecord
-                        .add(batchUpload.getBatchUploadId() == null ? " " : batchUpload.getBatchUploadId().toString());
-                batchUploadDataRecord.add(batchUpload.getFileName());
-                batchUploadDataRecord.add(batchUpload.getName());
-                batchUploadDataRecord.add(batchUpload.getDateUploaded() == null ? ""
-                        : fmt.print(batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC)));
-                batchUploadDataRecord.add(batchUpload.getBatchApplication().toString());
-                batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactions()));
-                batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactionsProcessed()));
-                batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfApprovedTransactions()));
-                batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfDeclinedTransactions()));
-                batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfErrorTransactions()));
-                batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfRejected()));
-
-                batchUploadDataRecord.add(batchUpload.getProcessStart() == null ? ""
-                        : fmt.print(batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC)));
-                batchUploadDataRecord.add(batchUpload.getProcessEnd() == null ? ""
-                        : fmt.print(batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC)));
-
-                batchUploadDataRecord.add(batchUpload.getUpLoadedBy());
-
-                csvFilePrinter.printRecord(batchUploadDataRecord);
-            }
-            LOGGER.info("CSV file report was created successfully !!!");
-        }
-        return file;
     }
 
     public File getBatchUploadTransactionsReport(Long batchUploadId) throws IOException {
