@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.persistent.jpa;
 
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +14,7 @@ public interface BatchUploadRepository extends JpaRepository<BatchUpload, Long> 
     public Page<BatchUpload> findByDateUploadedAfterOrderByDateUploadedDesc(DateTime dateBeforeNoofdays,
             Pageable pageRequest);
 
+    public List<BatchUpload> findByDateUploadedAfter(DateTime dateBeforeNoofdays);
     public Page<BatchUpload> findAllByOrderByDateUploadedDesc(Pageable pageRequest);
 
 }

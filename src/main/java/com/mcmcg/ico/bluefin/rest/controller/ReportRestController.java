@@ -115,6 +115,30 @@ public class ReportRestController {
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 
+    @ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
+    @RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public ResponseEntity<String> get(@RequestParam(value = "noofdays", required = false) Integer noofdays,
+            HttpServletResponse response) throws IOException {
+        LOGGER.info("Getting all batch uploads");
+        File downloadFile = batchUploadService.getBatchUploadsReport(noofdays);
+
+        InputStream targetStream = FileUtils.openInputStream(downloadFile);
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+
+        FileCopyUtils.copy(targetStream, response.getOutputStream());
+        LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+        downloadFile.delete();
+        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+    }
+    
     @ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
     @RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")

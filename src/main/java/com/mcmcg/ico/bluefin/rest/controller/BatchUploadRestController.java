@@ -1,7 +1,10 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,10 +99,10 @@ public class BatchUploadRestController {
         }
         MultipartFile file = filesArray[0];
         byte[] bytes = null;
-        int lines = 0; 
+        int lines = 0;
         try {
-            lines = countLines(file);
             bytes = file.getBytes();
+            lines = countLines(bytes);
         } catch (IOException e1) {
             throw new CustomBadRequestException("Unable to stream file: " + file.getOriginalFilename());
         }
@@ -122,31 +125,18 @@ public class BatchUploadRestController {
 
     }
 
-    public static int countLines(MultipartFile file) {
-        InputStream is;
-        boolean empty = true;
-        int count = -1; //Initializing in -1 because extra line at the end and HEADER
-        try {
-            is = file.getInputStream();
-
-            byte[] c = new byte[1024];
-
-            int readChars = 0;
-
-            while ((readChars = is.read(c)) != -1) {
-                empty = false;
-                for (int i = 0; i < readChars; ++i) {
-                    if (c[i] == '\n') {
-                        ++count;
-                    }
-                }
+    public static int countLines(byte[] fileContent) throws IOException {
+        LOGGER.info("Decoding stream body");
+        InputStream is = new ByteArrayInputStream(fileContent);
+        InputStreamReader inR = new InputStreamReader(is);
+        BufferedReader reader = new BufferedReader(inR);
+        int lines = -1;
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (!"".equals(line.trim())) {
+                lines++;
             }
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
-        return (count == 0 && !empty) ? 1 : count;
+        return lines;
     }
-
 }
