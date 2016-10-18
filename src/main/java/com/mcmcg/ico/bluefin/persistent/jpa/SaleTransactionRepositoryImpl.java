@@ -426,6 +426,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     // is NOT 'Recurring' then we need to search by all the
                     // values except 'Recurring'
                     value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
+                } else if (prefix.equals("ppr") && attribute.equalsIgnoreCase("processorName")) {
+                    Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(value).getPaymentProcessorId();
+                    value = paymentProcessorId.toString();
                 }
 
                 statement.add(predicate.replace(":prefix", prefix));
@@ -439,7 +442,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     public boolean skipFilter(String attribute, String prefix) {
         // For payment processor remittance, processorName is a filter,
         // so this should not be skipped.
-        if (prefix.equals("st") && attribute.equalsIgnoreCase("processorName")) {
+        if ((prefix.equals("st") && attribute.equalsIgnoreCase("processorName")) || (prefix.equals("ppr") && attribute.equalsIgnoreCase("processorName"))) {
             return false;
         }
         // For payment processor remittance, legalEntity and batchUploadId are
@@ -672,6 +675,14 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         // Change to: WHERE ReconciliationID != 'Reconciled'
         if (negate) {
             query = query.replaceAll("ppr.ReconciliationStatusID =", "ppr.ReconciliationStatusID !=");
+        }
+        
+        // For payment processor remittance, processorName is a filter.
+        // processorName is set as Processor, which is correct for sales and related tables,
+        // however, it needs to be changed to processorName for payment processor remittance.
+        // Otherwise there will be an invalid column error.
+        if (query.contains("ppr.Processor")) {
+            query = query.replaceAll("ppr.Processor =", "ppr.PaymentProcessorID =");
         }
 
         Map<String, Query> queriesMap = createRemittanceQueries(query, page);
