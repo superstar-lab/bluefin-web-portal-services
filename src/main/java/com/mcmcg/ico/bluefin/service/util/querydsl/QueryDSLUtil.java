@@ -42,6 +42,8 @@ public class QueryDSLUtil {
     public static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + INTEGER_LIST_REGEX + "|" + WORD_LIST_REGEX + ")" + SEARCH_DELIMITER_CHAR_REGEX;
 
+    public static final String SEARCH_REGEX_LE = "(\\w+?)(:|<|>)" + "(" + ANY_LIST_REGEX + ")";
+
     private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
     private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
@@ -179,7 +181,7 @@ public class QueryDSLUtil {
     private static String getLEFilterValue(String search, String filter) {
         String result = StringUtils.EMPTY;
         Boolean validSearch = false;
-        Pattern pattern = Pattern.compile(SEARCH_REGEX);
+        Pattern pattern = Pattern.compile(SEARCH_REGEX_LE);
         Matcher matcher = pattern.matcher(search + ",");
         while (matcher.find()) {
             if (filter.contains(matcher.group(1).toString())) {
