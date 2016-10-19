@@ -104,11 +104,7 @@ public class BatchUploadService {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JodaModule());
             objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            BatchUpload result = objectMapper.readValue(response, BatchUpload.class);
-            result.setDateUploaded(batchUpload.getDateUploaded());
-            result.setProcessStart(batchUpload.getProcessStart());
-            result.setProcessEnd(new DateTime().toDateTime(DateTimeZone.UTC));
-            return batchUploadRepository.save(result);
+            return objectMapper.readValue(response, BatchUpload.class);
         } catch (IOException e) {
             LOGGER.error("Unable to parse ACF batch process service response.", e);
             throw new CustomException("Unable to parse ACF batch process service response.");
@@ -202,9 +198,6 @@ public class BatchUploadService {
             result = saleTransactionRepository.findByBatchUploadId(batchUploadId);
         }
 
-        // Create the CSVFormat object with "\n" as a record delimiter
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL)
-                .withRecordSeparator(NEW_LINE_SEPARATOR);
         try {
             File dir = new File(reportPath);
             dir.mkdirs();
@@ -214,14 +207,18 @@ public class BatchUploadService {
             LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
             throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
         }
+
+        // Create CSV file header
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
         // initialize FileWriter object
-        try (FileWriter fileWriter = new FileWriter(file);
-                CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
+        FileWriter fileWriter = new FileWriter(file);
+        CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
+        csvFilePrinter.printRecord(TRANSACTIONS_FILE_HEADER);
 
-            // initialize CSVPrinter object
+        // Create the CSVFormat object with "\n" as a record delimiter
+        csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withRecordSeparator(NEW_LINE_SEPARATOR);
 
-            // Create CSV file header
-            csvFilePrinter.printRecord(TRANSACTIONS_FILE_HEADER);
+        try (CSVPrinter csvFilePrinterContent = new CSVPrinter(fileWriter, csvFileFormat);) {
 
             // TransactionDateTime needs to be split into two parts.
             DateTimeFormatter fmt1 = DateTimeFormat.forPattern("MM/dd/yyyy");
@@ -251,7 +248,7 @@ public class BatchUploadService {
                 // Error Message
                 saleTransactionDataRecord.add(saleTransaction.getInternalStatusDescription());
 
-                csvFilePrinter.printRecord(saleTransactionDataRecord);
+                csvFilePrinterContent.printRecord(saleTransactionDataRecord);
             }
             LOGGER.info("CSV file report was created successfully !!!");
         }
