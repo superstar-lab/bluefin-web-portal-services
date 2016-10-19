@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.BatchUploadRepository;
@@ -49,7 +50,7 @@ public class BatchUploadService {
             "Batch Application", "Number Of Transactions", "Transactions Processed", "Approved Transactions",
             "Declined Transactions", "Error Transactions", "Rejected Transactions", "Process Start", "Process End",
             "UpLoadedBy" };
-    private static final Object[] TRANSACTIONS_FILE_HEADER = { "#", "Date", "Time", "Invoice", "Amount", "Result",
+    private static final Object[] TRANSACTIONS_FILE_HEADER = { "Date", "Time", "Invoice", "Amount", "Result",
             "Error Message" };
 
     @Value("${bluefin.wp.services.batch.upload.report.path}")
@@ -223,11 +224,9 @@ public class BatchUploadService {
             // TransactionDateTime needs to be split into two parts.
             DateTimeFormatter fmt1 = DateTimeFormat.forPattern("MM/dd/yyyy");
             DateTimeFormatter fmt2 = DateTimeFormat.forPattern("hh:mm:ss.SSa");
-            Integer count = 1;
             // Write a new transaction object list to the CSV file
             for (SaleTransaction saleTransaction : result) {
                 List<String> saleTransactionDataRecord = new ArrayList<String>();
-                saleTransactionDataRecord.add(count.toString());
 
                 // Date (local time, not UTC)
                 saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
@@ -245,13 +244,12 @@ public class BatchUploadService {
                         .add(saleTransaction.getAmount() == null ? "" : "$" + saleTransaction.getAmount().toString());
 
                 // Result
-                saleTransactionDataRecord.add(saleTransaction.getInternalStatusCode());
+                saleTransactionDataRecord.add(StatusCode.getStatusCode(saleTransaction.getInternalStatusCode()));
 
                 // Error Message
                 saleTransactionDataRecord.add(saleTransaction.getInternalStatusDescription());
 
                 csvFilePrinter.printRecord(saleTransactionDataRecord);
-                count++;
             }
             LOGGER.info("CSV file report was created successfully !!!");
         }
