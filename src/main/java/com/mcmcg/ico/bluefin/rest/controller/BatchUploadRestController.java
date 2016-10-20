@@ -89,6 +89,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
+        LOGGER.info("Uploading new ACF file");
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -106,6 +107,7 @@ public class BatchUploadRestController {
         } catch (IOException e1) {
             throw new CustomBadRequestException("Unable to stream file: " + file.getOriginalFilename());
         }
+        LOGGER.info("Encoding file content to send it as stream");
         String stream = new String(Base64.encodeBase64(bytes));
         return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream,
                 lines);
@@ -126,7 +128,7 @@ public class BatchUploadRestController {
     }
 
     public static int countLines(byte[] fileContent) throws IOException {
-        LOGGER.info("Decoding stream body");
+        LOGGER.info("Decoding stream body to count file lines");
         InputStream is = new ByteArrayInputStream(fileContent);
         InputStreamReader inR = new InputStreamReader(is);
         BufferedReader reader = new BufferedReader(inR);
