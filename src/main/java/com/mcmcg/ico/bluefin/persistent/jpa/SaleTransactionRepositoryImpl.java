@@ -133,7 +133,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
             } else if (entry.getKey().contains("legalEntityParam")
                     || entry.getKey().contains("paymentFrequencyParam")) {
                 // Special case for legal entity
-                String value = entry.getValue().replace("[", "").replace("]", "");
+                String value = entry.getValue().replace("[", "").replace("]", "").replace(" ", "");
 
                 result.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
                 queryTotal.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
