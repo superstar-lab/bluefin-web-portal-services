@@ -686,9 +686,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         // however, it needs to be changed to processorName for payment
         // processor remittance.
         // Otherwise there will be an invalid column error.
-        if (query.contains("ppr.Processor")) {
-            query = query.replaceAll("ppr.Processor =", "ppr.PaymentProcessorID =");
-        }
+        // if (query.contains("ppr.Processor")) {
+        // query = query.replaceAll("ppr.Processor =", "ppr.PaymentProcessorID
+        // =");
+        // }
 
         Map<String, Query> queriesMap = createRemittanceQueries(query, page);
         Query result = queriesMap.get("result");
@@ -736,11 +737,11 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     private String getNativeQueryForRemittanceSaleRefund(String search) {
 
-        String remittanceCreationDateBegin = "";
-        String remittanceCreationDateEnd = "";
-        String processorName = "";
-        String legalEntity = "";
-        String reconciliationStatusId = "";
+        String remittanceCreationDateBegin = null;
+        String remittanceCreationDateEnd = null;
+        String processorName = null;
+        String[] legalEntityArray = null;
+        String reconciliationStatusId = null;
 
         String[] searchArray = search.split("\\$\\$");
 
@@ -758,8 +759,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 processorName = parameterArray[1];
             }
             if (parameter.startsWith("legalEntity")) {
-                String[] parameterArray = parameter.split(":");
-                legalEntity = parameterArray[1];
+                String temp = parameter.replaceAll("legalEntity:", "");
+                String values = temp.replaceAll("\\[|\\]", "");
+                legalEntityArray = values.split(",");
             }
             if (parameter.startsWith("reconciliationStatusId")) {
                 String[] parameterArray = parameter.split(":");
@@ -822,9 +824,22 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("AND (ppr.TransactionType = 'sale' OR ppr.TransactionType = 'SALE')) ");
         querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
         querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-        // if (!processorName.equals("")) {
-        // querySb.append("AND ProcessorName = " + processorName + " ");
-        // }
+        if (processorName != null) {
+            Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName)
+                    .getPaymentProcessorId();
+            querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
+            querySb.append("AND st.Processor = '" + processorName + "' ");
+        }
+        if (legalEntityArray != null) {
+            querySb.append("AND (");
+            for (int i = 0; i < legalEntityArray.length; i++) {
+                querySb.append("st.LegalEntityApp = '" + legalEntityArray[i] + "' ");
+                if (i != (legalEntityArray.length - 1)) {
+                    querySb.append("OR ");
+                }
+            }
+            querySb.append(") ");
+        }
         querySb.append("UNION ");
         querySb.append(
                 "SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,");
@@ -871,9 +886,12 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("AND (ppr.TransactionType = 'refund' OR ppr.TransactionType = 'REFUND')) ");
         querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
         querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-        // if (!processorName.equals("")) {
-        // querySb.append("AND ProcessorName = " + processorName + " ");
-        // }
+        if (processorName != null) {
+            Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName)
+                    .getPaymentProcessorId();
+            querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
+            querySb.append("AND rt.Processor = '" + processorName + "' ");
+        }
         querySb.append("UNION ");
         querySb.append(
                 "SELECT NULL AS PaymentProcessorRemittanceID,NULL AS DateCreated,NULL AS ReconciliationStatusID,NULL AS ReconciliationDate,");
@@ -905,10 +923,20 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("FROM Sale_Transaction SALE ");
         querySb.append("WHERE SALE.ReconciliationDate >= DATEADD(DAY,-2,'" + remittanceCreationDateBegin
                 + "') AND SALE.ReconciliationDate <= DATEADD(DAY,-1,'" + remittanceCreationDateBegin + "') ");
-        // if (!processorName.equals("")) {
-        // querySb.append("AND ProcessorName = " + processorName + " ");
-        // }
-        if (!reconciliationStatusId.equals("")) {
+        if (processorName != null) {
+            querySb.append("AND SALE.Processor = '" + processorName + "' ");
+        }
+        if (legalEntityArray != null) {
+            querySb.append("AND (");
+            for (int i = 0; i < legalEntityArray.length; i++) {
+                querySb.append("SALE.LegalEntityApp = '" + legalEntityArray[i] + "' ");
+                if (i != (legalEntityArray.length - 1)) {
+                    querySb.append("OR ");
+                }
+            }
+            querySb.append(") ");
+        }
+        if (reconciliationStatusId != null) {
             querySb.append("AND SALE.ReconciliationStatusID = " + reconciliationStatusId + " ");
         }
         querySb.append("UNION ");
@@ -945,10 +973,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("FROM REFUND_Transaction REFUND ");
         querySb.append("WHERE REFUND.ReconciliationDate >= DATEADD(DAY,-2,'" + remittanceCreationDateBegin
                 + "') AND REFUND.ReconciliationDate <= DATEADD(DAY,-1,'" + remittanceCreationDateBegin + "') ");
-        // if (!processorName.equals("")) {
-        // querySb.append("AND ProcessorName = " + processorName + " ");
-        // }
-        if (!reconciliationStatusId.equals("")) {
+        if (processorName != null) {
+            querySb.append("AND REFUND.Processor = '" + processorName + "' ");
+        }
+        if (reconciliationStatusId != null) {
             querySb.append("AND REFUND.ReconciliationStatusID = " + reconciliationStatusId + " ");
         }
 
