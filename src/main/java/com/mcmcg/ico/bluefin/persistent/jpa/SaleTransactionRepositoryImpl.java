@@ -578,7 +578,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
 
     @Override
-    public Page<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactions(String search, PageRequest page,
+    public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest page,
             boolean negate) throws ParseException {
 
         // Creates the query for the total and for the retrieved data
@@ -620,7 +620,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     }
 
     @Override
-    public List<PaymentProcessorRemittance> findRemittanceSaleRefundVoidTransactionsReport(String search)
+    public List<PaymentProcessorRemittance> findRemittanceSaleRefundTransactionsReport(String search)
             throws ParseException {
 
         String query = getNativeQueryForRemittanceSaleRefund(search);
@@ -720,10 +720,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
         querySb.append("FROM PaymentProcessor_Remittance ppr ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
-        querySb.append("LEFT JOIN Sale_Transaction st ON (ppr.ProcessorTransactionID = st.ProcessorTransactionID ");
-        querySb.append("AND (ppr.TransactionType = 'sale' OR ppr.TransactionType = 'SALE')) ");
+        querySb.append("LEFT JOIN Sale_Transaction st ON (ppr.ProcessorTransactionID = st.ProcessorTransactionID) ");
         querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
         querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+        querySb.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
         if (processorName != null) {
             Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName)
                     .getPaymentProcessorId();
@@ -731,14 +731,14 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
             querySb.append("AND st.Processor = '" + processorName + "' ");
         }
         if (legalEntityArray != null) {
-            querySb.append("AND (");
+            querySb.append("AND (st.LegalEntityApp IN (");
             for (int i = 0; i < legalEntityArray.length; i++) {
-                querySb.append("st.LegalEntityApp = '" + legalEntityArray[i] + "' ");
+                querySb.append("'" + legalEntityArray[i] + "'");
                 if (i != (legalEntityArray.length - 1)) {
-                    querySb.append("OR ");
+                    querySb.append(", ");
                 }
             }
-            querySb.append(") ");
+            querySb.append(")) ");
         }
         querySb.append("UNION ");
         querySb.append(
@@ -782,10 +782,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
         querySb.append("FROM PaymentProcessor_Remittance ppr ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
-        querySb.append("LEFT JOIN Refund_Transaction rt ON (ppr.ProcessorTransactionID = rt.ProcessorTransactionID ");
-        querySb.append("AND (ppr.TransactionType = 'refund' OR ppr.TransactionType = 'REFUND')) ");
+        querySb.append("LEFT JOIN Refund_Transaction rt ON (ppr.ProcessorTransactionID = rt.ProcessorTransactionID) ");
         querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
         querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+        querySb.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
         if (processorName != null) {
             Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName)
                     .getPaymentProcessorId();
@@ -827,14 +827,14 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
             querySb.append("AND SALE.Processor = '" + processorName + "' ");
         }
         if (legalEntityArray != null) {
-            querySb.append("AND (");
+            querySb.append("AND (SALE.LegalEntityApp IN (");
             for (int i = 0; i < legalEntityArray.length; i++) {
-                querySb.append("SALE.LegalEntityApp = '" + legalEntityArray[i] + "' ");
+                querySb.append("'" + legalEntityArray[i] + "'");
                 if (i != (legalEntityArray.length - 1)) {
-                    querySb.append("OR ");
+                    querySb.append(", ");
                 }
             }
-            querySb.append(") ");
+            querySb.append(")) ");
         }
         if (reconciliationStatusId != null) {
             querySb.append("AND SALE.ReconciliationStatusID = " + reconciliationStatusId + " ");

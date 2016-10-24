@@ -307,7 +307,7 @@ public class TransactionService {
             PageRequest paging, boolean negate) {
         Page<PaymentProcessorRemittance> result;
         try {
-            result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactions(search, paging, negate);
+            result = saleTransactionRepository.findRemittanceSaleRefundTransactions(search, paging, negate);
         } catch (ParseException e) {
             throw new CustomNotFoundException(
                     "Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
@@ -336,7 +336,7 @@ public class TransactionService {
 
         File file = null;
         try {
-            result = saleTransactionRepository.findRemittanceSaleRefundVoidTransactionsReport(search);
+            result = saleTransactionRepository.findRemittanceSaleRefundTransactionsReport(search);
         } catch (ParseException e) {
             throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
         }
