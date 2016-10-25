@@ -223,10 +223,21 @@ public class InternalResponseCodeService {
                         }
                     }
 
+                    Set<Long> internalSet = new HashSet<Long>();
                     if (paymentProcessorResponseCode == null) {
                         LOGGER.info("Creating new payment processor response code {}", resourceProcessorCode.getCode());
                         paymentProcessorResponseCode = new PaymentProcessorResponseCode();
 
+                        paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
+                        paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
+                        paymentProcessorResponseCode
+                                .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
+                        paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
+
+                        newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
+                        newMapOfPaymentProcessorResponseCodes.put(
+                                paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
+                                paymentProcessorResponseCode);
                     } else {
                         Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
                                 .getInternalResponseCode();
@@ -237,21 +248,23 @@ public class InternalResponseCodeService {
                                 throw new CustomBadRequestException(
                                         "This Payment Processor is already related to another Internal Response Code.");
                             }
+                            InternalResponseCode current = currentPaymentProcessorInternalResponseCode
+                                    .getInternalResponseCode();
+                            internalSet.add(current.getInternalResponseCodeId());
+                        }
+                        paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
+                        paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
+                        paymentProcessorResponseCode
+                                .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
+                        paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
+                        newMapOfPaymentProcessorResponseCodes.put(
+                                paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
+                                paymentProcessorResponseCode);
+                        if (!internalSet.contains(internalResponseCode.getInternalResponseCodeId())) {
+                            newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
                         }
 
                     }
-
-                    paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-                    paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
-                    paymentProcessorResponseCode
-                            .setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-                    paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
-
-                    newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
-                    newMapOfPaymentProcessorResponseCodes.put(
-                            paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
-                            paymentProcessorResponseCode);
-
                     paymentProcessorResponseCode = paymentProcessorResponseCodeRepository
                             .save(paymentProcessorResponseCode);
                 } else {
