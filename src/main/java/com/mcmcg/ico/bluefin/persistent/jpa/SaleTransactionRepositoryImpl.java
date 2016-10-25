@@ -54,6 +54,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Value("${bluefin.wp.services.transactions.report.max.size}")
     private String maxSizeReport;
 
+    @Value("${bluefin.wp.services.testOrProd}")
+    private String testOrProd;
+
     @PostConstruct
     public void init() {
         loadSaleTransactionMappings();
@@ -670,6 +673,76 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         }
 
         StringBuilder querySb = new StringBuilder();
+
+        if (legalEntityArray != null && reconciliationStatusId != null) {
+            // Remit without sale = 4, Remit without refund = 7
+            if (reconciliationStatusId.equals("4") || reconciliationStatusId.equals("7")) {
+                querySb.append("SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,");
+                querySb.append("ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,");
+                querySb.append(
+                        "ppr.TransactionTime,ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,");
+                querySb.append(
+                        "ppr.TransactionSource,ppr.FirstName,ppr.LastName,ppr.RemittanceCreationDate,ppr.PaymentProcessorID,");
+                querySb.append(
+                        "ppl.ProcessorName AS ProcessorName,NULL AS SaleTransactionID,NULL AS SaleFirstName,NULL AS SaleLastName,");
+                querySb.append(
+                        "NULL AS SaleProcessUser,NULL AS SaleTransactionType,NULL AS SaleAddress1,NULL AS SaleAddress2,");
+                querySb.append("NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,");
+                querySb.append(
+                        "NULL AS SaleCardNumberFirst6Char,NULL AS SaleCardNumberLast4Char,NULL AS SaleCardType,");
+                querySb.append(
+                        "CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,NULL AS SaleChargeAmount,NULL AS SaleLegalEntityApp,");
+                querySb.append(
+                        "NULL AS SaleAccountId,NULL AS SaleApplicationTransactionID,NULL AS SaleMerchantID,NULL AS SaleProcessor,");
+                querySb.append(
+                        "NULL AS SaleApplication,NULL AS SaleOrigin,NULL AS SaleProcessorTransactionID,CAST(NULL AS DATETIME) AS SaleTransactionDateTime,");
+                querySb.append(
+                        "NULL AS SaleTestMode,NULL AS SaleApprovalCode,NULL AS SaleTokenized,NULL AS SalePaymentProcessorStatusCode,");
+                querySb.append(
+                        "NULL AS SalePaymentProcessorStatusCodeDescription,NULL AS SalePaymentProcessorResponseCode,");
+                querySb.append(
+                        "NULL AS SalePaymentProcessorResponseCodeDescription,NULL AS SaleInternalStatusCode,NULL AS SaleInternalStatusDescription,");
+                querySb.append(
+                        "NULL AS SaleInternalResponseCode,NULL AS SaleInternalResponseDescription,NULL AS SalePaymentProcessorInternalStatusCodeID,");
+                querySb.append(
+                        "NULL AS SalePaymentProcessorInternalResponseCodeID,CAST(NULL AS DATETIME) AS SaleDateCreated,NULL AS SalePaymentProcessorRuleID,");
+                querySb.append(
+                        "NULL AS SaleRulePaymentProcessorID,NULL AS SaleRuleCardType,NULL AS SaleRuleMaximumMonthlyAmount,");
+                querySb.append(
+                        "NULL AS SaleRuleNoMaximumMonthlyAmountFlag,NULL AS SaleRulePriority,NULL AS SaleAccountPeriod,NULL AS SaleDesk,");
+                querySb.append(
+                        "NULL AS SaleInvoiceNumber,NULL AS SaleUserDefinedField1,NULL AS SaleUserDefinedField2,NULL AS SaleUserDefinedField3,");
+                querySb.append(
+                        "NULL AS SaleReconciliationStatusID,CAST(NULL AS DATETIME) AS SaleReconciliationDate,NULL AS SaleBatchUploadID,");
+                querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
+                querySb.append("FROM PaymentProcessor_Remittance ppr ");
+                querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID)");
+                querySb.append(
+                        "LEFT JOIN PaymentProcessor_Merchant ppm ON (ppr.PaymentProcessorID = ppm.PaymentProcessorID) AND (ppr.MerchantID = ppm.MerchantID) ");
+                querySb.append("JOIN LegalEntityApp_Lookup lel ON (ppm.LegalEntityAppID = lel.LegalEntityAppID) ");
+                querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
+                querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+                if (reconciliationStatusId.equals("4")) {
+                    querySb.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
+                }
+                if (reconciliationStatusId.equals("7")) {
+                    querySb.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
+                }
+                querySb.append("AND (lel.LegalEntityAppName IN (");
+                for (int i = 0; i < legalEntityArray.length; i++) {
+                    querySb.append("'" + legalEntityArray[i] + "'");
+                    if (i != (legalEntityArray.length - 1)) {
+                        querySb.append(", ");
+                    }
+                }
+                querySb.append(")) ");
+                querySb.append("AND ppr.ReconciliationStatusID = " + reconciliationStatusId + " ");
+                querySb.append("AND ppm.TestOrProd = " + testOrProd + " ");
+
+                return querySb.toString();
+            }
+        }
+
         querySb.append("SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,");
         querySb.append(
                 "ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,ppr.TransactionTime,");
