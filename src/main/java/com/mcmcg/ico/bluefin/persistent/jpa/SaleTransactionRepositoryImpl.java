@@ -813,6 +813,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
             }
             querySb.append(")) ");
         }
+        if (reconciliationStatusId != null) {
+            querySb.append("AND st.ReconciliationStatusID = " + reconciliationStatusId + " ");
+        }
         querySb.append("UNION ");
         querySb.append(
                 "SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,");
@@ -864,6 +867,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                     .getPaymentProcessorId();
             querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
             querySb.append("AND rt.Processor = '" + processorName + "' ");
+        }
+        if (reconciliationStatusId != null) {
+            querySb.append("AND rt.ReconciliationStatusID = " + reconciliationStatusId + " ");
         }
         querySb.append("UNION ");
         querySb.append(
