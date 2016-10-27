@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.TransactionType;
+import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.RefundTransaction;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
@@ -159,8 +160,12 @@ public class PaymentProcessorRemittanceService {
         }
         String processorName = null;
         if (ppr != null) {
-            processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId())
-                    .getProcessorName();
+            Long paymentProcessorId = ppr.getPaymentProcessorId();
+            if (paymentProcessorId != null) {
+                PaymentProcessor paymentProcessor = paymentProcessorRepository
+                        .findByPaymentProcessorId(paymentProcessorId);
+                processorName = paymentProcessor.getProcessorName();
+            }
         }
         Short tokenized = null;
         if (st != null) {
