@@ -1069,7 +1069,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "ppr.PaymentProcessorID,ppl.ProcessorName AS ProcessorName,rt.SaleTransactionID AS SaleTransactionID,");
         querySb.append(
-                "NULL AS SaleFirstName,NULL AS SaleLastName,NULL AS SaleProcessUser,NULL AS SaleTransactionType,NULL AS SaleAddress1,");
+                "NULL AS SaleFirstName,NULL AS SaleLastName,NULL AS SaleProcessUser,'REFUND' AS SaleTransactionType,NULL AS SaleAddress1,");
         querySb.append(
                 "NULL AS SaleAddress2,NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,NULL AS SaleCardNumberFirst6Char,");
         querySb.append(
@@ -1155,7 +1155,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "NULL AS MerchantID,NULL AS TransactionSource,NULL AS FirstName,NULL AS LastName,NULL AS RemittanceCreationDate,NULL AS PaymentProcessorID,");
         querySb.append(
-                "NULL AS ProcessorName,REFUND.SaleTransactionID,NULL AS RefundFirstName,NULL AS RefundLastName,NULL AS RefundProcessUser,NULL AS RefundTransactionType,");
+                "NULL AS ProcessorName,REFUND.SaleTransactionID,NULL AS RefundFirstName,NULL AS RefundLastName,NULL AS RefundProcessUser,'REFUND' AS RefundTransactionType,");
         querySb.append(
                 "NULL AS RefundAddress1,NULL AS RefundAddress2,NULL AS RefundCity,NULL AS RefundState,NULL AS RefundPostalCode,NULL AS RefundCountry,");
         querySb.append(
