@@ -428,9 +428,9 @@ public class TransactionService {
                 transactionDataRecord
                         .add(transaction.getSaleAmount() == null ? "" : "$" + transaction.getSaleAmount().toString());
 
-                // Bluefin Date/Time
+                // Bluefin Date/Time (local time, not UTC)
                 transactionDataRecord.add(transaction.getSaleTransactionDateTime() == null ? ""
-                        : fmt.print(transaction.getSaleTransactionDateTime().toDateTime(DateTimeZone.UTC)));
+                        : fmt.print(transaction.getSaleTransactionDateTime()));
 
                 // Remittance information section
                 // Remittance Transaction ID
@@ -443,7 +443,7 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getTransactionAmount() == null ? ""
                         : transaction.getTransactionAmount().toString());
 
-                // Remittance Date/Time
+                // Remittance Date/Time (UTC)
                 transactionDataRecord.add(transaction.getTransactionTime() == null ? ""
                         : fmt.print(transaction.getTransactionTime().toDateTime(DateTimeZone.UTC)));
 
