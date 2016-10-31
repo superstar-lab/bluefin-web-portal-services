@@ -167,10 +167,10 @@ public class SessionService {
         LOGGER.info("Reseting password of user: {}", username);
         final String link = "/api/users/" + username + "/password";
         final String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
-
+        String content = "Please use the link below to reset your password: \n\n" + resetPasswordEmailLink + "?token="
+                + token;
         // Send email
-        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT,
-                resetPasswordEmailLink + "?token=" + token);
+        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT, content);
     }
 
     private AuthenticationResponse getLoginResponse(final User user, final String token) {

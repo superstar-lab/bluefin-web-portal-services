@@ -129,8 +129,10 @@ public class UserService {
         // Send email
         final String link = "/api/users/" + username + "/password";
         final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
-        emailService.sendEmail(newUser.getEmail(), REGISTER_USER_EMAIL_SUBJECT,
-                registerUserEmailLink + "?token=" + token);
+        String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
+                + "Username: " + username + "\n\n To create your password, use the link below: \n\n" + registerUserEmailLink
+                + "?user=" + username + "&token=" + token;
+        emailService.sendEmail(newUser.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
 
         return newUserResource;
     }
