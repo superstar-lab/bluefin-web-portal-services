@@ -398,9 +398,9 @@ public class TransactionService {
                 String status = null;
                 Long reconciliationStatusId = transaction.getSaleReconciliationStatusId();
                 if (reconciliationStatusId != null) {
-                    status = reconciliationStatusId.toString();
+                    status = reconciliationStatusMap.get(reconciliationStatusId);
                 } else {
-                    status = reconciliationStatusMap.get(transaction.getReconciliationStatusId());
+                    status = "";
                 }
                 transactionDataRecord.add(status);
 
