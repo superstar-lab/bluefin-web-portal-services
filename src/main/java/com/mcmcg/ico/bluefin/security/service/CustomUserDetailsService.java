@@ -18,7 +18,6 @@ import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 
 @Service("userDetailsService")
@@ -30,11 +29,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new CustomNotFoundException("User not found: " + username);
-        }
 
-        return new SecurityUser(user, getAuthorities(user.getRoles()));
+        return user == null ? null : new SecurityUser(user, getAuthorities(user.getRoles()));
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Collection<UserRole> roles) {

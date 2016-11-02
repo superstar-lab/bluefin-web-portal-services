@@ -43,13 +43,13 @@ public class PaymentProcessorRuleService {
         // Verify if payment processor exists
         PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
 
-        // Payment processor must be active and has merchants associate to it
-        if (!loadedPaymentProcessor.isActive() || !loadedPaymentProcessor.hasMerchantsAssociated()) {
+        // Payment processor must has merchants associate to it
+        if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
             LOGGER.error(
-                    "Unable to create payment processor rule.  Payment processor MUST be active and MUST have at least one merchant associated.   Payment processor id = [{}]",
+                    "Unable to create payment processor rule.  Payment processor MUST has at least one merchant associated.   Payment processor id = [{}]",
                     loadedPaymentProcessor.getPaymentProcessorId());
             throw new CustomNotFoundException(String.format(
-                    "Unable to create payment processor rule.  Payment processor [%s] MUST be active and MUST have at least one merchant associated.",
+                    "Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
                     loadedPaymentProcessor.getPaymentProcessorId()));
         }
 
@@ -148,7 +148,9 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule doesn't exist
      */
     public void delete(final long id) {
-        paymentProcessorRuleRepository.delete(getPaymentProcessorRule(id));
+        PaymentProcessorRule paymentProcessorRule = getPaymentProcessorRule(id);
+
+        paymentProcessorRuleRepository.delete(paymentProcessorRule);
     }
 
     public List<CardType> getTransactionTypes() {

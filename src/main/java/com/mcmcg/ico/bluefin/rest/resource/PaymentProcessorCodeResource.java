@@ -9,7 +9,7 @@ public class PaymentProcessorCodeResource {
 
     private String code;
     private String description;
-    @NotNull(message = "Attribute paymentProcessorId cannot be empty or null")
+    @NotNull(message = "Please provide a payment processor id for the payment processor code")
     private Long paymentProcessorId;
     private Long paymentProcessorCodeId;
 }

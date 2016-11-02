@@ -23,7 +23,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.mcmcg.ico.bluefin.model.PaymentFrequency;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,24 +35,61 @@ import lombok.ToString;
 @SqlResultSetMapping(name = "CustomMappingResult", classes = {
         @ConstructorResult(targetClass = SaleTransaction.class, columns = {
                 @ColumnResult(name = "SaleTransactionID", type = Long.class),
+                @ColumnResult(name = "TransactionType", type = String.class),
+                @ColumnResult(name = "LegalEntityApp", type = String.class),
+                @ColumnResult(name = "AccountId", type = String.class),
                 @ColumnResult(name = "ApplicationTransactionID", type = String.class),
                 @ColumnResult(name = "ProcessorTransactionID", type = String.class),
                 @ColumnResult(name = "MerchantID", type = String.class),
-                @ColumnResult(name = "TransactionType", type = String.class),
-                @ColumnResult(name = "Processor", type = String.class),
-                @ColumnResult(name = "InternalStatusCode", type = String.class),
-                @ColumnResult(name = "InternalStatusDescription", type = String.class),
-                @ColumnResult(name = "DateCreated", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "TransactionDateTime", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
-                @ColumnResult(name = "ChargeAmount", type = BigDecimal.class),
-                @ColumnResult(name = "FirstName", type = String.class),
-                @ColumnResult(name = "LastName", type = String.class),
+                @ColumnResult(name = "CardNumberFirst6Char", type = String.class),
                 @ColumnResult(name = "CardNumberLast4Char", type = String.class),
                 @ColumnResult(name = "CardType", type = String.class),
-                @ColumnResult(name = "LegalEntityApp", type = String.class),
-                @ColumnResult(name = "AccountId", type = String.class),
+                @ColumnResult(name = "ChargeAmount", type = BigDecimal.class),
+                @ColumnResult(name = "ExpiryDate", type = Date.class),
+                @ColumnResult(name = "FirstName", type = String.class),
+                @ColumnResult(name = "LastName", type = String.class),
+                @ColumnResult(name = "Address1", type = String.class),
+                @ColumnResult(name = "Address2", type = String.class),
+                @ColumnResult(name = "City", type = String.class), @ColumnResult(name = "State", type = String.class),
+                @ColumnResult(name = "PostalCode", type = String.class),
+                @ColumnResult(name = "Country", type = String.class),
+                @ColumnResult(name = "TestMode", type = Short.class),
+                @ColumnResult(name = "Token", type = String.class),
+                @ColumnResult(name = "Tokenized", type = Short.class),
+                @ColumnResult(name = "PaymentProcessorResponseCode", type = String.class),
+                @ColumnResult(name = "PaymentProcessorResponseCodeDescription", type = String.class),
+                @ColumnResult(name = "ApprovalCode", type = String.class),
+                @ColumnResult(name = "InternalResponseCode", type = String.class),
+                @ColumnResult(name = "InternalResponseDescription", type = String.class),
+                @ColumnResult(name = "InternalStatusCode", type = String.class),
+                @ColumnResult(name = "InternalStatusDescription", type = String.class),
+                @ColumnResult(name = "PaymentProcessorStatusCode", type = String.class),
+                @ColumnResult(name = "PaymentProcessorStatusCodeDescription", type = String.class),
+                @ColumnResult(name = "PaymentProcessorRuleID", type = Long.class),
+                @ColumnResult(name = "RulePaymentProcessorID", type = Long.class),
+                @ColumnResult(name = "RuleCardType", type = String.class),
+                @ColumnResult(name = "RuleMaximumMonthlyAmount", type = BigDecimal.class),
+                @ColumnResult(name = "RuleNoMaximumMonthlyAmountFlag", type = Short.class),
+                @ColumnResult(name = "RulePriority", type = Short.class),
+                @ColumnResult(name = "ProcessUser", type = String.class),
+                @ColumnResult(name = "Processor", type = String.class),
+                @ColumnResult(name = "Application", type = String.class),
+                @ColumnResult(name = "Origin", type = String.class),
+                @ColumnResult(name = "AccountPeriod", type = String.class),
+                @ColumnResult(name = "Desk", type = String.class),
+                @ColumnResult(name = "InvoiceNumber", type = String.class),
+                @ColumnResult(name = "UserDefinedField1", type = String.class),
+                @ColumnResult(name = "UserDefinedField2", type = String.class),
+                @ColumnResult(name = "UserDefinedField3", type = String.class),
+                @ColumnResult(name = "DateCreated", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "IsVoided", type = Integer.class),
-                @ColumnResult(name = "IsRefunded", type = Integer.class) }) })
+                @ColumnResult(name = "IsRefunded", type = Integer.class),
+                @ColumnResult(name = "PaymentProcessorInternalStatusCodeID", type = Long.class),
+                @ColumnResult(name = "PaymentProcessorInternalResponseCodeID", type = Long.class),
+                @ColumnResult(name = "ReconciliationStatusID", type = Long.class),
+                @ColumnResult(name = "ReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
+                @ColumnResult(name = "BatchUploadID", type = Long.class) }) })
 @Data
 @EqualsAndHashCode(exclude = { "refundedTransactions", "voidedTransactions" })
 @ToString(exclude = { "refundedTransactions", "voidedTransactions" })
@@ -64,155 +104,313 @@ public class SaleTransaction implements Serializable, Transaction {
 
     }
 
-    public SaleTransaction(Long saleTransactionId, String applicationTransactionId, String processorTransactionId,
-            String merchantID, String transactionType, String processorName, String internalStatusCode, String internalStatusDescription,
-            DateTime createdDate, DateTime transactionDateTime, BigDecimal amount, String firstName, String lastName,
-            String cardNumberLast4Char, String cardType, String legalEntity, String accountNumber, Integer isVoided,
-            Integer isRefunded) {
+    public SaleTransaction(Long saleTransactionId, String transactionType, String legalEntity, String accountNumber,
+            String applicationTransactionId, String processorTransactionId, String merchantId,
+            DateTime transactionDateTime, String cardNumberFirst6Char, String cardNumberLast4Char, String cardType,
+            BigDecimal amount, Date expiryDate, String firstName, String lastName, String address1, String address2,
+            String city, String state, String postalCode, String country, Short testMode, String token, Short tokenized,
+            String processorResponseCode, String processorResponseCodeDescription, String approvalCode,
+            String internalResponseCode, String internalResponseDescription, String internalStatusCode,
+            String internalStatusDescription, String paymentProcessorStatusCode,
+            String paymentProcessorStatusCodeDescription, Long paymentProcessorRuleId, Long rulePaymentProcessorId,
+            String ruleCardType, BigDecimal ruleMaximumMonthlyAmount, Short ruleNoMaximumMonthlyAmountFlag,
+            Short rulePriority, String processUser, String processorName, String application, String origin,
+            String accountPeriod, String desk, String invoiceNumber, String userDefinedField1, String userDefinedField2,
+            String userDefinedField3, DateTime createdDate, Integer isVoided, Integer isRefunded,
+            Long paymentProcessorInternalStatusCodeId, Long paymentProcessorInternalResponseCodeId,
+            Long reconciliationStatusId, DateTime reconciliationDate, Long batchUploadId) {
         this.saleTransactionId = saleTransactionId;
-        this.applicationTransactionId = applicationTransactionId;
-        this.processorTransactionId = processorTransactionId;
-        this.merchantId = merchantID;
         this.transactionType = transactionType;
-        this.processorName = processorName;
-        this.internalStatusCode = internalStatusCode;
-        this.internalStatusDescription = internalStatusDescription;
-        this.createdDate = createdDate;
-        this.transactionDateTime = transactionDateTime;
-        this.amount = amount;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.cardNumberLast4Char = cardNumberLast4Char;
-        this.cardType = cardType;
         this.legalEntity = legalEntity;
         this.accountNumber = accountNumber;
+        this.applicationTransactionId = applicationTransactionId;
+        this.processorTransactionId = processorTransactionId;
+        this.merchantId = merchantId;
+        this.transactionDateTime = transactionDateTime;
+        this.cardNumberFirst6Char = cardNumberFirst6Char;
+        this.cardNumberLast4Char = cardNumberLast4Char;
+        this.cardType = cardType;
+        this.amount = amount;
+        this.expiryDate = expiryDate;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.address1 = address1;
+        this.address2 = address2;
+        this.city = city;
+        this.state = state;
+        this.postalCode = postalCode;
+        this.country = country;
+        this.testMode = testMode;
+        this.token = token;
+        this.tokenized = tokenized;
+        this.processorResponseCode = processorResponseCode;
+        this.processorResponseCodeDescription = processorResponseCodeDescription;
+        this.approvalCode = approvalCode;
+        this.internalResponseCode = internalResponseCode;
+        this.internalResponseDescription = internalResponseDescription;
+        this.internalStatusCode = internalStatusCode;
+        this.internalStatusDescription = internalStatusDescription;
+        this.paymentProcessorStatusCode = paymentProcessorStatusCode;
+        this.paymentProcessorStatusCodeDescription = paymentProcessorStatusCodeDescription;
+        this.paymentProcessorRuleId = paymentProcessorRuleId;
+        this.rulePaymentProcessorId = rulePaymentProcessorId;
+        this.ruleCardType = ruleCardType;
+        this.ruleMaximumMonthlyAmount = ruleMaximumMonthlyAmount;
+        this.ruleNoMaximumMonthlyAmountFlag = ruleNoMaximumMonthlyAmountFlag;
+        this.rulePriority = rulePriority;
+        this.processUser = processUser;
+        this.processorName = processorName;
+        this.application = application;
+        this.origin = origin;
+        this.accountPeriod = accountPeriod;
+        this.desk = desk;
+        this.invoiceNumber = invoiceNumber;
+        this.userDefinedField1 = userDefinedField1;
+        this.userDefinedField2 = userDefinedField2;
+        this.userDefinedField3 = userDefinedField3;
+        this.createdDate = createdDate;
         this.isVoided = isVoided;
         this.isRefunded = isRefunded;
+        this.paymentProcessorInternalStatusCodeId = paymentProcessorInternalStatusCodeId;
+        this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
+        this.reconciliationStatusId = reconciliationStatusId;
+        this.reconciliationDate = reconciliationDate;
+        this.batchUploadId = batchUploadId;
     }
 
     @Id
     @Column(name = "SaleTransactionID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     private Long saleTransactionId;
 
     // Transaction Detail
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "TransactionType")
     private String transactionType;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "LegalEntityApp")
     private String legalEntity;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "AccountId")
     private String accountNumber;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ApplicationTransactionID")
     private String applicationTransactionId;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ProcessorTransactionID")
     private String processorTransactionId;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "MerchantID")
     private String merchantId;
 
-    @Column(name = "TransactionDateTime")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "TransactionDateTime")
     private DateTime transactionDateTime;
 
     // Credit Card Information
+    @JsonView(Views.Extend.class)
     @Column(name = "CardNumberFirst6Char")
     private String cardNumberFirst6Char;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "CardNumberLast4Char")
     private String cardNumberLast4Char;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "CardType")
     private String cardType;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ChargeAmount", columnDefinition = "money")
     private BigDecimal amount;
 
+    @JsonView(Views.Extend.class)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/yy")
     @Column(name = "ExpiryDate")
     private Date expiryDate;
 
     // Billing Address
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "FirstName")
     private String firstName;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "LastName")
     private String lastName;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "Address1")
     private String address1;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "Address2")
     private String address2;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "City")
     private String city;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "State")
     private String state;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "PostalCode")
     private String postalCode;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "Country")
     private String country;
 
     // Other
+    @JsonView(Views.Extend.class)
     @Column(name = "TestMode")
     private Short testMode;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "Token")
     private String token;
 
     @Column(name = "Tokenized")
+    @JsonIgnore
     private Short tokenized;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorResponseCode")
     private String processorResponseCode;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorResponseCodeDescription")
     private String processorResponseCodeDescription;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "ApprovalCode")
     private String approvalCode;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalResponseCode")
     private String internalResponseCode;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalResponseDescription")
     private String internalResponseDescription;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalStatusCode")
     private String internalStatusCode;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalStatusDescription")
     private String internalStatusDescription;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorStatusCode")
     private String paymentProcessorStatusCode;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "PaymentProcessorStatusCodeDescription")
     private String paymentProcessorStatusCodeDescription;
 
+    @JsonView(Views.Extend.class)
+    @Column(name = "PaymentProcessorInternalStatusCodeID")
+    private Long paymentProcessorInternalStatusCodeId;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "PaymentProcessorInternalResponseCodeID")
+    private Long paymentProcessorInternalResponseCodeId;
+
+    // Rule
+    @JsonView(Views.Extend.class)
+    @Column(name = "PaymentProcessorRuleID")
+    private Long paymentProcessorRuleId;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "RulePaymentProcessorID")
+    private Long rulePaymentProcessorId;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "RuleCardType")
+    private String ruleCardType;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "RuleMaximumMonthlyAmount", columnDefinition = "money")
+    private BigDecimal ruleMaximumMonthlyAmount;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "RuleNoMaximumMonthlyAmountFlag")
+    private Short ruleNoMaximumMonthlyAmountFlag;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "RulePriority")
+    private Short rulePriority;
+
     // Misc
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "ProcessUser")
     private String processUser;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "Processor")
     private String processorName;
 
+    @JsonView(Views.Extend.class)
     @Column(name = "Application")
     private String application;
 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "Origin")
     private String origin;
 
+    @JsonIgnore
+    @Transient
+    private PaymentFrequency paymentFrequency;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "AccountPeriod")
+    private String accountPeriod;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "Desk")
+    private String desk;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "InvoiceNumber")
+    private String invoiceNumber;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "UserDefinedField1")
+    private String userDefinedField1;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "UserDefinedField2")
+    private String userDefinedField2;
+
+    @JsonView(Views.Extend.class)
+    @Column(name = "UserDefinedField3")
+    private String userDefinedField3;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "ReconciliationStatusID")
+    private Long reconciliationStatusId;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "ReconciliationDate")
+    private DateTime reconciliationDate;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @Column(name = "BatchUploadID")
+    private Long batchUploadId;
+
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
 
@@ -224,25 +422,55 @@ public class SaleTransaction implements Serializable, Transaction {
     @OneToMany(mappedBy = "saleTransaction", fetch = FetchType.LAZY)
     private Collection<VoidTransaction> voidedTransactions;
 
-    public String getCardNumberLast4Char() {
-        return CARD_MASK + cardNumberLast4Char;
-    }
+    @JsonIgnore
+    @Transient
+    private String transactionId;
 
     @Transient
     @JsonIgnore
     private Integer isVoided = 0;
+
     @Transient
     @JsonIgnore
     private Integer isRefunded = 0;
 
+    @Transient
+    @JsonIgnore
+    private String paymentProcessorId;
+
+    @Transient
+    @JsonIgnore
+    private DateTime remittanceCreationDate;
+
     @JsonProperty("isVoided")
-    private boolean getIsVoided() {
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private boolean isVoided() {
         return (voidedTransactions != null && !voidedTransactions.isEmpty()) || isVoided > 0;
     }
 
     @JsonProperty("isRefunded")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     private boolean isRefunded() {
         return (refundedTransactions != null && !refundedTransactions.isEmpty()) || isRefunded > 0;
     }
 
+    @JsonProperty("tokenized")
+    @JsonView({ Views.Extend.class })
+    public String getTokenized() {
+        if (tokenized == null) {
+            return null;
+        } else {
+            return tokenized == 1 ? "Yes" : "No";
+        }
+    }
+
+    @JsonProperty("paymentFrequency")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    public String getPaymentFrequency() {
+        return PaymentFrequency.getPaymentFrequency(origin).toString();
+    }
+
+    public String getCardNumberLast4Char() {
+        return CARD_MASK + cardNumberLast4Char;
+    }
 }

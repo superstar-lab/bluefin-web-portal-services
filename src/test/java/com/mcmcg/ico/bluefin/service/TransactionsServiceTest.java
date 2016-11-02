@@ -25,7 +25,7 @@ import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepository;
+import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mysema.query.types.Predicate;
@@ -37,10 +37,10 @@ public class TransactionsServiceTest {
 
     @InjectMocks
     @Autowired
-    private TransactionsService transactionsService;
+    private TransactionService transactionsService;
 
     @Mock
-    private TransactionRepository transactionRepository;
+    private SaleTransactionRepository saleTransactionRepository;
     @Mock
     private UserRepository userRepository;
 
@@ -55,70 +55,70 @@ public class TransactionsServiceTest {
 
         SaleTransaction result = null;
 
-        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
+        Mockito.when(saleTransactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenReturn(new SaleTransaction());
 
         result = (SaleTransaction) transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
         Assert.assertNotNull(result);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
 
     }
 
     @Test(expected = CustomNotFoundException.class)
     public void testGetTransactionInformationError() {
 
-        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(saleTransactionRepository.findByApplicationTransactionId(Mockito.anyString())).thenReturn(null);
 
         transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
 
     }
 
     @Test(expected = CustomNotFoundException.class)
     public void testGetTransactionInformationNuLLParam() {
 
-        Mockito.when(transactionRepository.findByApplicationTransactionId(null)).thenReturn(null);
+        Mockito.when(saleTransactionRepository.findByApplicationTransactionId(null)).thenReturn(null);
 
         transactionsService.getTransactionInformation(null, TransactionType.SALE);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(null);
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findByApplicationTransactionId(null);
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
 
     }
 
     @Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
     public void testGetTransactionInformationDBAccessFail() {
 
-        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
+        Mockito.when(saleTransactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenThrow(new org.springframework.dao.DataAccessResourceFailureException(null));
 
         transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
 
     }
 
     @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
     public void testGetTransactionInformationDBConnectionFail() {
 
-        Mockito.when(transactionRepository.findByApplicationTransactionId(Mockito.anyString()))
+        Mockito.when(saleTransactionRepository.findByApplicationTransactionId(Mockito.anyString()))
                 .thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
         transactionsService.getTransactionInformation(Mockito.anyString(), TransactionType.SALE);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findByApplicationTransactionId(Mockito.anyString());
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
 
     }
 
@@ -132,7 +132,7 @@ public class TransactionsServiceTest {
 
         Page<SaleTransaction> result = new PageImpl<SaleTransaction>(resultList);
 
-        Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
+        Mockito.when(saleTransactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenReturn(result);
 
         Iterable<SaleTransaction> transactions = transactionsService
@@ -140,10 +140,10 @@ public class TransactionsServiceTest {
 
         Assert.assertNotNull(transactions);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
                 Mockito.any(Pageable.class));
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);*/
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);*/
 
     }
 
@@ -153,29 +153,29 @@ public class TransactionsServiceTest {
         List<SaleTransaction> resultList = new ArrayList<SaleTransaction>();
         Page<SaleTransaction> result = new PageImpl<SaleTransaction>(resultList);
 
-        Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
+        Mockito.when(saleTransactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenReturn(result);
 
         transactionsService.getTransactions(QueryDSLUtil.createExpression("search", SaleTransaction.class), 2, 1, null);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
                 Mockito.any(Pageable.class));
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
     }*/
 
    /* @Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
     public void testGetTransactionsDBFail() {
 
-         Mockito.when(transactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
+         Mockito.when(saleTransactionRepository.findAll(Mockito.any(Predicate.class), Mockito.any(Pageable.class)))
                 .thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
         transactionsService.getTransactions(QueryDSLUtil.createExpression("search", SaleTransaction.class), 2, 1, null);
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
                 Mockito.any(Pageable.class));
 
-        Mockito.verifyNoMoreInteractions(transactionRepository); 
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository); 
 
     }*/
 
@@ -206,10 +206,10 @@ public class TransactionsServiceTest {
 
         transactionsService.getLegalEntitiesFromUser("nquiros");
 
-        Mockito.verify(transactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
+        Mockito.verify(saleTransactionRepository, Mockito.times(1)).findAll(Mockito.any(Predicate.class),
                 Mockito.any(Pageable.class));
 
-        Mockito.verifyNoMoreInteractions(transactionRepository);
+        Mockito.verifyNoMoreInteractions(saleTransactionRepository);
 
     }
 

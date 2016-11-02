@@ -20,26 +20,27 @@ import lombok.Data;
 public class RegisterUserResource implements Serializable {
     private static final long serialVersionUID = 3833640597296293196L;
 
-    @NotBlank(message = "username must not be empty")
+    @NotBlank(message = "Please provide a user name")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field user name must be alphanumeric")
     private String username;
 
-    @NotBlank(message = "firstName must not be empty")
-    @Pattern(regexp = "^[\\w]*$", message = "firstName must be alphanumeric")
+    @NotBlank(message = "Please provide a first name for the user")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field first name must be alphanumeric")
     private String firstName;
 
-    @NotBlank(message = "lastName must not be empty")
-    @Pattern(regexp = "^[\\w]*$", message = "lastName must be alphanumeric")
+    @NotBlank(message = "Please provide a last name for the user")
+    @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field last name must be alphanumeric")
     private String lastName;
 
-    @NotBlank(message = "email must not be empty")
+    @NotBlank(message = "Please provide an email address for the user")
     private String email;
 
-    @Size(min = 1, message = "rolesIdsList must not be empty")
-    @NotNull(message = "roles must not be null")
+    @Size(min = 1, message = "Please provide a role for the user")
+    @NotNull(message = "Please provide a role for the user")
     private Set<Long> roles;
 
-    @Size(min = 1, message = "legalEntityApps must not be empty")
-    @NotNull(message = "legalEntityApps must not be null")
+    @Size(min = 1, message = "Please provide a legal entity for the user")
+    @NotNull(message = "Please provide a legal entity for the user")
     private Set<Long> legalEntityApps;
 
     public User toUser(Collection<Role> roles, Collection<LegalEntityApp> legalEntityApps) {

@@ -15,12 +15,15 @@ import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "Role_Permission")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "rolePermissionId")
 public class RolePermission implements Serializable {
     private static final long serialVersionUID = -3382648236142523952L;
 

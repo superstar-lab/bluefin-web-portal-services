@@ -59,9 +59,8 @@ public class RefundTransaction implements Serializable, Transaction {
     @Column(name = "RefundAmount", columnDefinition = "money")
     private BigDecimal refundAmount;
 
-    @Column(name = "TransactionDateTime")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "TransactionDateTime")
     private DateTime transactionDateTime;
 
     @Column(name = "ApprovalCode")
@@ -102,7 +101,15 @@ public class RefundTransaction implements Serializable, Transaction {
     private String application;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
+    
+    // Reconciliation Status
+    @Column(name = "ReconciliationStatusID")
+    private Long reconciliationStatusID;
+    
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "ReconciliationDate", insertable = false, updatable = false)
+    private DateTime reconciliationDate;
 }

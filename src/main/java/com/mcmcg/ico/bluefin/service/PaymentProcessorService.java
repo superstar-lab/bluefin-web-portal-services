@@ -21,7 +21,10 @@ import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
+import com.mcmcg.ico.bluefin.rest.resource.ItemStatusCodeResource;
+import com.mcmcg.ico.bluefin.rest.resource.ItemStatusResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorStatusResource;
 
 @Service
 @Transactional
@@ -30,6 +33,8 @@ public class PaymentProcessorService {
 
     @Autowired
     private PaymentProcessorRepository paymentProcessorRepository;
+    @Autowired
+    private PaymentProcessorCodeService paymentProcessorCodeService;
 
     /**
      * This method will find a payment processor by its id, not found exception
@@ -55,6 +60,15 @@ public class PaymentProcessorService {
      */
     public List<PaymentProcessor> getPaymentProcessors() {
         List<PaymentProcessor> result = paymentProcessorRepository.findAll();
+        for (PaymentProcessor processor : result) {
+            boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
+            if (processor.isActive() && !isReadyToBeActivated) {
+                processor.setIsActive((short) 0);
+                paymentProcessorRepository.save(processor);
+                isReadyToBeActivated = false;
+            }
+            processor.setReadyToBeActivated(isReadyToBeActivated);
+        }
 
         return result == null ? new ArrayList<PaymentProcessor>() : result;
     }
@@ -74,7 +88,12 @@ public class PaymentProcessorService {
             LOGGER.error("Unable to create Payment Processor, this processor already exists: [{}]", processorName);
             throw new CustomBadRequestException(String
                     .format("Unable to create Payment Processor, this processor already exists: %s", processorName));
+        } else if (paymentProcessorResource.getIsActive() == 1) {
+            LOGGER.error("Unable to create Payment Processor, new processor cannot be active: [{}]", processorName);
+            throw new CustomBadRequestException(String
+                    .format("Unable to create Payment Processor, new processor cannot be active: %s", processorName));
         }
+
         return paymentProcessorRepository.save(paymentProcessor);
     }
 
@@ -89,11 +108,35 @@ public class PaymentProcessorService {
             BasicPaymentProcessorResource paymentProcessorResource) {
         PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
+        if (paymentProcessorToUpdate.getIsActive() == 1 && !isReadyToBeActivated(id)) {
+            paymentProcessorToUpdate.setIsActive((short) 0);
+            paymentProcessorRepository.save(paymentProcessorToUpdate);
+        }
+        if (paymentProcessorResource.getIsActive() == 1 && !isReadyToBeActivated(id)) {
+            LOGGER.error("Unable to activate Payment Processor, processor has some pending steps: [{}]",
+                    paymentProcessorToUpdate.getProcessorName());
+            throw new CustomBadRequestException(
+                    String.format("Unable to activate Payment Processor, processor has some pending steps: %s",
+                            paymentProcessorToUpdate.getProcessorName()));
+        }
+
         // Update fields for existing Payment Processor
         paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
+        paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
+        paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
         paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
 
         return paymentProcessorToUpdate;
+    }
+
+    public boolean isReadyToBeActivated(final long id) {
+        PaymentProcessorStatusResource paymentProcessorStatus = getPaymentProcessorStatusById(id);
+        return paymentProcessorStatus.getHasPaymentProcessorName().getCompleted()
+                && paymentProcessorStatus.getHasSameDayProcessing().getCompleted()
+                && paymentProcessorStatus.getHasMerchantsAssociated().getCompleted()
+                && paymentProcessorStatus.getHasResponseCodesAssociated().getCompleted()
+                && paymentProcessorStatus.getHasRulesAssociated().getCompleted()
+                && paymentProcessorStatus.getHasStatusCodesAssociated().getCompleted();
     }
 
     /**
@@ -111,16 +154,6 @@ public class PaymentProcessorService {
             Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
         // Verify if payment processor exists
         PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
-
-        // Payment processor must be active
-        if (!paymentProcessorToUpdate.isActive()) {
-            LOGGER.error(
-                    "Unable to map payment processor merchants because payment processor is NOT active.  Payment processor id = [{}]",
-                    paymentProcessorToUpdate.getPaymentProcessorId());
-            throw new CustomNotFoundException(String.format(
-                    "Unable to map payment processor merchants because payment processor [%s] is NOT active.",
-                    paymentProcessorToUpdate.getPaymentProcessorId()));
-        }
 
         // User wants to clear payment processor merchants from payment
         // processor
@@ -208,4 +241,68 @@ public class PaymentProcessorService {
     private boolean existPaymentProcessorName(String processorName) {
         return paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName) == null ? false : true;
     }
+
+    /**
+     * This method will find a payment processor status by its id, not found
+     * exception if it does not exist
+     * 
+     * @param id
+     * @return
+     */
+    public PaymentProcessorStatusResource getPaymentProcessorStatusById(final long id) {
+        PaymentProcessor paymentProcessor = paymentProcessorRepository.findOne(id);
+
+        if (paymentProcessor == null) {
+            throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
+        }
+        ItemStatusResource hasPaymentProcessorName = new ItemStatusResource(1, "Add Payment Processor Name", null,
+                true);
+        ItemStatusResource hasSameDayProcessing = new ItemStatusResource(2, "Same Day Processing Window", null,
+                paymentProcessor.getRemitTransactionCloseTime() != null);
+        ItemStatusResource hasMerchantsAssociated = new ItemStatusResource(3, "Add MIDs", null,
+                paymentProcessor.hasMerchantsAssociated());
+        ItemStatusResource hasRulesAssociated = new ItemStatusResource(4, "Update volume assignment", null,
+                paymentProcessor.hasRulesAssociated());
+
+        List<ItemStatusCodeResource> responseCodeItems = paymentProcessorCodeService
+                .hasResponseCodesAssociated(paymentProcessor);
+        ItemStatusResource hasResponseCodesAssociated = new ItemStatusResource(5, "Add response codes",
+                responseCodeItems, hasCodesAssociated(responseCodeItems));
+
+        List<ItemStatusCodeResource> statusCodeItems = paymentProcessorCodeService
+                .hasStatusCodesAssociated(paymentProcessor);
+        ItemStatusResource hasStatusCodesAssociated = new ItemStatusResource(6, "Add status codes", statusCodeItems,
+                hasCodesAssociated(statusCodeItems));
+
+        PaymentProcessorStatusResource paymentProcessorStatusResource = new PaymentProcessorStatusResource();
+        paymentProcessorStatusResource.setHasPaymentProcessorName(hasPaymentProcessorName);
+        paymentProcessorStatusResource.setHasSameDayProcessing(hasSameDayProcessing);
+        paymentProcessorStatusResource.setHasMerchantsAssociated(hasMerchantsAssociated);
+        paymentProcessorStatusResource.setHasRulesAssociated(hasRulesAssociated);
+        paymentProcessorStatusResource.setHasResponseCodesAssociated(hasResponseCodesAssociated);
+        paymentProcessorStatusResource.setHasStatusCodesAssociated(hasStatusCodesAssociated);
+
+        if (paymentProcessor.getIsActive() == 1
+                && !(paymentProcessorStatusResource.getHasPaymentProcessorName().getCompleted()
+                        && paymentProcessorStatusResource.getHasSameDayProcessing().getCompleted()
+                        && paymentProcessorStatusResource.getHasMerchantsAssociated().getCompleted()
+                        && paymentProcessorStatusResource.getHasResponseCodesAssociated().getCompleted()
+                        && paymentProcessorStatusResource.getHasRulesAssociated().getCompleted()
+                        && paymentProcessorStatusResource.getHasStatusCodesAssociated().getCompleted())) {
+            paymentProcessor.setIsActive((short) 0);
+            paymentProcessorRepository.save(paymentProcessor);
+        }
+
+        return paymentProcessorStatusResource;
+    }
+
+    private boolean hasCodesAssociated(List<ItemStatusCodeResource> statusCodeItems) {
+        for (ItemStatusCodeResource statusCodeItem : statusCodeItems) {
+            if (!statusCodeItem.getCompleted()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

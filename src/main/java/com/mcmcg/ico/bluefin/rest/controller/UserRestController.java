@@ -56,7 +56,7 @@ public class UserRestController {
     private String securityTokenHeader;
 
     @ApiOperation(value = "getUser", nickname = "getUser")
-    @RequestMapping(method = RequestMethod.GET, value = "/{username}", produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, value = "/{username:.*}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -128,7 +128,7 @@ public class UserRestController {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("<br /> "));
             throw new CustomBadRequestException(errorDescription);
         }
 
@@ -144,7 +144,7 @@ public class UserRestController {
     }
 
     @ApiOperation(value = "updateUserProfile", nickname = "updateUserProfile")
-    @RequestMapping(method = RequestMethod.PUT, value = "/{username}", produces = "application/json")
+    @RequestMapping(method = RequestMethod.PUT, value = "/{username:.*}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -172,7 +172,7 @@ public class UserRestController {
 
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("<br /> "));
             throw new CustomBadRequestException(errorDescription);
         }
 
@@ -249,7 +249,7 @@ public class UserRestController {
             HttpServletRequest request, Authentication authentication) {
         if (errors.hasErrors()) {
             final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("<br /> "));
             throw new CustomBadRequestException(errorDescription);
         }
 

@@ -35,9 +35,9 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping(value = "/api/internal-response-codes")
-public class InternalResponseCodeController {
+public class InternalResponseCodeRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InternalResponseCodeController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InternalResponseCodeRestController.class);
 
     @Autowired
     private InternalResponseCodeService internalResponseCodeService;

@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.persistent.jpa;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
@@ -9,4 +11,8 @@ public interface PaymentProcessorStatusCodeRepository extends JpaRepository<Paym
 
     public PaymentProcessorStatusCode findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
             String paymentProcessorStatusCode, String transactionTypeName, PaymentProcessor paymentProcessor);
+
+    public List<PaymentProcessorStatusCode> findByTransactionTypeNameAndPaymentProcessor(String transactionTypeName,
+            PaymentProcessor paymentProcessor);
+
 }

@@ -5,9 +5,7 @@ import org.springframework.data.querydsl.QueryDslPredicateExecutor;
 
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 
-public interface PaymentProcessorRepository
-        extends JpaRepository<PaymentProcessor, Long>, QueryDslPredicateExecutor<PaymentProcessor> {
-
+public interface PaymentProcessorRepository extends JpaRepository<PaymentProcessor, Long>, QueryDslPredicateExecutor<PaymentProcessor> {
     public PaymentProcessor getPaymentProcessorByProcessorName(String processorName);
-
+    public PaymentProcessor findByPaymentProcessorId(Long paymentProcessorId);
 }

@@ -13,7 +13,6 @@ import javax.persistence.Transient;
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mcmcg.ico.bluefin.model.TransactionType;
@@ -55,9 +54,8 @@ public class VoidTransaction implements Serializable, Transaction {
     @Column(name = "MerchantID")
     private String merchantId;
 
-    @Column(name = "TransactionDateTime")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "TransactionDateTime")
     private DateTime transactionDateTime;
 
     @Column(name = "ApprovalCode")
@@ -98,7 +96,6 @@ public class VoidTransaction implements Serializable, Transaction {
     private String application;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
 }

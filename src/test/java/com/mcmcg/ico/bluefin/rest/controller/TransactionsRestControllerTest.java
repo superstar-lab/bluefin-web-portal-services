@@ -31,7 +31,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
-import com.mcmcg.ico.bluefin.service.TransactionsService;
+import com.mcmcg.ico.bluefin.service.TransactionService;
 
 public class TransactionsRestControllerTest {
 
@@ -41,7 +41,7 @@ public class TransactionsRestControllerTest {
     private TransactionsRestController transactionsRestControllerMock;
 
     @Mock
-    private TransactionsService transactionService;
+    private TransactionService transactionService;
 
     private Authentication auth;
 
@@ -63,7 +63,7 @@ public class TransactionsRestControllerTest {
         result.setAccountNumber("67326509");
         result.setAmount(new BigDecimal(4592.36));
         result.setCardNumberLast4Char("5162");
-        result.setCreatedDate(date);
+//        result.setCreatedDate(date);
         result.setFirstName("Natalia");
         result.setLastName("Quiros");
         result.setLegalEntity("MCM-R2K");

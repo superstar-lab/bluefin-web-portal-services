@@ -1,31 +1,24 @@
 package com.mcmcg.ico.bluefin.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum StatusCode {
-    APPROVED("1"), DENIED("2"), ERROR("3"), MCM_EXCEPTION("4"), DATABASE_ERROR("ME1");
+    A("1"), D("2"), E("3");
 
-    private String statusCode;
+    private final String code;
 
-    private static Map<String, StatusCode> map = new HashMap<String, StatusCode>();
+    private StatusCode(final String value) {
+        this.code = value;
+    }
 
-    static {
-        for (StatusCode statusEnum : StatusCode.values()) {
-            map.put(statusEnum.statusCode, statusEnum);
+    public String showCode() {
+        return code;
+    }
+
+    public static String getStatusCode(String code) {
+        for (StatusCode m : StatusCode.values()) {
+            if (m.showCode().equals(code)) {
+                return m.toString();
+            }
         }
+        return "";
     }
-
-    private StatusCode(final String code) {
-        statusCode = code;
-    }
-
-    public static String getStatusCodeByString(String code) {
-        for (StatusCode e : StatusCode.values()) {
-            if (code.equals(e.name()))
-                return e.statusCode;
-        }
-        return null;
-    }
-
 }

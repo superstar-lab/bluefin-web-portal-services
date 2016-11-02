@@ -15,11 +15,11 @@ import lombok.Data;
 public class PaymentProcessorMerchantResource implements Serializable {
     private static final long serialVersionUID = -6212668449240343946L;
 
-    @NotNull(message = "Legal entity app cannot be empty or null")
+    @NotNull(message = "Please provide a legal entity app for the payment processor merchant")
     private Long legalEntityAppId;
-    @NotBlank(message = "Merchant id cannot be empty or null")
+    @NotBlank(message = "Please provide a merchant id for the payment processor merchant")
     private String merchantId;
-    @NotNull(message = "testOrProd cannot be empty or null")
+    @NotNull(message = "Please provide a testOrProd flag for the payment processor merchant")
     private Short testOrProd;
 
     public PaymentProcessorMerchant toPaymentProcessorMerchant() {

@@ -6,5 +6,5 @@ import com.mcmcg.ico.bluefin.persistent.VoidTransaction;
 
 public interface VoidTransactionRepository extends JpaRepository<VoidTransaction, Long> {
     public VoidTransaction findByApplicationTransactionId(final String transactionId);
-
+    public VoidTransaction findByProcessorTransactionId(String transactionId);
 }

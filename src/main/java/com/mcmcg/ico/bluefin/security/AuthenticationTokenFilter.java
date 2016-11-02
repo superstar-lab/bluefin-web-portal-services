@@ -40,7 +40,7 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
         if (username != null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-            if (this.tokenUtils.validateToken(authToken, userDetails)) {
+            if (userDetails != null && this.tokenUtils.validateToken(authToken, userDetails)) {
                 String tokenType = this.tokenUtils.getTypeFromToken(authToken);
                 String tokenUrl = this.tokenUtils.getUrlFromToken(authToken);
 
