@@ -105,7 +105,10 @@ import lombok.Data;
                 @ColumnResult(name = "SalePaymentProcessorInternalResponseCodeID", type = Long.class),
                 @ColumnResult(name = "SaleReconciliationStatusID", type = Long.class),
                 @ColumnResult(name = "SaleReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
-                @ColumnResult(name = "SaleBatchUploadID", type = Long.class) }) })
+                @ColumnResult(name = "SaleBatchUploadID", type = Long.class),
+                @ColumnResult(name = "Processor_Name", type = String.class),
+                @ColumnResult(name = "LegalEntityName", type = String.class),
+                @ColumnResult(name = "ReconciliationStatus_ID", type = String.class) }) })
 @Data
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -139,7 +142,8 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
             String saleDesk, String saleInvoiceNumber, String saleUserDefinedField1, String saleUserDefinedField2,
             String saleUserDefinedField3, DateTime saleCreatedDate, Integer saleIsVoided, Integer saleIsRefunded,
             Long salePaymentProcessorInternalStatusCodeId, Long salePaymentProcessorInternalResponseCodeId,
-            Long saleReconciliationStatusId, DateTime saleReconciliationDate, Long saleBatchUploadId) {
+            Long saleReconciliationStatusId, DateTime saleReconciliationDate, Long saleBatchUploadId,
+            String Processor_Name, String LegalEntityName, String ReconciliationStatus_ID) {
         this.paymentProcessorRemittanceId = paymentProcessorRemittanceId;
         this.createdDate = createdDate;
         this.reconciliationStatusId = reconciliationStatusId;
@@ -215,6 +219,9 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
         this.saleReconciliationStatusId = saleReconciliationStatusId;
         this.saleReconciliationDate = saleReconciliationDate;
         this.saleBatchUploadId = saleBatchUploadId;
+        this.Processor_Name = Processor_Name;
+        this.LegalEntityName = LegalEntityName;
+        this.ReconciliationStatus_ID = ReconciliationStatus_ID;
     }
 
     @JsonProperty("remittance.paymentProcessorRemittanceId")
@@ -626,4 +633,19 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     public DateTime getTransactionDateTime() {
         return transactionTime;
     }
+
+    @Transient
+    @JsonProperty("ReconDate.Processor_Name")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String Processor_Name;
+
+    @Transient
+    @JsonProperty("ReconDate.LegalEntityName")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String LegalEntityName;
+
+    @Transient
+    @JsonProperty("ReconDate.ReconciliationStatus_ID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String ReconciliationStatus_ID;
 }

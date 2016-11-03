@@ -743,39 +743,28 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
             querySbPart3.append("ReconDate WHERE ");
         }
         if (processorName != null) {
-            if (numberOfFilters == 1) {
-                querySbPart3.append("ReconDate.Processor_Name = '" + processorName + "' ");
-            } else {
-                querySbPart3.append("AND ReconDate.Processor_Name = '" + processorName + "' ");
-            }
+            querySbPart3.append("AND ReconDate.Processor_Name = '" + processorName + "' ");
         }
         if (legalEntityArray != null) {
-            if (numberOfFilters == 1) {
-                querySbPart3.append("(ReconDate.LegalEntityName IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySbPart3.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySbPart3.append(", ");
-                    }
+            querySbPart3.append("AND (ReconDate.LegalEntityName IN (");
+            for (int i = 0; i < legalEntityArray.length; i++) {
+                querySbPart3.append("'" + legalEntityArray[i] + "'");
+                if (i != (legalEntityArray.length - 1)) {
+                    querySbPart3.append(", ");
                 }
-                querySbPart3.append(")) ");
-            } else {
-                querySbPart3.append("AND (ReconDate.LegalEntityName IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySbPart3.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySbPart3.append(", ");
-                    }
-                }
-                querySbPart3.append(")) ");
             }
+            querySbPart3.append(")) ");
         }
         if (reconciliationStatusId != null) {
-            if (numberOfFilters == 1) {
-                querySbPart3.append("ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
-            } else {
-                querySbPart3.append("AND ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
-            }
+            querySbPart3.append("AND ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
+        }
+        // To avoid a SQL grammar error, which will happen if more than one
+        // filter is chosen.
+        String temp = querySbPart3.toString();
+        if (temp.contains("WHERE AND")) {
+            temp = temp.replaceAll("WHERE AND ", "WHERE ");
+            querySbPart3.delete(0, querySbPart3.length());
+            querySbPart3.append(temp);
         }
         querySbPart3.append("ORDER BY Processor_Name ASC, LegalEntityName ASC, ReconciliationStatus_ID ASC");
         LOGGER.info("query (part 3): " + querySbPart3.toString());

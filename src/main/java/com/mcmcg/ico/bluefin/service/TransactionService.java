@@ -157,7 +157,7 @@ public class TransactionService {
                 st.getDesk(), st.getInvoiceNumber(), st.getUserDefinedField1(), st.getUserDefinedField2(),
                 st.getUserDefinedField3(), st.getCreatedDate(), st.getIsVoided(), st.getIsRefunded(),
                 st.getPaymentProcessorInternalStatusCodeId(), st.getPaymentProcessorInternalResponseCodeId(),
-                st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId());
+                st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId(), "", "", "");
 
         result = paymentProcessorRemittance;
 
