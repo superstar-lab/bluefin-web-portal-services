@@ -455,7 +455,7 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getSaleCardNumberLast4Char());
 
                 // Legal Entity
-                transactionDataRecord.add(transaction.getSaleLegalEntityApp());
+                transactionDataRecord.add(transaction.getLegalEntityName());
 
                 csvFilePrinter.printRecord(transactionDataRecord);
                 count++;

@@ -84,7 +84,8 @@ public class PaymentProcessorRemittanceService {
                         vt.getInternalStatusDescription(), vt.getPaymentProcessorStatusCode(),
                         vt.getPaymentProcessorStatusCodeDescription(), null, null, null, null, null, null,
                         vt.getProcessUser(), vt.getProcessorName(), vt.getApplication(), null, null, null, null, null,
-                        null, null, vt.getCreatedDate(), 1, 0, null, null, null, null, null, "", "", "");
+                        null, null, vt.getCreatedDate(), 1, 0, null, null, null, null, null, ppr.getProcessor_Name(),
+                        ppr.getLegalEntityName(), ppr.getReconciliationStatus_ID());
 
                 result = paymentProcessorRemittance;
             }
@@ -115,7 +116,8 @@ public class PaymentProcessorRemittanceService {
                         rt.getPaymentProcessorStatusCode(), rt.getPaymentProcessorStatusCodeDescription(), null, null,
                         null, null, null, null, rt.getProcessUser(), rt.getProcessorName(), rt.getApplication(), null,
                         null, null, null, null, null, null, rt.getCreatedDate(), 0, 1, null, null,
-                        rt.getReconciliationStatusID(), rt.getReconciliationDate(), null, "", "", "");
+                        rt.getReconciliationStatusID(), rt.getReconciliationDate(), null, ppr.getProcessor_Name(),
+                        ppr.getLegalEntityName(), ppr.getReconciliationStatus_ID());
 
                 result = paymentProcessorRemittance;
             }
@@ -200,7 +202,8 @@ public class PaymentProcessorRemittanceService {
                 st.getDesk(), st.getInvoiceNumber(), st.getUserDefinedField1(), st.getUserDefinedField2(),
                 st.getUserDefinedField3(), st.getCreatedDate(), st.getIsVoided(), st.getIsRefunded(),
                 st.getPaymentProcessorInternalStatusCodeId(), st.getPaymentProcessorInternalResponseCodeId(),
-                st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId(), "", "", "");
+                st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId(),
+                ppr.getProcessor_Name(), ppr.getLegalEntityName(), ppr.getReconciliationStatus_ID());
 
         result = paymentProcessorRemittance;
 
