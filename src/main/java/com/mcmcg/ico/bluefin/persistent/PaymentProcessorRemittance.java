@@ -107,7 +107,7 @@ import lombok.Data;
                 @ColumnResult(name = "SaleReconciliationDate", type = org.jadira.usertype.dateandtime.joda.PersistentDateTime.class),
                 @ColumnResult(name = "SaleBatchUploadID", type = Long.class),
                 @ColumnResult(name = "Processor_Name", type = String.class),
-                @ColumnResult(name = "LegalEntityName", type = String.class),
+                @ColumnResult(name = "MID", type = String.class),
                 @ColumnResult(name = "ReconciliationStatus_ID", type = String.class) }) })
 @Data
 @Entity
@@ -143,7 +143,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
             String saleUserDefinedField3, DateTime saleCreatedDate, Integer saleIsVoided, Integer saleIsRefunded,
             Long salePaymentProcessorInternalStatusCodeId, Long salePaymentProcessorInternalResponseCodeId,
             Long saleReconciliationStatusId, DateTime saleReconciliationDate, Long saleBatchUploadId,
-            String Processor_Name, String LegalEntityName, String ReconciliationStatus_ID) {
+            String Processor_Name, String MID, String ReconciliationStatus_ID) {
         this.paymentProcessorRemittanceId = paymentProcessorRemittanceId;
         this.createdDate = createdDate;
         this.reconciliationStatusId = reconciliationStatusId;
@@ -220,7 +220,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
         this.saleReconciliationDate = saleReconciliationDate;
         this.saleBatchUploadId = saleBatchUploadId;
         this.Processor_Name = Processor_Name;
-        this.LegalEntityName = LegalEntityName;
+        this.MID = MID;
         this.ReconciliationStatus_ID = ReconciliationStatus_ID;
     }
 
@@ -640,9 +640,9 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     private String Processor_Name;
 
     @Transient
-    @JsonProperty("ReconDate.LegalEntityName")
+    @JsonProperty("ReconDate.MID")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String LegalEntityName;
+    private String MID;
 
     @Transient
     @JsonProperty("ReconDate.ReconciliationStatus_ID")

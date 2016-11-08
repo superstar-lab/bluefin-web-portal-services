@@ -63,7 +63,7 @@ public class TransactionService {
     private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor",
             "Status", "Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount",
             "Bluefin Date/Time", "Remittance Transaction ID", "Remittance Account Number", "Remittance Amount",
-            "Remittance Date/Time", "Card Type", "Card Number (last 4)", "Legal Entity" };
+            "Remittance Date/Time", "Card Type", "Card Number (last 4)", "Merchant ID", "Application" };
 
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
@@ -454,8 +454,11 @@ public class TransactionService {
                 // Card Number (last 4)
                 transactionDataRecord.add(transaction.getSaleCardNumberLast4Char());
 
-                // Legal Entity
-                transactionDataRecord.add(transaction.getLegalEntityName());
+                // Merchant ID
+                transactionDataRecord.add(transaction.getMID());
+
+                // Application
+                transactionDataRecord.add(transaction.getApplication());
 
                 csvFilePrinter.printRecord(transactionDataRecord);
                 count++;

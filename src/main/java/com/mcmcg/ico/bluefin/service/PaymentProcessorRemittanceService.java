@@ -14,16 +14,12 @@ import org.springframework.stereotype.Service;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
-import com.mcmcg.ico.bluefin.persistent.RefundTransaction;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
-import com.mcmcg.ico.bluefin.persistent.VoidTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
@@ -34,10 +30,6 @@ public class PaymentProcessorRemittanceService {
 
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
-    @Autowired
-    private VoidTransactionRepository voidTransactionRepository;
-    @Autowired
-    private RefundTransactionRepository refundTransactionRepository;
     @Autowired
     private PaymentProcessorRepository paymentProcessorRepository;
     @Autowired
@@ -58,87 +50,12 @@ public class PaymentProcessorRemittanceService {
             final String processorTransactionType) {
         Transaction result = null;
 
-        switch (transactionType) {
-        case VOID:
-            if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
-                result = voidTransactionRepository.findByApplicationTransactionId(transactionId);
-            } else {
-                PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository
-                        .findByProcessorTransactionId(transactionId);
-                VoidTransaction vt = voidTransactionRepository.findByProcessorTransactionId(transactionId);
-                String processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId())
-                        .getProcessorName();
-
-                PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(
-                        ppr.getPaymentProcessorRemittanceId(), ppr.getCreatedDate(), ppr.getReconciliationStatusId(),
-                        ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
-                        ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
-                        ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(),
-                        ppr.getFirstName(), ppr.getLastName(), ppr.getRemittanceCreationDate(),
-                        ppr.getPaymentProcessorId(), processorName, vt.getVoidTransactionId(), vt.getTransactionType(),
-                        null, null, vt.getApplicationTransactionId(), vt.getProcessorTransactionId(),
-                        vt.getMerchantId(), vt.getTransactionDateTime(), null, null, null, null, null, null, null, null,
-                        null, null, null, null, null, null, null, null, vt.getPaymentProcessorResponseCode(),
-                        vt.getPaymentProcessorResponseCodeDescription(), vt.getApprovalCode(),
-                        vt.getInternalResponseCode(), vt.getInternalResponseDescription(), vt.getInternalStatusCode(),
-                        vt.getInternalStatusDescription(), vt.getPaymentProcessorStatusCode(),
-                        vt.getPaymentProcessorStatusCodeDescription(), null, null, null, null, null, null,
-                        vt.getProcessUser(), vt.getProcessorName(), vt.getApplication(), null, null, null, null, null,
-                        null, null, vt.getCreatedDate(), 1, 0, null, null, null, null, null, ppr.getProcessor_Name(),
-                        ppr.getLegalEntityName(), ppr.getReconciliationStatus_ID());
-
-                result = paymentProcessorRemittance;
-            }
-            break;
-        case REFUND:
-            if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
-                result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
-            } else {
-                PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository
-                        .findByProcessorTransactionId(transactionId);
-                RefundTransaction rt = refundTransactionRepository.findByProcessorTransactionId(transactionId);
-                String processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId())
-                        .getProcessorName();
-
-                PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(
-                        ppr.getPaymentProcessorRemittanceId(), ppr.getCreatedDate(), ppr.getReconciliationStatusId(),
-                        ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
-                        ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
-                        ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(),
-                        ppr.getFirstName(), ppr.getLastName(), ppr.getRemittanceCreationDate(),
-                        ppr.getPaymentProcessorId(), processorName, rt.getRefundTransactionId(),
-                        rt.getTransactionType(), null, null, rt.getApplicationTransactionId(),
-                        rt.getProcessorTransactionId(), rt.getMerchantId(), rt.getTransactionDateTime(), null, null,
-                        null, rt.getRefundAmount(), null, null, null, null, null, null, null, null, null, null, null,
-                        null, rt.getPaymentProcessorResponseCode(), rt.getPaymentProcessorResponseCodeDescription(),
-                        rt.getApprovalCode(), rt.getInternalResponseCode(), rt.getInternalResponseDescription(),
-                        rt.getInternalStatusCode(), rt.getInternalStatusDescription(),
-                        rt.getPaymentProcessorStatusCode(), rt.getPaymentProcessorStatusCodeDescription(), null, null,
-                        null, null, null, null, rt.getProcessUser(), rt.getProcessorName(), rt.getApplication(), null,
-                        null, null, null, null, null, null, rt.getCreatedDate(), 0, 1, null, null,
-                        rt.getReconciliationStatusID(), rt.getReconciliationDate(), null, ppr.getProcessor_Name(),
-                        ppr.getLegalEntityName(), ppr.getReconciliationStatus_ID());
-
-                result = paymentProcessorRemittance;
-            }
-            break;
-        case REMITTANCE:
-            // PaymentProcessor_Remittance does not have
-            // ApplicationTransactionId
-            if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
-                result = null;
-            } else {
-                result = getRemittanceSaleResult(transactionId);
-            }
-            break;
-        case SALE:
-        case TOKENIZE:
-        default:
-            if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
-                result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
-            } else {
-                result = getRemittanceSaleResult(transactionId);
-            }
+        try {
+            // Use native SQL query to get details.
+            result = saleTransactionRepository.findRemittanceSaleRefundTransactionsDetail(transactionId,
+                    transactionType, processorTransactionType);
+        } catch (ParseException e) {
+            throw new CustomNotFoundException("Unable to process find remittance, sale, or refund transactions!");
         }
 
         if (result == null) {
@@ -203,7 +120,7 @@ public class PaymentProcessorRemittanceService {
                 st.getUserDefinedField3(), st.getCreatedDate(), st.getIsVoided(), st.getIsRefunded(),
                 st.getPaymentProcessorInternalStatusCodeId(), st.getPaymentProcessorInternalResponseCodeId(),
                 st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId(),
-                ppr.getProcessor_Name(), ppr.getLegalEntityName(), ppr.getReconciliationStatus_ID());
+                ppr.getProcessor_Name(), ppr.getMID(), ppr.getReconciliationStatus_ID());
 
         result = paymentProcessorRemittance;
 
