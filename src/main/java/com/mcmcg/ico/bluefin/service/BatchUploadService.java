@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.BatchUploadRepository;
@@ -43,6 +42,8 @@ public class BatchUploadService {
     private BatchUploadRepository batchUploadRepository;
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
+    @Autowired
+    private InternalStatusCodeService internalStatusCodeService;
 
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
@@ -245,7 +246,8 @@ public class BatchUploadService {
                         .add(saleTransaction.getAmount() == null ? "" : "$" + saleTransaction.getAmount().toString());
 
                 // Result
-                saleTransactionDataRecord.add(StatusCode.getStatusCode(saleTransaction.getInternalStatusCode()));
+                saleTransactionDataRecord.add(internalStatusCodeService
+                        .getLetterFromStatusCodeForSaleTransactions(saleTransaction.getInternalStatusCode()));
 
                 // Error Message
                 saleTransactionDataRecord.add(saleTransaction.getInternalStatusDescription());

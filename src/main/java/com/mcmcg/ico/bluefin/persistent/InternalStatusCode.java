@@ -49,10 +49,10 @@ public class InternalStatusCode implements Serializable {
     private Long internalStatusCodeId;
 
     @Column(name = "InternalStatusCode", unique = true)
-    @JsonView({Views.Extend.class, Views.Summary.class})
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     private String internalStatusCode;
 
-    @JsonView({Views.Extend.class, Views.Summary.class})
+    @JsonView({ Views.Extend.class, Views.Summary.class })
     @Column(name = "InternalStatusCodeDescription")
     private String internalStatusCodeDescription;
 
@@ -66,22 +66,27 @@ public class InternalStatusCode implements Serializable {
     private String lastModifiedBy;
 
     @JsonIgnore
+    @Column(name = "StatusLetter")
+    private String statusLetter;
+
+    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DatedModified", insertable = false, updatable = false)
     private DateTime modifiedDate;
 
     @Column(name = "TransactionType")
-    @JsonView({Views.Extend.class, Views.Summary.class})
-    private String transactionTypeName; 
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String transactionTypeName;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     @Column(name = "DateCreated", insertable = false, updatable = false)
     private DateTime createdDate;
-    
-    public void addPaymentProcessorInternalStatusCode(PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode) {
+
+    public void addPaymentProcessorInternalStatusCode(
+            PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode) {
         if (paymentProcessorInternalStatusCode == null) {
             this.paymentProcessorInternalStatusCodes = new HashSet<PaymentProcessorInternalStatusCode>();
         }

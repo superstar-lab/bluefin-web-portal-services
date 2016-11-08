@@ -75,6 +75,7 @@ public class ReportRestController {
         InputStream targetStream = FileUtils.openInputStream(downloadFile);
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+        response.setHeader("Content-Length", Long.toString(downloadFile.length()));
 
         FileCopyUtils.copy(targetStream, response.getOutputStream());
         LOGGER.info("Deleting temp file: {}", downloadFile.getName());
@@ -138,7 +139,7 @@ public class ReportRestController {
         downloadFile.delete();
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
-    
+
     @ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
     @RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -148,8 +149,9 @@ public class ReportRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> getBatchUploadTransactionsReport(@RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
-            HttpServletResponse response) throws IOException {
+    public ResponseEntity<String> getBatchUploadTransactionsReport(
+            @RequestParam(value = "batchUploadId", required = true) Long batchUploadId, HttpServletResponse response)
+            throws IOException {
         LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
         File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId);
 
