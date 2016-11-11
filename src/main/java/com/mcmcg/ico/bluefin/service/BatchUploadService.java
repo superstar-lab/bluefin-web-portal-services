@@ -255,8 +255,9 @@ public class BatchUploadService {
                 saleTransactionDataRecord.add(StatusCode.getStatusCode(saleTransaction.getInternalStatusCode()));
 
                 // Error Message
-                saleTransactionDataRecord.add(saleTransaction.getInternalResponseDescription() + "("
-                        + saleTransaction.getInternalResponseCode() + ")");
+                String errorMessage = saleTransaction.getInternalResponseDescription() + "("
+                        + saleTransaction.getInternalResponseCode() + ")";
+                saleTransactionDataRecord.add(errorMessage.replaceAll("\r", "").replaceAll("\n", ""));
 
                 csvFilePrinterContent.printRecord(saleTransactionDataRecord);
             }
