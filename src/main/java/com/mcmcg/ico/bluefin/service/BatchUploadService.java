@@ -59,8 +59,8 @@ public class BatchUploadService {
 
     @Value("${bluefin.wp.services.batch.upload.report.path}")
     private String reportPath;
-    @Value("${bluefin.wp.services.batch.process.service.url}")
-    private String batchProcessServiceUrl;
+    @Autowired
+    private PropertyService propertyService;
 
     public BatchUpload getBatchUploadById(Long id) {
         BatchUpload batchUpload = batchUploadRepository.findOne(id);
@@ -101,8 +101,8 @@ public class BatchUploadService {
         batchUpload = batchUploadRepository.save(batchUpload);
         // call new application to process file content (fileStream)
         LOGGER.info("Calling ACF application to process file content");
-        String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
-                fileStream);
+        String response = HttpsUtil.sendPostRequest(propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL")
+                + batchUpload.getBatchUploadId().toString(), fileStream);
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();

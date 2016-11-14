@@ -19,7 +19,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -79,9 +78,8 @@ public class TransactionService {
     private ReconciliationStatusRepository reconciliationStatusRepository;
     @Autowired
     private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
-
-    @Value("${bluefin.wp.services.transactions.report.path}")
-    private String reportPath;
+    @Autowired
+    private PropertyService propertyService;
 
     public Transaction getTransactionInformation(final String transactionId, TransactionType transactionType) {
         Transaction result = null;
@@ -203,7 +201,7 @@ public class TransactionService {
 
         // Create the CSVFormat object with "\n" as a record delimiter
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-
+        String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
         try {
             File dir = new File(reportPath);
             dir.mkdirs();
@@ -343,7 +341,7 @@ public class TransactionService {
 
         // Create the CSVFormat object with "\n" as a record delimiter
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-
+        String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
         try {
             File dir = new File(reportPath);
             dir.mkdirs();

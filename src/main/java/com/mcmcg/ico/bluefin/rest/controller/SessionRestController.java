@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,6 +28,7 @@ import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -42,8 +42,8 @@ public class SessionRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionRestController.class);
 
-    @Value("${bluefin.wp.services.token.header}")
-    private String securityTokenHeader;
+    @Autowired
+    private PropertyService propertyService;
     @Autowired
     private SessionService sessionService;
 
@@ -80,7 +80,7 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> logout(HttpServletRequest request) {
-        final String token = request.getHeader(securityTokenHeader);
+        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 
         if (token == null) {
             throw new CustomBadRequestException("An authorization token is required to request this resource");
@@ -98,7 +98,7 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        final String token = request.getHeader(securityTokenHeader);
+        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 
         if (token != null) {
             return sessionService.refreshToken(token);
