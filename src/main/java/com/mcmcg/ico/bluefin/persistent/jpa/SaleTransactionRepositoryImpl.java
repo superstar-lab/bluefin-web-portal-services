@@ -698,13 +698,13 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
         querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
         querySbPart1.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
-        querySbPart1.append("AND st.TestMode = " + testOrProd + " ");
+        querySbPart1.append("AND (st.TestMode = " + testOrProd + " OR st.TestMode IS NULL) ");
         querySbPart1.append("UNION ");
         querySbPart1.append(getPaymentProcessorRemittanceAndRefundQuery());
         querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
         querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
         querySbPart1.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
-        querySbPart1.append("AND st1.TestMode = " + testOrProd + " ");
+        querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
         LOGGER.info("query (part 1): " + querySbPart1.toString());
 
         StringBuilder querySbPart2 = new StringBuilder();
@@ -892,7 +892,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append("FROM PaymentProcessor_Remittance ppr ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
         querySb.append("LEFT JOIN Refund_Transaction rt ON (ppr.ProcessorTransactionID = rt.ProcessorTransactionID) ");
-        querySb.append("JOIN sale_transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
+        querySb.append("LEFT JOIN sale_transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
 
         return querySb.toString();
     }

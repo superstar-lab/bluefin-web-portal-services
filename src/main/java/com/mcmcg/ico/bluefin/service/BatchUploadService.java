@@ -3,6 +3,8 @@ package com.mcmcg.ico.bluefin.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -241,16 +243,23 @@ public class BatchUploadService {
                 // Invoice
                 saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
 
+                BigDecimal amount = saleTransaction.getAmount().setScale(2, BigDecimal.ROUND_DOWN);
+                DecimalFormat df = new DecimalFormat();
+                df.setMaximumFractionDigits(2);
+                df.setMinimumFractionDigits(0);
+                df.setGroupingUsed(false);
+
                 // Amount
-                saleTransactionDataRecord
-                        .add(saleTransaction.getAmount() == null ? "" : "$" + saleTransaction.getAmount().toString());
+                saleTransactionDataRecord.add(saleTransaction.getAmount() == null ? "" : df.format(amount));
 
                 // Result
                 saleTransactionDataRecord.add(internalStatusCodeService
                         .getLetterFromStatusCodeForSaleTransactions(saleTransaction.getInternalStatusCode()));
 
                 // Error Message
-                saleTransactionDataRecord.add(saleTransaction.getInternalStatusDescription());
+                String errorMessage = saleTransaction.getInternalResponseDescription() + "("
+                        + saleTransaction.getInternalResponseCode() + ")";
+                saleTransactionDataRecord.add(errorMessage.replaceAll("\r", "").replaceAll("\n", ""));
 
                 csvFilePrinterContent.printRecord(saleTransactionDataRecord);
             }
