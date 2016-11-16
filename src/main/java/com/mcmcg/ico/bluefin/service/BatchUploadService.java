@@ -129,14 +129,24 @@ public class BatchUploadService {
         return batchUpload;
     }
 
-    public File getBatchUploadsReport(Integer noofdays) throws IOException {
+    public File getBatchUploadsReport(Integer noofdays, String timeDifference) throws IOException {
         List<BatchUpload> result = null;
         File file = null;
 
         if (noofdays == null) {
             result = batchUploadRepository.findAll();
         } else {
-            DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
+            // Batch Upload Date/Time (user's local time)
+            // The time zone difference is passed as minutes, and the sign
+            // follows the UTC standard.
+            int minutes = 0;
+
+            if (timeDifference != null) {
+                minutes = Integer.parseInt(timeDifference);
+            }
+
+            DateTime dateBeforeNoofdaysUTC = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
+            DateTime dateBeforeNoofdays = dateBeforeNoofdaysUTC.plusMinutes(minutes);
             result = batchUploadRepository.findByDateUploadedAfter(dateBeforeNoofdays);
         }
 
@@ -168,8 +178,22 @@ public class BatchUploadService {
                         .add(batchUpload.getBatchUploadId() == null ? " " : batchUpload.getBatchUploadId().toString());
                 batchUploadDataRecord.add(batchUpload.getFileName());
                 batchUploadDataRecord.add(batchUpload.getName());
-                batchUploadDataRecord.add(batchUpload.getDateUploaded() == null ? ""
-                        : fmt.print(batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC)));
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (batchUpload.getDateUploaded() == null) {
+                    batchUploadDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    batchUploadDataRecord.add(fmt.print(dateTimeUser));
+                }
                 batchUploadDataRecord.add(batchUpload.getBatchApplication().toString());
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactions()));
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactionsProcessed()));
@@ -178,10 +202,39 @@ public class BatchUploadService {
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfErrorTransactions()));
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfRejected()));
 
-                batchUploadDataRecord.add(batchUpload.getProcessStart() == null ? ""
-                        : fmt.print(batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC)));
-                batchUploadDataRecord.add(batchUpload.getProcessEnd() == null ? ""
-                        : fmt.print(batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC)));
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (batchUpload.getProcessStart() == null) {
+                    batchUploadDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    batchUploadDataRecord.add(fmt.print(dateTimeUser));
+                }
+
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (batchUpload.getProcessEnd() == null) {
+                    batchUploadDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    batchUploadDataRecord.add(fmt.print(dateTimeUser));
+                }
 
                 batchUploadDataRecord.add(batchUpload.getUpLoadedBy());
 
@@ -192,7 +245,7 @@ public class BatchUploadService {
         return file;
     }
 
-    public File getBatchUploadTransactionsReport(Long batchUploadId) throws IOException {
+    public File getBatchUploadTransactionsReport(Long batchUploadId, String timeDifference) throws IOException {
         List<SaleTransaction> result = null;
         File file = null;
 
@@ -216,6 +269,7 @@ public class BatchUploadService {
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
         // initialize FileWriter object
         FileWriter fileWriter = new FileWriter(file);
+        @SuppressWarnings("resource")
         CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
         csvFilePrinter.printRecord(TRANSACTIONS_FILE_HEADER);
 
@@ -231,13 +285,39 @@ public class BatchUploadService {
             for (SaleTransaction saleTransaction : result) {
                 List<String> saleTransactionDataRecord = new ArrayList<String>();
 
-                // Date (local time, not UTC)
-                saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
-                        : fmt1.print(saleTransaction.getTransactionDateTime()));
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (saleTransaction.getTransactionDateTime() == null) {
+                    saleTransactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
 
-                // Time (local time, not UTC)
-                saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
-                        : fmt2.print(saleTransaction.getTransactionDateTime()));
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    saleTransactionDataRecord.add(fmt1.print(dateTimeUser));
+                }
+
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (saleTransaction.getTransactionDateTime() == null) {
+                    saleTransactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    saleTransactionDataRecord.add(fmt2.print(dateTimeUser));
+                }
 
                 // Invoice
                 saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
