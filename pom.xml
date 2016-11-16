@@ -5,7 +5,7 @@
 
 	<groupId>com.mcmcg.ico.bluefin</groupId>
 	<artifactId>bluefin-web-portal-services</artifactId>
-	<version>3.0.2</version>
+	<version>3.0.3</version>
 	<packaging>war</packaging>
 
 	<name>bluefin-web-portal-services</name>
