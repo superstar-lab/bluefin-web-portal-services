@@ -60,8 +60,9 @@ public class ReportRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> getTransactionsReport(@RequestParam(value = "search", required = true) String search,
-            @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication,
-            HttpServletResponse response) throws IOException {
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "timeDifference", required = true) String timeDifference,
+            @ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -71,7 +72,7 @@ public class ReportRestController {
             search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
         }
 
-        File downloadFile = transactionService.getTransactionsReport(search);
+        File downloadFile = transactionService.getTransactionsReport(search, timeDifference);
         InputStream targetStream = FileUtils.openInputStream(downloadFile);
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
@@ -94,8 +95,9 @@ public class ReportRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> getRemittanceTransactionsReport(
             @RequestParam(value = "search", required = true) String search,
-            @RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication,
-            HttpServletResponse response) throws IOException {
+            @RequestParam(value = "sort", required = false) String sort,
+            @RequestParam(value = "timeDifference", required = true) String timeDifference,
+            @ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -105,7 +107,7 @@ public class ReportRestController {
             search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
         }
 
-        File downloadFile = transactionService.getRemittanceTransactionsReport(search);
+        File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeDifference);
         InputStream targetStream = FileUtils.openInputStream(downloadFile);
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
@@ -126,9 +128,10 @@ public class ReportRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> get(@RequestParam(value = "noofdays", required = false) Integer noofdays,
+            @RequestParam(value = "timeDifference", required = true) String timeDifference,
             HttpServletResponse response) throws IOException {
         LOGGER.info("Getting all batch uploads");
-        File downloadFile = batchUploadService.getBatchUploadsReport(noofdays);
+        File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeDifference);
 
         InputStream targetStream = FileUtils.openInputStream(downloadFile);
         response.setContentType("application/octet-stream");
@@ -150,10 +153,11 @@ public class ReportRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> getBatchUploadTransactionsReport(
-            @RequestParam(value = "batchUploadId", required = true) Long batchUploadId, HttpServletResponse response)
-            throws IOException {
+            @RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
+            @RequestParam(value = "timeDifference", required = true) String timeDifference,
+            HttpServletResponse response) throws IOException {
         LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
-        File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId);
+        File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeDifference);
 
         InputStream targetStream = FileUtils.openInputStream(downloadFile);
         response.setContentType("application/octet-stream");

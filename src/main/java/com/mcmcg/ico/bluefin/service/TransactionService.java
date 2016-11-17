@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -189,7 +190,7 @@ public class TransactionService {
         return userLE;
     }
 
-    public File getTransactionsReport(String search) throws IOException {
+    public File getTransactionsReport(String search, String timeDifference) throws IOException {
         List<SaleTransaction> result;
 
         File file = null;
@@ -252,8 +253,22 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getOrigin());
                 transactionDataRecord.add(transaction.getPaymentFrequency());
                 transactionDataRecord.add(transaction.getProcessorTransactionId());
-                transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
-                        : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));
+                // Transaction Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (transaction.getTransactionDateTime() == null) {
+                    transactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    transactionDataRecord.add(fmt.print(dateTimeUser));
+                }
                 // Removed field: TestMode()
                 transactionDataRecord.add(transaction.getApprovalCode());
                 transactionDataRecord.add(transaction.getTokenized());
@@ -269,8 +284,22 @@ public class TransactionService {
                         : transaction.getPaymentProcessorInternalStatusCodeId().toString());
                 transactionDataRecord.add(transaction.getPaymentProcessorInternalResponseCodeId() == null ? " "
                         : transaction.getPaymentProcessorInternalResponseCodeId().toString());
-                transactionDataRecord.add(transaction.getTransactionDateTime() == null ? ""
-                        : fmt.print(transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC)));
+                // Creation Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (transaction.getCreatedDate() == null) {
+                    transactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = transaction.getCreatedDate().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    transactionDataRecord.add(fmt.print(dateTimeUser));
+                }
                 // Removed fields: PaymentProcessorRuleId(),
                 // RulePaymentProcessorId(), RuleCardType(),
                 // RuleMaximumMonthlyAmount(), RuleNoMaximumMonthlyAmountFlag(),
@@ -329,7 +358,7 @@ public class TransactionService {
      * 
      * @throws IOException
      */
-    public File getRemittanceTransactionsReport(String search) throws IOException {
+    public File getRemittanceTransactionsReport(String search, String timeDifference) throws IOException {
         List<PaymentProcessorRemittance> result;
 
         File file = null;
@@ -426,9 +455,22 @@ public class TransactionService {
                 transactionDataRecord
                         .add(transaction.getSaleAmount() == null ? "" : "$" + transaction.getSaleAmount().toString());
 
-                // Bluefin Date/Time (local time, not UTC)
-                transactionDataRecord.add(transaction.getSaleTransactionDateTime() == null ? ""
-                        : fmt.print(transaction.getSaleTransactionDateTime()));
+                // Bluefin Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (transaction.getSaleTransactionDateTime() == null) {
+                    transactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = transaction.getSaleTransactionDateTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    transactionDataRecord.add(fmt.print(dateTimeUser));
+                }
 
                 // Remittance information section
                 // Remittance Transaction ID
@@ -441,9 +483,22 @@ public class TransactionService {
                 transactionDataRecord.add(transaction.getTransactionAmount() == null ? ""
                         : transaction.getTransactionAmount().toString());
 
-                // Remittance Date/Time (UTC)
-                transactionDataRecord.add(transaction.getTransactionTime() == null ? ""
-                        : fmt.print(transaction.getTransactionTime().toDateTime(DateTimeZone.UTC)));
+                // Remittance Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (transaction.getTransactionTime() == null) {
+                    transactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = transaction.getTransactionTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    transactionDataRecord.add(fmt.print(dateTimeUser));
+                }
 
                 // Sale information section
                 // Card Type
