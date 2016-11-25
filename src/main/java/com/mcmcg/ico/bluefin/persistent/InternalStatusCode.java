@@ -66,8 +66,12 @@ public class InternalStatusCode implements Serializable {
     private String lastModifiedBy;
 
     @JsonIgnore
-    @Column(name = "StatusLetter")
-    private String statusLetter;
+    @Column(name = "InternalStatusCategoryAbbr")
+    private String internalStatusCategoryAbbr;
+    
+    @JsonIgnore
+    @Column(name = "InternalStatusCategory")
+    private String internalStatusCategory;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

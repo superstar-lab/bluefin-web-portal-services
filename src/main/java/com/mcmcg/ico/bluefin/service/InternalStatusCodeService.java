@@ -357,6 +357,6 @@ public class InternalStatusCodeService {
         if (internalStatusCode == null)
             return "";
         else
-            return internalStatusCode.getStatusLetter();
+            return internalStatusCode.getInternalStatusCategoryAbbr();
     }
 }
