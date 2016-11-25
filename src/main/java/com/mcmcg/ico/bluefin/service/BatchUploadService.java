@@ -19,7 +19,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -57,8 +57,6 @@ public class BatchUploadService {
     private static final Object[] TRANSACTIONS_FILE_HEADER = { "Date", "Time", "Invoice", "Amount", "Result",
             "Error Message" };
 
-    @Value("${bluefin.wp.services.batch.upload.report.path}")
-    private String reportPath;
     @Autowired
     private PropertyService propertyService;
 
@@ -154,13 +152,13 @@ public class BatchUploadService {
         // Create the CSVFormat object with "\n" as a record delimiter
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
         try {
-            File dir = new File(reportPath);
+            File dir = new File(propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"));
             dir.mkdirs();
             file = new File(dir, UUID.randomUUID() + ".csv");
             file.createNewFile();
         } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+            LOGGER.error("Error creating file: {}{}{}", propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"), UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH") + UUID.randomUUID() + ".csv");
         }
         // initialize FileWriter object
         try (FileWriter fileWriter = new FileWriter(file);
@@ -257,13 +255,13 @@ public class BatchUploadService {
         }
 
         try {
-            File dir = new File(reportPath);
+            File dir = new File(propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"));
             dir.mkdirs();
             file = new File(dir, UUID.randomUUID() + ".csv");
             file.createNewFile();
         } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+            LOGGER.error("Error creating file: {}{}{}", propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"), UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH") + UUID.randomUUID() + ".csv");
         }
 
         // Create CSV file header
