@@ -41,131 +41,131 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(value = "/api/reports")
 public class ReportRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReportRestController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReportRestController.class);
 
-    @Autowired
-    private TransactionService transactionService;
-    @Autowired
-    private SessionService sessionService;
-    @Autowired
-    private BatchUploadService batchUploadService;
+	@Autowired
+	private TransactionService transactionService;
+	@Autowired
+	private SessionService sessionService;
+	@Autowired
+	private BatchUploadService batchUploadService;
 
-    @ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
-    @RequestMapping(method = RequestMethod.GET, value = "/transactions")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> getTransactionsReport(@RequestParam(value = "search", required = true) String search,
-            @RequestParam(value = "sort", required = false) String sort,
-            @RequestParam(value = "timeDifference", required = true) String timeDifference,
-            @ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
-        if (authentication == null) {
-            throw new AccessDeniedException("An authorization token is required to request this resource");
-        }
+	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/transactions")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getTransactionsReport(@RequestParam(value = "search", required = true) String search,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "timeZone", required = true) String timeZone,
+			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
+		if (authentication == null) {
+			throw new AccessDeniedException("An authorization token is required to request this resource");
+		}
 
-        if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-            List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-            search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
-        }
+		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
+			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		}
 
-        File downloadFile = transactionService.getTransactionsReport(search, timeDifference);
-        InputStream targetStream = FileUtils.openInputStream(downloadFile);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-        response.setHeader("Content-Length", Long.toString(downloadFile.length()));
+		File downloadFile = transactionService.getTransactionsReport(search, timeZone);
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		// Below line found in releases while merging, but was not available in develop branch
+		//response.setHeader("Content-Length", Long.toString(downloadFile.length()));
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
 
-        FileCopyUtils.copy(targetStream, response.getOutputStream());
-        LOGGER.info("Deleting temp file: {}", downloadFile.getName());
-        downloadFile.delete();
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
-    }
+	@ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/payment-processor-remittances")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = PaymentProcessorRemittance.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getRemittanceTransactionsReport(
+			@RequestParam(value = "search", required = true) String search,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "timeZone", required = true) String timeZone,
+			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
+		if (authentication == null) {
+			throw new AccessDeniedException("An authorization token is required to request this resource");
+		}
 
-    @ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
-    @RequestMapping(method = RequestMethod.GET, value = "/payment-processor-remittances")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRemittance.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> getRemittanceTransactionsReport(
-            @RequestParam(value = "search", required = true) String search,
-            @RequestParam(value = "sort", required = false) String sort,
-            @RequestParam(value = "timeDifference", required = true) String timeDifference,
-            @ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
-        if (authentication == null) {
-            throw new AccessDeniedException("An authorization token is required to request this resource");
-        }
+		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
+			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		}
 
-        if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-            List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-            search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
-        }
+		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone);
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
-        File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeDifference);
-        InputStream targetStream = FileUtils.openInputStream(downloadFile);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
 
-        FileCopyUtils.copy(targetStream, response.getOutputStream());
-        LOGGER.info("Deleting temp file: {}", downloadFile.getName());
-        downloadFile.delete();
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
-    }
+	@ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> get(@RequestParam(value = "noofdays", required = false) Integer noofdays,
+			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
+			throws IOException {
+		LOGGER.info("Getting all batch uploads");
+		File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
 
-    @ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
-    @RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> get(@RequestParam(value = "noofdays", required = false) Integer noofdays,
-            @RequestParam(value = "timeDifference", required = true) String timeDifference,
-            HttpServletResponse response) throws IOException {
-        LOGGER.info("Getting all batch uploads");
-        File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeDifference);
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
-        InputStream targetStream = FileUtils.openInputStream(downloadFile);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
 
-        FileCopyUtils.copy(targetStream, response.getOutputStream());
-        LOGGER.info("Deleting temp file: {}", downloadFile.getName());
-        downloadFile.delete();
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
-    }
+	@ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getBatchUploadTransactionsReport(
+			@RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
+			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
+			throws IOException {
+		LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
+		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
-    @ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
-    @RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> getBatchUploadTransactionsReport(
-            @RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
-            @RequestParam(value = "timeDifference", required = true) String timeDifference,
-            HttpServletResponse response) throws IOException {
-        LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
-        File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeDifference);
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
-        InputStream targetStream = FileUtils.openInputStream(downloadFile);
-        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
-        FileCopyUtils.copy(targetStream, response.getOutputStream());
-        LOGGER.info("Deleting temp file: {}", downloadFile.getName());
-        downloadFile.delete();
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
-    }
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
 }

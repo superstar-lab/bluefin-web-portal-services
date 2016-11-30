@@ -44,480 +44,466 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
 public class TransactionService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
 
-    // Delimiter used in CSV file
-    private static final String NEW_LINE_SEPARATOR = "\n";
-    // CSV file header
-    private static final Object[] FILE_HEADER = { "#", "First Name", "Last Name", "Process User", "Transaction Type",
-            "Address 1", "Address 2", "City", "State", "Postal Code", "Country", "Card Number Last 4 Char", "Card Type",
-            "Token", "Amount", "Legal Entity", "Account Number", "Application Transaction ID", "Merchant ID",
-            "Processor", "Application", "Origin", "Payment Frequency", "Processor Transaction ID",
-            "Transaction Date Time", "Approval Code", "Tokenized", "Payment Processor Status Code",
-            "Payment Processor Status Code Description", "Payment Processor Response Code",
-            "Payment Processor Response Code Description", "Internal Status Code", "Internal Status Description",
-            "Internal Response Code", "Internal Response Description", "PaymentProcessorInternalStatusCodeID",
-            "PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk", "Invoice Number",
-            "User Defined Field 1", "User Defined Field 2", "User Defined Field 3", "Batch Upload ID" };
+	// Delimiter used in CSV file
+	private static final String NEW_LINE_SEPARATOR = "\n";
+	// CSV file header
+	private static final Object[] FILE_HEADER = { "#", "First Name", "Last Name", "Process User", "Transaction Type",
+			"Address 1", "Address 2", "City", "State", "Postal Code", "Country", "Card Number Last 4 Char", "Card Type",
+			"Token", "Amount", "Legal Entity", "Account Number", "Application Transaction ID", "Merchant ID",
+			"Processor", "Application", "Origin", "Payment Frequency", "Processor Transaction ID",
+			"Transaction Date Time", "Approval Code", "Tokenized", "Payment Processor Status Code",
+			"Payment Processor Status Code Description", "Payment Processor Response Code",
+			"Payment Processor Response Code Description", "Internal Status Code", "Internal Status Description",
+			"Internal Response Code", "Internal Response Description", "PaymentProcessorInternalStatusCodeID",
+			"PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk", "Invoice Number",
+			"User Defined Field 1", "User Defined Field 2", "User Defined Field 3", "Batch Upload ID" };
 
-    private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor",
-            "Status", "Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount",
-            "Bluefin Date/Time", "Remittance Transaction ID", "Remittance Account Number", "Remittance Amount",
-            "Remittance Date/Time", "Card Type", "Card Number (last 4)", "Merchant ID", "Application" };
+	private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor",
+			"Status", "Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount",
+			"Bluefin Date/Time", "Remittance Transaction ID", "Remittance Account Number", "Remittance Amount",
+			"Remittance Date/Time", "Card Type", "Card Number (last 4)", "Merchant ID", "Application" };
 
-    @Autowired
-    private SaleTransactionRepository saleTransactionRepository;
-    @Autowired
-    private VoidTransactionRepository voidTransactionRepository;
-    @Autowired
-    private RefundTransactionRepository refundTransactionRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PaymentProcessorRepository paymentProcessorRepository;
-    @Autowired
-    private ReconciliationStatusRepository reconciliationStatusRepository;
-    @Autowired
-    private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
-    @Autowired
-    private PropertyService propertyService;
+	@Autowired
+	private SaleTransactionRepository saleTransactionRepository;
+	@Autowired
+	private VoidTransactionRepository voidTransactionRepository;
+	@Autowired
+	private RefundTransactionRepository refundTransactionRepository;
+	@Autowired
+	private UserRepository userRepository;
+	@Autowired
+	private PaymentProcessorRepository paymentProcessorRepository;
+	@Autowired
+	private ReconciliationStatusRepository reconciliationStatusRepository;
+	@Autowired
+	private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
+	@Autowired
+	private PropertyService propertyService;
 
-    public Transaction getTransactionInformation(final String transactionId, TransactionType transactionType) {
-        Transaction result = null;
+	public Transaction getTransactionInformation(final String transactionId, TransactionType transactionType) {
+		Transaction result = null;
 
-        switch (transactionType) {
-        case VOID:
-            result = voidTransactionRepository.findByApplicationTransactionId(transactionId);
-            break;
-        case REFUND:
-            result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
-            break;
-        case REMITTANCE:
-            result = getRemittanceSaleResult(transactionId);
-            break;
-        default:
-            result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
-        }
+		switch (transactionType) {
+		case VOID:
+			result = voidTransactionRepository.findByApplicationTransactionId(transactionId);
+			break;
+		case REFUND:
+			result = refundTransactionRepository.findByApplicationTransactionId(transactionId);
+			break;
+		case REMITTANCE:
+			result = getRemittanceSaleResult(transactionId);
+			break;
+		default:
+			result = saleTransactionRepository.findByApplicationTransactionId(transactionId);
+		}
 
-        if (result == null) {
-            throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
-        }
+		if (result == null) {
+			throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public Transaction getRemittanceSaleResult(String transactionId) {
-        Transaction result = null;
+	public Transaction getRemittanceSaleResult(String transactionId) {
+		Transaction result = null;
 
-        PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository
-                .findByProcessorTransactionId(transactionId);
-        if (ppr == null) {
-            ppr = new PaymentProcessorRemittance();
-        }
-        SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
-        if (st == null) {
-            st = new SaleTransaction();
-        }
-        String processorName = null;
-        if (ppr != null) {
-            processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId())
-                    .getProcessorName();
-        }
-        Short tokenized = null;
-        if (st != null) {
-            String tokenizedStr = st.getTokenized();
-            if (tokenizedStr != null) {
-                if (tokenizedStr.equalsIgnoreCase("No")) {
-                    tokenized = 0;
-                } else {
-                    tokenized = 1;
-                }
-            }
-        }
+		PaymentProcessorRemittance ppr = paymentProcessorRemittanceRepository
+				.findByProcessorTransactionId(transactionId);
+		if (ppr == null) {
+			ppr = new PaymentProcessorRemittance();
+		}
+		SaleTransaction st = saleTransactionRepository.findByProcessorTransactionId(transactionId);
+		if (st == null) {
+			st = new SaleTransaction();
+		}
+		String processorName = null;
+		if (ppr != null) {
+			processorName = paymentProcessorRepository.findByPaymentProcessorId(ppr.getPaymentProcessorId())
+					.getProcessorName();
+		}
+		Short tokenized = null;
+		if (st != null) {
+			String tokenizedStr = st.getTokenized();
+			if (tokenizedStr != null) {
+				if (tokenizedStr.equalsIgnoreCase("No")) {
+					tokenized = 0;
+				} else {
+					tokenized = 1;
+				}
+			}
+		}
 
-        PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(
-                ppr.getPaymentProcessorRemittanceId(), ppr.getCreatedDate(), ppr.getReconciliationStatusId(),
-                ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
-                ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
-                ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(), ppr.getFirstName(),
-                ppr.getLastName(), ppr.getRemittanceCreationDate(), ppr.getPaymentProcessorId(), processorName,
-                st.getSaleTransactionId(), st.getTransactionType(), st.getLegalEntity(), st.getAccountNumber(),
-                st.getApplicationTransactionId(), st.getProcessorTransactionId(), st.getMerchantId(),
-                st.getTransactionDateTime(), st.getCardNumberFirst6Char(), st.getCardNumberLast4Char(),
-                st.getCardType(), st.getAmount(), st.getExpiryDate(), st.getFirstName(), st.getLastName(),
-                st.getAddress1(), st.getAddress2(), st.getCity(), st.getState(), st.getPostalCode(), st.getCountry(),
-                st.getTestMode(), st.getToken(), tokenized, st.getProcessorResponseCode(),
-                st.getProcessorResponseCodeDescription(), st.getApprovalCode(), st.getInternalResponseCode(),
-                st.getInternalResponseDescription(), st.getInternalStatusCode(), st.getInternalStatusDescription(),
-                st.getPaymentProcessorStatusCode(), st.getPaymentProcessorStatusCodeDescription(),
-                st.getPaymentProcessorRuleId(), st.getRulePaymentProcessorId(), st.getRuleCardType(),
-                st.getRuleMaximumMonthlyAmount(), st.getRuleNoMaximumMonthlyAmountFlag(), st.getRulePriority(),
-                st.getProcessUser(), st.getProcessorName(), st.getApplication(), st.getOrigin(), st.getAccountPeriod(),
-                st.getDesk(), st.getInvoiceNumber(), st.getUserDefinedField1(), st.getUserDefinedField2(),
-                st.getUserDefinedField3(), st.getCreatedDate(), st.getIsVoided(), st.getIsRefunded(),
-                st.getPaymentProcessorInternalStatusCodeId(), st.getPaymentProcessorInternalResponseCodeId(),
-                st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId(), "", "", "");
+		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(
+				ppr.getPaymentProcessorRemittanceId(), ppr.getCreatedDate(), ppr.getReconciliationStatusId(),
+				ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
+				ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
+				ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(), ppr.getFirstName(),
+				ppr.getLastName(), ppr.getRemittanceCreationDate(), ppr.getPaymentProcessorId(), processorName,
+				st.getSaleTransactionId(), st.getTransactionType(), st.getLegalEntity(), st.getAccountNumber(),
+				st.getApplicationTransactionId(), st.getProcessorTransactionId(), st.getMerchantId(),
+				st.getTransactionDateTime(), st.getCardNumberFirst6Char(), st.getCardNumberLast4Char(),
+				st.getCardType(), st.getAmount(), st.getExpiryDate(), st.getFirstName(), st.getLastName(),
+				st.getAddress1(), st.getAddress2(), st.getCity(), st.getState(), st.getPostalCode(), st.getCountry(),
+				st.getTestMode(), st.getToken(), tokenized, st.getProcessorResponseCode(),
+				st.getProcessorResponseCodeDescription(), st.getApprovalCode(), st.getInternalResponseCode(),
+				st.getInternalResponseDescription(), st.getInternalStatusCode(), st.getInternalStatusDescription(),
+				st.getPaymentProcessorStatusCode(), st.getPaymentProcessorStatusCodeDescription(),
+				st.getPaymentProcessorRuleId(), st.getRulePaymentProcessorId(), st.getRuleCardType(),
+				st.getRuleMaximumMonthlyAmount(), st.getRuleNoMaximumMonthlyAmountFlag(), st.getRulePriority(),
+				st.getProcessUser(), st.getProcessorName(), st.getApplication(), st.getOrigin(), st.getAccountPeriod(),
+				st.getDesk(), st.getInvoiceNumber(), st.getUserDefinedField1(), st.getUserDefinedField2(),
+				st.getUserDefinedField3(), st.getCreatedDate(), st.getIsVoided(), st.getIsRefunded(),
+				st.getPaymentProcessorInternalStatusCodeId(), st.getPaymentProcessorInternalResponseCodeId(),
+				st.getReconciliationStatusId(), st.getReconciliationDate(), st.getBatchUploadId(), "", "", "");
 
-        result = paymentProcessorRemittance;
+		result = paymentProcessorRemittance;
 
-        return result;
-    }
+		return result;
+	}
 
-    public Long countTransactionsWithPaymentProcessorRuleID(final Long paymentProcessorRuleId) {
-        return saleTransactionRepository.countByPaymentProcessorRuleId(paymentProcessorRuleId);
-    }
+	public Long countTransactionsWithPaymentProcessorRuleID(final Long paymentProcessorRuleId) {
+		return saleTransactionRepository.countByPaymentProcessorRuleId(paymentProcessorRuleId);
+	}
 
-    public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
-        Page<SaleTransaction> result;
-        try {
-            result = saleTransactionRepository.findTransaction(search, paging);
-        } catch (ParseException e) {
-            throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
-        }
-        final int page = paging.getPageNumber();
+	public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
+		Page<SaleTransaction> result;
+		try {
+			result = saleTransactionRepository.findTransaction(search, paging);
+		} catch (ParseException e) {
+			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+		}
+		final int page = paging.getPageNumber();
 
-        if (page > result.getTotalPages() && page != 0) {
-            LOGGER.error("Unable to find the page requested");
-            throw new CustomNotFoundException("Unable to find the page requested");
-        }
+		if (page > result.getTotalPages() && page != 0) {
+			LOGGER.error("Unable to find the page requested");
+			throw new CustomNotFoundException("Unable to find the page requested");
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
-        User user = userRepository.findByUsername(username);
-        List<LegalEntityApp> userLE = user.getLegalEntityApps();
-        return userLE;
-    }
+	public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
+		User user = userRepository.findByUsername(username);
+		List<LegalEntityApp> userLE = user.getLegalEntityApps();
+		return userLE;
+	}
 
-    public File getTransactionsReport(String search, String timeDifference) throws IOException {
-        List<SaleTransaction> result;
+	public File getTransactionsReport(String search, String timeZone) throws IOException {
+		List<SaleTransaction> result;
+		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
-        File file = null;
-        try {
-            result = saleTransactionRepository.findTransactionsReport(search);
-        } catch (ParseException e) {
-            throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
-        }
+		File file = null;
+		try {
+			result = saleTransactionRepository.findTransactionsReport(search);
+		} catch (ParseException e) {
+			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+		}
 
-        // Create the CSVFormat object with "\n" as a record delimiter
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-        String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
-        try {
-            File dir = new File(reportPath);
-            dir.mkdirs();
-            file = new File(dir, UUID.randomUUID() + ".csv");
-            file.createNewFile();
-        } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
-        }
-        // initialize FileWriter object
-        try (FileWriter fileWriter = new FileWriter(file);
-                CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
+		// Create the CSVFormat object with "\n" as a record delimiter
+		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 
-            // initialize CSVPrinter object
+		try {
+			File dir = new File(reportPath);
+			dir.mkdirs();
+			file = new File(dir, UUID.randomUUID() + ".csv");
+			file.createNewFile();
+		} catch (Exception e) {
+			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+		}
+		// initialize FileWriter object
+		try (FileWriter fileWriter = new FileWriter(file);
+				CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
 
-            // Create CSV file header
-            csvFilePrinter.printRecord(FILE_HEADER);
+			// initialize CSVPrinter object
 
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
-            Integer count = 1;
-            // Write a new transaction object list to the CSV file
-            for (SaleTransaction transaction : result) {
-                List<String> transactionDataRecord = new ArrayList<String>();
-                transactionDataRecord.add(count.toString());
-                // Removed field: SaleTransactionId();
-                transactionDataRecord.add(transaction.getFirstName());
-                transactionDataRecord.add(transaction.getLastName());
-                transactionDataRecord.add(transaction.getProcessUser());
-                transactionDataRecord.add(transaction.getTransactionType());
-                transactionDataRecord.add(transaction.getAddress1());
-                transactionDataRecord.add(transaction.getAddress2());
-                transactionDataRecord.add(transaction.getCity());
-                transactionDataRecord.add(transaction.getState());
-                transactionDataRecord.add(transaction.getPostalCode());
-                transactionDataRecord.add(transaction.getCountry());
-                // Removed field: CardNumberFirst6Char());
-                transactionDataRecord.add(transaction.getCardNumberLast4Char());
-                transactionDataRecord.add(transaction.getCardType());
-                transactionDataRecord.add(transaction.getToken());
-                transactionDataRecord
-                        .add(transaction.getAmount() == null ? " " : "$" + transaction.getAmount().toString());
-                transactionDataRecord.add(transaction.getLegalEntity());
-                transactionDataRecord.add(transaction.getAccountNumber());
-                transactionDataRecord.add(transaction.getApplicationTransactionId());
-                transactionDataRecord.add(transaction.getMerchantId());
-                transactionDataRecord.add(transaction.getProcessorName());
-                transactionDataRecord.add(transaction.getApplication());
-                transactionDataRecord.add(transaction.getOrigin());
-                transactionDataRecord.add(transaction.getPaymentFrequency());
-                transactionDataRecord.add(transaction.getProcessorTransactionId());
-                // Transaction Date/Time (user's local time)
-                // The time zone difference is passed as minutes, and the sign
-                // follows the UTC standard.
-                if (transaction.getTransactionDateTime() == null) {
-                    transactionDataRecord.add("");
-                } else {
-                    int minutes = 0;
+			// Create CSV file header
+			csvFilePrinter.printRecord(FILE_HEADER);
 
-                    if (timeDifference != null) {
-                        minutes = Integer.parseInt(timeDifference);
-                    }
+			DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
+			Integer count = 1;
+			// Write a new transaction object list to the CSV file
+			for (SaleTransaction transaction : result) {
+				List<String> transactionDataRecord = new ArrayList<String>();
+				transactionDataRecord.add(count.toString());
+				// Removed field: SaleTransactionId();
+				transactionDataRecord.add(transaction.getFirstName());
+				transactionDataRecord.add(transaction.getLastName());
+				transactionDataRecord.add(transaction.getProcessUser());
+				transactionDataRecord.add(transaction.getTransactionType());
+				transactionDataRecord.add(transaction.getAddress1());
+				transactionDataRecord.add(transaction.getAddress2());
+				transactionDataRecord.add(transaction.getCity());
+				transactionDataRecord.add(transaction.getState());
+				transactionDataRecord.add(transaction.getPostalCode());
+				transactionDataRecord.add(transaction.getCountry());
+				// Removed field: CardNumberFirst6Char());
+				transactionDataRecord.add(transaction.getCardNumberLast4Char());
+				transactionDataRecord.add(transaction.getCardType());
+				transactionDataRecord.add(transaction.getToken());
+				transactionDataRecord
+						.add(transaction.getAmount() == null ? " " : "$" + transaction.getAmount().toString());
+				transactionDataRecord.add(transaction.getLegalEntity());
+				transactionDataRecord.add(transaction.getAccountNumber());
+				transactionDataRecord.add(transaction.getApplicationTransactionId());
+				transactionDataRecord.add(transaction.getMerchantId());
+				transactionDataRecord.add(transaction.getProcessorName());
+				transactionDataRecord.add(transaction.getApplication());
+				transactionDataRecord.add(transaction.getOrigin());
+				transactionDataRecord.add(transaction.getPaymentFrequency());
+				transactionDataRecord.add(transaction.getProcessorTransactionId());
+				// Transaction Date/Time (user's local time)
+				// The time zone (for example, "America/Costa_Rica" or
+				// "America/Los_Angeles") is passed as a parameter
+				// and applied to the UTC from the database.
+				if (transaction.getTransactionDateTime() == null) {
+					transactionDataRecord.add("");
+				} else {
+					DateTime dateTimeUTC = transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+					transactionDataRecord.add(fmt.print(dateTimeUser));
+				}
+				// Removed field: TestMode()
+				transactionDataRecord.add(transaction.getApprovalCode());
+				transactionDataRecord.add(transaction.getTokenized());
+				transactionDataRecord.add(transaction.getPaymentProcessorStatusCode());
+				transactionDataRecord.add(transaction.getPaymentProcessorStatusCodeDescription());
+				transactionDataRecord.add(transaction.getProcessorResponseCode());
+				transactionDataRecord.add(transaction.getProcessorResponseCodeDescription());
+				transactionDataRecord.add(transaction.getInternalStatusCode());
+				transactionDataRecord.add(transaction.getInternalStatusDescription());
+				transactionDataRecord.add(transaction.getInternalResponseCode());
+				transactionDataRecord.add(transaction.getInternalResponseDescription());
+				transactionDataRecord.add(transaction.getPaymentProcessorInternalStatusCodeId() == null ? " "
+						: transaction.getPaymentProcessorInternalStatusCodeId().toString());
+				transactionDataRecord.add(transaction.getPaymentProcessorInternalResponseCodeId() == null ? " "
+						: transaction.getPaymentProcessorInternalResponseCodeId().toString());
+				// Creation Date/Time (user's local time)
+				// The time zone (for example, "America/Costa_Rica" or
+				// "America/Los_Angeles") is passed as a parameter
+				// and applied to the UTC from the database.
+				if (transaction.getCreatedDate() == null) {
+					transactionDataRecord.add("");
+				} else {
+					DateTime dateTimeUTC = transaction.getCreatedDate().toDateTime(DateTimeZone.UTC);
+					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+					transactionDataRecord.add(fmt.print(dateTimeUser));
+				}
+				// Removed fields: PaymentProcessorRuleId(),
+				// RulePaymentProcessorId(), RuleCardType(),
+				// RuleMaximumMonthlyAmount(), RuleNoMaximumMonthlyAmountFlag(),
+				// RulePriority()
+				transactionDataRecord.add(transaction.getAccountPeriod());
+				transactionDataRecord.add(transaction.getDesk());
+				transactionDataRecord.add(transaction.getInvoiceNumber());
+				transactionDataRecord.add(transaction.getUserDefinedField1());
+				transactionDataRecord.add(transaction.getUserDefinedField2());
+				transactionDataRecord.add(transaction.getUserDefinedField3());
+				transactionDataRecord
+						.add(transaction.getBatchUploadId() == null ? " " : transaction.getBatchUploadId().toString());
+				csvFilePrinter.printRecord(transactionDataRecord);
+				count++;
+			}
+			LOGGER.info("CSV file report was created successfully !!!");
+		}
+		return file;
+	}
 
-                    DateTime dateTimeUTC = transaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
-                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
-                    transactionDataRecord.add(fmt.print(dateTimeUser));
-                }
-                // Removed field: TestMode()
-                transactionDataRecord.add(transaction.getApprovalCode());
-                transactionDataRecord.add(transaction.getTokenized());
-                transactionDataRecord.add(transaction.getPaymentProcessorStatusCode());
-                transactionDataRecord.add(transaction.getPaymentProcessorStatusCodeDescription());
-                transactionDataRecord.add(transaction.getProcessorResponseCode());
-                transactionDataRecord.add(transaction.getProcessorResponseCodeDescription());
-                transactionDataRecord.add(transaction.getInternalStatusCode());
-                transactionDataRecord.add(transaction.getInternalStatusDescription());
-                transactionDataRecord.add(transaction.getInternalResponseCode());
-                transactionDataRecord.add(transaction.getInternalResponseDescription());
-                transactionDataRecord.add(transaction.getPaymentProcessorInternalStatusCodeId() == null ? " "
-                        : transaction.getPaymentProcessorInternalStatusCodeId().toString());
-                transactionDataRecord.add(transaction.getPaymentProcessorInternalResponseCodeId() == null ? " "
-                        : transaction.getPaymentProcessorInternalResponseCodeId().toString());
-                // Creation Date/Time (user's local time)
-                // The time zone difference is passed as minutes, and the sign
-                // follows the UTC standard.
-                if (transaction.getCreatedDate() == null) {
-                    transactionDataRecord.add("");
-                } else {
-                    int minutes = 0;
+	/**
+	 * Get remittance, sale, refund, and void transactions. This will be one
+	 * column of the UI.
+	 * 
+	 * @param search
+	 * @param paging
+	 * @param negate
+	 * 
+	 * @return list of objects containing these transactions
+	 */
+	public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search,
+			PageRequest paging, boolean negate) {
+		Page<PaymentProcessorRemittance> result;
+		try {
+			result = saleTransactionRepository.findRemittanceSaleRefundTransactions(search, paging, negate);
+		} catch (ParseException e) {
+			throw new CustomNotFoundException(
+					"Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
+		}
+		final int page = paging.getPageNumber();
 
-                    if (timeDifference != null) {
-                        minutes = Integer.parseInt(timeDifference);
-                    }
+		if (page > result.getTotalPages() && page != 0) {
+			LOGGER.error("Unable to find the page requested");
+			throw new CustomNotFoundException("Unable to find the page requested");
+		}
 
-                    DateTime dateTimeUTC = transaction.getCreatedDate().toDateTime(DateTimeZone.UTC);
-                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
-                    transactionDataRecord.add(fmt.print(dateTimeUser));
-                }
-                // Removed fields: PaymentProcessorRuleId(),
-                // RulePaymentProcessorId(), RuleCardType(),
-                // RuleMaximumMonthlyAmount(), RuleNoMaximumMonthlyAmountFlag(),
-                // RulePriority()
-                transactionDataRecord.add(transaction.getAccountPeriod());
-                transactionDataRecord.add(transaction.getDesk());
-                transactionDataRecord.add(transaction.getInvoiceNumber());
-                transactionDataRecord.add(transaction.getUserDefinedField1());
-                transactionDataRecord.add(transaction.getUserDefinedField2());
-                transactionDataRecord.add(transaction.getUserDefinedField3());
-                transactionDataRecord
-                        .add(transaction.getBatchUploadId() == null ? " " : transaction.getBatchUploadId().toString());
-                csvFilePrinter.printRecord(transactionDataRecord);
-                count++;
-            }
-            LOGGER.info("CSV file report was created successfully !!!");
-        }
-        return file;
-    }
+		return result;
+	}
 
-    /**
-     * Get remittance, sale, refund, and void transactions. This will be one
-     * column of the UI.
-     * 
-     * @param search
-     * @param paging
-     * @param negate
-     * 
-     * @return list of objects containing these transactions
-     */
-    public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search,
-            PageRequest paging, boolean negate) {
-        Page<PaymentProcessorRemittance> result;
-        try {
-            result = saleTransactionRepository.findRemittanceSaleRefundTransactions(search, paging, negate);
-        } catch (ParseException e) {
-            throw new CustomNotFoundException(
-                    "Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
-        }
-        final int page = paging.getPageNumber();
+	/**
+	 * Create CSV file for remittance.
+	 * 
+	 * @param search
+	 * 
+	 * @return CSV file
+	 * 
+	 * @throws IOException
+	 */
+	public File getRemittanceTransactionsReport(String search, String timeZone) throws IOException {
+		List<PaymentProcessorRemittance> result;
+		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
-        if (page > result.getTotalPages() && page != 0) {
-            LOGGER.error("Unable to find the page requested");
-            throw new CustomNotFoundException("Unable to find the page requested");
-        }
+		File file = null;
+		try {
+			result = saleTransactionRepository.findRemittanceSaleRefundTransactionsReport(search);
+		} catch (ParseException e) {
+			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+		}
 
-        return result;
-    }
+		// Create the CSVFormat object with "\n" as a record delimiter
+		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 
-    /**
-     * Create CSV file for remittance.
-     * 
-     * @param search
-     * 
-     * @return CSV file
-     * 
-     * @throws IOException
-     */
-    public File getRemittanceTransactionsReport(String search, String timeDifference) throws IOException {
-        List<PaymentProcessorRemittance> result;
+		try {
+			File dir = new File(reportPath);
+			dir.mkdirs();
+			file = new File(dir, UUID.randomUUID() + ".csv");
+			file.createNewFile();
+		} catch (Exception e) {
+			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+		}
+		// initialize FileWriter object
+		try (FileWriter fileWriter = new FileWriter(file);
+				CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
 
-        File file = null;
-        try {
-            result = saleTransactionRepository.findRemittanceSaleRefundTransactionsReport(search);
-        } catch (ParseException e) {
-            throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
-        }
+			// Create PaymentProcessor hashmap
+			Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
+			List<PaymentProcessor> paymentProcessorList = paymentProcessorRepository.findAll();
+			for (PaymentProcessor pp : paymentProcessorList) {
+				paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
+			}
 
-        // Create the CSVFormat object with "\n" as a record delimiter
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-        String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
-        try {
-            File dir = new File(reportPath);
-            dir.mkdirs();
-            file = new File(dir, UUID.randomUUID() + ".csv");
-            file.createNewFile();
-        } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
-        }
-        // initialize FileWriter object
-        try (FileWriter fileWriter = new FileWriter(file);
-                CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
+			// Create ReconciliationStatus hashmap
+			Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
+			List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusRepository.findAll();
+			for (ReconciliationStatus rs : reconciliationStatusList) {
+				reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
+			}
 
-            // Create PaymentProcessor hashmap
-            Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
-            List<PaymentProcessor> paymentProcessorList = paymentProcessorRepository.findAll();
-            for (PaymentProcessor pp : paymentProcessorList) {
-                paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
-            }
+			// initialize CSVPrinter object
 
-            // Create ReconciliationStatus hashmap
-            Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
-            List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusRepository.findAll();
-            for (ReconciliationStatus rs : reconciliationStatusList) {
-                reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
-            }
+			// Create CSV file header
+			csvFilePrinter.printRecord(REMITTANCE_FILE_HEADER);
 
-            // initialize CSVPrinter object
+			DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
+			Integer count = 1;
+			// Write a new transaction object list to the CSV file
+			for (PaymentProcessorRemittance transaction : result) {
+				List<String> transactionDataRecord = new ArrayList<String>();
+				transactionDataRecord.add(count.toString());
 
-            // Create CSV file header
-            csvFilePrinter.printRecord(REMITTANCE_FILE_HEADER);
+				// Sale information section
+				// Bluefin Transaction ID
+				transactionDataRecord.add(transaction.getSaleApplicationTransactionId());
 
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
-            Integer count = 1;
-            // Write a new transaction object list to the CSV file
-            for (PaymentProcessorRemittance transaction : result) {
-                List<String> transactionDataRecord = new ArrayList<String>();
-                transactionDataRecord.add(count.toString());
+				// Payment Processor
+				String processorName = transaction.getSaleProcessorName();
+				if (processorName == null) {
+					processorName = paymentProcessorMap.get(transaction.getPaymentProcessorId());
+				}
+				transactionDataRecord.add(processorName);
 
-                // Sale information section
-                // Bluefin Transaction ID
-                transactionDataRecord.add(transaction.getSaleApplicationTransactionId());
+				// Status
+				String status = null;
+				Long reconciliationStatusId = transaction.getSaleReconciliationStatusId();
+				if (reconciliationStatusId != null) {
+					status = reconciliationStatusMap.get(reconciliationStatusId);
+				} else {
+					status = "";
+				}
+				transactionDataRecord.add(status);
 
-                // Payment Processor
-                String processorName = transaction.getSaleProcessorName();
-                if (processorName == null) {
-                    processorName = paymentProcessorMap.get(transaction.getPaymentProcessorId());
-                }
-                transactionDataRecord.add(processorName);
+				// Amount Difference
+				BigDecimal amountDifference = null;
+				BigDecimal saleAmount = transaction.getSaleAmount();
+				BigDecimal transactionAmount = transaction.getTransactionAmount();
+				if (saleAmount != null && transactionAmount != null) {
+					amountDifference = saleAmount.subtract(transactionAmount);
+				}
+				transactionDataRecord.add(amountDifference == null ? "" : "$" + amountDifference.toString());
 
-                // Status
-                String status = null;
-                Long reconciliationStatusId = transaction.getSaleReconciliationStatusId();
-                if (reconciliationStatusId != null) {
-                    status = reconciliationStatusMap.get(reconciliationStatusId);
-                } else {
-                    status = "";
-                }
-                transactionDataRecord.add(status);
+				// Transaction Type
+				String transactionType = transaction.getSaleTransactionType();
+				if (transactionType == null) {
+					transactionType = transaction.getTransactionType();
+				}
+				transactionDataRecord.add(transactionType);
 
-                // Amount Difference
-                BigDecimal amountDifference = null;
-                BigDecimal saleAmount = transaction.getSaleAmount();
-                BigDecimal transactionAmount = transaction.getTransactionAmount();
-                if (saleAmount != null && transactionAmount != null) {
-                    amountDifference = saleAmount.subtract(transactionAmount);
-                }
-                transactionDataRecord.add(amountDifference == null ? "" : "$" + amountDifference.toString());
+				// Bluefin information section
+				// Bluefin Account Number
+				transactionDataRecord.add(transaction.getSaleAccountNumber());
 
-                // Transaction Type
-                String transactionType = transaction.getSaleTransactionType();
-                if (transactionType == null) {
-                    transactionType = transaction.getTransactionType();
-                }
-                transactionDataRecord.add(transactionType);
+				// Bluefin Amount
+				transactionDataRecord
+						.add(transaction.getSaleAmount() == null ? "" : "$" + transaction.getSaleAmount().toString());
 
-                // Bluefin information section
-                // Bluefin Account Number
-                transactionDataRecord.add(transaction.getSaleAccountNumber());
+				// Bluefin Date/Time (user's local time)
+				// The time zone (for example, "America/Costa_Rica" or
+				// "America/Los_Angeles") is passed as a parameter
+				// and applied to the UTC from the database.
+				if (transaction.getSaleTransactionDateTime() == null) {
+					transactionDataRecord.add("");
+				} else {
+					DateTime dateTimeUTC = transaction.getSaleTransactionDateTime().toDateTime(DateTimeZone.UTC);
+					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+					transactionDataRecord.add(fmt.print(dateTimeUser));
+				}
 
-                // Bluefin Amount
-                transactionDataRecord
-                        .add(transaction.getSaleAmount() == null ? "" : "$" + transaction.getSaleAmount().toString());
+				// Remittance information section
+				// Remittance Transaction ID
+				transactionDataRecord.add(transaction.getProcessorTransactionId());
 
-                // Bluefin Date/Time (user's local time)
-                // The time zone difference is passed as minutes, and the sign
-                // follows the UTC standard.
-                if (transaction.getSaleTransactionDateTime() == null) {
-                    transactionDataRecord.add("");
-                } else {
-                    int minutes = 0;
+				// Remittance Account Number
+				transactionDataRecord.add(transaction.getAccountId());
 
-                    if (timeDifference != null) {
-                        minutes = Integer.parseInt(timeDifference);
-                    }
+				// Remittance Amount
+				transactionDataRecord.add(transaction.getTransactionAmount() == null ? ""
+						: transaction.getTransactionAmount().toString());
 
-                    DateTime dateTimeUTC = transaction.getSaleTransactionDateTime().toDateTime(DateTimeZone.UTC);
-                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
-                    transactionDataRecord.add(fmt.print(dateTimeUser));
-                }
+				// Remittance Date/Time (user's local time)
+				// The time zone (for example, "America/Costa_Rica" or
+				// "America/Los_Angeles") is passed as a parameter
+				// and applied to the UTC from the database.
+				if (transaction.getTransactionTime() == null) {
+					transactionDataRecord.add("");
+				} else {
+					DateTime dateTimeUTC = transaction.getTransactionTime().toDateTime(DateTimeZone.UTC);
+					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+					transactionDataRecord.add(fmt.print(dateTimeUser));
+				}
 
-                // Remittance information section
-                // Remittance Transaction ID
-                transactionDataRecord.add(transaction.getProcessorTransactionId());
+				// Sale information section
+				// Card Type
+				transactionDataRecord.add(transaction.getSaleCardType());
 
-                // Remittance Account Number
-                transactionDataRecord.add(transaction.getAccountId());
+				// Card Number (last 4)
+				transactionDataRecord.add(transaction.getSaleCardNumberLast4Char());
 
-                // Remittance Amount
-                transactionDataRecord.add(transaction.getTransactionAmount() == null ? ""
-                        : transaction.getTransactionAmount().toString());
+				// Merchant ID
+				transactionDataRecord.add(transaction.getMID());
 
-                // Remittance Date/Time (user's local time)
-                // The time zone difference is passed as minutes, and the sign
-                // follows the UTC standard.
-                if (transaction.getTransactionTime() == null) {
-                    transactionDataRecord.add("");
-                } else {
-                    int minutes = 0;
+				// Application
+				transactionDataRecord.add(transaction.getApplication());
 
-                    if (timeDifference != null) {
-                        minutes = Integer.parseInt(timeDifference);
-                    }
-
-                    DateTime dateTimeUTC = transaction.getTransactionTime().toDateTime(DateTimeZone.UTC);
-                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
-                    transactionDataRecord.add(fmt.print(dateTimeUser));
-                }
-
-                // Sale information section
-                // Card Type
-                transactionDataRecord.add(transaction.getSaleCardType());
-
-                // Card Number (last 4)
-                transactionDataRecord.add(transaction.getSaleCardNumberLast4Char());
-
-                // Merchant ID
-                transactionDataRecord.add(transaction.getMID());
-
-                // Application
-                transactionDataRecord.add(transaction.getApplication());
-
-                csvFilePrinter.printRecord(transactionDataRecord);
-                count++;
-            }
-            LOGGER.info("CSV file report was created successfully !!!");
-        }
-        return file;
-    }
+				csvFilePrinter.printRecord(transactionDataRecord);
+				count++;
+			}
+			LOGGER.info("CSV file report was created successfully !!!");
+		}
+		return file;
+	}
 }
