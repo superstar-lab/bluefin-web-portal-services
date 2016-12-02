@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +33,7 @@ import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
@@ -55,11 +55,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Autowired
     private ReconciliationStatusRepository reconciliationStatusRepository;
 
-    @Value("${bluefin.wp.services.transactions.report.max.size}")
-    private String maxSizeReport;
-
-    @Value("${bluefin.wp.services.testOrProd}")
-    private String testOrProd;
+    @Autowired
+    private PropertyService propertyService;
 
     @PostConstruct
     public void init() {
@@ -107,7 +104,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         Map<String, Query> queriesMap = createQueries(query, null);
         Query result = queriesMap.get("result");
 
-        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        result.setMaxResults(Integer.parseInt(propertyService.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE")));
         @SuppressWarnings("unchecked")
         List<SaleTransaction> tr = result.getResultList();
 
@@ -637,7 +634,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         Query result = em.createNativeQuery(query, "PaymentProcessorRemittanceCustomMappingResult");
 
-        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        result.setMaxResults(Integer.parseInt(propertyService.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE")));
         @SuppressWarnings("unchecked")
         List<PaymentProcessorRemittance> tr = result.getResultList();
 
@@ -689,7 +686,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         }
 
         StringBuilder querySb = new StringBuilder();
-
+        String testOrProd = propertyService.getPropertyValue("TEST_OR_PROD");
         StringBuilder querySbPart1 = new StringBuilder();
         // Get reconciliationStatudId for "Missing from Remit"
         String statusId = reconciliationStatusRepository.findByReconciliationStatus("Missing from Remit")

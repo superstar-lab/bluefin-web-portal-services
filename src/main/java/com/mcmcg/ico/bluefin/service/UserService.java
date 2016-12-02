@@ -14,7 +14,6 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -57,8 +56,8 @@ public class UserService {
     private EmailService emailService;
     @Autowired
     private SessionService sessionService;
-    @Value("${bluefin.wp.services.registeruser.email.link}")
-    private String registerUserEmailLink;
+    @Autowired
+    private PropertyService propertyService;
 
     private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 
@@ -130,8 +129,9 @@ public class UserService {
         final String link = "/api/users/" + username + "/password";
         final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
         String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
-                + "Username: " + username + "\n\n To create your password, use the link below: \n\n" + registerUserEmailLink
-                + "?user=" + username + "&token=" + token;
+                + "Username: " + username + "\n\n To create your password, use the link below: \n\n"
+                + propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
+                + token;
         emailService.sendEmail(newUser.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
 
         return newUserResource;

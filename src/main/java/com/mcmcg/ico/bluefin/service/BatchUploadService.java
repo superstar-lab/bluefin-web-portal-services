@@ -19,14 +19,13 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.persistent.BatchUpload;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.BatchUploadRepository;
@@ -45,6 +44,8 @@ public class BatchUploadService {
     private BatchUploadRepository batchUploadRepository;
     @Autowired
     private SaleTransactionRepository saleTransactionRepository;
+    @Autowired
+    private InternalStatusCodeService internalStatusCodeService;
 
     // Delimiter used in CSV file
     private static final String NEW_LINE_SEPARATOR = "\n";
@@ -56,10 +57,8 @@ public class BatchUploadService {
     private static final Object[] TRANSACTIONS_FILE_HEADER = { "Date", "Time", "Invoice", "Amount", "Result",
             "Error Message" };
 
-    @Value("${bluefin.wp.services.batch.upload.report.path}")
-    private String reportPath;
-    @Value("${bluefin.wp.services.batch.process.service.url}")
-    private String batchProcessServiceUrl;
+    @Autowired
+    private PropertyService propertyService;
 
     public BatchUpload getBatchUploadById(Long id) {
         BatchUpload batchUpload = batchUploadRepository.findOne(id);
@@ -100,8 +99,8 @@ public class BatchUploadService {
         batchUpload = batchUploadRepository.save(batchUpload);
         // call new application to process file content (fileStream)
         LOGGER.info("Calling ACF application to process file content");
-        String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
-                fileStream);
+        String response = HttpsUtil.sendPostRequest(propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL")
+                + batchUpload.getBatchUploadId().toString(), fileStream);
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -129,27 +128,37 @@ public class BatchUploadService {
         return batchUpload;
     }
 
-    public File getBatchUploadsReport(Integer noofdays) throws IOException {
+    public File getBatchUploadsReport(Integer noofdays, String timeDifference) throws IOException {
         List<BatchUpload> result = null;
         File file = null;
 
         if (noofdays == null) {
             result = batchUploadRepository.findAll();
         } else {
-            DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
+            // Batch Upload Date/Time (user's local time)
+            // The time zone difference is passed as minutes, and the sign
+            // follows the UTC standard.
+            int minutes = 0;
+
+            if (timeDifference != null) {
+                minutes = Integer.parseInt(timeDifference);
+            }
+
+            DateTime dateBeforeNoofdaysUTC = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
+            DateTime dateBeforeNoofdays = dateBeforeNoofdaysUTC.plusMinutes(minutes);
             result = batchUploadRepository.findByDateUploadedAfter(dateBeforeNoofdays);
         }
 
         // Create the CSVFormat object with "\n" as a record delimiter
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
         try {
-            File dir = new File(reportPath);
+            File dir = new File(propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"));
             dir.mkdirs();
             file = new File(dir, UUID.randomUUID() + ".csv");
             file.createNewFile();
         } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+            LOGGER.error("Error creating file: {}{}{}", propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"), UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH") + UUID.randomUUID() + ".csv");
         }
         // initialize FileWriter object
         try (FileWriter fileWriter = new FileWriter(file);
@@ -168,8 +177,22 @@ public class BatchUploadService {
                         .add(batchUpload.getBatchUploadId() == null ? " " : batchUpload.getBatchUploadId().toString());
                 batchUploadDataRecord.add(batchUpload.getFileName());
                 batchUploadDataRecord.add(batchUpload.getName());
-                batchUploadDataRecord.add(batchUpload.getDateUploaded() == null ? ""
-                        : fmt.print(batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC)));
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (batchUpload.getDateUploaded() == null) {
+                    batchUploadDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    batchUploadDataRecord.add(fmt.print(dateTimeUser));
+                }
                 batchUploadDataRecord.add(batchUpload.getBatchApplication().toString());
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactions()));
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactionsProcessed()));
@@ -178,10 +201,39 @@ public class BatchUploadService {
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfErrorTransactions()));
                 batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfRejected()));
 
-                batchUploadDataRecord.add(batchUpload.getProcessStart() == null ? ""
-                        : fmt.print(batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC)));
-                batchUploadDataRecord.add(batchUpload.getProcessEnd() == null ? ""
-                        : fmt.print(batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC)));
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (batchUpload.getProcessStart() == null) {
+                    batchUploadDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    batchUploadDataRecord.add(fmt.print(dateTimeUser));
+                }
+
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (batchUpload.getProcessEnd() == null) {
+                    batchUploadDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    batchUploadDataRecord.add(fmt.print(dateTimeUser));
+                }
 
                 batchUploadDataRecord.add(batchUpload.getUpLoadedBy());
 
@@ -192,7 +244,7 @@ public class BatchUploadService {
         return file;
     }
 
-    public File getBatchUploadTransactionsReport(Long batchUploadId) throws IOException {
+    public File getBatchUploadTransactionsReport(Long batchUploadId, String timeDifference) throws IOException {
         List<SaleTransaction> result = null;
         File file = null;
 
@@ -203,19 +255,20 @@ public class BatchUploadService {
         }
 
         try {
-            File dir = new File(reportPath);
+            File dir = new File(propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"));
             dir.mkdirs();
             file = new File(dir, UUID.randomUUID() + ".csv");
             file.createNewFile();
         } catch (Exception e) {
-            LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-            throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+            LOGGER.error("Error creating file: {}{}{}", propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH"), UUID.randomUUID(), ".csv", e);
+            throw new CustomException("Error creating file: " + propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH") + UUID.randomUUID() + ".csv");
         }
 
         // Create CSV file header
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
         // initialize FileWriter object
         FileWriter fileWriter = new FileWriter(file);
+        @SuppressWarnings("resource")
         CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
         csvFilePrinter.printRecord(TRANSACTIONS_FILE_HEADER);
 
@@ -231,13 +284,39 @@ public class BatchUploadService {
             for (SaleTransaction saleTransaction : result) {
                 List<String> saleTransactionDataRecord = new ArrayList<String>();
 
-                // Date (local time, not UTC)
-                saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
-                        : fmt1.print(saleTransaction.getTransactionDateTime()));
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (saleTransaction.getTransactionDateTime() == null) {
+                    saleTransactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
 
-                // Time (local time, not UTC)
-                saleTransactionDataRecord.add(saleTransaction.getTransactionDateTime() == null ? ""
-                        : fmt2.print(saleTransaction.getTransactionDateTime()));
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    saleTransactionDataRecord.add(fmt1.print(dateTimeUser));
+                }
+
+                // Batch Upload Date/Time (user's local time)
+                // The time zone difference is passed as minutes, and the sign
+                // follows the UTC standard.
+                if (saleTransaction.getTransactionDateTime() == null) {
+                    saleTransactionDataRecord.add("");
+                } else {
+                    int minutes = 0;
+
+                    if (timeDifference != null) {
+                        minutes = Integer.parseInt(timeDifference);
+                    }
+
+                    DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+                    DateTime dateTimeUser = dateTimeUTC.plusMinutes(minutes);
+                    saleTransactionDataRecord.add(fmt2.print(dateTimeUser));
+                }
 
                 // Invoice
                 saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
@@ -252,7 +331,8 @@ public class BatchUploadService {
                 saleTransactionDataRecord.add(saleTransaction.getAmount() == null ? "" : df.format(amount));
 
                 // Result
-                saleTransactionDataRecord.add(StatusCode.getStatusCode(saleTransaction.getInternalStatusCode()));
+                saleTransactionDataRecord.add(internalStatusCodeService
+                        .getLetterFromStatusCodeForSaleTransactions(saleTransaction.getInternalStatusCode()));
 
                 // Error Message
                 String errorMessage = saleTransaction.getInternalResponseDescription() + "("

@@ -9,7 +9,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,12 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
 
-    @Value("${bluefin.wp.services.token.header}")
-    private String securityTokenHeader;
-
+    @Autowired
+    private PropertyService propertyService;
     @Autowired
     private TokenUtils tokenUtils;
     @Autowired
@@ -33,7 +32,7 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String authToken = httpRequest.getHeader(this.securityTokenHeader);
+        String authToken = httpRequest.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
         String username = tokenUtils.getUsernameFromToken(authToken);
         String url = httpRequest.getRequestURL().toString().replace("/me/", "/" + username + "/");
 
