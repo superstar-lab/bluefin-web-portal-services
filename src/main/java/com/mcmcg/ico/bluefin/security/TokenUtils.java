@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +13,7 @@ import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.SecurityTokenRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,24 +22,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class TokenUtils {
 
-    @Value("${bluefin.wp.services.token.secret}")
-    private String secret;
-
-    @Value("${bluefin.wp.services.token.expiration}")
-    private Long expiration;
-
-    @Value("${bluefin.wp.services.token.resetpassword.expiration}")
-    private Long resetpasswordExpiration;
-
-    @Value("${bluefin.wp.services.token.registeruser.expiration}")
-    private Long registerUserExpiration;
-
-    @Value("${bluefin.wp.services.token.authentication.expiration}")
-    private Long authenticationExpiration;
-
-    @Value("${bluefin.wp.services.token.application.expiration}")
-    private Long applicationExpiration;
-
+    @Autowired
+    private PropertyService propertyService;
     @Autowired
     private SecurityTokenRepository tokenRepository;
     @Autowired
@@ -103,7 +87,8 @@ public class TokenUtils {
     private Claims getClaimsFromToken(String token) {
         Claims claims;
         try {
-            claims = Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token).getBody();
+            claims = Jwts.parser().setSigningKey(propertyService.getPropertyValue("TOKEN_SECRET_KEY"))
+                    .parseClaimsJws(token).getBody();
         } catch (Exception e) {
             claims = null;
         }
@@ -117,15 +102,20 @@ public class TokenUtils {
     private Date generateExpirationDate(TokenType type) {
         switch (type) {
         case AUTHENTICATION:
-            return new Date(System.currentTimeMillis() + this.authenticationExpiration * 1000);
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("AUTHENTICATION_TOKEN_EXPIRATION")) * 1000);
         case FORGOT_PASSWORD:
-            return new Date(System.currentTimeMillis() + this.resetpasswordExpiration * 1000);
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("RESET_PASSWORD_TOKEN_EXPIRATION")) * 1000);
         case REGISTER_USER:
-            return new Date(System.currentTimeMillis() + this.registerUserExpiration * 1000);
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("REGISTER_USER_TOKEN_EXPIRATION")) * 1000);
         case APPLICATION:
-            return new Date(System.currentTimeMillis() + this.applicationExpiration * 1000);
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
         default:
-            return new Date(System.currentTimeMillis() + this.expiration * 1000);
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);
         }
     }
 
@@ -154,7 +144,7 @@ public class TokenUtils {
     private String generateToken(Map<String, Object> claims) {
         return Jwts.builder().setClaims(claims)
                 .setExpiration(this.generateExpirationDate(TokenType.valueOf(claims.get("type").toString())))
-                .signWith(SignatureAlgorithm.HS512, this.secret).compact();
+                .signWith(SignatureAlgorithm.HS512, propertyService.getPropertyValue("TOKEN_SECRET_KEY")).compact();
     }
 
     public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {

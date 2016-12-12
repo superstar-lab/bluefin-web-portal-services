@@ -350,4 +350,13 @@ public class InternalStatusCodeService {
         internalStatusCodeRepository.delete(internalStatusCodeToDelete);
         paymentProcessorStatusCodeRepository.delete(paymentProcessorStatusCodeToDelete);
     }
+
+    public String getLetterFromStatusCodeForSaleTransactions(String statusCode) {
+        InternalStatusCode internalStatusCode = internalStatusCodeRepository
+                .findByInternalStatusCodeAndTransactionTypeName(statusCode, "SALE");
+        if (internalStatusCode == null)
+            return "";
+        else
+            return internalStatusCode.getInternalStatusCategoryAbbr();
+    }
 }

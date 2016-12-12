@@ -22,17 +22,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
@@ -54,11 +55,8 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
     @Autowired
     private ReconciliationStatusRepository reconciliationStatusRepository;
 
-    @Value("${bluefin.wp.services.transactions.report.max.size}")
-    private String maxSizeReport;
-
-    @Value("${bluefin.wp.services.testOrProd}")
-    private String testOrProd;
+    @Autowired
+    private PropertyService propertyService;
 
     @PostConstruct
     public void init() {
@@ -106,7 +104,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         Map<String, Query> queriesMap = createQueries(query, null);
         Query result = queriesMap.get("result");
 
-        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        result.setMaxResults(Integer.parseInt(propertyService.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE")));
         @SuppressWarnings("unchecked")
         List<SaleTransaction> tr = result.getResultList();
 
@@ -594,11 +592,13 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         // the UI.
         // Change to: WHERE ReconciliationID != 'Reconciled'
         if (negate) {
-            query = query.replaceAll("ReconciliationStatusID =", "ReconciliationStatusID !=");
+            query = query.replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
         }
 
-        Query result = em.createNativeQuery(page == null ? query : query + addSort(page.getSort()),
-                "PaymentProcessorRemittanceCustomMappingResult");
+        LOGGER.info("Native query: " + query);
+
+        // Sort is no longer passed from the UI. It is hard-coded.
+        Query result = em.createNativeQuery(query, "PaymentProcessorRemittanceCustomMappingResult");
 
         // Brings the data and transform it into a Page value list
         @SuppressWarnings("unchecked")
@@ -634,7 +634,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
         Query result = em.createNativeQuery(query, "PaymentProcessorRemittanceCustomMappingResult");
 
-        result.setMaxResults(Integer.parseInt(maxSizeReport));
+        result.setMaxResults(Integer.parseInt(propertyService.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE")));
         @SuppressWarnings("unchecked")
         List<PaymentProcessorRemittance> tr = result.getResultList();
 
@@ -643,9 +643,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     /**
      * Native SQL query for reconciliation screen. The UI passes processorName
-     * as a string. The UI passes legalEntity as a list of strings. The UI
-     * passes reconciliationStatusId as an integer, so it's not necessary to
-     * lookup the name in the table.
+     * as a string. The UI passes merchantId as a list of strings. The UI passes
+     * reconciliationStatusId as an integer, so it's not necessary to lookup the
+     * name in the table.
      * 
      * @param search
      * 
@@ -656,7 +656,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         String remittanceCreationDateBegin = null;
         String remittanceCreationDateEnd = null;
         String processorName = null;
-        String[] legalEntityArray = null;
+        String[] merchantIdArray = null;
         String reconciliationStatusId = null;
 
         String[] searchArray = search.split("\\$\\$");
@@ -674,10 +674,10 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 String[] parameterArray = parameter.split(":");
                 processorName = parameterArray[1];
             }
-            if (parameter.startsWith("legalEntity")) {
-                String temp = parameter.replaceAll("legalEntity:", "");
+            if (parameter.startsWith("merchantId")) {
+                String temp = parameter.replaceAll("merchantId:", "");
                 String values = temp.replaceAll("\\[|\\]", "");
-                legalEntityArray = values.split(",");
+                merchantIdArray = values.split(",");
             }
             if (parameter.startsWith("reconciliationStatusId")) {
                 String[] parameterArray = parameter.split(":");
@@ -686,318 +686,101 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         }
 
         StringBuilder querySb = new StringBuilder();
+        String testOrProd = propertyService.getPropertyValue("TEST_OR_PROD");
+        StringBuilder querySbPart1 = new StringBuilder();
+        // Get reconciliationStatudId for "Missing from Remit"
+        String statusId = reconciliationStatusRepository.findByReconciliationStatus("Missing from Remit")
+                .getReconciliationStatusId().toString();
+        querySbPart1.append(getPaymentProcessorRemittanceAndSaleQuery());
+        querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
+        querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+        querySbPart1.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
+        querySbPart1.append("AND (st.TestMode = " + testOrProd + " OR st.TestMode IS NULL) ");
+        querySbPart1.append("UNION ");
+        querySbPart1.append(getPaymentProcessorRemittanceAndRefundQuery());
+        querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
+        querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+        querySbPart1.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
+        querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
+        LOGGER.info("query (part 1): " + querySbPart1.toString());
 
-        // Only date is selected, nothing else.
-        if (processorName == null && legalEntityArray == null && reconciliationStatusId == null) {
-            // Get reconciliationStatudId for "Missing from Remit"
-            String statusId = reconciliationStatusRepository.findByReconciliationStatus("Missing from Remit")
-                    .getReconciliationStatusId().toString();
-            querySb.append(getPaymentProcessorRemittanceAndSaleQuery(search));
-            querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-            querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-            querySb.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
-            querySb.append("UNION ");
-            querySb.append(getPaymentProcessorRemittanceAndRefundQuery(search));
-            querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-            querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-            querySb.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
-            querySb.append("UNION ");
-            querySb.append(getSaleQuery(search));
-            querySb.append("WHERE SALE.TransactionDateTime >= DateAdd(Day, -2, cast('" + remittanceCreationDateBegin
-                    + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-            querySb.append("AND SALE.TransactionDateTime <= DateAdd(Day, -1, cast('" + remittanceCreationDateBegin
-                    + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-            querySb.append("AND SALE.ReconciliationStatusID = " + statusId + " ");
-            querySb.append("UNION ");
-            querySb.append(getRefundQuery(search));
-            querySb.append("WHERE REFUND.TransactionDateTime >= DateAdd(Day, -2, cast('" + remittanceCreationDateBegin
-                    + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-            querySb.append("AND REFUND.TransactionDateTime <= DateAdd(Day, -1, cast('" + remittanceCreationDateBegin
-                    + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-            querySb.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
+        StringBuilder querySbPart2 = new StringBuilder();
+        querySbPart2.append("UNION ");
+        querySbPart2.append(getSaleQuery());
+        querySbPart2.append("WHERE SALE.TransactionDateTime >= DATEADD(DAY, -2, CAST('" + remittanceCreationDateBegin
+                + "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
+        querySbPart2.append("AND SALE.TransactionDateTime <= DATEADD(DAY, -1, CAST('" + remittanceCreationDateBegin
+                + "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
+        querySbPart2.append("AND SALE.InternalStatusCode = 1 ");
+        querySbPart2.append("AND (Upper(SALE.TransactionType) = 'SALE') ");
+        querySbPart2.append("AND SALE.ReconciliationStatusID = " + statusId + " ");
+        querySbPart2.append("UNION ");
+        querySbPart2.append(getRefundQuery());
+        querySbPart2.append("WHERE REFUND.TransactionDateTime >= DATEADD(DAY, -2, CAST('" + remittanceCreationDateBegin
+                + "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
+        querySbPart2.append("AND REFUND.TransactionDateTime <= DATEADD(DAY, -1, CAST('" + remittanceCreationDateBegin
+                + "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
+        querySbPart2.append("AND REFUND.InternalStatusCode = 1 ");
+        querySbPart2.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
+        LOGGER.info("query (part 2): " + querySbPart2.toString());
+
+        StringBuilder querySbPart3 = new StringBuilder();
+
+        int numberOfFilters = 0;
+        if (processorName != null) {
+            numberOfFilters++;
         }
-
-        // Status is Reconciled (1) or Amount Mismatch (2)
+        if (merchantIdArray != null) {
+            numberOfFilters++;
+        }
         if (reconciliationStatusId != null) {
-            if (reconciliationStatusId.equals("1") || reconciliationStatusId.equals("2")) {
-                querySb.append(getPaymentProcessorRemittanceAndSaleQuery(search));
-                querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-                querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-                querySb.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
-                if (processorName != null) {
-                    Long paymentProcessorId = paymentProcessorRepository
-                            .getPaymentProcessorByProcessorName(processorName).getPaymentProcessorId();
-                    querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
-                    querySb.append("AND st.Processor = '" + processorName + "' ");
-                }
-                if (legalEntityArray != null) {
-                    querySb.append("AND (st.LegalEntityApp IN (");
-                    for (int i = 0; i < legalEntityArray.length; i++) {
-                        querySb.append("'" + legalEntityArray[i] + "'");
-                        if (i != (legalEntityArray.length - 1)) {
-                            querySb.append(", ");
-                        }
-                    }
-                    querySb.append(")) ");
-                }
-                if (reconciliationStatusId != null) {
-                    querySb.append("AND st.ReconciliationStatusID = " + reconciliationStatusId + " ");
-                }
-                querySb.append("UNION ");
-                querySb.append(getPaymentProcessorRemittanceAndRefundQuery(search));
-                querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-                querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-                querySb.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
-                if (processorName != null) {
-                    Long paymentProcessorId = paymentProcessorRepository
-                            .getPaymentProcessorByProcessorName(processorName).getPaymentProcessorId();
-                    querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
-                    querySb.append("AND rt.Processor = '" + processorName + "' ");
-                }
-                if (reconciliationStatusId != null) {
-                    querySb.append("AND rt.ReconciliationStatusID = " + reconciliationStatusId + " ");
-                }
-            }
+            numberOfFilters++;
         }
 
-        // Status is Missing from remit (3)
+        if (numberOfFilters != 0) {
+            querySbPart3.append("ReconDate WHERE ");
+        }
+        if (processorName != null) {
+            querySbPart3.append("AND ReconDate.Processor_Name = '" + processorName + "' ");
+        }
+        if (merchantIdArray != null) {
+            querySbPart3.append("AND (ReconDate.MID IN (");
+            for (int i = 0; i < merchantIdArray.length; i++) {
+                querySbPart3.append("'" + merchantIdArray[i] + "'");
+                if (i != (merchantIdArray.length - 1)) {
+                    querySbPart3.append(", ");
+                }
+            }
+            querySbPart3.append(")) ");
+        }
         if (reconciliationStatusId != null) {
-            if (reconciliationStatusId.equals("3")) {
-                querySb.append(getSaleQuery(search));
-                querySb.append("WHERE SALE.TransactionDateTime >= DateAdd(Day, -2, cast('" + remittanceCreationDateBegin
-                        + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-                querySb.append("AND SALE.TransactionDateTime <= DateAdd(Day, -1, cast('" + remittanceCreationDateBegin
-                        + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-                if (processorName != null) {
-                    querySb.append("AND SALE.Processor = '" + processorName + "' ");
-                }
-                if (legalEntityArray != null) {
-                    querySb.append("AND (SALE.LegalEntityApp IN (");
-                    for (int i = 0; i < legalEntityArray.length; i++) {
-                        querySb.append("'" + legalEntityArray[i] + "'");
-                        if (i != (legalEntityArray.length - 1)) {
-                            querySb.append(", ");
-                        }
-                    }
-                    querySb.append(")) ");
-                }
-                querySb.append("UNION ");
-                querySb.append(getRefundQuery(search));
-                querySb.append(
-                        "WHERE REFUND.TransactionDateTime >= DateAdd(Day, -2, cast('" + remittanceCreationDateBegin
-                                + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-                querySb.append("AND REFUND.TransactionDateTime <= DateAdd(Day, -1, cast('" + remittanceCreationDateBegin
-                        + "' as datetime) + cast(ppl.RemitTransactionCloseTime as datetime)) ");
-                if (processorName != null) {
-                    querySb.append("AND REFUND.Processor = '" + processorName + "' ");
-                }
-            }
+            querySbPart3.append("AND ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
         }
+        // To avoid a SQL grammar error, which will happen if more than one
+        // filter is chosen.
+        String temp = querySbPart3.toString();
+        if (temp.contains("WHERE AND")) {
+            temp = temp.replaceAll("WHERE AND ", "WHERE ");
+            querySbPart3.delete(0, querySbPart3.length());
+            querySbPart3.append(temp);
+        }
+        querySbPart3.append("ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
+        LOGGER.info("query (part 3): " + querySbPart3.toString());
 
-        // Status is Remit without Sale (4) or Remit without Refund (7) and no
-        // legal entity
-        if (legalEntityArray == null && reconciliationStatusId != null) {
-            if (reconciliationStatusId.equals("4") || reconciliationStatusId.equals("7")) {
-                querySb.append("SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,");
-                querySb.append("ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,");
-                querySb.append(
-                        "ppr.TransactionTime,ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,");
-                querySb.append(
-                        "ppr.TransactionSource,ppr.FirstName,ppr.LastName,ppr.RemittanceCreationDate,ppr.PaymentProcessorID,");
-                querySb.append(
-                        "ppl.ProcessorName AS ProcessorName,NULL AS SaleTransactionID,NULL AS SaleFirstName,NULL AS SaleLastName,");
-                querySb.append(
-                        "NULL AS SaleProcessUser,NULL AS SaleTransactionType,NULL AS SaleAddress1,NULL AS SaleAddress2,");
-                querySb.append("NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,");
-                querySb.append(
-                        "NULL AS SaleCardNumberFirst6Char,NULL AS SaleCardNumberLast4Char,NULL AS SaleCardType,");
-                querySb.append(
-                        "CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,NULL AS SaleChargeAmount,NULL AS SaleLegalEntityApp,");
-                querySb.append(
-                        "NULL AS SaleAccountId,NULL AS SaleApplicationTransactionID,NULL AS SaleMerchantID,NULL AS SaleProcessor,");
-                querySb.append(
-                        "NULL AS SaleApplication,NULL AS SaleOrigin,NULL AS SaleProcessorTransactionID,CAST(NULL AS DATETIME) AS SaleTransactionDateTime,");
-                querySb.append(
-                        "NULL AS SaleTestMode,NULL AS SaleApprovalCode,NULL AS SaleTokenized,NULL AS SalePaymentProcessorStatusCode,");
-                querySb.append(
-                        "NULL AS SalePaymentProcessorStatusCodeDescription,NULL AS SalePaymentProcessorResponseCode,");
-                querySb.append(
-                        "NULL AS SalePaymentProcessorResponseCodeDescription,NULL AS SaleInternalStatusCode,NULL AS SaleInternalStatusDescription,");
-                querySb.append(
-                        "NULL AS SaleInternalResponseCode,NULL AS SaleInternalResponseDescription,NULL AS SalePaymentProcessorInternalStatusCodeID,");
-                querySb.append(
-                        "NULL AS SalePaymentProcessorInternalResponseCodeID,CAST(NULL AS DATETIME) AS SaleDateCreated,NULL AS SalePaymentProcessorRuleID,");
-                querySb.append(
-                        "NULL AS SaleRulePaymentProcessorID,NULL AS SaleRuleCardType,NULL AS SaleRuleMaximumMonthlyAmount,");
-                querySb.append(
-                        "NULL AS SaleRuleNoMaximumMonthlyAmountFlag,NULL AS SaleRulePriority,NULL AS SaleAccountPeriod,NULL AS SaleDesk,");
-                querySb.append(
-                        "NULL AS SaleInvoiceNumber,NULL AS SaleUserDefinedField1,NULL AS SaleUserDefinedField2,NULL AS SaleUserDefinedField3,");
-                querySb.append(
-                        "NULL AS SaleReconciliationStatusID,CAST(NULL AS DATETIME) AS SaleReconciliationDate,NULL AS SaleBatchUploadID,");
-                querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
-                querySb.append("FROM PaymentProcessor_Remittance ppr ");
-                querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID)");
-                querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-                querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-                if (reconciliationStatusId.equals("4")) {
-                    querySb.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
-                }
-                if (reconciliationStatusId.equals("7")) {
-                    querySb.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
-                }
-                querySb.append(")) ");
-                if (processorName != null) {
-                    Long paymentProcessorId = paymentProcessorRepository
-                            .getPaymentProcessorByProcessorName(processorName).getPaymentProcessorId();
-                    querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
-                }
-                querySb.append("AND ppr.ReconciliationStatusID = " + reconciliationStatusId + " ");
-                querySb.append("AND ppm.TestOrProd = " + testOrProd + " ");
-            }
+        if (numberOfFilters != 0) {
+            querySb.append("SELECT * FROM (");
         }
-
-        // Status is Remit without Sale (4) or Remit without Refund (7) and
-        // legal entity
-        if (legalEntityArray != null && reconciliationStatusId != null) {
-            if (reconciliationStatusId.equals("4") || reconciliationStatusId.equals("7")) {
-                querySb.append("SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,");
-                querySb.append("ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,");
-                querySb.append(
-                        "ppr.TransactionTime,ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,");
-                querySb.append(
-                        "ppr.TransactionSource,ppr.FirstName,ppr.LastName,ppr.RemittanceCreationDate,ppr.PaymentProcessorID,");
-                querySb.append(
-                        "ppl.ProcessorName AS ProcessorName,NULL AS SaleTransactionID,NULL AS SaleFirstName,NULL AS SaleLastName,");
-                querySb.append(
-                        "NULL AS SaleProcessUser,NULL AS SaleTransactionType,NULL AS SaleAddress1,NULL AS SaleAddress2,");
-                querySb.append("NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,");
-                querySb.append(
-                        "NULL AS SaleCardNumberFirst6Char,NULL AS SaleCardNumberLast4Char,NULL AS SaleCardType,");
-                querySb.append(
-                        "CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,NULL AS SaleChargeAmount,NULL AS SaleLegalEntityApp,");
-                querySb.append(
-                        "NULL AS SaleAccountId,NULL AS SaleApplicationTransactionID,NULL AS SaleMerchantID,NULL AS SaleProcessor,");
-                querySb.append(
-                        "NULL AS SaleApplication,NULL AS SaleOrigin,NULL AS SaleProcessorTransactionID,CAST(NULL AS DATETIME) AS SaleTransactionDateTime,");
-                querySb.append(
-                        "NULL AS SaleTestMode,NULL AS SaleApprovalCode,NULL AS SaleTokenized,NULL AS SalePaymentProcessorStatusCode,");
-                querySb.append(
-                        "NULL AS SalePaymentProcessorStatusCodeDescription,NULL AS SalePaymentProcessorResponseCode,");
-                querySb.append(
-                        "NULL AS SalePaymentProcessorResponseCodeDescription,NULL AS SaleInternalStatusCode,NULL AS SaleInternalStatusDescription,");
-                querySb.append(
-                        "NULL AS SaleInternalResponseCode,NULL AS SaleInternalResponseDescription,NULL AS SalePaymentProcessorInternalStatusCodeID,");
-                querySb.append(
-                        "NULL AS SalePaymentProcessorInternalResponseCodeID,CAST(NULL AS DATETIME) AS SaleDateCreated,NULL AS SalePaymentProcessorRuleID,");
-                querySb.append(
-                        "NULL AS SaleRulePaymentProcessorID,NULL AS SaleRuleCardType,NULL AS SaleRuleMaximumMonthlyAmount,");
-                querySb.append(
-                        "NULL AS SaleRuleNoMaximumMonthlyAmountFlag,NULL AS SaleRulePriority,NULL AS SaleAccountPeriod,NULL AS SaleDesk,");
-                querySb.append(
-                        "NULL AS SaleInvoiceNumber,NULL AS SaleUserDefinedField1,NULL AS SaleUserDefinedField2,NULL AS SaleUserDefinedField3,");
-                querySb.append(
-                        "NULL AS SaleReconciliationStatusID,CAST(NULL AS DATETIME) AS SaleReconciliationDate,NULL AS SaleBatchUploadID,");
-                querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
-                querySb.append("FROM PaymentProcessor_Remittance ppr ");
-                querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID)");
-                querySb.append(
-                        "LEFT JOIN PaymentProcessor_Merchant ppm ON (ppr.PaymentProcessorID = ppm.PaymentProcessorID) AND (ppr.MerchantID = ppm.MerchantID) ");
-                querySb.append("JOIN LegalEntityApp_Lookup lel ON (ppm.LegalEntityAppID = lel.LegalEntityAppID) ");
-                querySb.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-                querySb.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-                if (reconciliationStatusId.equals("4")) {
-                    querySb.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
-                }
-                if (reconciliationStatusId.equals("7")) {
-                    querySb.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
-                }
-                if (processorName != null) {
-                    Long paymentProcessorId = paymentProcessorRepository
-                            .getPaymentProcessorByProcessorName(processorName).getPaymentProcessorId();
-                    querySb.append("AND ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
-                }
-                querySb.append("AND (lel.LegalEntityAppName IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySb.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySb.append(", ");
-                    }
-                }
-                querySb.append(")) ");
-                querySb.append("AND ppr.ReconciliationStatusID = " + reconciliationStatusId + " ");
-                querySb.append("AND ppm.TestOrProd = " + testOrProd + " ");
-            }
+        querySb.append(querySbPart1);
+        querySb.append(querySbPart2);
+        if (numberOfFilters != 0) {
+            querySb.append(")");
         }
-
-        // Status is Voided (5)
-        if (reconciliationStatusId != null) {
-            querySb.append(getSaleQuery(search));
-            if (processorName != null && legalEntityArray == null) {
-                querySb.append("WHERE SALE.Processor = '" + processorName + "' ");
-            }
-            if (processorName == null && legalEntityArray != null) {
-                querySb.append("WHERE (SALE.LegalEntityApp IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySb.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySb.append(", ");
-                    }
-                }
-                querySb.append(")) ");
-            }
-            if (processorName != null && legalEntityArray != null) {
-                querySb.append("WHERE SALE.Processor = '" + processorName + "' ");
-                querySb.append("AND (SALE.LegalEntityApp IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySb.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySb.append(", ");
-                    }
-                }
-                querySb.append(")) ");
-            }
-        }
-
-        // Status is Failed Voided (6)
-        if (reconciliationStatusId != null) {
-            querySb.append(getPaymentProcessorRemittanceAndSaleQuery(search));
-            if (processorName != null && legalEntityArray == null) {
-                Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName)
-                        .getPaymentProcessorId();
-                querySb.append("WHERE ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
-                querySb.append("AND st.Processor = '" + processorName + "' ");
-            }
-            if (processorName == null && legalEntityArray != null) {
-                querySb.append("WHERE (st.LegalEntityApp IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySb.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySb.append(", ");
-                    }
-                }
-                querySb.append(")) ");
-            }
-            if (processorName != null && legalEntityArray != null) {
-                Long paymentProcessorId = paymentProcessorRepository.getPaymentProcessorByProcessorName(processorName)
-                        .getPaymentProcessorId();
-                querySb.append("WHERE ppr.PaymentProcessorID = " + paymentProcessorId.toString() + " ");
-                querySb.append("AND st.Processor = '" + processorName + "' ");
-                querySb.append("AND (st.LegalEntityApp IN (");
-                for (int i = 0; i < legalEntityArray.length; i++) {
-                    querySb.append("'" + legalEntityArray[i] + "'");
-                    if (i != (legalEntityArray.length - 1)) {
-                        querySb.append(", ");
-                    }
-                }
-                querySb.append(")) ");
-            }
-        }
+        querySb.append(querySbPart3);
 
         return querySb.toString();
     }
 
-    private String getPaymentProcessorRemittanceAndSaleQuery(String search) {
+    private String getPaymentProcessorRemittanceAndSaleQuery() {
 
         StringBuilder querySb = new StringBuilder();
 
@@ -1005,7 +788,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "ppr.ReconciliationDate,ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,ppr.TransactionTime,");
         querySb.append(
-                "ppr.AccountID,ppr.Application,ppr.ProcessorTransactionID,ppr.MerchantID,ppr.TransactionSource,ppr.FirstName,");
+                "ppr.AccountID,ppr.Application AS Application,ppr.ProcessorTransactionID,ppr.MerchantID,ppr.TransactionSource,ppr.FirstName,");
         querySb.append(
                 "ppr.LastName,ppr.RemittanceCreationDate,ppr.PaymentProcessorID,ppl.ProcessorName AS ProcessorName,");
         querySb.append(
@@ -1048,7 +831,9 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 "st.UserDefinedField1 AS SaleUserDefinedField1,st.UserDefinedField2 AS SaleUserDefinedField2,st.UserDefinedField3 AS SaleUserDefinedField3,");
         querySb.append(
                 "st.ReconciliationStatusID AS SaleReconciliationStatusID,st.ReconciliationDate AS SaleReconciliationDate,st.BatchUploadID AS SaleBatchUploadID,");
-        querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
+        querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded,");
+        querySb.append(
+                "ppr.MerchantID AS MID,ppl.ProcessorName AS Processor_Name,ppr.ReconciliationStatusID AS ReconciliationStatus_ID ");
         querySb.append("FROM PaymentProcessor_Remittance ppr ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
         querySb.append("LEFT JOIN Sale_Transaction st ON (ppr.ProcessorTransactionID = st.ProcessorTransactionID) ");
@@ -1056,14 +841,14 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         return querySb.toString();
     }
 
-    private String getPaymentProcessorRemittanceAndRefundQuery(String search) {
+    private String getPaymentProcessorRemittanceAndRefundQuery() {
 
         StringBuilder querySb = new StringBuilder();
 
         querySb.append(
                 "SELECT ppr.PaymentProcessorRemittanceID,ppr.DateCreated,ppr.ReconciliationStatusID,ppr.ReconciliationDate,");
         querySb.append(
-                "ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,ppr.TransactionTime,ppr.AccountID,ppr.Application,");
+                "ppr.PaymentMethod,ppr.TransactionAmount,ppr.TransactionType,ppr.TransactionTime,ppr.AccountID,ppr.Application AS Application,");
         querySb.append(
                 "ppr.ProcessorTransactionID,ppr.MerchantID,ppr.TransactionSource,ppr.FirstName,ppr.LastName,ppr.RemittanceCreationDate,");
         querySb.append(
@@ -1073,7 +858,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "NULL AS SaleAddress2,NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,NULL AS SaleCardNumberFirst6Char,");
         querySb.append(
-                "st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,NULL AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");
+                "st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");
         querySb.append(
                 "st1.LegalEntityApp AS SaleLegalEntityApp,st1.AccountId AS SaleAccountId,rt.ApplicationTransactionID AS SaleApplicationTransactionID,rt.MerchantID AS SaleMerchantID,");
         querySb.append(
@@ -1098,16 +883,18 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 "NULL AS SaleDesk,NULL AS SaleInvoiceNumber,NULL AS SaleUserDefinedField1,NULL AS SaleUserDefinedField2,NULL AS SaleUserDefinedField3,");
         querySb.append(
                 "rt.ReconciliationStatusID AS SaleReconciliationStatusID,rt.ReconciliationDate AS SaleReconciliationDate,NULL AS SaleBatchUploadID,");
-        querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
+        querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded,");
+        querySb.append(
+                "ppr.MerchantID AS MID,ppl.ProcessorName AS Processor_Name,ppr.ReconciliationStatusID AS ReconciliationStatus_ID ");
         querySb.append("FROM PaymentProcessor_Remittance ppr ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
         querySb.append("LEFT JOIN Refund_Transaction rt ON (ppr.ProcessorTransactionID = rt.ProcessorTransactionID) ");
-        querySb.append("JOIN sale_transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
+        querySb.append("LEFT JOIN sale_transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
 
         return querySb.toString();
     }
 
-    private String getSaleQuery(String search) {
+    private String getSaleQuery() {
 
         StringBuilder querySb = new StringBuilder();
 
@@ -1124,7 +911,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "SALE.CardNumberLast4Char,SALE.CardType,SALE.ExpiryDate,SALE.Token,SALE.ChargeAmount,SALE.LegalEntityApp,SALE.AccountId,");
         querySb.append(
-                "SALE.ApplicationTransactionID,SALE.MerchantID,SALE.Processor,SALE.Application,SALE.Origin,SALE.ProcessorTransactionID,SALE.TransactionDateTime,");
+                "SALE.ApplicationTransactionID,SALE.MerchantID,SALE.Processor AS SaleProcessor,SALE.Application AS Application,SALE.Origin,SALE.ProcessorTransactionID,SALE.TransactionDateTime,");
         querySb.append(
                 "SALE.TestMode,SALE.ApprovalCode,SALE.Tokenized,SALE.PaymentProcessorStatusCode,SALE.PaymentProcessorStatusCodeDescription,");
         querySb.append(
@@ -1137,14 +924,16 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
                 "SALE.RuleNoMaximumMonthlyAmountFlag,SALE.RulePriority,SALE.AccountPeriod,SALE.Desk,SALE.InvoiceNumber,SALE.UserDefinedField1,");
         querySb.append(
                 "SALE.UserDefinedField2,SALE.UserDefinedField3,SALE.ReconciliationStatusID,SALE.ReconciliationDate,SALE.BatchUploadID,");
-        querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded ");
+        querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded,");
+        querySb.append(
+                "SALE.MerchantID AS MID,SALE.Processor AS Processor_Name,SALE.ReconciliationStatusID AS ReconciliationStatus_ID ");
         querySb.append("FROM Sale_Transaction SALE ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (SALE.Processor = ppl.ProcessorName) ");
 
         return querySb.toString();
     }
 
-    private String getRefundQuery(String search) {
+    private String getRefundQuery() {
 
         StringBuilder querySb = new StringBuilder();
 
@@ -1163,7 +952,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "st2.ChargeAmount AS RefundChargeAmount,st2.LegalEntityApp AS RefundLegalEntityApp,st2.AccountId AS RefundAccountId,REFUND.ApplicationTransactionID,REFUND.MerchantID,");
         querySb.append(
-                "REFUND.Processor,REFUND.Application,NULL AS RefundOrigin,REFUND.ProcessorTransactionID,REFUND.TransactionDateTime,NULL AS RefundTestMode,");
+                "REFUND.Processor AS SaleProcessor,REFUND.Application AS Application,NULL AS RefundOrigin,REFUND.ProcessorTransactionID,REFUND.TransactionDateTime,NULL AS RefundTestMode,");
         querySb.append(
                 "REFUND.ApprovalCode,NULL AS RefundTokenized,REFUND.PaymentProcessorStatusCode,REFUND.PaymentProcessorStatusCodeDescription,");
         querySb.append(
@@ -1177,10 +966,60 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
         querySb.append(
                 "NULL AS RefundDesk,NULL AS RefundInvoiceNumber,NULL AS RefundUserDefinedField1,NULL AS RefundUserDefinedField2,NULL AS RefundUserDefinedField3,");
         querySb.append(
-                "REFUND.ReconciliationStatusID,REFUND.ReconciliationDate,NULL AS RefundBatchUploadID,0 AS REFUNDIsVoided,0 AS REFUNDIsRefunded ");
+                "REFUND.ReconciliationStatusID,REFUND.ReconciliationDate,NULL AS RefundBatchUploadID,0 AS REFUNDIsVoided,0 AS REFUNDIsRefunded,");
+        querySb.append(
+                "REFUND.MerchantID AS MID,REFUND.Processor AS Processor_Name,REFUND.ReconciliationStatusID AS ReconciliationStatus_ID ");
         querySb.append("FROM REFUND_Transaction REFUND ");
         querySb.append("JOIN sale_transaction st2 on (REFUND.SaleTransactionId = st2.SaleTransactionId) ");
         querySb.append("JOIN PaymentProcessor_Lookup ppl ON (REFUND.Processor = ppl.ProcessorName) ");
+
+        return querySb.toString();
+    }
+
+    @Override
+    public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
+            TransactionType transactionType, String processorTransactionType) throws ParseException {
+
+        String query = getNativeQueryForRemittanceSaleRefundDetail(transactionId, transactionType,
+                processorTransactionType);
+        LOGGER.info("Detail Page Query: {}", query);
+
+        Query result = em.createNativeQuery(query, "PaymentProcessorRemittanceCustomMappingResult");
+
+        PaymentProcessorRemittance ppr = (PaymentProcessorRemittance) result.getSingleResult();
+
+        return ppr;
+    }
+
+    private String getNativeQueryForRemittanceSaleRefundDetail(String transactionId, TransactionType transactionType,
+            String processorTransactionType) {
+
+        StringBuilder querySb = new StringBuilder();
+
+        switch (transactionType) {
+        case REFUND:
+            if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
+                querySb.append(getPaymentProcessorRemittanceAndRefundQuery());
+                querySb.append("WHERE rt.ApplicationTransactionID = '" + transactionId + "' ");
+            } else {
+                querySb.append(getPaymentProcessorRemittanceAndRefundQuery());
+                querySb.append("WHERE rt.ProcessorTransactionID = '" + transactionId + "' ");
+            }
+            break;
+        case VOID:
+            // Type VOID should not be used for remittance.
+            break;
+        case SALE:
+        case TOKENIZE:
+        default:
+            if (processorTransactionType.equalsIgnoreCase("BlueFin")) {
+                querySb.append(getPaymentProcessorRemittanceAndSaleQuery());
+                querySb.append("WHERE st.ApplicationTransactionID = '" + transactionId + "' ");
+            } else {
+                querySb.append(getPaymentProcessorRemittanceAndSaleQuery());
+                querySb.append("WHERE st.ProcessorTransactionID = '" + transactionId + "' ");
+            }
+        }
 
         return querySb.toString();
     }

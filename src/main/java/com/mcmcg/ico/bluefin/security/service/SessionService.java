@@ -12,7 +12,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,6 +43,7 @@ import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.service.EmailService;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.RoleService;
 import com.mcmcg.ico.bluefin.service.UserService;
 
@@ -52,16 +52,6 @@ import com.mcmcg.ico.bluefin.service.UserService;
 public class SessionService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
     private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
-
-    @Value("${bluefin.wp.services.token.expiration}")
-    private Integer securityTokenExpiration;
-    @Value("${bluefin.wp.services.resetpassword.email.link}")
-    private String resetPasswordEmailLink;
-    @Value("${bluefin.wp.services.application.role.name}")
-    private String applicationRoleName;
-    @Value("${bluefin.wp.services.application.permission.name}")
-    private String applicationPermissionName;
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -84,6 +74,8 @@ public class SessionService {
     private RoleRepository roleRepository;
     @Autowired
     private RolePermissionRepository rolePermissionRepository;
+    @Autowired
+    private PropertyService propertyService;
 
     public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
         User user = userRepository.findByUsername(username);
@@ -167,10 +159,10 @@ public class SessionService {
         LOGGER.info("Reseting password of user: {}", username);
         final String link = "/api/users/" + username + "/password";
         final String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
-
+        String content = "Please use the link below to reset your password: \n\n"
+                + propertyService.getPropertyValue("RESET_PASSWORD_EMAIL_LINK") + "?token=" + token;
         // Send email
-        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT,
-                resetPasswordEmailLink + "?token=" + token);
+        emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT, content);
     }
 
     private AuthenticationResponse getLoginResponse(final User user, final String token) {
@@ -222,8 +214,10 @@ public class SessionService {
     }
 
     public Role getRoleThirdParty() {
+        String applicationRoleName = propertyService.getPropertyValue("APPLICATION_ROLE_NAME");
         Role roleThirdParty = roleService.getRoleByName(applicationRoleName);
         if (roleThirdParty == null) {
+            String applicationPermissionName = propertyService.getPropertyValue("APPLICATION_PERMISSION_NAME");
             Permission permissionThirdParty = permissionRepository.findByPermissionName(applicationPermissionName);
             if (permissionThirdParty == null) {
                 permissionThirdParty = new Permission();

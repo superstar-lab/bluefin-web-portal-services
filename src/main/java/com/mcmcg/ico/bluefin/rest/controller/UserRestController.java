@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,6 +33,7 @@ import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.UserService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
@@ -52,8 +52,8 @@ public class UserRestController {
     private UserService userService;
     @Autowired
     private SessionService sessionService;
-    @Value("${bluefin.wp.services.token.header}")
-    private String securityTokenHeader;
+    @Autowired
+    private PropertyService propertyService;
 
     @ApiOperation(value = "getUser", nickname = "getUser")
     @RequestMapping(method = RequestMethod.GET, value = "/{username:.*}", produces = "application/json")
@@ -259,7 +259,7 @@ public class UserRestController {
             throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
         }
 
-        final String token = request.getHeader(securityTokenHeader);
+        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
         if (token != null) {
             userService.updateUserPassword(username, updatePasswordResource, token);
             return new ResponseEntity<String>(HttpStatus.NO_CONTENT);

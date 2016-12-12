@@ -11,18 +11,19 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
 import com.google.common.net.HttpHeaders;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 
 @Component
 public class SimpleCORSFilter implements Filter {
 
-    @Value("${bluefin.wp.services.token.header}")
-    private String securityTokenHeader;
+    @Autowired
+    private PropertyService propertyService;
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
@@ -32,7 +33,7 @@ public class SimpleCORSFilter implements Filter {
 
         // Adding custom headers
         List<String> allowHeaders = ccGlobal.getAllowedHeaders();
-        allowHeaders.add(securityTokenHeader);
+        allowHeaders.add(propertyService.getPropertyValue("TOKEN_HEADER"));
 
         HttpServletResponse response = (HttpServletResponse) res;
         response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
