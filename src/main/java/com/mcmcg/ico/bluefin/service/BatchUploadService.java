@@ -19,7 +19,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +44,8 @@ public class BatchUploadService {
 	private BatchUploadRepository batchUploadRepository;
 	@Autowired
 	private SaleTransactionRepository saleTransactionRepository;
+	@Autowired
+	private PropertyService propertyService;
 
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -55,11 +56,6 @@ public class BatchUploadService {
 			"UpLoadedBy" };
 	private static final Object[] TRANSACTIONS_FILE_HEADER = { "Date", "Time", "Invoice", "Amount", "Result",
 			"Error Message" };
-
-	@Value("${bluefin.wp.services.batch.upload.report.path}")
-	private String reportPath;
-	@Value("${bluefin.wp.services.batch.process.service.url}")
-	private String batchProcessServiceUrl;
 
 	public BatchUpload getBatchUploadById(Long id) {
 		BatchUpload batchUpload = batchUploadRepository.findOne(id);
@@ -95,6 +91,7 @@ public class BatchUploadService {
 	}
 
 	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines) {
+		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
 		LOGGER.info("Creating new basic Batch Upload");
 		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
 		batchUpload = batchUploadRepository.save(batchUpload);
@@ -132,6 +129,7 @@ public class BatchUploadService {
 	public File getBatchUploadsReport(Integer noofdays, String timeZone) throws IOException {
 		List<BatchUpload> result = null;
 		File file = null;
+		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		// Batch Upload Date/Time (user's local time)
 		// The time zone (for example, "America/Costa_Rica" or
@@ -232,6 +230,7 @@ public class BatchUploadService {
 	public File getBatchUploadTransactionsReport(Long batchUploadId, String timeZone) throws IOException {
 		List<SaleTransaction> result = null;
 		File file = null;
+		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		if (batchUploadId == null) {
 			result = saleTransactionRepository.findAll();
