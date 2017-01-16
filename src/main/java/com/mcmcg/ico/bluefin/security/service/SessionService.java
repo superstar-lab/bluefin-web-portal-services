@@ -81,7 +81,7 @@ public class SessionService {
         User user = userRepository.findByUsername(username);
         UserLoginHistory userLoginHistory = new UserLoginHistory();
         userLoginHistory.setUsername(username);
-        userLoginHistory.setUserPassword(password);
+        userLoginHistory.setUserPassword(passwordEncoder.encode(password));
 
         if (user == null) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
