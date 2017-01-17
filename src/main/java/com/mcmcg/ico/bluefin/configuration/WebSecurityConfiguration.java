@@ -26,65 +26,65 @@ import com.mcmcg.ico.bluefin.security.service.SecurityService;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private EntryPointUnauthorizedHandler unauthorizedHandler;
+    @Autowired
+    private EntryPointUnauthorizedHandler unauthorizedHandler;
 
-	@Autowired
-	private CustomAccessDeniedHandler accessDeniedHandler;
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+    @Autowired
+    private UserDetailsService userDetailsService;
 
-	@Autowired
-	private SecurityService securityService;
+    @Autowired
+    private SecurityService securityService;
 
-	@Autowired
-	public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-		authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
-	}
+    @Autowired
+    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
+    }
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	@Override
-	public AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean();
-	}
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
-	@Bean
-	public AuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-		AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
-		authenticationTokenFilter.setAuthenticationManager(authenticationManagerBean());
-		return authenticationTokenFilter;
-	}
+    @Bean
+    public AuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
+        AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
+        authenticationTokenFilter.setAuthenticationManager(authenticationManagerBean());
+        return authenticationTokenFilter;
+    }
 
-	@Bean
-	public SecurityService securityService() {
-		return this.securityService;
-	}
+    @Bean
+    public SecurityService securityService() {
+        return this.securityService;
+    }
 
-	@Override
-	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		final String apiBaseURL = "/api";
-		final String transactionsApiBaseURL = apiBaseURL + "/transactions";
-		final String transactionTypesApiBaseURL = apiBaseURL + "/transaction-types";
-		final String sessionApiBaseURL = apiBaseURL + "/session";
-		final String usersApiBaseURL = apiBaseURL + "/users";
-		final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
-		final String reconciliationStatusApiBaseURL = apiBaseURL + "/reconciliation-status";
-		final String rolesApiBaseURL = apiBaseURL + "/roles";
-		final String internalResponseCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
-		final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
-		final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
-		final String paymentProcessorRemittanceApiBaseURL = apiBaseURL + "/payment-processor-remittances";
-		final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
-		final String reportsApiBaseURL = apiBaseURL + "/reports";
-		final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
+    @Override
+    protected void configure(HttpSecurity httpSecurity) throws Exception {
+        final String apiBaseURL = "/api";
+        final String transactionsApiBaseURL = apiBaseURL + "/transactions";
+        final String transactionTypesApiBaseURL = apiBaseURL + "/transaction-types";
+        final String sessionApiBaseURL = apiBaseURL + "/session";
+        final String usersApiBaseURL = apiBaseURL + "/users";
+        final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
+        final String reconciliationStatusApiBaseURL = apiBaseURL + "/reconciliation-status";
+        final String rolesApiBaseURL = apiBaseURL + "/roles";
+        final String internalResponseCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
+        final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
+        final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
+        final String paymentProcessorRemittanceApiBaseURL = apiBaseURL + "/payment-processor-remittances";
+        final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
+        final String reportsApiBaseURL = apiBaseURL + "/reports";
+        final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
 
-		// @formatter:off
+        // @formatter:off
 		httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)
 				.authenticationEntryPoint(this.unauthorizedHandler).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
@@ -233,8 +233,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.and().authorizeRequests().anyRequest().authenticated();
 		// @formatter:on
 
-		// Custom JWT based authentication
-		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-	}
+        // Custom JWT based authentication
+        httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+    }
 
 }
