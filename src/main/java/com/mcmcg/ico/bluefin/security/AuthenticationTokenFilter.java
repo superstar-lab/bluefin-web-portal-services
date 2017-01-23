@@ -43,7 +43,8 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
                 String tokenType = this.tokenUtils.getTypeFromToken(authToken);
                 String tokenUrl = this.tokenUtils.getUrlFromToken(authToken);
 
-                if (tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name())
+                if ((tokenType.equals(TokenType.AUTHENTICATION.name())
+                        || tokenType.equals(TokenType.APPLICATION.name()) && userDetails.isEnabled())
                         || url.contains(tokenUrl)) {
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(

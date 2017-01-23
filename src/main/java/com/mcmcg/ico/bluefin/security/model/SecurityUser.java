@@ -22,7 +22,7 @@ public class SecurityUser implements UserDetails {
     private Boolean accountNonExpired = true;
     private Boolean accountNonLocked = true;
     private Boolean credentialsNonExpired = true;
-    private Boolean enabled = true;
+    private Boolean enabled = false;
     private Date expires;
 
     public SecurityUser() {
@@ -66,6 +66,6 @@ public class SecurityUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.getEnabled();
+        return user.getStatus().equals("ACTIVE");
     }
 }
