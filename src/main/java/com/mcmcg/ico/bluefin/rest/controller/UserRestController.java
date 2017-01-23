@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.resource.ActivationResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
@@ -246,7 +247,7 @@ public class UserRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> updateUserPassword(@PathVariable String username,
             @Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
-            HttpServletRequest request, Authentication authentication) {
+            HttpServletRequest request, @ApiIgnore Authentication authentication) {
         if (errors.hasErrors()) {
             final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining("<br /> "));
@@ -262,6 +263,30 @@ public class UserRestController {
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
         if (token != null) {
             userService.updateUserPassword(username, updatePasswordResource, token);
+            return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        }
+
+        throw new CustomBadRequestException("An authorization token is required to request this resource");
+    }
+
+    @ApiOperation(value = "updateUserActivation", nickname = "updateUserActivation")
+    @RequestMapping(method = RequestMethod.PUT, value = "/status", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public ResponseEntity<String> updateUserActivation(@Valid @RequestBody ActivationResource activationResource,
+            HttpServletRequest request, @ApiIgnore Authentication authentication) {
+
+        if (!userService.hasPermissionToManageAllUsers(authentication)) {
+            throw new AccessDeniedException("User does not have sufficient permissions to perform the operation.");
+        }
+
+        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+        if (token != null) {
+            userService.userActivation(activationResource);
             return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
         }
 

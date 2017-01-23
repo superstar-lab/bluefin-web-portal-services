@@ -45,6 +45,8 @@ public class UserResource implements Serializable {
     @NotNull(message = "Please provide a legal entity for the user")
     private Set<LegalEntityApp> legalEntityApps;
 
+    private String status;
+
     public UserResource() {
     }
 
@@ -52,6 +54,7 @@ public class UserResource implements Serializable {
         this.username = user.getUsername();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
+        this.status = user.getStatus();
         this.email = user.getEmail();
         this.legalEntityApps = new HashSet<LegalEntityApp>(user.getLegalEntityApps());
         this.roles = new HashSet<Role>(user.getRoleNames());
@@ -64,6 +67,7 @@ public class UserResource implements Serializable {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
+        user.setStatus(status);
         user.setRoles(roles);
         user.setLegalEntities(entities);
 

@@ -28,6 +28,7 @@ import com.mcmcg.ico.bluefin.persistent.UserRole;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.rest.resource.ActivationResource;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
@@ -60,6 +61,7 @@ public class UserService {
     private PropertyService propertyService;
 
     private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
+    private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
 
     /**
      * Get user information by username
@@ -121,6 +123,7 @@ public class UserService {
 
         User newUser = userResource.toUser(roleService.getRolesByIds(userResource.getRoles()),
                 legalEntityAppService.getLegalEntityAppsByIds(userResource.getLegalEntityApps()));
+        newUser.setStatus("NEW");
         newUser.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
         UserResource newUserResource = new UserResource(userRepository.save(newUser));
@@ -358,14 +361,61 @@ public class UserService {
             throw new CustomBadRequestException("The old password is incorrect.");
         }
         if (tokenType.equals(TokenType.REGISTER_USER.name())) {
-            userToUpdate.setIsActive((short) 1);
+            userToUpdate.setStatus("ACTIVE");
         }
-        if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getIsActive() == (short) 0) {
-            userToUpdate.setIsActive((short) 1);
+        if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus() == "NEW") {
+            userToUpdate.setStatus("ACTIVE");
         }
         userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
         userToUpdate.setDateUpdated(new DateTime());
         return userRepository.save(userToUpdate);
+    }
+
+    public void userActivation(ActivationResource activationResource) {
+        Boolean activate = activationResource.isActivate();
+        List<String> notFoundUsernames = new ArrayList<String>();
+
+        for (String username : activationResource.getUsernames()) {
+
+            if (username == null) {
+                throw new CustomBadRequestException("An authorization token is required to request this resource");
+            }
+
+            String s    tatus = (activate ? "NEW" : "INACTIVE");
+            User user = userRepository.findByUsername(username);
+            if (user == null) {
+                notFoundUsernames.add(username);
+            } else {
+                activateAccount(user, status);
+            }
+        }
+        if (!notFoundUsernames.isEmpty()) {
+            throw new CustomNotFoundException("Unable to find users by usernames provided: " + notFoundUsernames);
+        }
+    }
+
+    private void activateAccount(User userToUpdate, String status) {
+        String username = userToUpdate.getUsername();
+        if (userToUpdate.getStatus() != status) {
+            userToUpdate.setStatus(status);
+            if (status.equals("NEW")) {
+                userToUpdate.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+
+                // Send email
+                final String link = "/api/users/" + username + "/password";
+                final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
+                String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
+                        + "Username: " + username + "\n\n To create your password, use the link below: \n\n"
+                        + propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
+                        + token;
+                emailService.sendEmail(userToUpdate.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
+            } else {
+                String content = "You're account has been deactivated. \n\n"
+                        + "Please feel free to contact your system administratior. \n\n";
+                emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
+            }
+            userToUpdate = userRepository.save(userToUpdate);
+        }
     }
 
     private boolean isValidOldPassword(final String oldPassword, final String currentUserPassword) {

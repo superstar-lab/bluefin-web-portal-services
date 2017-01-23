@@ -88,9 +88,13 @@ public class SessionService {
             throw new CustomUnauthorizedException("Invalid credentials");
         }
         userLoginHistory.setUserId(user.getUserId());
-        if (user.getIsActive() == (short) 0) {
+        if (user.getStatus().equals("NEW")) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
             throw new AccessDeniedException("Account is not activated yet.");
+        }
+        if (user.getStatus().equals("INACTIVE")) {
+            saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
+            throw new AccessDeniedException("Account was deactivated.");
         }
         if (!passwordEncoder.matches(password, user.getUserPassword())) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
