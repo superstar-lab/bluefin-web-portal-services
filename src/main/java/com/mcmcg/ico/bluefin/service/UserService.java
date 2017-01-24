@@ -381,7 +381,7 @@ public class UserService {
                 throw new CustomBadRequestException("An authorization token is required to request this resource");
             }
 
-            String s    tatus = (activate ? "NEW" : "INACTIVE");
+            String status = (activate ? "NEW" : "INACTIVE");
             User user = userRepository.findByUsername(username);
             if (user == null) {
                 notFoundUsernames.add(username);
