@@ -410,7 +410,7 @@ public class UserService {
                         + token;
                 emailService.sendEmail(userToUpdate.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
             } else {
-                String content = "You're account has been deactivated. \n\n"
+                String content = "Your account has been deactivated. \n\n"
                         + "Please feel free to contact your system administratior. \n\n";
                 emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
             }
