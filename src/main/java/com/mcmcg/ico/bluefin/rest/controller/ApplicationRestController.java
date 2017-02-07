@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.Application;
+import com.mcmcg.ico.bluefin.model.Application;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.ApplicationService;
 
@@ -46,7 +46,7 @@ public class ApplicationRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<Application> get() {
-        LOGGER.info("Getting all applications");
+        LOGGER.info("Getting Applications list.");
         return applicationService.getApplications();
     }
 }
