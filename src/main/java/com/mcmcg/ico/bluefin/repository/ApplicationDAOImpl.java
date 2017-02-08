@@ -16,15 +16,15 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
 public class ApplicationDAOImpl implements ApplicationDAO {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationDAOImpl.class);
-	
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
 	public List<Application> findAll() {
-		
+
 		List<Application> applications = jdbcTemplate.query(Queries.findAllApplications, new RowMapper<Application>() {
 			public Application mapRow(ResultSet rs, int row) throws SQLException {
 				Application application = new Application();
@@ -33,9 +33,9 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 				return application;
 			}
 		});
-		
+
 		LOGGER.debug("Number of rows: " + applications.size());
-		
+
 		return applications;
 	}
 }

@@ -3,11 +3,11 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 
 public class Application implements Serializable {
-	
+
 	private static final long serialVersionUID = 1619568547266213593L;
 	private Long applicationId;
 	private String applicationName;
-	
+
 	public Application() {
 	}
 

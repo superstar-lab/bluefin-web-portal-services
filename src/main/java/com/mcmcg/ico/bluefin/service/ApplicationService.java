@@ -16,13 +16,13 @@ import com.mcmcg.ico.bluefin.repository.ApplicationDAO;
 @Transactional
 public class ApplicationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
 
-    @Autowired
-    private ApplicationDAO applicationDAO;
+	@Autowired
+	private ApplicationDAO applicationDAO;
 
-    public List<Application> getApplications() {
-        LOGGER.info("Getting Applications list.");
-        return applicationDAO.findAll();
-    }
+	public List<Application> getApplications() {
+		LOGGER.info("Getting Applications list.");
+		return applicationDAO.findAll();
+	}
 }
