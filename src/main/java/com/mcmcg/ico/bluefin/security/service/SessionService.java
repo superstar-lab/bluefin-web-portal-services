@@ -90,7 +90,8 @@ public class SessionService {
         userLoginHistory.setUserId(user.getUserId());
         if (user.getStatus().equals("NEW")) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
-            throw new AccessDeniedException("Account is not activated yet.");
+            throw new AccessDeniedException(
+                    "Account is not activated yet. Please check your email, or request a password reset.");
         }
         if (user.getStatus().equals("INACTIVE")) {
             saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
