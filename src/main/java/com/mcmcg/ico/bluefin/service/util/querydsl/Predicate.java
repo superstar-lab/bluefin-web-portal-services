@@ -201,7 +201,11 @@ class Predicate {
             return path.in(values);
         } else {
             if (criteria.getOperation().equalsIgnoreCase(":")) {
-                return path.containsIgnoreCase(criteria.getValue().toString());
+                if (criteria.getKey().equals("status")) {
+                    return path.eq(criteria.getValue().toString());
+                } else {
+                    return path.containsIgnoreCase(criteria.getValue().toString());
+                }
             }
 
             LOGGER.error("Unable to parse string value of {}", criteria.getKey());
