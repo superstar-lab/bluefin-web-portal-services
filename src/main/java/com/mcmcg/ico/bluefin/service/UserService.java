@@ -363,7 +363,7 @@ public class UserService {
         if (tokenType.equals(TokenType.REGISTER_USER.name())) {
             userToUpdate.setStatus("ACTIVE");
         }
-        if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus() == "NEW") {
+        if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus().equals("NEW")) {
             userToUpdate.setStatus("ACTIVE");
         }
         userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
