@@ -25,7 +25,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 	@Override
 	public List<Application> findAll() {
 
-		List<Application> applications = jdbcTemplate.query(Queries.findAllApplications, new RowMapper<Application>() {
+		List<Application> applications = jdbcTemplate.query(Queries.findAllApplications, new ApplicationRowMapper() {
 			public Application mapRow(ResultSet rs, int row) throws SQLException {
 				Application application = new Application();
 				application.setApplicationId(rs.getLong("ApplicationID"));

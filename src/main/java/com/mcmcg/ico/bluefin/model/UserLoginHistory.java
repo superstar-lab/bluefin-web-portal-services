@@ -33,7 +33,7 @@ public class UserLoginHistory implements Serializable {
 	private DateTime loginDateTime = new DateTime();
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime createdDate = new DateTime();
+	private DateTime dateCreated = new DateTime();
 	private Integer messageId;
 	private String username;
 	@JsonIgnore
@@ -66,12 +66,12 @@ public class UserLoginHistory implements Serializable {
 		this.loginDateTime = loginDateTime;
 	}
 
-	public DateTime getCreatedDate() {
-		return createdDate;
+	public DateTime getDateCreated() {
+		return dateCreated;
 	}
 
-	public void setCreatedDate(DateTime createdDate) {
-		this.createdDate = createdDate;
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
 	}
 
 	public Integer getMessageId() {

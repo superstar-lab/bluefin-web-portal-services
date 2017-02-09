@@ -42,10 +42,10 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		// Convert this string to Timestamp, which is supported by
 		// PreparedStatement.
 		DateTime utc1 = userLoginHistory.getLoginDateTime().withZone(DateTimeZone.UTC);
-		DateTime utc2 = userLoginHistory.getCreatedDate().withZone(DateTimeZone.UTC);
+		DateTime utc2 = userLoginHistory.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp loginDateTime = Timestamp.valueOf(dtf.print(utc1));
-		Timestamp createdDate = Timestamp.valueOf(dtf.print(utc2));
+		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
 
@@ -54,7 +54,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, userLoginHistory.getUserId()); // UserID
 				ps.setTimestamp(2, loginDateTime); // LoginDateTime
-				ps.setTimestamp(3, createdDate); // DateCreated
+				ps.setTimestamp(3, dateCreated); // DateCreated
 				ps.setInt(4, userLoginHistory.getMessageId()); // MessageID
 				ps.setString(5, userLoginHistory.getUsername()); // UserName
 				ps.setString(6, userLoginHistory.getUserPassword()); // UserPassword
