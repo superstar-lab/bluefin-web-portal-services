@@ -24,19 +24,11 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
 	@Override
 	public List<Application> findAll() {
+		List<Application> list = jdbcTemplate.query(Queries.findAllApplications, new ApplicationRowMapper());
 
-		List<Application> applications = jdbcTemplate.query(Queries.findAllApplications, new ApplicationRowMapper() {
-			public Application mapRow(ResultSet rs, int row) throws SQLException {
-				Application application = new Application();
-				application.setApplicationId(rs.getLong("ApplicationID"));
-				application.setApplicationName(rs.getString("ApplicationName"));
-				return application;
-			}
-		});
+		LOGGER.debug("Number of rows: " + list.size());
 
-		LOGGER.debug("Number of rows: " + applications.size());
-
-		return applications;
+		return list;
 	}
 }
 

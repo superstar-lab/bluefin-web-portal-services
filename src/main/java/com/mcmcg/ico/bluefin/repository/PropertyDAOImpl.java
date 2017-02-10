@@ -2,13 +2,16 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.Property;
@@ -24,11 +27,18 @@ public class PropertyDAOImpl implements PropertyDAO {
 
 	@Override
 	public Property findByName(String name) {
-		Property property = jdbcTemplate.queryForObject(Queries.findPropertyByName, new Object[] { name },
-				new PropertyRowMapper());
+		Property property = null;
 
-		LOGGER.debug("Find property - name/value: " + property.getApplicationPropertyName() + "/"
-				+ property.getApplicationPropertyValue());
+		ArrayList<Property> list = (ArrayList<Property>) jdbcTemplate.query(Queries.findPropertyByName,
+				new Object[] { name }, new RowMapperResultSetExtractor<Property>(new PropertyRowMapper()));
+		property = DataAccessUtils.singleResult(list);
+
+		if (property != null) {
+			LOGGER.debug("Found property - name/value: " + property.getApplicationPropertyName() + "/"
+					+ property.getApplicationPropertyValue());
+		} else {
+			LOGGER.debug("Property not found for - name: " + name);
+		}
 
 		return property;
 	}

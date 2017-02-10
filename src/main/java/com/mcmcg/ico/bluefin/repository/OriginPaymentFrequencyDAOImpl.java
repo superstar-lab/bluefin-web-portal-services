@@ -25,23 +25,12 @@ public class OriginPaymentFrequencyDAOImpl implements OriginPaymentFrequencyDAO 
 
 	@Override
 	public List<OriginPaymentFrequency> findAll() {
-		List<OriginPaymentFrequency> originPaymentFrequencies = jdbcTemplate
-				.query(Queries.findAllOriginPaymentFrequencies, new OriginPaymentFrequencyRowMapper() {
-					public OriginPaymentFrequency mapRow(ResultSet rs, int row) throws SQLException {
-						OriginPaymentFrequency originPaymentFrequency = new OriginPaymentFrequency();
-						originPaymentFrequency.setOriginPaymentFrequencyId(rs.getLong("OriginPaymentFrequencyID"));
-						originPaymentFrequency.setOrigin(rs.getString("Origin"));
-						originPaymentFrequency.setPaymentFrequency(rs.getString("PaymentFrequency"));
-						originPaymentFrequency.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-						originPaymentFrequency.setDateModified(new DateTime(rs.getTimestamp("DateModified")));
-						originPaymentFrequency.setModifiedBy(rs.getString("ModifiedBy"));
-						return originPaymentFrequency;
-					}
-				});
+		List<OriginPaymentFrequency> list = jdbcTemplate.query(Queries.findAllOriginPaymentFrequencies,
+				new OriginPaymentFrequencyRowMapper());
 
-		LOGGER.debug("Number of rows: " + originPaymentFrequencies.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
-		return originPaymentFrequencies;
+		return list;
 	}
 }
 
