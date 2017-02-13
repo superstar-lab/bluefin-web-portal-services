@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.TransactionType;
+import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.TransactionTypeService;
 
@@ -23,26 +23,26 @@ import springfox.documentation.annotations.ApiIgnore;
 @RequestMapping(value = "/api/transaction-types")
 public class TransactionTypeRestController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionTypeRestController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionTypeRestController.class);
 
-    @Autowired
-    private TransactionTypeService transactionTypeService;
+	@Autowired
+	private TransactionTypeService transactionTypeService;
 
-    @ApiOperation(value = "getTransactionTypes", nickname = "getTransactionTypes")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = TransactionType.class, responseContainer = "List"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<TransactionType> getTransactionTypes(@ApiIgnore Authentication authentication) {
-        if (authentication == null) {
-            throw new AccessDeniedException("An authorization token is required to request this resource");
-        }
+	@ApiOperation(value = "getTransactionTypes", nickname = "getTransactionTypes")
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = TransactionType.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public Iterable<TransactionType> getTransactionTypes(@ApiIgnore Authentication authentication) {
+		if (authentication == null) {
+			throw new AccessDeniedException("An authorization token is required to request this resource");
+		}
 
-        LOGGER.info("Getting transaction type list");
-        return transactionTypeService.getTransactionTypes();
-    }
+		LOGGER.info("Getting transaction type list.");
+		return transactionTypeService.getTransactionTypes();
+	}
 }

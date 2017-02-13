@@ -24,7 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.model.TransactionType;
+import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
@@ -82,7 +82,7 @@ public class TransactionService {
 	@Autowired
 	private PropertyService propertyService;
 
-	public Transaction getTransactionInformation(final String transactionId, TransactionType transactionType) {
+	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
 		Transaction result = null;
 
 		switch (transactionType) {

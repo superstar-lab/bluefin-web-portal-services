@@ -1,16 +1,89 @@
 package com.mcmcg.ico.bluefin.model;
 
-public enum TransactionType {
-    SALE("SALE"), VOID("VOID"), REFUND("REFUND"), REMITTANCE("REMITTANCE"), TOKENIZE("TOKENIZE");
+import java.io.Serializable;
 
-    private final String type;
+import org.joda.time.DateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 
-    private TransactionType(final String value) {
-        this.type = value;
-    }
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-    @Override
-    public String toString() {
-        return type;
-    }
+public class TransactionType implements Serializable {
+
+	private static final long serialVersionUID = -1192867359830305926L;
+
+	public static enum TransactionTypeCode {
+		SALE("SALE"), VOID("VOID"), REFUND("REFUND"), REMITTANCE("REMITTANCE"), TOKENIZE("TOKENIZE");
+
+		private final String type;
+
+		private TransactionTypeCode(final String value) {
+			this.type = value;
+		}
+
+		@Override
+		public String toString() {
+			return type;
+		}
+	}
+
+	private Long transactionTypeId;
+	private String transactionType;
+	private String description;
+	@JsonIgnore
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+	private DateTime dateCreated = new DateTime();
+	@JsonIgnore
+	private DateTime dateModified;
+	@JsonIgnore
+	private String modifiedBy;
+
+	public Long getTransactionTypeId() {
+		return transactionTypeId;
+	}
+
+	public void setTransactionTypeId(Long transactionTypeId) {
+		this.transactionTypeId = transactionTypeId;
+	}
+
+	public String getTransactionType() {
+		return transactionType;
+	}
+
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public DateTime getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
 }
