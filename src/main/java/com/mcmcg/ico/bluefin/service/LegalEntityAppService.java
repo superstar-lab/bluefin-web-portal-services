@@ -13,10 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
@@ -28,7 +28,7 @@ public class LegalEntityAppService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppService.class);
 
     @Autowired
-    private LegalEntityAppRepository legalEntityAppRepository;
+    private LegalEntityAppDAO legalEntityAppRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -61,7 +61,7 @@ public class LegalEntityAppService {
      * @return Legal entity object if found
      */
     public LegalEntityApp getLegalEntityAppById(Long id) {
-        LegalEntityApp legalEntityApp = legalEntityAppRepository.findOne(id);
+        LegalEntityApp legalEntityApp = legalEntityAppRepository.findByLegalEntityAppId(id);
 
         if (legalEntityApp == null) {
             throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
@@ -70,7 +70,7 @@ public class LegalEntityAppService {
         return legalEntityApp;
     }
 
-    public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource) {
+    public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource, String modifiedBy) {
         final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
 
         if (existLegalEntityAppName(newLegalEntityAppName)) {
@@ -78,11 +78,11 @@ public class LegalEntityAppService {
                     String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
         }
 
-        return legalEntityAppRepository.save(legalEntityResource.toLegalEntityApp());
+        return legalEntityAppRepository.saveLegalEntityApp(legalEntityResource.toLegalEntityApp(), modifiedBy);
     }
 
-    public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource) {
-        LegalEntityApp legalEntityAppToUpdate = legalEntityAppRepository.findOne(id);
+    public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource, String modifiedBy) {
+        LegalEntityApp legalEntityAppToUpdate = legalEntityAppRepository.findByLegalEntityAppId(id);
 
         if (legalEntityAppToUpdate == null) {
             throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
@@ -91,17 +91,17 @@ public class LegalEntityAppService {
         // Update fields for existing Legal Entity App
         legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
 
-        return legalEntityAppRepository.save(legalEntityAppToUpdate);
+        return legalEntityAppRepository.updateLegalEntityApp(legalEntityAppToUpdate, modifiedBy);
     }
 
     public void deleteLegalEntityApp(Long id) {
-        LegalEntityApp legalEntityAppToDelete = legalEntityAppRepository.findOne(id);
+        LegalEntityApp legalEntityAppToDelete = legalEntityAppRepository.findByLegalEntityAppId(id);
 
         if (legalEntityAppToDelete == null) {
             throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
         }
 
-        legalEntityAppRepository.delete(legalEntityAppToDelete);
+        legalEntityAppRepository.deleteLegalEntityApp(legalEntityAppToDelete);
     }
 
     /**
@@ -114,7 +114,7 @@ public class LegalEntityAppService {
      *             when at least one id does not exist
      */
     public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
-        List<LegalEntityApp> result = legalEntityAppRepository.findAll(legalEntityAppsIds);
+        List<LegalEntityApp> result = legalEntityAppRepository.findAll(new ArrayList<Long>(legalEntityAppsIds));
 
         if (result.size() == legalEntityAppsIds.size()) {
             return result;

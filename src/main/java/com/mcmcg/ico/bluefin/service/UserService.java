@@ -25,6 +25,7 @@ import com.mcmcg.ico.bluefin.persistent.Role;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.UserRole;
+import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -49,6 +50,8 @@ public class UserService {
     private RoleService roleService;
     @Autowired
     private LegalEntityAppService legalEntityAppService;
+    @Autowired
+    private LegalEntityAppRepository legalEntityAppRepository;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
@@ -122,7 +125,7 @@ public class UserService {
         }
 
         User newUser = userResource.toUser(roleService.getRolesByIds(userResource.getRoles()),
-                legalEntityAppService.getLegalEntityAppsByIds(userResource.getLegalEntityApps()));
+                getLegalEntityAppsByIds(userResource.getLegalEntityApps()));
         newUser.setStatus("NEW");
         newUser.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
@@ -138,6 +141,36 @@ public class UserService {
         emailService.sendEmail(newUser.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
 
         return newUserResource;
+    }
+
+    /**
+     * Get all legal entity app objects by the entered ids
+     * 
+     * @param legalEntityAppsIds
+     *            list of legal entity apps ids that we need to find
+     * @return list of legal entity apps
+     * @throws CustomBadRequestException
+     *             when at least one id does not exist
+     */
+    public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
+        List<LegalEntityApp> result = legalEntityAppRepository.findAll(new ArrayList<Long>(legalEntityAppsIds));
+
+        if (result.size() == legalEntityAppsIds.size()) {
+            return result;
+        }
+
+        // Create a detail error
+        if (result == null || result.isEmpty()) {
+            throw new CustomBadRequestException(
+                    "The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
+        }
+
+        Set<Long> legalEntityAppsNotFound = legalEntityAppsIds.stream().filter(
+                x -> !result.stream().map(LegalEntityApp::getLegalEntityAppId).collect(Collectors.toSet()).contains(x))
+                .collect(Collectors.toSet());
+
+        throw new CustomBadRequestException(
+                "The following legal entity apps don't exist.  List = " + legalEntityAppsNotFound);
     }
 
     public boolean existUsername(final String username) {
@@ -228,8 +261,7 @@ public class UserService {
         }
 
         // Validate and load existing legal entity apps
-        Map<Long, LegalEntityApp> newMapOfLegalEntityApps = legalEntityAppService
-                .getLegalEntityAppsByIds(legalEntityAppsIds).stream()
+        Map<Long, LegalEntityApp> newMapOfLegalEntityApps = getLegalEntityAppsByIds(legalEntityAppsIds).stream()
                 .collect(Collectors.toMap(LegalEntityApp::getLegalEntityAppId, l -> l));
 
         // Temporal list of legal entity apps that we need to keep in the user

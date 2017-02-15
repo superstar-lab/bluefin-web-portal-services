@@ -20,4 +20,12 @@ public interface Queries {
     String findAllBatchUploadsByOrderByDateUploadedDesc = "SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY DateUploaded DESC ) AS RowNum, * FROM BatchUpload) AS RowConstrainedResult WHERE RowNum >= ? AND RowNum < ? ORDER BY RowNum";
     String findCountBatchUpload = "SELECT COUNT(*) FROM BatchUpload";
     String findBatchUploadsByDateUploadedAfterOrderByDateUploadedDesc = "SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY DateUploaded DESC ) AS RowNum, * FROM BatchUpload WHERE DateUploaded > ?) AS RowConstrainedResult WHERE RowNum >= ? AND RowNum < ? ORDER BY RowNum";
+    String findByLegalEntityAppId = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
+    String findByLegalEntityAppName = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppName = ?";
+    String findAllLegalEntityApps = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup";
+    String findAllLegalEntityAppsByIds = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID in (?)";
+    String deleteLegalEntityApp = "DELETE FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
+    String saveLegalEntityApp = "INSERT INTO LegalEntityApp_Lookup (LegalEntityAppName,ModifiedBy,IsActive) VALUES (?,?,?)";
+    String updateLegalEntityApp = "UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?";
+
 }
