@@ -8,12 +8,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class LegalEntityApp implements Serializable {
+public class RolePermission implements Serializable {
 
-	private static final long serialVersionUID = -5790383605806530298L;
+	private static final long serialVersionUID = 353607968407107607L;
 
-	private Long legalEntityAppId;
-	private String legalEntityAppName;
+	private Long rolePermissionId;
+	private Long roleId;
+	private Long permissionId;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -24,25 +25,32 @@ public class LegalEntityApp implements Serializable {
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
 	private String modifiedBy;
-	private Short isActive = 1;
 
-	public LegalEntityApp() {
+	public RolePermission() {
 	}
 
-	public Long getLegalEntityAppId() {
-		return legalEntityAppId;
+	public Long getRolePermissionId() {
+		return rolePermissionId;
 	}
 
-	public void setLegalEntityAppId(Long legalEntityAppId) {
-		this.legalEntityAppId = legalEntityAppId;
+	public void setRolePermissionId(Long rolePermissionId) {
+		this.rolePermissionId = rolePermissionId;
 	}
 
-	public String getLegalEntityAppName() {
-		return legalEntityAppName;
+	public Long getRoleId() {
+		return roleId;
 	}
 
-	public void setLegalEntityAppName(String legalEntityAppName) {
-		this.legalEntityAppName = legalEntityAppName;
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
+	}
+
+	public Long getPermissionId() {
+		return permissionId;
+	}
+
+	public void setPermissionId(Long permissionId) {
+		this.permissionId = permissionId;
 	}
 
 	public DateTime getDateCreated() {
@@ -67,13 +75,5 @@ public class LegalEntityApp implements Serializable {
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
-	}
-
-	public Short getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Short isActive) {
-		this.isActive = isActive;
 	}
 }

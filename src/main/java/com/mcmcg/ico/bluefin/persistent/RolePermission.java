@@ -25,24 +25,24 @@ import lombok.Data;
 @Table(name = "Role_Permission")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "rolePermissionId")
 public class RolePermission implements Serializable {
-    private static final long serialVersionUID = -3382648236142523952L;
+	private static final long serialVersionUID = -3382648236142523952L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "RolePermissionID")
-    private long rolePermissionId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "RolePermissionID")
+	private long rolePermissionId;
 
-    @ManyToOne
-    @JoinColumn(name = "RoleID")
-    private Role role;
+	@ManyToOne
+	@JoinColumn(name = "RoleID")
+	private Role role;
 
-    @ManyToOne
-    @JoinColumn(name = "PermissionID")
-    private Permission permission;
+	@ManyToOne
+	@JoinColumn(name = "PermissionID")
+	private Permission permission;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    @Column(name = "DateCreated", insertable = false, updatable = false)
-    private DateTime createdDate;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+	@Column(name = "DateCreated", insertable = false, updatable = false)
+	private DateTime createdDate;
 
 }

@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -8,12 +9,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class LegalEntityApp implements Serializable {
+public class Permission implements Serializable {
 
-	private static final long serialVersionUID = -5790383605806530298L;
+	private static final long serialVersionUID = -5655934914808632512L;
 
-	private Long legalEntityAppId;
-	private String legalEntityAppName;
+	private Long permissionId;
+	private String permissionName;
+	private String description;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -24,25 +26,49 @@ public class LegalEntityApp implements Serializable {
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
 	private String modifiedBy;
-	private Short isActive = 1;
 
-	public LegalEntityApp() {
+	public Permission() {
 	}
 
-	public Long getLegalEntityAppId() {
-		return legalEntityAppId;
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Permission)) {
+			return false;
+		}
+		Permission permission = (Permission) o;
+		return permissionId == permission.permissionId && Objects.equals(permissionName, permission.permissionName)
+				&& Objects.equals(description, permission.description);
 	}
 
-	public void setLegalEntityAppId(Long legalEntityAppId) {
-		this.legalEntityAppId = legalEntityAppId;
+	@Override
+	public int hashCode() {
+		return Objects.hash(permissionId, permissionName, description);
 	}
 
-	public String getLegalEntityAppName() {
-		return legalEntityAppName;
+	public Long getPermissionId() {
+		return permissionId;
 	}
 
-	public void setLegalEntityAppName(String legalEntityAppName) {
-		this.legalEntityAppName = legalEntityAppName;
+	public void setPermissionId(Long permissionId) {
+		this.permissionId = permissionId;
+	}
+
+	public String getPermissionName() {
+		return permissionName;
+	}
+
+	public void setPermissionName(String permissionName) {
+		this.permissionName = permissionName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public DateTime getDateCreated() {
@@ -67,13 +93,5 @@ public class LegalEntityApp implements Serializable {
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
-	}
-
-	public Short getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Short isActive) {
-		this.isActive = isActive;
 	}
 }

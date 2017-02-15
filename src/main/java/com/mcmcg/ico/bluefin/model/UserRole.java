@@ -8,12 +8,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class LegalEntityApp implements Serializable {
+public class UserRole implements Serializable {
 
-	private static final long serialVersionUID = -5790383605806530298L;
+	private static final long serialVersionUID = 2576929644562716504L;
 
-	private Long legalEntityAppId;
-	private String legalEntityAppName;
+	private Long userRoleId;
+	private Long userId;
+	private Long roleId;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -24,25 +25,32 @@ public class LegalEntityApp implements Serializable {
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
 	private String modifiedBy;
-	private Short isActive = 1;
 
-	public LegalEntityApp() {
+	public UserRole() {
 	}
 
-	public Long getLegalEntityAppId() {
-		return legalEntityAppId;
+	public Long getUserRoleId() {
+		return userRoleId;
 	}
 
-	public void setLegalEntityAppId(Long legalEntityAppId) {
-		this.legalEntityAppId = legalEntityAppId;
+	public void setUserRoleId(Long userRoleId) {
+		this.userRoleId = userRoleId;
 	}
 
-	public String getLegalEntityAppName() {
-		return legalEntityAppName;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setLegalEntityAppName(String legalEntityAppName) {
-		this.legalEntityAppName = legalEntityAppName;
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getRoleId() {
+		return roleId;
+	}
+
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
 	}
 
 	public DateTime getDateCreated() {
@@ -67,13 +75,5 @@ public class LegalEntityApp implements Serializable {
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
-	}
-
-	public Short getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Short isActive) {
-		this.isActive = isActive;
 	}
 }

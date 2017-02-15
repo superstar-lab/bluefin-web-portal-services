@@ -20,20 +20,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 
+import com.mcmcg.ico.bluefin.model.Permission;
+import com.mcmcg.ico.bluefin.model.Role;
+import com.mcmcg.ico.bluefin.model.RolePermission;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory.MessageCode;
+import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.Permission;
-import com.mcmcg.ico.bluefin.persistent.Role;
-import com.mcmcg.ico.bluefin.persistent.RolePermission;
 import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
-import com.mcmcg.ico.bluefin.persistent.jpa.PermissionRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.RolePermissionRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.RoleRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.repository.PermissionDAO;
+import com.mcmcg.ico.bluefin.repository.RoleDAO;
+import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
+import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
@@ -69,13 +70,15 @@ public class SessionService {
 	@Autowired
 	private RoleService roleService;
 	@Autowired
-	private PermissionRepository permissionRepository;
+	private PermissionDAO permissionDAO;
 	@Autowired
-	private RoleRepository roleRepository;
+	private RoleDAO roleDAO;
 	@Autowired
-	private RolePermissionRepository rolePermissionRepository;
+	private RolePermissionDAO rolePermissionDAO;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+	private UserRoleDAO userRoleDAO;
 
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
 		User user = userRepository.findByUsername(username);
@@ -179,10 +182,12 @@ public class SessionService {
 
 		Set<Role> rolesResult = new HashSet<Role>();
 		Set<Permission> permissionsResult = new HashSet<Permission>();
-		for (UserRole role : user.getRoles()) {
-			rolesResult.add(role.getRole());
-			for (RolePermission permission : role.getRole().getRolePermissions()) {
-				permissionsResult.add(permission.getPermission());
+		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
+			long roleId = userRole.getRoleId();
+			rolesResult.add(roleDAO.findByRoleId(roleId));
+			for (RolePermission rolePermission : rolePermissionDAO.findByRoleId(roleId)) {
+				long permissionId = rolePermission.getPermissionId();
+				permissionsResult.add(permissionDAO.findByPermissionId(permissionId));
 			}
 		}
 		response.setRoles(rolesResult);
@@ -222,22 +227,24 @@ public class SessionService {
 		Role roleThirdParty = roleService.getRoleByName(applicationRoleName);
 		if (roleThirdParty == null) {
 			String applicationPermissionName = propertyService.getPropertyValue("APPLICATION_PERMISSION_NAME");
-			Permission permissionThirdParty = permissionRepository.findByPermissionName(applicationPermissionName);
+			Permission permissionThirdParty = permissionDAO.findByPermissionName(applicationPermissionName);
 			if (permissionThirdParty == null) {
 				permissionThirdParty = new Permission();
 				permissionThirdParty.setPermissionName(applicationPermissionName);
 				permissionThirdParty.setDescription(StringUtils.capitalize(applicationPermissionName));
-				permissionThirdParty = permissionRepository.save(permissionThirdParty);
+				long permissionId = permissionDAO.savePermission(permissionThirdParty);
+				permissionThirdParty = permissionDAO.findByPermissionId(permissionId);
 			}
 			roleThirdParty = new Role();
 			roleThirdParty.setRoleName(applicationRoleName);
 			roleThirdParty.setDescription(StringUtils.capitalize(applicationRoleName));
-			roleThirdParty = roleRepository.save(roleThirdParty);
+			long roleId = roleDAO.saveRole(roleThirdParty);
+			roleThirdParty = roleDAO.findByRoleId(roleId);
 
 			RolePermission rolePermission = new RolePermission();
-			rolePermission.setPermission(permissionThirdParty);
-			rolePermission.setRole(roleThirdParty);
-			rolePermissionRepository.save(rolePermission);
+			//rolePermission.setPermission(permissionThirdParty);
+			//rolePermission.setRole(roleThirdParty);
+			rolePermissionDAO.saveRolePermission(rolePermission);
 		}
 		return roleThirdParty;
 	}
