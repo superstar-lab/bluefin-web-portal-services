@@ -14,9 +14,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
+import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -31,9 +33,11 @@ public class RoleService {
 	@Autowired
 	private SessionService sessionService;
 	@Autowired
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private UserRoleDAO userRoleDAO;
 
 	public List<Role> getRoles() {
 		return roleDAO.findAll();
@@ -46,7 +50,7 @@ public class RoleService {
 	 * @return list of roles
 	 */
 	public List<Role> getRoles(Authentication authentication) {
-		User user = userRepository.findByUsername(authentication.getName());
+		User user = userDAO.findByUsername(authentication.getName());
 
 		if (user == null) {
 			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
@@ -64,10 +68,13 @@ public class RoleService {
 		}
 
 		// Roles that belongs to a user
-		List<Long> rolesFromUser = user.getRoles().stream().map(userRole -> userRole.getRole().getRoleId())
-				.collect(Collectors.toList());
-		// return roleRepository.findAll(rolesFromUser);
-		return roleDAO.findAll();
+		List<Role> list = new ArrayList<Role>();
+		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
+			long roleId = userRole.getRoleId();
+			list.add(roleDAO.findByRoleId(roleId));
+		}
+		List<Long> rolesFromUser = list.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
+		return roleDAO.findAll(rolesFromUser);
 	}
 
 	/**
@@ -80,8 +87,8 @@ public class RoleService {
 	 *             when at least one id does not exist
 	 */
 	public List<Role> getRolesByIds(Set<Long> rolesIds) {
-		// List<Role> result = roleRepository.findAll(rolesIds);
-		List<Role> result = roleDAO.findAll();
+		List<Long> list = new ArrayList<Long>(rolesIds);
+		List<Role> result = roleDAO.findAll(list);
 
 		if (result.size() == rolesIds.size()) {
 			return result;

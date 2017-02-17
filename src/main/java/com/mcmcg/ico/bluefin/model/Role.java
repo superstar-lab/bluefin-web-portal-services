@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Role implements Serializable {
 
-	private static final long serialVersionUID = -7325424659242889530L;
+	private static final long serialVersionUID = -8094368312066129639L;
 
 	private Long roleId;
 	private String roleName;
@@ -27,6 +28,23 @@ public class Role implements Serializable {
 	private String modifiedBy;
 
 	public Role() {
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Role)) {
+			return false;
+		}
+		Role role = (Role) o;
+		return roleId == role.roleId && Objects.equals(roleName, role.roleName)
+				&& Objects.equals(description, role.description);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(roleId, roleName, description);
 	}
 
 	public Long getRoleId() {

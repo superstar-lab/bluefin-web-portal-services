@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -10,11 +9,11 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserRole;
 
 public class UserResource implements Serializable {
 
@@ -54,14 +53,15 @@ public class UserResource implements Serializable {
 		this.lastName = user.getLastName();
 		this.status = user.getStatus();
 		this.email = user.getEmail();
-		this.legalEntityApps = new HashSet<LegalEntityApp>(user.getLegalEntityApps());
 		// Correct this when fixing code for User.
 		// New User will not contain Role and Legal Entity App.
 		// Create a new object to contain everything?
+		// this.legalEntityApps = new
+		// HashSet<LegalEntityApp>(user.getLegalEntityApps());
 		// this.roles = new HashSet<Role>(user.getRoleNames());
 	}
 
-	public User toUser(Set<UserRole> roles, Set<UserLegalEntity> entities) {
+	public User toUser(Set<UserRole> roles, Set<UserLegalEntityApp> entities) {
 		User user = new User();
 
 		user.setUsername(username);
@@ -69,8 +69,8 @@ public class UserResource implements Serializable {
 		user.setLastName(lastName);
 		user.setEmail(email);
 		user.setStatus(status);
-		user.setRoles(roles);
-		user.setLegalEntities(entities);
+		// user.setRoles(roles);
+		// user.setLegalEntities(entities);
 
 		return user;
 	}

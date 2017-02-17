@@ -20,19 +20,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.RolePermission;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory.MessageCode;
 import com.mcmcg.ico.bluefin.model.UserRole;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.PermissionDAO;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
+import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -54,7 +56,7 @@ public class SessionService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
 	private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
 	@Autowired
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -79,9 +81,13 @@ public class SessionService {
 	private PropertyService propertyService;
 	@Autowired
 	private UserRoleDAO userRoleDAO;
+	@Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
+	@Autowired
+	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
-		User user = userRepository.findByUsername(username);
+		User user = userDAO.findByUsername(username);
 		UserLoginHistory userLoginHistory = new UserLoginHistory();
 		userLoginHistory.setUsername(username);
 		userLoginHistory.setUserPassword(passwordEncoder.encode(password));
@@ -99,7 +105,7 @@ public class SessionService {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account was deactivated.");
 		}
-		if (!passwordEncoder.matches(password, user.getUserPassword())) {
+		if (!passwordEncoder.matches(password, user.getPassword())) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
@@ -122,7 +128,9 @@ public class SessionService {
 		final String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
 		user.setLastLogin(new DateTime());
-		userRepository.save(user);
+		if (userDAO.findByUsername(username) == null) {
+			userDAO.saveUser(user);
+		}
 
 		LOGGER.info("Creating login response for user: {}", username);
 		return getLoginResponse(user, token);
@@ -180,25 +188,25 @@ public class SessionService {
 		response.setLastName(user.getLastName());
 		response.setUsername(user.getUsername());
 
-		Set<Role> rolesResult = new HashSet<Role>();
-		Set<Permission> permissionsResult = new HashSet<Permission>();
+		Set<Role> roleSet = new HashSet<Role>();
+		Set<Permission> permissionSet = new HashSet<Permission>();
 		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
 			long roleId = userRole.getRoleId();
-			rolesResult.add(roleDAO.findByRoleId(roleId));
+			roleSet.add(roleDAO.findByRoleId(roleId));
 			for (RolePermission rolePermission : rolePermissionDAO.findByRoleId(roleId)) {
 				long permissionId = rolePermission.getPermissionId();
-				permissionsResult.add(permissionDAO.findByPermissionId(permissionId));
+				permissionSet.add(permissionDAO.findByPermissionId(permissionId));
 			}
 		}
-		response.setRoles(rolesResult);
-		response.setPermissions(permissionsResult);
+		response.setRoles(roleSet);
+		response.setPermissions(permissionSet);
 
-		Set<LegalEntityApp> legalEntityAppsResult = new HashSet<LegalEntityApp>();
-		for (UserLegalEntity legalEntity : user.getLegalEntities()) {
-			legalEntityAppsResult.add(legalEntity.getLegalEntityApp());
-
+		Set<LegalEntityApp> legalEntityAppSet = new HashSet<LegalEntityApp>();
+		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+			long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
+			legalEntityAppSet.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 		}
-		response.setLegalEntityApps(legalEntityAppsResult);
+		response.setLegalEntityApps(legalEntityAppSet);
 
 		return response;
 	}
@@ -214,10 +222,10 @@ public class SessionService {
 
 		if (!userService.existUsername(username)) {
 			User newUser = userResource.toUser(rolesToAssign, new ArrayList<LegalEntityApp>());
-			newUser.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+			newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 			newUser.setIsActive((short) 1);
 
-			userRepository.save(newUser);
+			userDAO.saveUser(newUser);
 		}
 		return new BasicTokenResponse(generateNewToken(username, TokenType.APPLICATION, null));
 	}
@@ -242,8 +250,8 @@ public class SessionService {
 			roleThirdParty = roleDAO.findByRoleId(roleId);
 
 			RolePermission rolePermission = new RolePermission();
-			//rolePermission.setPermission(permissionThirdParty);
-			//rolePermission.setRole(roleThirdParty);
+			// rolePermission.setPermission(permissionThirdParty);
+			// rolePermission.setRole(roleThirdParty);
 			rolePermissionDAO.saveRolePermission(rolePermission);
 		}
 		return roleThirdParty;
@@ -259,5 +267,4 @@ public class SessionService {
 		}
 		return hasPermission;
 	}
-
 }

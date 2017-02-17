@@ -11,7 +11,7 @@ public interface LegalEntityAppDAO {
 
 	List<LegalEntityApp> findAll();
 
-	List<LegalEntityApp> findAll(List<Long> legalEntitiesFromUser);
+	List<LegalEntityApp> findAll(List<Long> legalEntityAppIds);
 
 	LegalEntityApp saveLegalEntityApp(LegalEntityApp legalEntityApp, String modifiedBy);
 

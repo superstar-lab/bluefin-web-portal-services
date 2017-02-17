@@ -15,11 +15,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.RolePermission;
+import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.repository.PermissionDAO;
 import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 
@@ -27,7 +27,7 @@ import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 @Transactional
 public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 	@Autowired
 	private UserRoleDAO userRoleDAO;
 	@Autowired
@@ -37,7 +37,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username);
+		User user = userDAO.findByUsername(username);
 
 		return user == null ? null : new SecurityUser(user, getAuthorities(userRoleDAO.findByUserId(user.getUserId())));
 	}

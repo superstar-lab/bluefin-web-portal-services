@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.mcmcg.ico.bluefin.model.SecurityTokenBlacklist;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.repository.SecurityTokenBlacklistDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 
@@ -27,7 +27,7 @@ public class TokenUtils {
 	@Autowired
 	private SecurityTokenBlacklistDAO securityTokenBlacklistDAO;
 	@Autowired
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 
 	public String getUsernameFromToken(String token) {
 		String username;
@@ -171,7 +171,7 @@ public class TokenUtils {
 	}
 
 	public SecurityTokenBlacklist sendTokenToBlacklist(String token, String username) {
-		User user = userRepository.findByUsername(username);
+		User user = userDAO.findByUsername(username);
 		SecurityTokenBlacklist blacklistToken = new SecurityTokenBlacklist();
 		blacklistToken.setToken(token);
 		blacklistToken.setUserId(user.getUserId());
@@ -182,7 +182,7 @@ public class TokenUtils {
 	}
 
 	public Boolean isTokenInBlacklist(String token, String username) {
-		User user = userRepository.findByUsername(username);
+		User user = userDAO.findByUsername(username);
 		SecurityTokenBlacklist blacklistToken = securityTokenBlacklistDAO.findByUserIdAndToken(user.getUserId(), token);
 		return blacklistToken != null;
 	}

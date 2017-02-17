@@ -3,9 +3,9 @@ package com.mcmcg.ico.bluefin.security.rest.resource;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
 
 public class AuthenticationResponse implements Serializable {
 

@@ -10,9 +10,9 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.model.User;
 
 public class RegisterUserResource implements Serializable {
 
@@ -56,9 +56,9 @@ public class RegisterUserResource implements Serializable {
 		// user.addRole(role);
 		// }
 		// Legal Entity Apps
-		for (LegalEntityApp legalEntityApp : legalEntityApps) {
-			user.addLegalEntityApp(legalEntityApp);
-		}
+		// for (LegalEntityApp legalEntityApp : legalEntityApps) {
+		// user.addLegalEntityApp(legalEntityApp);
+		// }
 
 		return user;
 	}

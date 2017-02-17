@@ -7,9 +7,9 @@ import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
+import com.mcmcg.ico.bluefin.model.User;
 
 public class UpdateUserResource implements Serializable {
 
@@ -35,7 +35,7 @@ public class UpdateUserResource implements Serializable {
 		// New User will not contain Role and Legal Entity App.
 		// Create a new object to contain everything?
 		// userResource.setRoles(roles);
-		userResource.setLegalEntityApps(entities);
+		// userResource.setLegalEntityApps(entities);
 		return userResource;
 	}
 

@@ -27,33 +27,33 @@ import lombok.ToString;
 @Entity
 @Table(name = "Permission_Lookup")
 public class Permission implements Serializable {
-	private static final long serialVersionUID = 730005903939744601L;
+    private static final long serialVersionUID = 730005903939744601L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "PermissionID")
-	private long permissionId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "PermissionID")
+    private long permissionId;
 
-	@Column(name = "PermissionName")
-	private String permissionName;
+    @Column(name = "PermissionName")
+    private String permissionName;
 
-	@Column(name = "Description")
-	private String description;
+    @Column(name = "Description")
+    private String description;
 
-	@JsonIgnore
-	@OneToMany(mappedBy = "permission")
-	private Collection<RolePermission> rolePermissions;
+    @JsonIgnore
+    @OneToMany(mappedBy = "permission")
+    private Collection<RolePermission> rolePermissions;
 
-	@JsonIgnore
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	@Column(name = "DateCreated", insertable = false, updatable = false)
-	private DateTime dateCreated;
+    @JsonIgnore
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @Column(name = "DateCreated", insertable = false, updatable = false)
+    private DateTime dateCreated;
+    
+    public Permission() {
+    }
 
-	public Permission() {
-	}
-
-	public Permission(String permissionName) {
-		this.permissionName = permissionName;
-	}
+    public Permission(String permissionName) {
+        this.permissionName = permissionName;
+    }
 }

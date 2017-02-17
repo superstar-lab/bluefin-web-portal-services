@@ -7,6 +7,7 @@ public interface Queries {
 	String findPermissionByPermissionName = "SELECT PermissionID, PermissionName, Description, DateCreated, DatedModified, ModifiedBy FROM Permission_Lookup WHERE PermissionName = ?";
 	String savePermission = "INSERT INTO Permission_Lookup (PermissionName, Description, DateCreated, DatedModified, ModifiedBy) VALUES (?, ?, ?, ?, ?)";
 	String findAllRoles = "SELECT RoleID, RoleName, Description, DateCreated, DatedModified, ModifiedBy FROM Role_Lookup";
+	String findAllRolesByIds = "SELECT RoleID, RoleName, Description, DateCreated, DatedModified, ModifiedBy FROM Role_Lookup WHERE RoleID IN (:roleIds)";
 	String findRoleByRoleId = "SELECT RoleID, RoleName, Description, DateCreated, DatedModified, ModifiedBy FROM Role_Lookup WHERE RoleID = ?";
 	String findRoleByRoleName = "SELECT RoleID, RoleName, Description, DateCreated, DatedModified, ModifiedBy FROM Role_Lookup WHERE RoleName = ?";
 	String saveRole = "INSERT INTO Role_Lookup (RoleName, Description, DateCreated, DatedModified, ModifiedBy) VALUES (?, ?, ?, ?, ?)";
@@ -34,10 +35,18 @@ public interface Queries {
 	String findByLegalEntityAppId = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	String findByLegalEntityAppName = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppName = ?";
 	String findAllLegalEntityApps = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup";
-	String findAllLegalEntityAppsByIds = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID in (?)";
+	String findAllLegalEntityAppsByIds = "SELECT LegalEntityAppID, LegalEntityAppName, DateCreated, DatedModified, ModifiedBy, IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID IN (:legalEntityAppIds)";
 	String deleteLegalEntityApp = "DELETE FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	String saveLegalEntityApp = "INSERT INTO LegalEntityApp_Lookup (LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive) VALUES (?,?,?,?,?)";
 	String updateLegalEntityApp = "UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?";
+	String findAllUsers = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup";
+	String findUserByUserId = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE UserID = ?";
+	String findUserByUsername = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE UserName = ?";
+	String findUserByEmail = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE Email = ?";
+	String saveUser = "INSERT INTO User_Lookup (UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	String updateUser = "UPDATE User_Lookup SET UserName = ?, FirstName = ?, LastName = ?, IsActive = ?, LastLogin = ?, DateCreated = ?, DateUpdated = ?, Email = ?, UserPassword = ?, DateModified = ?, ModifiedBy = ?, Status = ? WHERE UserID = ?";
+	String deleteUserByUsername = "DELETE FROM User_Lookup WHERE UserName = ?";
+	String findUserLegalEntityAppByUserId = "SELECT UserLegalEntityAppID, UserID, LegalEntityAppID, DateCreated, DatedModified, ModifiedBy FROM User_LegalEntityApp WHERE UserID = ?";
 	String findUserRoleByUserId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE UserID = ?";
 	String findUserRoleByRoleId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE RoleID = ?";
 }

@@ -20,13 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mysema.query.types.Predicate;
 
@@ -42,7 +42,7 @@ public class TransactionsServiceTest {
 	@Mock
 	private SaleTransactionRepository saleTransactionRepository;
 	@Mock
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 
 	@Before
 	public void initMocks() {
@@ -201,22 +201,22 @@ public class TransactionsServiceTest {
 	public void testGetLegalEntitiesFromUserSuccess() {
 		User expected = createValidUser();
 
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(expected);
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(expected);
 
 		List<LegalEntityApp> result = transactionsService.getLegalEntitiesFromUser("nquiros");
 
 		Assert.assertEquals("legalEntity1", result.get(0).getLegalEntityAppName());
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 
 	}
 
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testGetLegalEntitiesFromUserDBFail() {
 
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
 		transactionsService.getLegalEntitiesFromUser("nquiros");
@@ -235,25 +235,25 @@ public class TransactionsServiceTest {
 		user.setLastName("user");
 		user.setUsername("userTest");
 
-		List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+		List<UserLegalEntityApp> userLegalEntities = new ArrayList<UserLegalEntityApp>();
 		userLegalEntities.add(createValidUserLegalEntity());
-		user.setLegalEntities(userLegalEntities);
+		// user.setLegalEntities(userLegalEntities);
 		return user;
 	}
 
-	private UserLegalEntity createValidUserLegalEntity() {
-		UserLegalEntity userLegalEntity = new UserLegalEntity();
+	private UserLegalEntityApp createValidUserLegalEntity() {
+		UserLegalEntityApp userLegalEntity = new UserLegalEntityApp();
 		userLegalEntity.setUserLegalEntityAppId(0L);
-		userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
+		// userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
 		return userLegalEntity;
 	}
 
 	private LegalEntityApp createValidLegalEntityApp() {
 		LegalEntityApp validLegalEntity = new LegalEntityApp();
-		UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-		Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
+		UserLegalEntityApp validUserLegalEntity = new UserLegalEntityApp();
+		Set<UserLegalEntityApp> validUserLegalEntityList = new HashSet<UserLegalEntityApp>();
 		validUserLegalEntityList.add(validUserLegalEntity);
-		validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
+		// validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
 		validLegalEntity.setLegalEntityAppName("legalEntity1");
 		validLegalEntity.setLegalEntityAppId(4321L);
 		return validLegalEntity;

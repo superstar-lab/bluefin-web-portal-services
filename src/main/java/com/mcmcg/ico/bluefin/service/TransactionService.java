@@ -24,21 +24,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
-import com.mcmcg.ico.bluefin.persistent.User;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
+import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
@@ -72,7 +75,7 @@ public class TransactionService {
 	@Autowired
 	private RefundTransactionRepository refundTransactionRepository;
 	@Autowired
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 	@Autowired
 	private PaymentProcessorRepository paymentProcessorRepository;
 	@Autowired
@@ -81,6 +84,10 @@ public class TransactionService {
 	private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
+	@Autowired
+	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
 		Transaction result = null;
@@ -185,9 +192,15 @@ public class TransactionService {
 	}
 
 	public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
-		User user = userRepository.findByUsername(username);
-		List<LegalEntityApp> userLE = user.getLegalEntityApps();
-		return userLE;
+		User user = userDAO.findByUsername(username);
+		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
+
+		}
+
+		return list;
 	}
 
 	public File getTransactionsReport(String search, String timeZone) throws IOException {

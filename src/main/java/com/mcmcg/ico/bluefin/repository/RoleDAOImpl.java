@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -21,6 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -39,6 +42,17 @@ public class RoleDAOImpl implements RoleDAO {
 	@Override
 	public List<Role> findAll() {
 		List<Role> list = jdbcTemplate.query(Queries.findAllRoles, new RoleRowMapper());
+
+		LOGGER.info("Number of rows: " + list.size());
+
+		return list;
+	}
+
+	@Override
+	public List<Role> findAll(List<Long> roleIds) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+		Map<String, List<Long>> map = Collections.singletonMap("roleIds", roleIds);
+		List<Role> list = namedParameterJdbcTemplate.query(Queries.findAllRolesByIds, map, new RoleRowMapper());
 
 		LOGGER.info("Number of rows: " + list.size());
 

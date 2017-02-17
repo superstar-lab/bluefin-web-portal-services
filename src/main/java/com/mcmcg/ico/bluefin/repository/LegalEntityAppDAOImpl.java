@@ -6,8 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -20,6 +21,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -59,19 +61,21 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	@Override
 	public List<LegalEntityApp> findAll() {
-		List<LegalEntityApp> legalEntityApps = new ArrayList<LegalEntityApp>();
-		legalEntityApps = jdbcTemplate.query(Queries.findAllLegalEntityApps, new LegalEntityAppRowMapper());
+		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.findAllLegalEntityApps,
+				new LegalEntityAppRowMapper());
+
 		LOGGER.debug("Number of rows: " + legalEntityApps.size());
 
 		return legalEntityApps;
 	}
 
 	@Override
-	public List<LegalEntityApp> findAll(List<Long> legalEntitiesFromUser) {
-		List<LegalEntityApp> legalEntityApps = new ArrayList<LegalEntityApp>();
-		legalEntityApps = jdbcTemplate.query(Queries.findAllLegalEntityAppsByIds,
-				new Object[] { legalEntitiesFromUser.toString().replace("[", "").replace("]", "") },
-				new LegalEntityAppRowMapper());
+	public List<LegalEntityApp> findAll(List<Long> legalEntityAppIds) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+		Map<String, List<Long>> map = Collections.singletonMap("legalEntityAppIds", legalEntityAppIds);
+		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.findAllLegalEntityAppsByIds,
+				map, new LegalEntityAppRowMapper());
+
 		LOGGER.debug("Number of rows: " + legalEntityApps.size());
 
 		return legalEntityApps;

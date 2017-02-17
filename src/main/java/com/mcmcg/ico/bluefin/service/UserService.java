@@ -20,13 +20,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
-import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserRole;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
+import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ActivationResource;
@@ -45,13 +47,11 @@ import com.mysema.query.types.expr.BooleanExpression;
 public class UserService {
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 	@Autowired
 	private RoleService roleService;
 	@Autowired
-	private LegalEntityAppService legalEntityAppService;
-	@Autowired
-	private LegalEntityAppRepository legalEntityAppRepository;
+	private LegalEntityAppDAO legalEntityAppDAO;
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	@Autowired
@@ -62,6 +62,10 @@ public class UserService {
 	private SessionService sessionService;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+	private UserRoleDAO userRoleDAO;
+	@Autowired
+	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
@@ -87,7 +91,7 @@ public class UserService {
 	 *             when username is not found
 	 */
 	public User getUser(final String username) {
-		User user = userRepository.findByUsername(username);
+		User user = userDAO.findByUsername(username);
 		if (user == null) {
 			throw new CustomNotFoundException("Unable to find user by username provided: " + username);
 		}
@@ -96,7 +100,7 @@ public class UserService {
 	}
 
 	public Iterable<User> getUsers(BooleanExpression exp, Integer page, Integer size, String sort) {
-		Page<User> result = userRepository.findAll(exp, QueryDSLUtil.getPageRequest(page, size, sort));
+		Page<User> result = userDAO.findAll(exp, QueryDSLUtil.getPageRequest(page, size, sort));
 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
@@ -112,9 +116,15 @@ public class UserService {
 	 *         by parameter, empty list if user not found
 	 */
 	public List<LegalEntityApp> getLegalEntitiesByUser(final String username) {
-		User user = userRepository.findByUsername(username);
-		return (user == null || user.getLegalEntities().isEmpty()) ? new ArrayList<LegalEntityApp>()
-				: user.getLegalEntityApps();
+		User user = userDAO.findByUsername(username);
+		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
+
+		}
+		return (user == null || userLegalEntityAppDAO.findByUserId(user.getUserId()).isEmpty())
+				? new ArrayList<LegalEntityApp>() : list;
 	}
 
 	public UserResource registerNewUserAccount(RegisterUserResource userResource) {
@@ -127,9 +137,10 @@ public class UserService {
 		User newUser = userResource.toUser(roleService.getRolesByIds(userResource.getRoles()),
 				getLegalEntityAppsByIds(userResource.getLegalEntityApps()));
 		newUser.setStatus("NEW");
-		newUser.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+		newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
-		UserResource newUserResource = new UserResource(userRepository.save(newUser));
+		long userId = userDAO.saveUser(newUser);
+		UserResource newUserResource = new UserResource(userDAO.findByUserId(userId));
 
 		// Send email
 		final String link = "/api/users/" + username + "/password";
@@ -153,7 +164,7 @@ public class UserService {
 	 *             when at least one id does not exist
 	 */
 	public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
-		List<LegalEntityApp> result = legalEntityAppRepository.findAll(new ArrayList<Long>(legalEntityAppsIds));
+		List<LegalEntityApp> result = legalEntityAppDAO.findAll(new ArrayList<Long>(legalEntityAppsIds));
 
 		if (result.size() == legalEntityAppsIds.size()) {
 			return result;
@@ -174,7 +185,7 @@ public class UserService {
 	}
 
 	public boolean existUsername(final String username) {
-		return userRepository.findByUsername(username) == null ? false : true;
+		return userDAO.findByUsername(username) == null ? false : true;
 	}
 
 	/**
@@ -193,8 +204,10 @@ public class UserService {
 		user.setLastName(userResource.getLastName());
 		user.setEmail(userResource.getEmail());
 		user.setDateUpdated(new DateTime());
+		String modifiedBy = null;
 
-		return new UserResource(userRepository.save(user));
+		long userId = userDAO.updateUser(user, modifiedBy);
+		return new UserResource(userDAO.findByUserId(userId));
 	}
 
 	/**
@@ -221,15 +234,15 @@ public class UserService {
 		Set<Long> rolesToKeep = new HashSet<Long>();
 
 		// Update current role list from user
-		Iterator<UserRole> iter = userToUpdate.getRoles().iterator();
+		Iterator<UserRole> iter = userRoleDAO.findByUserId(userToUpdate.getUserId()).iterator();
 		while (iter.hasNext()) {
 			UserRole element = iter.next();
 
-			Role role = newMapOfRoles.get(element.getRole().getRoleId());
+			Role role = newMapOfRoles.get(element.getRoleId());
 			if (role == null) {
 				iter.remove();
 			} else {
-				rolesToKeep.add(element.getRole().getRoleId());
+				rolesToKeep.add(element.getRoleId());
 			}
 		}
 
@@ -242,7 +255,9 @@ public class UserService {
 		// }
 
 		userToUpdate.setDateUpdated(new DateTime());
-		return userRepository.save(userToUpdate);
+		String modifiedBy = null;
+		long userId = userDAO.updateUser(userToUpdate, modifiedBy);
+		return userDAO.findByUserId(userId);
 	}
 
 	/**
@@ -270,27 +285,28 @@ public class UserService {
 		Set<Long> legalEntityAppsToKeep = new HashSet<Long>();
 
 		// Update current role list from user
-		Iterator<UserLegalEntity> iter = userToUpdate.getLegalEntities().iterator();
+		Iterator<UserLegalEntityApp> iter = userLegalEntityAppDAO.findByUserId(userToUpdate.getUserId()).iterator();
 		while (iter.hasNext()) {
-			UserLegalEntity element = iter.next();
+			UserLegalEntityApp element = iter.next();
 
-			LegalEntityApp legalEntityApp = newMapOfLegalEntityApps
-					.get(element.getLegalEntityApp().getLegalEntityAppId());
+			LegalEntityApp legalEntityApp = newMapOfLegalEntityApps.get(element.getLegalEntityAppId());
 			if (legalEntityApp == null) {
 				iter.remove();
 			} else {
-				legalEntityAppsToKeep.add(element.getLegalEntityApp().getLegalEntityAppId());
+				legalEntityAppsToKeep.add(element.getLegalEntityAppId());
 			}
 		}
 
 		// Add new roles to the user but ignoring the existing ones
 		for (Long legalEntityAppId : newMapOfLegalEntityApps.keySet()) {
 			if (!legalEntityAppsToKeep.contains(legalEntityAppId)) {
-				userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
+				// userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
 			}
 		}
 		userToUpdate.setDateUpdated(new DateTime());
-		return userRepository.save(userToUpdate);
+		String modifiedBy = null;
+		long userId = userDAO.updateUser(userToUpdate, modifiedBy);
+		return userDAO.findByUserId(userId);
 	}
 
 	/**
@@ -362,7 +378,13 @@ public class UserService {
 		Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
 				.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
 		// Get Legal Entities from user that will be updated
-		Set<Long> legalEntitiesToVerify = userToUpdate.getLegalEntityApps().stream()
+		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(userToUpdate.getUserId())) {
+			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
+
+		}
+		Set<Long> legalEntitiesToVerify = list.stream()
 				.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
 
 		return !legalEntitiesToVerify.stream().filter(userLegalEntities::contains).collect(Collectors.toSet())
@@ -390,7 +412,7 @@ public class UserService {
 		User userToUpdate = getUser(username);
 
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
-				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getUserPassword())) {
+				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
 		if (tokenType.equals(TokenType.REGISTER_USER.name())) {
@@ -399,9 +421,11 @@ public class UserService {
 		if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus() == "NEW") {
 			userToUpdate.setStatus("ACTIVE");
 		}
-		userToUpdate.setUserPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
+		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
-		return userRepository.save(userToUpdate);
+		String modifiedBy = null;
+		long userId = userDAO.updateUser(userToUpdate, modifiedBy);
+		return userDAO.findByUserId(userId);
 	}
 
 	public void userActivation(ActivationResource activationResource) {
@@ -415,7 +439,7 @@ public class UserService {
 			}
 
 			String status = (activate ? "NEW" : "INACTIVE");
-			User user = userRepository.findByUsername(username);
+			User user = userDAO.findByUsername(username);
 			if (user == null) {
 				notFoundUsernames.add(username);
 			} else {
@@ -432,7 +456,7 @@ public class UserService {
 		if (userToUpdate.getStatus() != status) {
 			userToUpdate.setStatus(status);
 			if (status.equals("NEW")) {
-				userToUpdate.setUserPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+				userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 				// Send email
 				final String link = "/api/users/" + username + "/password";
@@ -447,7 +471,9 @@ public class UserService {
 						+ "Please feel free to contact your system administratior. \n\n";
 				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
 			}
-			userToUpdate = userRepository.save(userToUpdate);
+			String modifiedBy = null;
+			long userId = userDAO.updateUser(userToUpdate, modifiedBy);
+			userToUpdate = userDAO.findByUserId(userId);
 		}
 	}
 
@@ -458,5 +484,4 @@ public class UserService {
 
 		return passwordEncoder.matches(oldPassword, currentUserPassword);
 	}
-
 }

@@ -26,15 +26,15 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.RolePermission;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.model.UserRole;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -54,7 +54,7 @@ public class SessionServiceTest {
 	private SessionService sessionService;
 
 	@Mock
-	private UserRepository userRepository;
+	private UserDAO userDAO;
 	@Mock
 	private UserDetailsServiceImpl userDetailsServiceImpl;
 	@Mock
@@ -80,7 +80,7 @@ public class SessionServiceTest {
 	 */
 	// @Test
 	public void testAuthenticateSuccess() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		// Mockito.when(userLoginHistoryDAO.saveUserLoginHistory(Mockito.any(UserLoginHistory.class)))
 		// .thenReturn(new UserLoginHistory());
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = sessionService.authenticate("nquiros",
@@ -89,12 +89,12 @@ public class SessionServiceTest {
 		Assert.assertEquals("nquiros", usernamePasswordAuthenticationToken.getName());
 		Assert.assertEquals("pass123", usernamePasswordAuthenticationToken.getCredentials());
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(1)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(userLoginHistoryDAO);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -103,14 +103,14 @@ public class SessionServiceTest {
 	@Test(expected = AccessDeniedException.class)
 	public void testAuthenticateNotUserFound() {
 		User user = createValidUser();
-		Mockito.when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+		Mockito.when(userDAO.findByUsername(user.getUsername())).thenReturn(user);
 
 		sessionService.authenticate("omonge123", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(0)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -118,27 +118,27 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = AccessDeniedException.class)
 	public void testAuthenticateUserNull() {
-		Mockito.when(userRepository.findByUsername(null)).thenReturn(null);
+		Mockito.when(userDAO.findByUsername(null)).thenReturn(null);
 
 		sessionService.authenticate(null, "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(0)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testAuthenticateRuntimeExceptionFindUser() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(0)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -147,14 +147,14 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = RuntimeException.class)
 	public void testAuthenticateTransactionErrorFindUser() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(0)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -163,16 +163,16 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testAuthenticateTransactionErrorLoginHistory() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(new User());
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
 		Mockito.when(userLoginHistoryDAO.saveUserLoginHistory(Mockito.any(UserLoginHistory.class)))
 				.thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(1)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(userLoginHistoryDAO);
 	}
 
@@ -182,15 +182,15 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
 	public void testAuthenticateDataAccessErrorFindUser() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(0)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -199,16 +199,16 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
 	public void testAuthenticateDataAccessErrorLoginHistory() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(new User());
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
 		Mockito.when(userLoginHistoryDAO.saveUserLoginHistory(Mockito.any(UserLoginHistory.class)))
 				.thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(1)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(userLoginHistoryDAO);
 	}
 
@@ -218,15 +218,15 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
 	public void testAuthenticateJDBCConnectionErrorFindUser() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(0)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -235,16 +235,16 @@ public class SessionServiceTest {
 	 */
 	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
 	public void testAuthenticateJDBCConnectionErrorLoginHistory() {
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(new User());
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
 		Mockito.when(userLoginHistoryDAO.saveUserLoginHistory(Mockito.any(UserLoginHistory.class)))
 				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
 		sessionService.authenticate("omonge", "test");
 
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(1)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
 
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(userLoginHistoryDAO);
 	}
 
@@ -258,7 +258,7 @@ public class SessionServiceTest {
 	public void testGenerateTokenNewSuccess() {
 		SecurityUser securityUser = createValidSecurityUser();
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(securityUser.getUsername())).thenReturn(securityUser);
-		Mockito.when(userRepository.findByUsername(securityUser.getUsername())).thenReturn(createValidUser());
+		Mockito.when(userDAO.findByUsername(securityUser.getUsername())).thenReturn(createValidUser());
 		Mockito.when(tokenUtils.generateToken(Mockito.any(SecurityUser.class))).thenReturn(TOKEN);
 
 		AuthenticationResponse response = sessionService.generateToken(securityUser.getUsername());
@@ -269,11 +269,11 @@ public class SessionServiceTest {
 		Assert.assertEquals("Vega", response.getLastName());
 
 		Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -336,17 +336,17 @@ public class SessionServiceTest {
 	public void testGenerateTokenFindUserNameTransactionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
 		sessionService.generateToken("omonge");
 
 		Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(tokenUtils, Mockito.times(0)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -357,7 +357,7 @@ public class SessionServiceTest {
 	public void testGenerateTokenFindUserNameDataAccessError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
 		sessionService.generateToken("omonge");
@@ -366,7 +366,7 @@ public class SessionServiceTest {
 		Mockito.verify(tokenUtils, Mockito.times(0)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -377,17 +377,17 @@ public class SessionServiceTest {
 	public void testGenerateTokenFindUserNameJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
-		Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
 		sessionService.generateToken("omonge");
 
 		Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(tokenUtils, Mockito.times(0)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -407,7 +407,7 @@ public class SessionServiceTest {
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -418,18 +418,18 @@ public class SessionServiceTest {
 	public void testGenerateTokenCreateTokenDataAccessError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(tokenUtils.generateToken(Mockito.any(SecurityUser.class)))
 				.thenThrow(new org.springframework.dao.DataAccessResourceFailureException(""));
 
 		sessionService.generateToken("omonge");
 
 		Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -440,18 +440,18 @@ public class SessionServiceTest {
 	public void testGenerateTokenCreateTokenJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(tokenUtils.generateToken(Mockito.any(SecurityUser.class)))
 				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
 
 		sessionService.generateToken("omonge");
 
 		Mockito.verify(userDetailsServiceImpl, Mockito.times(1)).loadUserByUsername(Mockito.anyString());
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
 
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
@@ -480,7 +480,7 @@ public class SessionServiceTest {
 				.thenReturn(createValidSecurityUser());
 		Mockito.when(tokenUtils.generateToken(securityUser)).thenReturn(TOKEN);
 		User user = createValidUser();
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
 
 		AuthenticationResponse response = sessionService.generateToken("omonge");
 
@@ -498,7 +498,7 @@ public class SessionServiceTest {
 	// @Test
 	// public void getLoginResponseSuccess() throws Exception {
 	// User user = createValidUser();
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
 	// AuthenticationResponse response =
 	// sessionService.getLoginResponse("omonge");
 	//
@@ -513,21 +513,21 @@ public class SessionServiceTest {
 	// }
 	// Assert.assertTrue(permissionsResult.equals(response.getPermissions()));
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	// @Test(expected = java.lang.NullPointerException.class)
 	// public void getLoginResponseNoUserFound() throws Exception {
 	// User user = createValidUser();
-	// Mockito.when(userRepository.findByUsername(user.getUsername())).thenReturn(user);
+	// Mockito.when(userDAO.findByUsername(user.getUsername())).thenReturn(user);
 	//
 	// sessionService.getLoginResponse("omonge1");
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -539,12 +539,12 @@ public class SessionServiceTest {
 	// public void getLoginResponseNoRoles() throws Exception {
 	// User user = createValidUser();
 	// user.setRoles(null);
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
 	// sessionService.getLoginResponse("omonge");
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -556,12 +556,12 @@ public class SessionServiceTest {
 	// public void getLoginResponseNoPermission() throws Exception {
 	// User user = createValidUser();
 	// user.getRoles().forEach(userRole -> userRole.setRole(null));
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
 	// sessionService.getLoginResponse("omonge");
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -572,12 +572,12 @@ public class SessionServiceTest {
 	 */
 	// @Test(expected = java.lang.NullPointerException.class)
 	// public void getLoginResponseNullUserName() throws Exception {
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
 	// sessionService.getLoginResponse(null);
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -589,15 +589,15 @@ public class SessionServiceTest {
 	// @Test(expected =
 	// org.springframework.transaction.CannotCreateTransactionException.class)
 	// public void getLoginResponseErrorTransaction() throws Exception {
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 	// .thenThrow(new
 	// org.springframework.transaction.CannotCreateTransactionException(""));
 	//
 	// sessionService.getLoginResponse("omonge");
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -609,15 +609,15 @@ public class SessionServiceTest {
 	// @Test(expected =
 	// org.springframework.dao.DataAccessResourceFailureException.class)
 	// public void getLoginResponseErrorDataAccess() throws Exception {
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 	// .thenThrow(new
 	// org.springframework.dao.DataAccessResourceFailureException(""));
 	//
 	// sessionService.getLoginResponse("omonge");
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -628,15 +628,15 @@ public class SessionServiceTest {
 
 	// @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
 	// public void getLoginResponseErrorJDBC() throws Exception {
-	// Mockito.when(userRepository.findByUsername(Mockito.anyString()))
+	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 	// .thenThrow(new org.hibernate.exception.JDBCConnectionException("",
 	// null));
 	//
 	// sessionService.getLoginResponse("omonge");
 	//
-	// Mockito.verify(userRepository,
+	// Mockito.verify(userDAO,
 	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userRepository);
+	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
 	/**
@@ -650,7 +650,7 @@ public class SessionServiceTest {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
 		Mockito.when(tokenUtils.generateToken(Mockito.any(SecurityUser.class))).thenReturn(NEW_TOKEN);
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(user);
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
 
 		AuthenticationResponse response = sessionService.refreshToken(TOKEN);
 
@@ -671,10 +671,10 @@ public class SessionServiceTest {
 
 		Mockito.verify(tokenUtils, Mockito.times(1)).getUsernameFromToken(Mockito.anyString());
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 
 		// Mockito.verifyNoMoreInteractions(tokenUtils);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
 	/**
@@ -686,21 +686,21 @@ public class SessionServiceTest {
 		User user = createValidUser();
 		user.setUsername(null);
 		Mockito.when(tokenUtils.generateToken(Mockito.any(SecurityUser.class))).thenReturn(NEW_TOKEN);
-		Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
 
 		sessionService.refreshToken(TOKEN);
 
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
-		Mockito.verify(userRepository, Mockito.times(1)).findByUsername(Mockito.anyString());
+		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 
 		Mockito.verifyNoMoreInteractions(tokenUtils);
-		Mockito.verifyNoMoreInteractions(userRepository);
+		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	private UserLegalEntity createValidUserLegalEntity() {
-		UserLegalEntity userLegalEntity = new UserLegalEntity();
+	private UserLegalEntityApp createValidUserLegalEntity() {
+		UserLegalEntityApp userLegalEntity = new UserLegalEntityApp();
 		userLegalEntity.setUserLegalEntityAppId(0L);
-		userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
+		// userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
 		return userLegalEntity;
 	}
 
@@ -713,10 +713,10 @@ public class SessionServiceTest {
 
 	private LegalEntityApp createValidLegalEntityApp() {
 		LegalEntityApp validLegalEntity = new LegalEntityApp();
-		UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-		Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
+		UserLegalEntityApp validUserLegalEntity = new UserLegalEntityApp();
+		Set<UserLegalEntityApp> validUserLegalEntityList = new HashSet<UserLegalEntityApp>();
 		validUserLegalEntityList.add(validUserLegalEntity);
-		validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
+		// validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
 		validLegalEntity.setLegalEntityAppName("legalEntity1");
 		validLegalEntity.setLegalEntityAppId(4321L);
 		return validLegalEntity;
@@ -771,15 +771,15 @@ public class SessionServiceTest {
 		user.setUsername("omonge");
 		user.setFirstName("Monge");
 		user.setLastName("Vega");
-		user.setUserPassword("$2a$10$WMUix294mCns20D7H.JBxeb642bVWqm5JHz6cCcQnl4Et7SvGWGSG");
+		user.setPassword("$2a$10$WMUix294mCns20D7H.JBxeb642bVWqm5JHz6cCcQnl4Et7SvGWGSG");
 
-		List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+		List<UserLegalEntityApp> userLegalEntities = new ArrayList<UserLegalEntityApp>();
 		userLegalEntities.add(createValidUserLegalEntity());
-		user.setLegalEntities(userLegalEntities);
+		// user.setLegalEntities(userLegalEntities);
 
 		List<UserRole> userRoles = new ArrayList<UserRole>();
 		userRoles.add(createValidUserRole());
-		user.setRoles(userRoles);
+		// user.setRoles(userRoles);
 
 		return user;
 	}

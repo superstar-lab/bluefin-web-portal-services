@@ -1,7 +1,6 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,12 +8,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class LegalEntityApp implements Serializable {
+public class UserLegalEntityApp implements Serializable {
 
-	private static final long serialVersionUID = 3424245887382516199L;
+	private static final long serialVersionUID = 5215039441336963323L;
 
+	private Long userLegalEntityAppId;
+	private long userId;
 	private Long legalEntityAppId;
-	private String legalEntityAppName;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -25,26 +25,24 @@ public class LegalEntityApp implements Serializable {
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
 	private String modifiedBy;
-	private Short isActive = 1;
 
-	public LegalEntityApp() {
+	public UserLegalEntityApp() {
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (!(o instanceof LegalEntityApp)) {
-			return false;
-		}
-		LegalEntityApp legalEntityApp = (LegalEntityApp) o;
-		return legalEntityAppId == legalEntityApp.legalEntityAppId
-				&& Objects.equals(legalEntityAppName, legalEntityApp.legalEntityAppName);
+	public Long getUserLegalEntityAppId() {
+		return userLegalEntityAppId;
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(legalEntityAppId, legalEntityAppName);
+	public void setUserLegalEntityAppId(Long userLegalEntityAppId) {
+		this.userLegalEntityAppId = userLegalEntityAppId;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
 	}
 
 	public Long getLegalEntityAppId() {
@@ -53,14 +51,6 @@ public class LegalEntityApp implements Serializable {
 
 	public void setLegalEntityAppId(Long legalEntityAppId) {
 		this.legalEntityAppId = legalEntityAppId;
-	}
-
-	public String getLegalEntityAppName() {
-		return legalEntityAppName;
-	}
-
-	public void setLegalEntityAppName(String legalEntityAppName) {
-		this.legalEntityAppName = legalEntityAppName;
 	}
 
 	public DateTime getDateCreated() {
@@ -85,13 +75,5 @@ public class LegalEntityApp implements Serializable {
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
-	}
-
-	public Short getIsActive() {
-		return isActive;
-	}
-
-	public void setIsActive(Short isActive) {
-		this.isActive = isActive;
 	}
 }

@@ -35,11 +35,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
@@ -895,20 +895,20 @@ public class UserRestControllerTest {
 		user.setLastName("user");
 		user.setUsername("userTest");
 
-		List<UserLegalEntity> userLegalEntities = new ArrayList<UserLegalEntity>();
+		List<UserLegalEntityApp> userLegalEntities = new ArrayList<UserLegalEntityApp>();
 		userLegalEntities.add(createValidUserLegalEntity());
-		user.setLegalEntities(userLegalEntities);
+		//user.setLegalEntities(userLegalEntities);
 
 		List<UserRole> userRoles = new ArrayList<UserRole>();
 		userRoles.add(createValidUserRole());
-		user.setRoles(userRoles);
+		//user.setRoles(userRoles);
 		return user;
 	}
 
-	private UserLegalEntity createValidUserLegalEntity() {
-		UserLegalEntity userLegalEntity = new UserLegalEntity();
+	private UserLegalEntityApp createValidUserLegalEntity() {
+		UserLegalEntityApp userLegalEntity = new UserLegalEntityApp();
 		userLegalEntity.setUserLegalEntityAppId(0L);
-		userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
+		//userLegalEntity.setLegalEntityApp(createValidLegalEntityApp());
 		return userLegalEntity;
 	}
 
@@ -921,10 +921,10 @@ public class UserRestControllerTest {
 
 	private LegalEntityApp createValidLegalEntityApp() {
 		LegalEntityApp validLegalEntity = new LegalEntityApp();
-		UserLegalEntity validUserLegalEntity = new UserLegalEntity();
-		Set<UserLegalEntity> validUserLegalEntityList = new HashSet<UserLegalEntity>();
+		UserLegalEntityApp validUserLegalEntity = new UserLegalEntityApp();
+		Set<UserLegalEntityApp> validUserLegalEntityList = new HashSet<UserLegalEntityApp>();
 		validUserLegalEntityList.add(validUserLegalEntity);
-		validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
+		//validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
 		validLegalEntity.setLegalEntityAppName("legalEntity1");
 		validLegalEntity.setLegalEntityAppId(4321l);
 		return validLegalEntity;
@@ -989,7 +989,7 @@ public class UserRestControllerTest {
 		legalEntity.setLegalEntityAppId(1234L);
 		legalEntity.setLegalEntityAppName("legalEntity1");
 		legalEntities.add(legalEntity);
-		userResource.setLegalEntityApps(legalEntities);
+		//userResource.setLegalEntityApps(legalEntities);
 		Set<Role> roles1 = new HashSet<Role>();
 		Role role = new Role();
 		role.setRoleId(4321L);
@@ -1022,6 +1022,8 @@ public class UserRestControllerTest {
 	}
 
 	private List<LegalEntityApp> createValidLegalEntityByUserName() {
-		return createValidUser().getLegalEntityApps();
+		//return createValidUser().getLegalEntityApps();
+		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		return list;
 	}
 }
