@@ -90,7 +90,7 @@ public class SessionService {
 		User user = userDAO.findByUsername(username);
 		UserLoginHistory userLoginHistory = new UserLoginHistory();
 		userLoginHistory.setUsername(username);
-		userLoginHistory.setUserPassword(passwordEncoder.encode(password));
+		userLoginHistory.setPassword(passwordEncoder.encode(password));
 
 		if (user == null) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());

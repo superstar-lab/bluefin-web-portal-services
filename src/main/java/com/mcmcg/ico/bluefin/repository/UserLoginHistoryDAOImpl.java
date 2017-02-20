@@ -57,7 +57,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 				ps.setTimestamp(3, dateCreated); // DateCreated
 				ps.setInt(4, userLoginHistory.getMessageId()); // MessageID
 				ps.setString(5, userLoginHistory.getUsername()); // UserName
-				ps.setString(6, userLoginHistory.getUserPassword()); // UserPassword
+				ps.setString(6, userLoginHistory.getPassword()); // UserPassword
 				return ps;
 			}
 		}, holder);

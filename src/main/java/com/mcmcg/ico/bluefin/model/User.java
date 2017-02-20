@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -13,7 +14,7 @@ public class User implements Serializable {
 
 	private static final long serialVersionUID = -8557780879103606219L;
 
-	private long userId;
+	private Long userId;
 	private String username;
 	private String firstName;
 	private String lastName;
@@ -43,11 +44,30 @@ public class User implements Serializable {
 	public User() {
 	}
 
-	public long getUserId() {
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof User)) {
+			return false;
+		}
+		User user = (User) o;
+		return userId == user.userId && Objects.equals(username, user.username)
+				&& Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName)
+				&& isActive == user.isActive && Objects.equals(email, user.email)
+				&& Objects.equals(password, user.password) && Objects.equals(status, user.status);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userId, username, firstName, lastName, isActive, password, status);
+	}
+
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

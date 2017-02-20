@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,9 +38,27 @@ public class UserLoginHistory implements Serializable {
 	private Integer messageId;
 	private String username;
 	@JsonIgnore
-	private String userPassword;
+	private String password;
 
 	public UserLoginHistory() {
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof UserLoginHistory)) {
+			return false;
+		}
+		UserLoginHistory userLoginHistory = (UserLoginHistory) o;
+		return userLoginHistoryId == userLoginHistory.userLoginHistoryId && userId == userLoginHistory.userId
+				&& messageId == userLoginHistory.messageId && Objects.equals(username, userLoginHistory.username)
+				&& Objects.equals(password, userLoginHistory.password);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userLoginHistoryId, userId, messageId, username, password);
 	}
 
 	public Long getUserLoginHistoryId() {
@@ -90,11 +109,11 @@ public class UserLoginHistory implements Serializable {
 		this.username = username;
 	}
 
-	public String getUserPassword() {
-		return userPassword;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 }

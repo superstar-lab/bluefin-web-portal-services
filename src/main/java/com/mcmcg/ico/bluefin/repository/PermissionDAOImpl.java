@@ -44,9 +44,9 @@ public class PermissionDAOImpl implements PermissionDAO {
 		permission = DataAccessUtils.singleResult(list);
 
 		if (permission != null) {
-			LOGGER.info("Found Permission for permissionId: " + permissionId);
+			LOGGER.debug("Found Permission for permissionId: " + permissionId);
 		} else {
-			LOGGER.info("Permission not found for permissionId: " + permissionId);
+			LOGGER.debug("Permission not found for permissionId: " + permissionId);
 		}
 
 		return permission;
@@ -62,9 +62,9 @@ public class PermissionDAOImpl implements PermissionDAO {
 		permission = DataAccessUtils.singleResult(list);
 
 		if (permission != null) {
-			LOGGER.info("Found Permission for permissionName: " + permissionName);
+			LOGGER.debug("Found Permission for permissionName: " + permissionName);
 		} else {
-			LOGGER.info("Permission not found for permissionName: " + permissionName);
+			LOGGER.debug("Permission not found for permissionName: " + permissionName);
 		}
 
 		return permission;
@@ -103,7 +103,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 		Long id = holder.getKey().longValue();
 		permission.setPermissionId(id);
-		LOGGER.info("Saved permission - id: " + id);
+		LOGGER.debug("Saved permission - id: " + id);
 
 		return id;
 	}
@@ -119,8 +119,6 @@ class PermissionRowMapper implements RowMapper<Permission> {
 		permission.setDescription(rs.getString("Description"));
 		permission.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		permission.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-																					// in
-																					// database!
 		permission.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return permission;

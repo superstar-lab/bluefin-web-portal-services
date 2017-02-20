@@ -39,6 +39,9 @@ public interface Queries {
 	String deleteLegalEntityApp = "DELETE FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	String saveLegalEntityApp = "INSERT INTO LegalEntityApp_Lookup (LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive) VALUES (?,?,?,?,?)";
 	String updateLegalEntityApp = "UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?";
+	String findAllReconciliationStatuses = "SELECT ReconciliationStatusID, ReconciliationStatus, Description, DateCreated, DateModified, ModifiedBy FROM ReconciliationStatus_Lookup";
+	String findReconciliationStatusByReconciliationStatusId = "SELECT ReconciliationStatusID, ReconciliationStatus, Description, DateCreated, DateModified, ModifiedBy FROM ReconciliationStatus_Lookup WHERE ReconciliationStatusID = ?";
+	String findReconciliationStatusByReconciliationStatus = "SELECT ReconciliationStatusID, ReconciliationStatus, Description, DateCreated, DateModified, ModifiedBy FROM ReconciliationStatus_Lookup WHERE ReconciliationStatus = ?";
 	String findAllUsers = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup";
 	String findUserByUserId = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE UserID = ?";
 	String findUserByUsername = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE UserName = ?";

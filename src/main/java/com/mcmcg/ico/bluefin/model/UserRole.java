@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +28,22 @@ public class UserRole implements Serializable {
 	private String modifiedBy;
 
 	public UserRole() {
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof UserRole)) {
+			return false;
+		}
+		UserRole userRole = (UserRole) o;
+		return userRoleId == userRole.userRoleId && userId == userRole.userId && roleId == userRole.roleId;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(userRoleId, userId, roleId);
 	}
 
 	public Long getUserRoleId() {

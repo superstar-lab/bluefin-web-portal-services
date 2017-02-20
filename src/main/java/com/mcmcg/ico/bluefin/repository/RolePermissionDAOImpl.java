@@ -46,9 +46,9 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 		rolePermission = DataAccessUtils.singleResult(list);
 
 		if (rolePermission != null) {
-			LOGGER.info("Found RolePermission for rolePermissionId: " + rolePermissionId);
+			LOGGER.debug("Found RolePermission for rolePermissionId: " + rolePermissionId);
 		} else {
-			LOGGER.info("RolePermission not found for rolePermissionId: " + rolePermissionId);
+			LOGGER.debug("RolePermission not found for rolePermissionId: " + rolePermissionId);
 		}
 
 		return rolePermission;
@@ -60,7 +60,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 				Queries.findRolePermissionByRoleId, new Object[] { roleId },
 				new RowMapperResultSetExtractor<RolePermission>(new RolePermissionRowMapper()));
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -98,7 +98,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 
 		Long id = holder.getKey().longValue();
 		rolePermission.setRolePermissionId(id);
-		LOGGER.info("Saved rolePermission - id: " + id);
+		LOGGER.debug("Saved rolePermission - id: " + id);
 
 		return id;
 	}
@@ -114,8 +114,6 @@ class RolePermissionRowMapper implements RowMapper<RolePermission> {
 		rolePermission.setPermissionId(rs.getLong("PermissionID"));
 		rolePermission.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		rolePermission.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-		// in
-		// database!
 		rolePermission.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return rolePermission;

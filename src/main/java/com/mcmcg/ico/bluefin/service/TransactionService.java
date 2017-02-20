@@ -25,21 +25,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
-import com.mcmcg.ico.bluefin.persistent.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.RefundTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.VoidTransactionRepository;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
@@ -79,7 +79,7 @@ public class TransactionService {
 	@Autowired
 	private PaymentProcessorRepository paymentProcessorRepository;
 	@Autowired
-	private ReconciliationStatusRepository reconciliationStatusRepository;
+	private ReconciliationStatusDAO reconciliationStatusDAO;
 	@Autowired
 	private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
 	@Autowired
@@ -400,7 +400,7 @@ public class TransactionService {
 
 			// Create ReconciliationStatus hashmap
 			Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
-			List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusRepository.findAll();
+			List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusDAO.findAll();
 			for (ReconciliationStatus rs : reconciliationStatusList) {
 				reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
 			}

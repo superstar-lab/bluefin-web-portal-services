@@ -83,8 +83,6 @@ class TransactionTypeRowMapper implements RowMapper<TransactionType> {
 		transactionType.setDescription(rs.getString("Description"));
 		transactionType.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		transactionType.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-																							// in
-																							// database!
 		transactionType.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return transactionType;

@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +28,23 @@ public class RolePermission implements Serializable {
 	private String modifiedBy;
 
 	public RolePermission() {
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof RolePermission)) {
+			return false;
+		}
+		RolePermission rolePermission = (RolePermission) o;
+		return rolePermissionId == rolePermission.rolePermissionId && roleId == rolePermission.roleId
+				&& permissionId == rolePermission.permissionId;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(rolePermissionId, roleId, permissionId);
 	}
 
 	public Long getRolePermissionId() {

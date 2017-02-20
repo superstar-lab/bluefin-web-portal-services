@@ -18,8 +18,8 @@ import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRemittanceRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.ReconciliationStatusRepository;
 import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
+import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
 @Service
@@ -33,7 +33,7 @@ public class PaymentProcessorRemittanceService {
 	@Autowired
 	private PaymentProcessorRepository paymentProcessorRepository;
 	@Autowired
-	private ReconciliationStatusRepository reconciliationStatusRepository;
+	private ReconciliationStatusDAO reconciliationStatusDAO;
 	@Autowired
 	private PaymentProcessorRemittanceRepository paymentProcessorRemittanceRepository;
 
@@ -176,8 +176,8 @@ public class PaymentProcessorRemittanceService {
 	 * @return reconciliationStatusId
 	 */
 	public String getReconciliationStatusId(String reconciliationStatus) {
-		return reconciliationStatusRepository.findByReconciliationStatus(reconciliationStatus)
-				.getReconciliationStatusId().toString();
+		return reconciliationStatusDAO.findByReconciliationStatus(reconciliationStatus).getReconciliationStatusId()
+				.toString();
 	}
 
 	/**

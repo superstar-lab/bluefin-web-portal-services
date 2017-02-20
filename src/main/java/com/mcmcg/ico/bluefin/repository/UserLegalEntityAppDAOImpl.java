@@ -31,7 +31,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 				Queries.findUserLegalEntityAppByUserId, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserLegalEntityApp>(new UserLegalEntityAppRowMapper()));
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -47,8 +47,6 @@ class UserLegalEntityAppRowMapper implements RowMapper<UserLegalEntityApp> {
 		userLegalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
 		userLegalEntityApp.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		userLegalEntityApp.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-		// in
-		// database!
 		userLegalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return userLegalEntityApp;

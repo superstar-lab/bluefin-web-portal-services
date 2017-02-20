@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort.Order;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.PropertyService;
@@ -53,7 +54,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 	private PaymentProcessorRepository paymentProcessorRepository;
 
 	@Autowired
-	private ReconciliationStatusRepository reconciliationStatusRepository;
+	private ReconciliationStatusDAO reconciliationStatusDAO;
 
 	@Autowired
 	private PropertyService propertyService;
@@ -689,7 +690,7 @@ class SaleTransactionRepositoryImpl implements TransactionRepositoryCustom {
 		String testOrProd = propertyService.getPropertyValue("TEST_OR_PROD");
 		StringBuilder querySbPart1 = new StringBuilder();
 		// Get reconciliationStatudId for "Missing from Remit"
-		String statusId = reconciliationStatusRepository.findByReconciliationStatus("Missing from Remit")
+		String statusId = reconciliationStatusDAO.findByReconciliationStatus("Missing from Remit")
 				.getReconciliationStatusId().toString();
 		querySbPart1.append(getPaymentProcessorRemittanceAndSaleQuery());
 		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");

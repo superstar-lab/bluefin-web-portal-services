@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,6 +39,27 @@ public class TransactionType implements Serializable {
 	private DateTime dateModified;
 	@JsonIgnore
 	private String modifiedBy;
+
+	public TransactionType() {
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof TransactionType)) {
+			return false;
+		}
+		TransactionType transactionType = (TransactionType) o;
+		return transactionTypeId == transactionType.transactionTypeId
+				&& Objects.equals(transactionType, transactionType.transactionType)
+				&& Objects.equals(description, transactionType.description);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(transactionTypeId, transactionType, description);
+	}
 
 	public Long getTransactionTypeId() {
 		return transactionTypeId;

@@ -43,7 +43,7 @@ public class RoleDAOImpl implements RoleDAO {
 	public List<Role> findAll() {
 		List<Role> list = jdbcTemplate.query(Queries.findAllRoles, new RoleRowMapper());
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -54,7 +54,7 @@ public class RoleDAOImpl implements RoleDAO {
 		Map<String, List<Long>> map = Collections.singletonMap("roleIds", roleIds);
 		List<Role> list = namedParameterJdbcTemplate.query(Queries.findAllRolesByIds, map, new RoleRowMapper());
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -68,9 +68,9 @@ public class RoleDAOImpl implements RoleDAO {
 		role = DataAccessUtils.singleResult(list);
 
 		if (role != null) {
-			LOGGER.info("Found Role for roleId: " + roleId);
+			LOGGER.debug("Found Role for roleId: " + roleId);
 		} else {
-			LOGGER.info("Role not found for roleId: " + roleId);
+			LOGGER.debug("Role not found for roleId: " + roleId);
 		}
 
 		return role;
@@ -85,9 +85,9 @@ public class RoleDAOImpl implements RoleDAO {
 		role = DataAccessUtils.singleResult(list);
 
 		if (role != null) {
-			LOGGER.info("Found Role for roleName: " + roleName);
+			LOGGER.debug("Found Role for roleName: " + roleName);
 		} else {
-			LOGGER.info("Role not found for roleName: " + roleName);
+			LOGGER.debug("Role not found for roleName: " + roleName);
 		}
 
 		return role;
@@ -125,7 +125,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 		Long id = holder.getKey().longValue();
 		role.setRoleId(id);
-		LOGGER.info("Saved role - id: " + id);
+		LOGGER.debug("Saved role - id: " + id);
 
 		return id;
 	}
@@ -135,7 +135,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 		int rows = jdbcTemplate.update(Queries.deleteRoleByRoleName, new Object[] { roleName });
 
-		LOGGER.info("Deleted role with roleName: " + roleName + ", rows affected = " + rows);
+		LOGGER.debug("Deleted role with roleName: " + roleName + ", rows affected = " + rows);
 
 		return rows;
 	}
@@ -151,8 +151,6 @@ class RoleRowMapper implements RowMapper<Role> {
 		role.setDescription(rs.getString("Description"));
 		role.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		role.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-																				// in
-																				// database!
 		role.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return role;

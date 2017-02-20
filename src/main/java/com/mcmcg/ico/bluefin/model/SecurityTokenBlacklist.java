@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 
@@ -10,21 +11,38 @@ public class SecurityTokenBlacklist implements Serializable {
 
 	private static final long serialVersionUID = 8371299620284629918L;
 
-	private long tokenId;
+	private Long tokenId;
 	private String token;
 	private String type;
-	private long userId;
+	private Long userId;
 	@JsonIgnore
 	private DateTime dateCreated = new DateTime();
 
 	public SecurityTokenBlacklist() {
 	}
 
-	public long getTokenId() {
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof SecurityTokenBlacklist)) {
+			return false;
+		}
+		SecurityTokenBlacklist securityTokenBlacklist = (SecurityTokenBlacklist) o;
+		return tokenId == securityTokenBlacklist.tokenId && Objects.equals(token, securityTokenBlacklist.token)
+				&& Objects.equals(type, securityTokenBlacklist.type) && userId == securityTokenBlacklist.userId;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(tokenId, token, type, userId);
+	}
+
+	public Long getTokenId() {
 		return tokenId;
 	}
 
-	public void setTokenId(long tokenId) {
+	public void setTokenId(Long tokenId) {
 		this.tokenId = tokenId;
 	}
 
@@ -44,11 +62,11 @@ public class SecurityTokenBlacklist implements Serializable {
 		this.type = type;
 	}
 
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 

@@ -44,7 +44,7 @@ public class UserDAOImpl implements UserDAO {
 	public List<User> findAll() {
 		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -53,7 +53,7 @@ public class UserDAOImpl implements UserDAO {
 	public Page<User> findAll(BooleanExpression expression, PageRequest pageRequest) {
 		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		int countResult = list.size();
 		int pageNumber = pageRequest.getPageNumber();
@@ -85,9 +85,9 @@ public class UserDAOImpl implements UserDAO {
 		user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
-			LOGGER.info("Found User for userId: " + userId);
+			LOGGER.debug("Found User for userId: " + userId);
 		} else {
-			LOGGER.info("User not found for userId: " + userId);
+			LOGGER.debug("User not found for userId: " + userId);
 		}
 
 		return user;
@@ -102,9 +102,9 @@ public class UserDAOImpl implements UserDAO {
 		user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
-			LOGGER.info("Found User for username: " + username);
+			LOGGER.debug("Found User for username: " + username);
 		} else {
-			LOGGER.info("User not found for username: " + username);
+			LOGGER.debug("User not found for username: " + username);
 		}
 
 		return user;
@@ -119,9 +119,9 @@ public class UserDAOImpl implements UserDAO {
 		user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
-			LOGGER.info("Found User for email: " + email);
+			LOGGER.debug("Found User for email: " + email);
 		} else {
-			LOGGER.info("User not found for email: " + email);
+			LOGGER.debug("User not found for email: " + email);
 		}
 
 		return user;
@@ -170,7 +170,7 @@ public class UserDAOImpl implements UserDAO {
 
 		Long id = holder.getKey().longValue();
 		user.setUserId(id);
-		LOGGER.info("Saved user - id: " + id);
+		LOGGER.debug("Saved user - id: " + id);
 
 		return id;
 	}
@@ -199,7 +199,7 @@ public class UserDAOImpl implements UserDAO {
 						lastLogin, dateCreated, dateUpdated, user.getEmail(), user.getPassword(), dateModified,
 						modifiedBy, user.getStatus(), user.getUserId() });
 
-		LOGGER.info("Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
+		LOGGER.debug("Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
 
 		return rows;
 	}
@@ -208,7 +208,7 @@ public class UserDAOImpl implements UserDAO {
 	public int deleteByUsername(String username) {
 		int rows = jdbcTemplate.update(Queries.deleteUserByUsername, new Object[] { username });
 
-		LOGGER.info("Deleted user with username: " + username + ", rows affected = " + rows);
+		LOGGER.debug("Deleted user with username: " + username + ", rows affected = " + rows);
 
 		return rows;
 	}

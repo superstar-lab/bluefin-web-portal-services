@@ -114,7 +114,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 		Long id = holder.getKey().longValue();
 		legalEntityApp.setLegalEntityAppId(id);
-		LOGGER.info("Created legalEntityAppId: " + id);
+		LOGGER.debug("Created legalEntityAppId: " + id);
 
 		return legalEntityApp;
 	}
@@ -155,7 +155,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			}
 		}, holder);
 
-		LOGGER.info("Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
+		LOGGER.debug("Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
 
 		return legalEntityApp;
 	}
@@ -170,8 +170,6 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 		legalEntityApp.setLegalEntityAppName(rs.getString("LegalEntityAppName"));
 		legalEntityApp.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		legalEntityApp.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-		// in
-		// database!
 		legalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
 		legalEntityApp.setIsActive(rs.getShort("IsActive"));
 

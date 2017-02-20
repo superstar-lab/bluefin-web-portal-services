@@ -9,13 +9,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class UserLegalEntityApp implements Serializable {
+public class ReconciliationStatus implements Serializable {
 
-	private static final long serialVersionUID = 5215039441336963323L;
+	private static final long serialVersionUID = 4957286211246187153L;
 
-	private Long userLegalEntityAppId;
-	private Long userId;
-	private Long legalEntityAppId;
+	private Long reconciliationStatusId;
+	private String reconciliationStatus;
+	private String description;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -27,48 +27,49 @@ public class UserLegalEntityApp implements Serializable {
 	@JsonIgnore
 	private String modifiedBy;
 
-	public UserLegalEntityApp() {
+	public ReconciliationStatus() {
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (o == this)
 			return true;
-		if (!(o instanceof UserLegalEntityApp)) {
+		if (!(o instanceof ReconciliationStatus)) {
 			return false;
 		}
-		UserLegalEntityApp userLegalEntityApp = (UserLegalEntityApp) o;
-		return userLegalEntityAppId == userLegalEntityApp.userLegalEntityAppId && userId == userLegalEntityApp.userId
-				&& legalEntityAppId == userLegalEntityApp.legalEntityAppId;
+		ReconciliationStatus reconciliationStatus = (ReconciliationStatus) o;
+		return reconciliationStatusId == reconciliationStatus.reconciliationStatusId
+				&& Objects.equals(reconciliationStatus, reconciliationStatus.reconciliationStatus)
+				&& Objects.equals(description, reconciliationStatus.description);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(userLegalEntityAppId, userId, legalEntityAppId);
+		return Objects.hash(reconciliationStatusId, reconciliationStatus, description);
 	}
 
-	public Long getUserLegalEntityAppId() {
-		return userLegalEntityAppId;
+	public Long getReconciliationStatusId() {
+		return reconciliationStatusId;
 	}
 
-	public void setUserLegalEntityAppId(Long userLegalEntityAppId) {
-		this.userLegalEntityAppId = userLegalEntityAppId;
+	public void setReconciliationStatusId(Long reconciliationStatusId) {
+		this.reconciliationStatusId = reconciliationStatusId;
 	}
 
-	public Long getUserId() {
-		return userId;
+	public String getReconciliationStatus() {
+		return reconciliationStatus;
 	}
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
+	public void setReconciliationStatus(String reconciliationStatus) {
+		this.reconciliationStatus = reconciliationStatus;
 	}
 
-	public Long getLegalEntityAppId() {
-		return legalEntityAppId;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setLegalEntityAppId(Long legalEntityAppId) {
-		this.legalEntityAppId = legalEntityAppId;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public DateTime getDateCreated() {

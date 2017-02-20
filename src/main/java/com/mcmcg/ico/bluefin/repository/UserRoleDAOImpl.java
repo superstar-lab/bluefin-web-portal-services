@@ -30,7 +30,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByUserId,
 				new Object[] { userId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -40,7 +40,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByRoleId,
 				new Object[] { roleId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
 
-		LOGGER.info("Number of rows: " + list.size());
+		LOGGER.debug("Number of rows: " + list.size());
 
 		return list;
 	}
@@ -56,8 +56,6 @@ class UserRoleRowMapper implements RowMapper<UserRole> {
 		userRole.setRoleId(rs.getLong("RoleID"));
 		userRole.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
 		userRole.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
-																					// in
-																					// database!
 		userRole.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return userRole;

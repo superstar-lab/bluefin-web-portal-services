@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.joda.time.DateTime;
 
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Property implements Serializable {
 
 	private static final long serialVersionUID = -3090586532808240374L;
+
 	private Long applicationPropertyId;
 	private String applicationPropertyName;
 	private String applicationPropertyValue;
@@ -23,6 +25,26 @@ public class Property implements Serializable {
 	private String modifiedBy;
 
 	public Property() {
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Property)) {
+			return false;
+		}
+		Property property = (Property) o;
+		return applicationPropertyId == property.applicationPropertyId
+				&& Objects.equals(applicationPropertyName, property.applicationPropertyName)
+				&& Objects.equals(applicationPropertyValue, property.applicationPropertyValue)
+				&& Objects.equals(dataType, property.dataType) && Objects.equals(description, property.description);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(applicationPropertyId, applicationPropertyName, applicationPropertyValue, dataType,
+				description);
 	}
 
 	public Long getApplicationPropertyId() {
