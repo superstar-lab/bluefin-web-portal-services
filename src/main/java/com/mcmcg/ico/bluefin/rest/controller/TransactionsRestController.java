@@ -18,13 +18,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.SaleTransaction;
+import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
-import com.mcmcg.ico.bluefin.persistent.Transaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
+import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -86,12 +87,12 @@ public class TransactionsRestController {
 
 		LOGGER.info("Generating report with the following filters: {}", search);
 
-		QueryDSLUtil.createExpression(search, SaleTransaction.class);
+		String expression = QueryUtil.createExpression(search);
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(search, QueryDSLUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(expression, QueryDSLUtil.getPageRequest(page, size, sort)));
 	}
 }

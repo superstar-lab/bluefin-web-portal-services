@@ -25,8 +25,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -60,14 +60,14 @@ public class TransactionsRestControllerTest {
 
 		DateTime date = new DateTime(1465322756555L);
 		SaleTransaction result = new SaleTransaction();
-		result.setAccountNumber("67326509");
-		result.setAmount(new BigDecimal(4592.36));
+		result.setAccountId("67326509");
+		result.setChargeAmount(new BigDecimal(4592.36));
 		result.setCardNumberLast4Char("5162");
 		// result.setCreatedDate(date);
 		result.setFirstName("Natalia");
 		result.setLastName("Quiros");
-		result.setLegalEntity("MCM-R2K");
-		result.setProcessorName("JETPAY");
+		result.setLegalEntityApp("MCM-R2K");
+		result.setProcessor("JETPAY");
 		result.setApplicationTransactionId("532673163");
 		result.setInternalStatusCode("1");
 		result.setTransactionType("SALE");
