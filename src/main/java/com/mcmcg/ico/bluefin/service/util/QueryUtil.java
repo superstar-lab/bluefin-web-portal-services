@@ -2,7 +2,9 @@ package com.mcmcg.ico.bluefin.service.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -63,6 +65,29 @@ public class QueryUtil {
 		}
 
 		return sb.toString();
+	}
+
+	public static Map<String, String> convertSearchToMap(String search) {
+
+		Map<String, String> parameterMap = new HashMap<String, String>();
+
+		if (search != null) {
+			Pattern pattern = Pattern.compile(SEARCH_REGEX);
+			Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
+			while (matcher.find()) {
+				if (matcher.group(2).equals(":")) {
+					parameterMap.put(matcher.group(1), matcher.group(3));
+				}
+				if (matcher.group(2).equals(">")) {
+					parameterMap.put(matcher.group(1) + "Start", matcher.group(3));
+				}
+				if (matcher.group(2).equals("<")) {
+					parameterMap.put(matcher.group(1) + "End", matcher.group(3));
+				}
+			}
+		}
+
+		return parameterMap;
 	}
 
 	public static PageRequest getPageRequest(int page, int size, String sort) {
