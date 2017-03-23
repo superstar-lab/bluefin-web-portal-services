@@ -26,7 +26,6 @@ import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -82,7 +81,7 @@ public class TransactionsRestController {
 
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+			search = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 		}
 
 		LOGGER.info("Generating report with the following filters: {}", search);
@@ -93,6 +92,6 @@ public class TransactionsRestController {
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(expression, QueryDSLUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(expression, QueryUtil.getPageRequest(page, size, sort)));
 	}
 }

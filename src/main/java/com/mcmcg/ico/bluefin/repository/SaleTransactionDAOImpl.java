@@ -102,8 +102,8 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException {
-		String query = Queries.findAllSaleTransactions + " WHERE " + search;
-		List<SaleTransaction> list = jdbcTemplate.query(query, new SaleTransactionRowMapper());
+		String sql = Queries.findAllSaleTransactions + " WHERE " + search;
+		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
 
 		LOGGER.debug("Number of rows: " + list.size());
 
@@ -130,8 +130,8 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
-		String query = Queries.findAllSaleTransactions + " WHERE " + search;
-		List<SaleTransaction> list = jdbcTemplate.query(query, new SaleTransactionRowMapper());
+		String sql = Queries.findAllSaleTransactions + " WHERE " + search;
+		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
 
 		LOGGER.debug("Number of rows: " + list.size());
 
@@ -164,7 +164,7 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setLegalEntityApp(rs.getString("LegalEntityApp"));
 		saleTransaction.setAccountId(rs.getString("AccountId"));
 		saleTransaction.setApplicationTransactionId(rs.getString("ApplicationTransactionID"));
-		saleTransaction.setMerchantId(rs.getString("merchantID"));
+		saleTransaction.setMerchantId(rs.getString("MerchantID"));
 		saleTransaction.setProcessor(rs.getString("Processor"));
 		saleTransaction.setApplication(rs.getString("Application"));
 		saleTransaction.setOrigin(rs.getString("Origin"));
