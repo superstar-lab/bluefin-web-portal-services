@@ -63,4 +63,25 @@ public interface Queries {
 	String findUserLegalEntityAppByUserId = "SELECT UserLegalEntityAppID, UserID, LegalEntityAppID, DateCreated, DatedModified, ModifiedBy FROM User_LegalEntityApp WHERE UserID = ?";
 	String findUserRoleByUserId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE UserID = ?";
 	String findUserRoleByRoleId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE RoleID = ?";
+	String findPaymentProcessorById = "SELECT PaymentProcessorID, ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime FROM PaymentProcessor_Lookup WHERE PaymentProcessorID = ?";
+	String findPaymentProcessorByName = "SELECT PaymentProcessorID, ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime FROM PaymentProcessor_Lookup WHERE ProcessorName = ?";
+	String findPaymentProcessorRuleById= "SELECT PaymentProcessorRuleID, PaymentProcessorID, CardType, MaximumMonthlyAmount, NoMaximumMonthlyAmountFlag, Priority, MonthToDateCumulativeAmount, CurrentYear,CurrentMonth,DateCreated,ModifiedBy FROM PaymentProcessor_Rule WHERE PaymentProcessorID = ?";
+	String findPaymentProcessorMerchantsById= "SELECT PaymentProcessorMerchantID, LegalEntityAppID, PaymentProcessorID, TestOrProd, MerchantID, DateCreated, DatedModified, ModifiedBy FROM PaymentProcessor_Merchant WHERE PaymentProcessorID = ?";
+	String findAllPaymentProcessors = "SELECT PaymentProcessorID, ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime FROM PaymentProcessor_Lookup";	
+	String findPaymentProcessorResponseCodeByCodeId = "SELECT PaymentProcessorResponseCodeID, PaymentProcessorID, PaymentProcessorResponseCode,TransactionType,PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorResponseCode_Lookup WHERE TransactionType=? AND PaymentProcessorResponseCode=? AND PaymentProcessorID=?";
+	String findPaymentProcessorResponseCodeByTypeId = "SELECT PaymentProcessorResponseCodeID, PaymentProcessorID, PaymentProcessorResponseCode,TransactionType,PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorResponseCode_Lookup WHERE TransactionType=? AND PaymentProcessorID=?";
+	String findPaymentProcessorStatusCodeByCodeId = "SELECT PaymentProcessorStatusCodeID, PaymentProcessorID, PaymentProcessorStatusCode,TransactionType,PaymentProcessorStatusDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorStatusCode_Lookup WHERE TransactionType=? AND PaymentProcessorStatusCode=? AND PaymentProcessorID=?";
+	String findPaymentProcessorStatusCodeByTypeId = "SELECT PaymentProcessorStatusCodeID, PaymentProcessorID, PaymentProcessorStatusCode,TransactionType,PaymentProcessorStatusDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorStatusCode_Lookup WHERE TransactionType=? AND PaymentProcessorID=?";
+	String findPaymentProcessorStatusCodeById = "SELECT PaymentProcessorStatusCodeID, PaymentProcessorID, PaymentProcessorStatusCode,TransactionType,PaymentProcessorStatusDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorStatusCode_Lookup WHERE TransactionType=? AND PaymentProcessorStatusCodeID =?";
+	String findPaymentProcessorSatusCodesByPPId = "SELECT PaymentProcessorStatusCodeID, PaymentProcessorID, PaymentProcessorStatusCode,TransactionType,PaymentProcessorStatusDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorStatusCode_Lookup WHERE PaymentProcessorID =?";
+	String findAllPaymentProcessorsByIds = "SELECT PaymentProcessorID, ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime FROM PaymentProcessor_Lookup WHERE PaymentProcessorID IN (:paymentProcessorIds)";
+	String savePaymentProcessors = "INSERT INTO PaymentProcessor_Lookup (ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime) VALUES (?, ?, ?, ?, ?, ?, ?)";	
+	String savePaymentProcessorRules = "INSERT INTO PaymentProcessor_Rule ( PaymentProcessorID, DateCreated,ModifiedBy) VALUES (?,?,?)";
+	String deletePaymentProcessorByID = "DELETE FROM PaymentProcessor_Lookup WHERE PaymentProcessorID = ?";
+	String deletePaymentProcessorMerchantByProcId = "DELETE FROM PaymentProcessor_Merchant WHERE PaymentProcessorID = ?";
+	String deletePaymentProcessorRules = "DELETE FROM PaymentProcessor_Rule WHERE PaymentProcessorID =?";
+	String deletePaymentProcessorMerchants = "DELETE FROM PaymentProcessor_Merchant WHERE PaymentProcessorID =?";
+	String deletePaymentProcessorStatusCodeByID = "DELETE FROM PaymentProcessorStatusCode_Lookup WHERE PaymentProcessorID =?";
+	String deletePaymentProcessorResponseCodeByID = "DELETE FROM PaymentProcessorResponseCode_Lookup WHERE PaymentProcessorID =?";
+	String deletePaymentProcessorStatusCodes = "DELETE FROM PaymentProcessorStatusCode_Lookup WHERE PaymentProcessorStatusCodeID IN (:paymentProcessorStatusCodes)";
 }

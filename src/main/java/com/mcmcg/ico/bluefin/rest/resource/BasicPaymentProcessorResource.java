@@ -1,18 +1,17 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
-import java.io.Serializable;
 import java.sql.Time;
 
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.NotBlank;
-
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import lombok.Data;
 
 @Data
-public class BasicPaymentProcessorResource implements Serializable {
+public class BasicPaymentProcessorResource {
     private static final long serialVersionUID = -602175101416750669L;
 
     @NotBlank(message = "Please provide a processor name")
@@ -21,14 +20,17 @@ public class BasicPaymentProcessorResource implements Serializable {
     private Short isActive = 0;
     private Time remitTransactionOpenTime;
     private Time remitTransactionCloseTime;
+    private String lastModifiedBy;
     
-    public PaymentProcessor toPaymentProcessor() {
-        PaymentProcessor paymentProcessor = new PaymentProcessor();
+    public com.mcmcg.ico.bluefin.model.PaymentProcessor toPaymentProcessor() {
+    	com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = new com.mcmcg.ico.bluefin.model.PaymentProcessor();
         paymentProcessor.setProcessorName(processorName);
         paymentProcessor.setIsActive(isActive);
         paymentProcessor.setRemitTransactionOpenTime(remitTransactionOpenTime);
         paymentProcessor.setRemitTransactionCloseTime(remitTransactionCloseTime);
-
+        paymentProcessor.setCreatedDate(DateTime.now(DateTimeZone.UTC));
+        paymentProcessor.setModifiedDate(DateTime.now(DateTimeZone.UTC));
+        paymentProcessor.setLastModifiedBy(lastModifiedBy);
         return paymentProcessor;
     }
 }

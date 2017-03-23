@@ -39,9 +39,9 @@ public class PaymentProcessorRuleService {
      * @return
      */
     public PaymentProcessorRule createPaymentProcessorRule(final long processorId,
-            PaymentProcessorRule paymentProcessorRule) {
+            PaymentProcessorRule paymentProcessorRule) {/*
         // Verify if payment processor exists
-        PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
+    	com.mcmcg.ico.bluefin.model.PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
 
         // Payment processor must has merchants associate to it
         if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
@@ -58,7 +58,7 @@ public class PaymentProcessorRuleService {
         paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
         paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
         return paymentProcessorRuleRepository.save(paymentProcessorRule);
-    }
+  */return null;}
 
     /**
      * Update existing payment processor rule
@@ -73,7 +73,7 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule is not found
      */
     public PaymentProcessorRule updatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
-            long processorId) {
+            long processorId) {/*
 
         PaymentProcessorRule paymentProcessorRuleToUpdate = getPaymentProcessorRule(
                 paymentProcessorRule.getPaymentProcessorRuleId());
@@ -91,7 +91,7 @@ public class PaymentProcessorRuleService {
         paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
 
         return paymentProcessorRuleToUpdate;
-    }
+    */return null;}
 
     /**
      * Get all payment processor rules
@@ -129,7 +129,7 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor doesn't exist
      */
-    public List<PaymentProcessorRule> getPaymentProcessorRulesByPaymentProcessorId(final long id) {
+    public List<PaymentProcessorRule> getPaymentProcessorRulesByPaymentProcessorId(final long id) {/*
         // Verify if processor exists
         PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(id);
 
@@ -137,7 +137,7 @@ public class PaymentProcessorRuleService {
                 .findByPaymentProcessor(loadedPaymentProcessor);
 
         return paymentProcessorRules == null ? new ArrayList<PaymentProcessorRule>(0) : paymentProcessorRules;
-    }
+    */return null;}
 
     /**
      * Delete payment processor rule by id

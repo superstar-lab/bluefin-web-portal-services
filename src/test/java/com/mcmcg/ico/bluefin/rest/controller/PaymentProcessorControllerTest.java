@@ -73,7 +73,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testGetPaymentProcessor() throws Exception { // 200
-        Mockito.when(paymentProcessorService.getPaymentProcessorById(1L)).thenReturn(createValidPaymentProcessor());
+       /// Mockito.when(paymentProcessorService.getPaymentProcessorById(1L)).thenReturn(createValidPaymentProcessor());
 
         mockMvc.perform(get(API + "/{id}", 1L).principal(auth)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.paymentProcessorId").value(1))
@@ -119,7 +119,7 @@ public class PaymentProcessorControllerTest {
      */
     @Test
     public void testGetPaymentProcessors() throws Exception { // 200
-        Mockito.when(paymentProcessorService.getPaymentProcessors()).thenReturn(getValidPaymentProcessorList());
+        //Mockito.when(paymentProcessorService.getPaymentProcessors()).thenReturn(getValidPaymentProcessorList());
 
         mockMvc.perform(get(API).principal(auth).param("search", "").param("page", "0").param("size", "1"))
                 .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -160,7 +160,7 @@ public class PaymentProcessorControllerTest {
     @Test
     public void testCreatePaymentProcessor() throws Exception { // 201
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
-        PaymentProcessor newPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
+        com.mcmcg.ico.bluefin.model.PaymentProcessor newPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
         newPaymentProcessor.setPaymentProcessorId(1L);
         Mockito.when(paymentProcessorService.createPaymentProcessor(paymentProcessorResource))
                 .thenReturn(newPaymentProcessor);
@@ -225,7 +225,7 @@ public class PaymentProcessorControllerTest {
     @Test
     public void testUpdatePaymentProcessorSuccess() throws Exception {// 200
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
-        PaymentProcessor updatedPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
+        com.mcmcg.ico.bluefin.model.PaymentProcessor updatedPaymentProcessor = paymentProcessorResource.toPaymentProcessor();
         updatedPaymentProcessor.setPaymentProcessorId(1L);
 
         Mockito.when(paymentProcessorService.updatePaymentProcessor(1L, paymentProcessorResource))
