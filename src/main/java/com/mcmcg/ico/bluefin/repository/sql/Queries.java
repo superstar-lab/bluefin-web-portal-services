@@ -274,4 +274,6 @@ public interface Queries {
 	String deletePaymentProcessorStatusCodeByID = "DELETE FROM PaymentProcessorStatusCode_Lookup WHERE PaymentProcessorID =?";
 	String deletePaymentProcessorResponseCodeByID = "DELETE FROM PaymentProcessorResponseCode_Lookup WHERE PaymentProcessorID =?";
 	String deletePaymentProcessorStatusCodes = "DELETE FROM PaymentProcessorStatusCode_Lookup WHERE PaymentProcessorStatusCodeID IN (:paymentProcessorStatusCodes)";
+	String savePaymentProcessorStatusCode = "INSERT INTO PaymentProcessorStatusCode_Lookup (PaymentProcessorID,PaymentProcessorStatusCode,TransactionType,PaymentProcessorStatusCodeDescription,DateCreated,DatedModified,ModifiedBy) VALUES (?,?,?,?,?,?,?)"; 
+	String updatePaymentProcessorStatusCode = "UPDATE PaymentProcessorStatusCode_Lookup SET PaymentProcessorID = ?, PaymentProcessorStatusCode =?, TransactionType=?,PaymentProcessorStatusDescription=?, DatedModified=?, ModifiedBy=? WHERE PaymentProcessorStatusCodeID = ?";
 }

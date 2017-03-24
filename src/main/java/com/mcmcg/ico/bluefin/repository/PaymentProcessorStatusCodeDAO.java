@@ -25,4 +25,9 @@ public interface PaymentProcessorStatusCodeDAO {
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> findByPaymentProcessorId(Long paymentProcessorId);
 	
 	public void deletePaymentProcessorStatusCode(List<Long> paymentProcessorStatusCodes);
+	
+	public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode save(com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCode);
+	
+	public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode update(com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCode);
+
 }
