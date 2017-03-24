@@ -37,6 +37,7 @@ public class InternalResponseCodeService {
 
 	@Autowired
 	private InternalResponseCodeRepository internalResponseCodeRepository;
+	
 	@Autowired
 	private PaymentProcessorResponseCodeRepository paymentProcessorResponseCodeRepository;
 	@Autowired
@@ -80,8 +81,9 @@ public class InternalResponseCodeService {
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalResponseCodeResource
 					.getPaymentProcessorCodes()) {
 
-				PaymentProcessor paymentProcessor = paymentProcessorService
-						.getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
+				PaymentProcessor paymentProcessor = null;
+//				paymentProcessorService
+//						.getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
 				PaymentProcessorResponseCode paymentProcessorResponseCode = null;
 				Boolean codeModified = false;
@@ -192,8 +194,9 @@ public class InternalResponseCodeService {
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalResponseCodeResource
 					.getPaymentProcessorCodes()) {
 
-				PaymentProcessor paymentProcessor = paymentProcessorService
-						.getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
+				PaymentProcessor paymentProcessor = null;
+//						paymentProcessorService
+//						.getPaymentProcessorById(resourceProcessorCode.getPaymentProcessorId());
 
 				if (!resourceProcessorCode.getCode().isEmpty() && !resourceProcessorCode.getDescription().isEmpty()) {
 					PaymentProcessorResponseCode paymentProcessorResponseCode;

@@ -52,7 +52,6 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchants, new Object[] { paymentProcessorId });
-
 		LOGGER.debug("Deleted Payment Processor Merchants for PaymentProcessor Id: " + paymentProcessorId
 				+ ", rows affected = " + rows);
 	}

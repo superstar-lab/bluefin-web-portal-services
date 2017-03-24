@@ -88,4 +88,12 @@ public class PaymentProcessorStatusCode implements Serializable {
         return this.paymentProcessor.getProcessorName();
     }
 
+//    public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode convertPersistentObjectToModelObject(){
+//    	com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode objToReturn = new com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode();
+//    	objToReturn.setPaymentProcessorStatusCodeId(getPaymentProcessorStatusCodeId());
+//    	objToReturn.setPaymentProcessorStatusCode(getPaymentProcessorStatusCode());
+//    	objToReturn.setPaymentProcessorStatusCodeDescription(getPaymentProcessorStatusCodeDescription());
+//    	objToReturn.setTransactionTypeName(getTransactionTypeName());
+//    	return objToReturn;
+//    }
 }

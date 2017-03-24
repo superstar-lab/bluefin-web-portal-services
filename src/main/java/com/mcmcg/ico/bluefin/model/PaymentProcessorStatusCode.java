@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.joda.time.DateTime;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -25,8 +26,8 @@ public class PaymentProcessorStatusCode implements Serializable {
 
     private String paymentProcessorStatusCodeDescription;
 
-//    @JsonIgnore
-//    private Collection<PaymentProcessorInternalStatusCode> internalStatusCode;
+    @JsonIgnore
+    private Collection<PaymentProcessorInternalStatusCode> internalStatusCode;
 
     @JsonIgnore
     private PaymentProcessor paymentProcessor;

@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorMerchantDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorStatusCodeDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
@@ -46,6 +48,11 @@ public class PaymentProcessorService {
 	@Autowired
 	private PaymentProcessorCodeService paymentProcessorCodeService;
 	
+	@Autowired
+	private PaymentProcessorInternalStatusCodeDAO paymentProcessorInternalStatusCodeDAO;
+	
+	@Autowired
+	private PaymentProcessorStatusCodeDAO paymentProcessorStatusCodeDAO;
 	/**
 	 * This method will find a payment processor by its id, not found exception
 	 * if it does not exist
@@ -233,16 +240,31 @@ public class PaymentProcessorService {
 	public void deletePaymentProcessor(final long id) {
 
 		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessorToDelete = getPaymentProcessorById(id);
-		if (paymentProcessorToDelete.getPaymentProcessorRules() != null && !paymentProcessorToDelete.getPaymentProcessorRules().isEmpty()) {
-			paymentProcessorRuleDAO.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());
-		}
-		if (paymentProcessorToDelete.getPaymentProcessorMerchants() != null && !paymentProcessorToDelete.getPaymentProcessorMerchants().isEmpty()) {
-			paymentProcessorMerchantDAO.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());	
-		}
+		if ( paymentProcessorToDelete != null ) {
+			LOGGER.info("Payment processor {} record found to delete",paymentProcessorToDelete.getProcessorName());
+			LOGGER.info("Payment processor internal status code deletion started");
+			paymentProcessorInternalStatusCodeDAO.deletePaymentProcessorInternalStatusCodeForPaymentProcessor(id);
+			LOGGER.info("Payment processor internal status code deletion completed");
+			LOGGER.info("Payment processor status code deletion started");
+			paymentProcessorStatusCodeDAO.deletePaymentProcessorStatusCode(id);
+			LOGGER.info("Payment processor status code deletion completed");
+			if (paymentProcessorToDelete.getPaymentProcessorRules() != null && !paymentProcessorToDelete.getPaymentProcessorRules().isEmpty()) {
+				LOGGER.info("Payment processor rules deletion started");
+				paymentProcessorRuleDAO.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());
+				LOGGER.info("Payment processor rules deletion completed");
+			}
+			if (paymentProcessorToDelete.getPaymentProcessorMerchants() != null && !paymentProcessorToDelete.getPaymentProcessorMerchants().isEmpty()) {
+				LOGGER.info("Payment processor merchants deletion started");
+				paymentProcessorMerchantDAO.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());
+				LOGGER.info("Payment processor merchants deletion completed");
+			}
 		/* TODO 1. - Before deleting Status Code Need to delete PaymentProcessorInternalStatusCode 
 		paymentProcessorCodeService.deletePaymentProcessorStatusCode(paymentProcessorToDelete.getPaymentProcessorId());
 		 * TODO 2. - Need to Delete PaymentProcessorResponseCode and it is also dependent on PaymentProcessorInternalRespnseCode.*/
-		paymentProcessorDAO.delete(paymentProcessorToDelete);
+			paymentProcessorDAO.delete(paymentProcessorToDelete); 
+		} else {
+			// throw exception
+		}
 	}
 
 	/**

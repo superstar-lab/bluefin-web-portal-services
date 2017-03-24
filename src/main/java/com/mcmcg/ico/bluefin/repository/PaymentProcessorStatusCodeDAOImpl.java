@@ -171,32 +171,18 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 	@Override
 	public PaymentProcessorStatusCode update(PaymentProcessorStatusCode paymentProcessorStatusCode) {
-		KeyHolder holder = new GeneratedKeyHolder();
-
 		DateTime utc1 =  paymentProcessorStatusCode.getModifiedDate() != null ? paymentProcessorStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement(Queries.updatePaymentProcessorStatusCode,
-						Statement.RETURN_GENERATED_KEYS);
-				ps.setLong(1, paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId()); // ProcessorName
-				ps.setString(2, paymentProcessorStatusCode.getPaymentProcessorStatusCode()); // Status Code
-				ps.setString(3, paymentProcessorStatusCode.getTransactionTypeName()); // Transaction Type
-				ps.setString(4, paymentProcessorStatusCode.getPaymentProcessorStatusCodeDescription()); // ModifiedBy
-				ps.setTimestamp(5, dateModified);
-				ps.setString(6, paymentProcessorStatusCode.getLastModifiedBy());
-				ps.setLong(7, paymentProcessorStatusCode.getPaymentProcessorStatusCodeId());
-				return ps;
-			}
-		}, holder);
-
-		Long id = holder.getKey().longValue();
-		paymentProcessorStatusCode.setPaymentProcessorStatusCodeId(id);
-		LOGGER.info("Saved Payment Processor Status Code - id: " + id);
+		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorStatusCode,
+				new Object[] { 	paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorStatusCode.getPaymentProcessorStatusCode(), 
+								paymentProcessorStatusCode.getTransactionTypeName(), paymentProcessorStatusCode.getPaymentProcessorStatusCodeDescription(),
+								dateModified,paymentProcessorStatusCode.getLastModifiedBy(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()
+							 });
+		
+		LOGGER.info("Updated Payment Processor Status Code - id: " + paymentProcessorStatusCode.getPaymentProcessorStatusCodeId());
 		return paymentProcessorStatusCode;
 	}
 }
