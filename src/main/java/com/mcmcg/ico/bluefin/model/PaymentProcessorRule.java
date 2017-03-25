@@ -74,4 +74,12 @@ public class PaymentProcessorRule implements Serializable {
     public boolean hasNoLimit() {
         return noMaximumMonthlyAmountFlag.equals((short) 1);
     }
+
+	@Override
+	public String toString() {
+		return "PaymentProcessorRule [paymentProcessorRuleId=" + paymentProcessorRuleId + ", paymentProcessor="
+				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmount=" + maximumMonthlyAmount
+				+ ", noMaximumMonthlyAmountFlag=" + noMaximumMonthlyAmountFlag + ", priority=" + priority
+				+ ", monthToDateCumulativeAmount=" + monthToDateCumulativeAmount + "]";
+	}
 }

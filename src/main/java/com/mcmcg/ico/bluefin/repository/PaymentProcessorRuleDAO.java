@@ -6,8 +6,6 @@ package com.mcmcg.ico.bluefin.repository;
 import java.util.Collection;
 import java.util.List;
 
-import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
-
 /**
  * @author mmishra
  *
@@ -26,4 +24,16 @@ public interface PaymentProcessorRuleDAO {
 
 	public void deletePaymentProcessorRules(Long paymentProcessorId);
 
+	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByCardType(String cardType);
+
+	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule save(com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule);
+
+	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule findOne(long id);
+
+	public void delete(Long paymentProcessorRuleId);
+
+	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule updatepaymentProcessorRule(
+			com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRuleToUpdate);
+
+	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByPaymentProcessor(Long paymentProcessorId);
 }
