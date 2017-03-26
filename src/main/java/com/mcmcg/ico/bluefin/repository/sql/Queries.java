@@ -296,4 +296,24 @@ public interface Queries {
 	String deletePaymentProcessorRuleByID = "DELETE FROM PaymentProcessor_Rule WHERE PaymentProcessorRuleID = ?";
 	String findPaymentProcessorRulesByPaymentProcessorID = "SELECT PaymentProcessorRuleID, PaymentProcessorID, CardType, MaximumMonthlyAmount, NoMaximumMonthlyAmountFlag, Priority, MonthToDateCumulativeAmount, CurrentYear, CurrentMonth, DateCreated, ModifiedBy FROM PaymentProcessor_Rule WHERE PaymentProcessorID = ?";
 	String updatePaymentProcessorRule = "UPDATE PaymentProcessor_Rule SET PaymentProcessorID= ?, CardType= ?,MaximumMonthlyAmount=?,NoMaximumMonthlyAmountFlag=?,Priority=? WHERE PaymentProcessorRuleID= ?";
+
+	//Below queries has been used for InternalResponseCode/PaymentProcessorInternalResponseCode
+	String findByInternalResponseCodeAndTransactionTypeName ="SELECT * FROM InternalResponseCode_Lookup WHERE InternalResponseCode = ? AND TransactionType = ?";
+	String findAllInternalResponseCode = "SELECT InternalResponseCodeID,InternalResponseCode,InternalResponseCodeDescription,ModifiedBy,DatedModified,TransactionType,DateCreated FROM InternalResponseCode_Lookup";
+	String findAllInternalResponseCodeByTransactionType = "SELECT InternalResponseCodeID,InternalResponseCode,InternalResponseCodeDescription,ModifiedBy,DatedModified,TransactionType,DateCreated FROM InternalResponseCode_Lookup WHERE TransactionType = ?";
+	String saveInternalResponseCode = "INSERT INTO InternalResponseCode_Lookup (InternalResponseCode, InternalResponseCodeDescription, ModifiedBy, DatedModified, TransactionType,DateCreated) VALUES (?, ?, ?, ?, ?, ?)";
+	String findOneInternalResponseCode = "SELECT * FROM InternalResponseCode_Lookup WHERE InternalResponseCodeID = ?";
+	String deleteInternalResponseCode = "DELETE FROM InternalResponseCode_Lookup WHERE InternalResponseCodeID = ?";
+	String updateInternalResponseCode = "UPDATE InternalResponseCode_Lookup SET InternalResponseCode = ?, InternalResponseCodeDescription = ?, ModifiedBy = ?, TransactionType = ?, DatedModified = ? WHERE InternalResponseCodeID = ?";
+	String savePaymentProcessorResponseCode = "INSERT INTO PaymentProcessorResponseCode_Lookup (PaymentProcessorID,PaymentProcessorResponseCode,TransactionType,PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy) VALUES (?,?,?,?,?,?,?)";
+	String findPaymentProcessorResponseCodeByID = "SELECT PaymentProcessorResponseCodeID, PaymentProcessorID, PaymentProcessorResponseCode,TransactionType,PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorResponseCode_Lookup WHERE PaymentProcessorResponseCodeID=?";
+	String updatePaymentProcessorResponseCode = "UPDATE PaymentProcessorResponseCode_Lookup SET PaymentProcessorID = ?, PaymentProcessorResponseCode =?, TransactionType=?,PaymentProcessorResponseCodeDescription=?, DatedModified=?, ModifiedBy=? WHERE PaymentProcessorResponseCodeID = ?";
+	String savePaymentProcessorInternalResponseCode = "INSERT INTO PaymentProcessor_InternalResponseCode ( PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated) VALUES(?,?,?)";
+	String findOnePaymentProcessorInternalResponseCode = "SELECT * FROM PaymentProcessor_InternalResponseCode WHERE PaymentProcessorResponseCodeID = ?";
+	String findAllPaymentProcessorInternalResponseCode = "SELECT PaymentProcessorInternalResponseCodeID,PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated,ModifiedBy FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
+	String deletePaymentProcessorPaymentProcessorResponseCodeId = "DELETE FROM PaymentProcessor_InternalResponseCode WHERE PaymentProcessorResponseCodeID = ?";
+	String paymentProcessorInternalResponseCodeId = "SELECT * FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID = ?";
+	String deletePaymentProcessorInternalResponseCode = "DELETE FROM PaymentProcessor_InternalResponseCode where InternalResponseCodeId = ?";
+	String findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode = "SELECT PaymentProcessorInternalResponseCodeID FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
+	String deletePaymentProcessorResponseCodeIds = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
 }

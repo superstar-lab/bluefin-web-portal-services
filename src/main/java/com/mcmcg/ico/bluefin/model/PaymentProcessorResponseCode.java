@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import javax.persistence.ManyToOne;
 
@@ -27,8 +28,8 @@ public class PaymentProcessorResponseCode implements Serializable {
 
     private String paymentProcessorResponseCodeDescription;
 
-   /* @JsonIgnore
-    private Collection<PaymentProcessorInternalResponseCode> internalResponseCode;*/
+    @JsonIgnore
+    private Collection<PaymentProcessorInternalResponseCode> internalResponseCode;
 
     @ManyToOne
     @JsonIgnore
