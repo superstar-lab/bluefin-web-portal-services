@@ -42,6 +42,12 @@ public class PropertyDAOImpl implements PropertyDAO {
 
 		return property;
 	}
+	
+	@Override
+	public String getPropertyValue(String propertyName) {
+		Property property = findByName(propertyName);
+		return property == null ? "" : property.getApplicationPropertyValue();
+	}
 }
 
 class PropertyRowMapper implements RowMapper<Property> {

@@ -194,17 +194,17 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 
 	@Override
 	public void deleteInternalStatusCodeIds(List<Long> internalStatusCodeIds) {
-		LOGGER.info("Delete Internal Status Code_IDs="+(internalStatusCodeIds));
+		LOGGER.debug("Delete Internal Status Code_IDs="+(internalStatusCodeIds));
 		Map<String, List<Long>> valuesToDelete = new HashMap<String,List<Long>>();
 		valuesToDelete.put("ids", internalStatusCodeIds);
 		executeQueryToDeleteRecords(Queries.deleteInternalStatusCodes,valuesToDelete);
 	}
 	
 	private void executeQueryToDeleteRecords(String deleteQuery,Map<String, List<Long>> idsToDelete){
-		LOGGER.info("Finally deleteing records, Query="+deleteQuery+ " , idsToDelete="+idsToDelete);
+		LOGGER.debug("Finally deleteing records, idsToDelete="+idsToDelete);
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
-		LOGGER.info("Number of rows deleted="+(noOfRowsDeleted));
+		LOGGER.debug("Number of rows deleted="+(noOfRowsDeleted));
 	}
 	
 	@Override
