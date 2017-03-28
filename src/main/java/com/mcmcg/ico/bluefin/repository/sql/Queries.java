@@ -316,4 +316,5 @@ public interface Queries {
 	String deletePaymentProcessorInternalResponseCode = "DELETE FROM PaymentProcessor_InternalResponseCode where InternalResponseCodeId = ?";
 	String findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode = "SELECT PaymentProcessorInternalResponseCodeID FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
 	String deletePaymentProcessorResponseCodeIds = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
+	String savePaymentProcessorMarchent = "INSERT INTO PaymentProcessor_Merchant (paymentProcessorId,TestOrProd,MerchantID,DateCreated,DatedModified,LegalEntityAppID) values (?, ?, ?, ?, ?, ?)";
 }

@@ -3,7 +3,10 @@
  */
 package com.mcmcg.ico.bluefin.repository;
 
+import java.util.Collection;
 import java.util.List;
+
+import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 
 /**
  * @author mmishra
@@ -22,5 +25,7 @@ public interface PaymentProcessorMerchantDAO {
 	public void deletPaymentProcessorMerchantByProcID(Long paymentProcessorId);
 
 	public void deletePaymentProcessorRules(Long paymentProcessorId);
+	
+	public void createPaymentProcessorMerchants(Collection<PaymentProcessorMerchant> paymentProcessorMerchants);
 
 }
