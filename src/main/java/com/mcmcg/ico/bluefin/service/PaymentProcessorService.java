@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAO;
@@ -41,18 +44,19 @@ public class PaymentProcessorService {
 
 	@Autowired
 	private PaymentProcessorRuleDAO paymentProcessorRuleDAO;
-	
+
 	@Autowired
 	private PaymentProcessorMerchantDAO paymentProcessorMerchantDAO;
 
 	@Autowired
 	private PaymentProcessorCodeService paymentProcessorCodeService;
-	
+
 	@Autowired
 	private PaymentProcessorInternalStatusCodeDAO paymentProcessorInternalStatusCodeDAO;
-	
+
 	@Autowired
 	private PaymentProcessorStatusCodeDAO paymentProcessorStatusCodeDAO;
+
 	/**
 	 * This method will find a payment processor by its id, not found exception
 	 * if it does not exist
@@ -70,7 +74,7 @@ public class PaymentProcessorService {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
 				.findPaymentProccessorRulByProcessorId(paymentProcessor.getPaymentProcessorId());
 		paymentProcessor.setPaymentProcessorRules(paymentProcessorRules);
-		
+
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
 				.findPaymentProccessorMerchantByProcessorId(paymentProcessor.getPaymentProcessorId());
 		paymentProcessor.setPaymentProcessorMerchants(paymentProcessorMerchants);
@@ -89,14 +93,14 @@ public class PaymentProcessorService {
 			boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
 			if (processor.isActive() && !isReadyToBeActivated) {
 				processor.setIsActive((short) 0);
-				//paymentProcessorRepository.save(processor);
+				// paymentProcessorRepository.save(processor);
 				isReadyToBeActivated = false;
 			}
 			processor.setReadyToBeActivated(isReadyToBeActivated);
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
 					.findPaymentProccessorRulByProcessorId(processor.getPaymentProcessorId());
 			processor.setPaymentProcessorRules(paymentProcessorRules);
-			
+
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
 					.findPaymentProccessorMerchantByProcessorId(processor.getPaymentProcessorId());
 			processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
@@ -112,7 +116,8 @@ public class PaymentProcessorService {
 	 * @param paymentProcessorResource
 	 * @return Payment processor created
 	 */
-	public com.mcmcg.ico.bluefin.model.PaymentProcessor createPaymentProcessor(BasicPaymentProcessorResource paymentProcessorResource) {
+	public com.mcmcg.ico.bluefin.model.PaymentProcessor createPaymentProcessor(
+			BasicPaymentProcessorResource paymentProcessorResource) {
 		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorResource.toPaymentProcessor();
 		final String processorName = paymentProcessor.getProcessorName();
 
@@ -186,49 +191,70 @@ public class PaymentProcessorService {
 	public com.mcmcg.ico.bluefin.model.PaymentProcessor updatePaymentProcessorMerchants(final long id,
 			Set<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> paymentProcessorMerchants) {
 
-        // Verify if payment processor exists
+		// Verify if payment processor exists
 		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
-        // User wants to clear payment processor merchants from payment
-        // processor
-        if (paymentProcessorMerchants.isEmpty()) {
-            paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
-            return paymentProcessorDAO.update(paymentProcessorToUpdate);
-        }
+		// User wants to clear payment processor merchants from payment
+		// processor
+		if (paymentProcessorMerchants.isEmpty()) {
+			paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
+			// Deleting PaymentProcessorMerchant from DB for specific payment
+			// processor id.
+			paymentProcessorMerchantDAO
+					.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId());
+			return paymentProcessorToUpdate;
+		} else {
+			for (PaymentProcessorMerchant paymentProcessorMerchant : paymentProcessorToUpdate.getPaymentProcessorMerchants()) {
+				PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(paymentProcessorToUpdate.getPaymentProcessorId());
+				paymentProcessorMerchant.setPaymentProcessor(paymentProcessor);
+			}
 
-        // New payment processor merchants that need to be created or updated
-        Map<Long, com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants
-                .stream().collect(Collectors.toMap(com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
+		}
 
-        // Temporal list of legal entity app ids already updated
-        Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
+		// New payment processor merchants that need to be created or updated
+		Map<Long, com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants
+				.stream().collect(Collectors.toMap(
+						com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
 
-        // Update information from current payment processor merchants
-        Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate.getPaymentProcessorMerchants().iterator();
-        while (iter.hasNext()) {
-        	com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant element = iter.next();
+		// Temporal list of legal entity app ids already updated
+		Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
 
-        	com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
-                    .get(element.getLegalEntityApp().getLegalEntityAppId());
-            if (ppmr == null) {
-                iter.remove();
-            } else {
-                element.setMerchantId(ppmr.getMerchantId());
-                element.setTestOrProd(ppmr.getTestOrProd());
-                PaymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
-            }
-        }
+		// Update information from current payment processor merchants
+		/*Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate
+				.getPaymentProcessorMerchants().iterator();
+		while (iter.hasNext()) {
+			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant element = iter.next();
 
-        // Add the new payment processor merchants
-        for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
-            if (!PaymentProcessorMerchantsToKeep.contains(legalEntityId)) {
-                paymentProcessorToUpdate.addPaymentProcessorMerchant(
-                        newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant());
-            }
-        }
+			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
+					.get(element.getLegalEntityApp().getLegalEntityAppId());
+			
+				element.setMerchantId(ppmr.getMerchantId());
+				element.setTestOrProd(ppmr.getTestOrProd());
+				PaymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
+			
+		}*/
 
-        return paymentProcessorDAO.save(paymentProcessorToUpdate);
-    
+		// Add the new payment processor merchants
+		for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
+			if (!PaymentProcessorMerchantsToKeep.contains(legalEntityId)) {
+				/*LegalEntityApp legalEntityApp = new LegalEntityApp();
+				legalEntityApp.setLegalEntityAppId(legalEntityId);
+				PaymentProcessorMerchant paymentProcessorMerchant = new PaymentProcessorMerchant();
+						
+				paymentProcessorMerchant = newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant();
+						*/
+						
+				paymentProcessorToUpdate.addPaymentProcessorMerchant(
+						newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant());
+			}
+		}
+		
+		paymentProcessorMerchantDAO
+				.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId());
+		paymentProcessorMerchantDAO
+				.createPaymentProcessorMerchants(paymentProcessorToUpdate.getPaymentProcessorMerchants());
+		return paymentProcessorToUpdate;
+
 	}
 
 	/**
@@ -240,28 +266,36 @@ public class PaymentProcessorService {
 	public void deletePaymentProcessor(final long id) {
 
 		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessorToDelete = getPaymentProcessorById(id);
-		if ( paymentProcessorToDelete != null ) {
-			LOGGER.info("Payment processor {} record found to delete",paymentProcessorToDelete.getProcessorName());
+		if (paymentProcessorToDelete != null) {
+			LOGGER.info("Payment processor {} record found to delete", paymentProcessorToDelete.getProcessorName());
 			LOGGER.info("Payment processor internal status code deletion started");
 			paymentProcessorInternalStatusCodeDAO.deletePaymentProcessorInternalStatusCodeForPaymentProcessor(id);
 			LOGGER.info("Payment processor internal status code deletion completed");
 			LOGGER.info("Payment processor status code deletion started");
 			paymentProcessorStatusCodeDAO.deletePaymentProcessorStatusCode(id);
 			LOGGER.info("Payment processor status code deletion completed");
-			if (paymentProcessorToDelete.getPaymentProcessorRules() != null && !paymentProcessorToDelete.getPaymentProcessorRules().isEmpty()) {
+			if (paymentProcessorToDelete.getPaymentProcessorRules() != null
+					&& !paymentProcessorToDelete.getPaymentProcessorRules().isEmpty()) {
 				LOGGER.info("Payment processor rules deletion started");
 				paymentProcessorRuleDAO.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());
 				LOGGER.info("Payment processor rules deletion completed");
 			}
-			if (paymentProcessorToDelete.getPaymentProcessorMerchants() != null && !paymentProcessorToDelete.getPaymentProcessorMerchants().isEmpty()) {
+			if (paymentProcessorToDelete.getPaymentProcessorMerchants() != null
+					&& !paymentProcessorToDelete.getPaymentProcessorMerchants().isEmpty()) {
 				LOGGER.info("Payment processor merchants deletion started");
-				paymentProcessorMerchantDAO.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());
+				paymentProcessorMerchantDAO
+						.deletePaymentProcessorRules(paymentProcessorToDelete.getPaymentProcessorId());
 				LOGGER.info("Payment processor merchants deletion completed");
 			}
-		/* TODO 1. - Before deleting Status Code Need to delete PaymentProcessorInternalStatusCode 
-		paymentProcessorCodeService.deletePaymentProcessorStatusCode(paymentProcessorToDelete.getPaymentProcessorId());
-		 * TODO 2. - Need to Delete PaymentProcessorResponseCode and it is also dependent on PaymentProcessorInternalRespnseCode.*/
-			paymentProcessorDAO.delete(paymentProcessorToDelete); 
+			/*
+			 * TODO 1. - Before deleting Status Code Need to delete
+			 * PaymentProcessorInternalStatusCode
+			 * paymentProcessorCodeService.deletePaymentProcessorStatusCode(
+			 * paymentProcessorToDelete.getPaymentProcessorId()); TODO 2. - Need
+			 * to Delete PaymentProcessorResponseCode and it is also dependent
+			 * on PaymentProcessorInternalRespnseCode.
+			 */
+			paymentProcessorDAO.delete(paymentProcessorToDelete);
 		} else {
 			// throw exception
 		}
@@ -289,8 +323,9 @@ public class PaymentProcessorService {
 					"The following payment processors don't exist.  List = [" + paymentProcessorIds + "]");
 		}
 
-		Set<Long> paymentProcessorsNotFound = paymentProcessorIds.stream().filter(x -> !result.stream()
-				.map(com.mcmcg.ico.bluefin.model.PaymentProcessor::getPaymentProcessorId).collect(Collectors.toSet()).contains(x))
+		Set<Long> paymentProcessorsNotFound = paymentProcessorIds.stream()
+				.filter(x -> !result.stream().map(com.mcmcg.ico.bluefin.model.PaymentProcessor::getPaymentProcessorId)
+						.collect(Collectors.toSet()).contains(x))
 				.collect(Collectors.toSet());
 
 		throw new CustomBadRequestException(
@@ -309,7 +344,8 @@ public class PaymentProcessorService {
 	 * @return
 	 */
 	public PaymentProcessorStatusResource getPaymentProcessorStatusById(final long id) {
-		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(id);
+		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorDAO
+				.findByPaymentProcessorId(id);
 
 		if (paymentProcessor == null) {
 			throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
@@ -349,7 +385,7 @@ public class PaymentProcessorService {
 						&& paymentProcessorStatusResource.getHasRulesAssociated().getCompleted()
 						&& paymentProcessorStatusResource.getHasStatusCodesAssociated().getCompleted())) {
 			paymentProcessor.setIsActive((short) 0);
-			//paymentProcessorRepository.save(paymentProcessor);
+			// paymentProcessorRepository.save(paymentProcessor);
 		}
 
 		return paymentProcessorStatusResource;

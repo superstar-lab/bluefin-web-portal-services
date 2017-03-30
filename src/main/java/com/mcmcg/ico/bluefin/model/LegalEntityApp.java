@@ -30,6 +30,10 @@ public class LegalEntityApp implements Serializable {
 	public LegalEntityApp() {
 	}
 
+	public LegalEntityApp(long legalEntityAppId) {
+		this.legalEntityAppId = legalEntityAppId;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (o == this)

@@ -43,7 +43,6 @@ public class InternalStatusCodeService {
 	@Autowired
 	private PaymentProcessorInternalStatusCodeDAO paymentProcessorInternalStatusCodeDAO;
 	
-	// Dheeraj : I created below mentioned two dummy classes  to integrate n complete my code
 	@Autowired
 	private PaymentProcessorStatusCodeDAO paymentProcessorStatusCodeDAO;
 	@Autowired
@@ -52,8 +51,10 @@ public class InternalStatusCodeService {
 	private TransactionTypeDAO transactionTypeDAO;
 
 	public List<com.mcmcg.ico.bluefin.model.InternalStatusCode> getInternalStatusCodesByTransactionType(final String transactionType) {
-		// Get transactionType if null thrown an exception ( Dheeraj - Why we need to set it? Matloob to answer it)
-		//transactionTypeService.getTransactionTypeByType(transactionType);
+		TransactionType transactionTypeObj = transactionTypeDAO.findByTransactionType(transactionType);
+		if (transactionTypeObj == null) {
+			throw new CustomBadRequestException("Transaction type not exists.");
+		}
 		List<com.mcmcg.ico.bluefin.model.InternalStatusCode> internalStatusCodeList = internalStatusCodeDAO.findByTransactionTypeNameOrderByInternalStatusCodeAsc(transactionType);
 		if (internalStatusCodeList != null && !internalStatusCodeList.isEmpty()) {
 			for(com.mcmcg.ico.bluefin.model.InternalStatusCode internalStatusCode : internalStatusCodeList){
@@ -178,9 +179,10 @@ public class InternalStatusCodeService {
 	}
 
 	public com.mcmcg.ico.bluefin.model.InternalStatusCode updateInternalStatusCode(UpdateInternalCodeResource internalStatusCodeResource,String currentLoginUserName) {
-		LOGGER.info("Updating InternalStatusCode Record, Requested Data="+(internalStatusCodeResource) + " , Child Items="+ ( internalStatusCodeResource.getPaymentProcessorCodes() != null ? internalStatusCodeResource.getPaymentProcessorCodes().size() : 0 ) );
+		LOGGER.info("Updating InternalStatusCode Record");
+		LOGGER.debug("Requested Data="+(internalStatusCodeResource) + " , Child Items="+ ( internalStatusCodeResource.getPaymentProcessorCodes() != null ? internalStatusCodeResource.getPaymentProcessorCodes().size() : 0 ) );
 		Long internalStatusCodeIdToModify = internalStatusCodeResource.getInternalCodeId();
-		LOGGER.info("Internal Status CodeId to modify {}"+internalStatusCodeIdToModify);
+		LOGGER.debug("Internal Status CodeId to modify {}"+internalStatusCodeIdToModify);
 		com.mcmcg.ico.bluefin.model.InternalStatusCode internalStatusCode = internalStatusCodeDAO.findOneWithChilds(internalStatusCodeIdToModify);
 		if (internalStatusCode == null) {
 			throw new CustomNotFoundException("Internal Status Code does not exist: " + internalStatusCodeIdToModify);
@@ -191,7 +193,7 @@ public class InternalStatusCodeService {
 			LOGGER.error("Transaction type {} not found",internalStatusCodeResource.getTransactionTypeName());
 			throw new CustomBadRequestException("Transaction type "+internalStatusCodeResource.getTransactionTypeName()+" not exists.");
 		}
-		LOGGER.info("Updating internal Status code {}", internalStatusCodeIdToModify);
+		LOGGER.info("Updating internal Status code");
 
 		// Just in case of modify the code of the Internal Status Code, verify
 		// if the code is already assigned

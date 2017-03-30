@@ -34,10 +34,10 @@ import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
-import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRemittanceDAO;
+import com.mcmcg.ico.bluefin.repository.PropertyDAO;
 import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.repository.RefundTransactionDAO;
 import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
@@ -79,15 +79,15 @@ public class TransactionService {
 	@Autowired
 	private UserDAO userDAO;
 	@Autowired
-	private PaymentProcessorRepository paymentProcessorRepository;
+	private PaymentProcessorDAO paymentProcessorDAO;
 	@Autowired
 	private ReconciliationStatusDAO reconciliationStatusDAO;
 	@Autowired
 	private PaymentProcessorRemittanceDAO paymentProcessorRemittanceDAO;
 	@Autowired
-	private PropertyService propertyService;
+	private PropertyDAO propertyDAO;
 	@Autowired
-	private LegalEntityAppDAO legalEntityAppDAO;
+	private LegalEntityAppDAO legalEntityAppDAO;     
 	@Autowired
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
@@ -174,7 +174,7 @@ public class TransactionService {
 
 	public File getTransactionsReport(String search, String timeZone) throws IOException {
 		List<SaleTransaction> result;
-		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
+		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		File file = null;
 		try {
@@ -336,7 +336,7 @@ public class TransactionService {
 	 */
 	public File getRemittanceTransactionsReport(String search, String timeZone) throws IOException {
 		List<RemittanceSale> result;
-		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
+		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		File file = null;
 		try {
@@ -363,8 +363,8 @@ public class TransactionService {
 
 			// Create PaymentProcessor hashmap
 			Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
-			List<PaymentProcessor> paymentProcessorList = paymentProcessorRepository.findAll();
-			for (PaymentProcessor pp : paymentProcessorList) {
+			List<com.mcmcg.ico.bluefin.model.PaymentProcessor> paymentProcessorList = paymentProcessorDAO.findAll();
+			for (com.mcmcg.ico.bluefin.model.PaymentProcessor pp : paymentProcessorList) {
 				paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
 			}
 

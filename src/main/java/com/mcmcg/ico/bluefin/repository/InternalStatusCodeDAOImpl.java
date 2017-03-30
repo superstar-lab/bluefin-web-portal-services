@@ -116,7 +116,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 
 	@Override
 	public InternalStatusCode update(InternalStatusCode internalStatusCode) {
-		LOGGER.info("Updating Internal Status Code##"+(internalStatusCode.toString()) );
+		LOGGER.info("Updating Internal Status Code"+(internalStatusCode.getInternalStatusCodeId()));
 		DateTime utc4 = internalStatusCode.getModifiedDate() != null ? internalStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
@@ -127,16 +127,16 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 									dateModified, internalStatusCode.getInternalStatusCodeId()
 								 });
 
-		LOGGER.info("Updated InternalStatusCode with ID: " + internalStatusCode.getInternalStatusCodeId() + ", rows affected = " + rows);
+		LOGGER.info("Updated InternalStatusCode with ID: " + internalStatusCode.getInternalStatusCodeId());
 		if (internalStatusCode.getPaymentProcessorInternalStatusCodes() != null && !internalStatusCode.getPaymentProcessorInternalStatusCodes().isEmpty()) {
-			LOGGER.info("Number of childs items to update {}"+internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
+			LOGGER.debug("Number of childs items to update {}"+internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
 			// in this case we need to create child items also.
 			for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : internalStatusCode.getPaymentProcessorInternalStatusCodes()) {
 				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCode.getInternalStatusCodeId());
-				LOGGER.info("PaymentProcessorInternalStatusCode_ChildItem="+(paymentProcessorInternalStatusCode));
+				LOGGER.debug("PaymentProcessorInternalStatusCode_ChildItem="+(paymentProcessorInternalStatusCode));
 			}
 			paymentProcessorInternalStatusCodeDAO.delete(internalStatusCode.getInternalStatusCodeId());
-			LOGGER.info("Old Child Items deleted successfully");
+			LOGGER.debug("Old Child Items deleted successfully");
 			for (Iterator<PaymentProcessorInternalStatusCode> iterator = internalStatusCode.getPaymentProcessorInternalStatusCodes().iterator(); iterator.hasNext();) {
 				PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = iterator.next();
 				if (paymentProcessorInternalStatusCode.getPaymentProcessorInternalStatusCodeId() != null) {
@@ -146,9 +146,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 			}
 			
 			paymentProcessorInternalStatusCodeDAO.save(internalStatusCode.getPaymentProcessorInternalStatusCodes());
-			LOGGER.info("New Child Items created successfully");
+			LOGGER.debug("New Child Items created successfully");
 		} else {
-			LOGGER.info("No childs items to update");
+			LOGGER.debug("No childs items to update");
 		}
 		return internalStatusCode;
 	}
