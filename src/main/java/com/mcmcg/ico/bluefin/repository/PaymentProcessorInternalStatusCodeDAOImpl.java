@@ -158,10 +158,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	
 	private Map<Long,List<Long>> fetchInternalStatusCodeIdsUsedForPaymentProcessor(Long paymentProcessId){
 		LOGGER.info("Fetching Internal Status Code Ids for paymentprocessorid="+paymentProcessId);
-		String query = " select InternalStatusCodeId,PaymentProcessorInternalStatusCodeID from PaymentProcessor_InternalStatusCode " +
-				" where PaymentProcessorStatusCodeID in ( " +
-			" select PaymentProcessorStatusCodeID from PaymentProcessorStatusCode_Lookup " +
-			" where PaymentProcessorID = ? ) ";
+		String query = Queries.fetchInternalStatusCodeUsedForPaymentProcessor;
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = new HashMap<Long,List<Long>>();
 		jdbcTemplate.query(query, new Object[]{paymentProcessId}, new ResultSetExtractor<Map<Long,List<Long>>>(){
 			@Override
