@@ -112,7 +112,7 @@ public class TokenUtils {
 					+ Integer.parseInt(propertyService.getPropertyValue("REGISTER_USER_TOKEN_EXPIRATION")) * 1000);
 		case APPLICATION:
 			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
+					+ Long.parseLong(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
 		default:
 			return new Date(System.currentTimeMillis()
 					+ Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);

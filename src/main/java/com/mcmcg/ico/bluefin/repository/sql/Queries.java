@@ -38,7 +38,7 @@ public interface Queries {
 	String findAllLegalEntityAppsByIds = "SELECT LegalEntityAppID, LegalEntityAppName, DateCreated, DatedModified, ModifiedBy, IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID IN (:legalEntityAppIds)";
 	String deleteLegalEntityApp = "DELETE FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	String saveLegalEntityApp = "INSERT INTO LegalEntityApp_Lookup (LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive) VALUES (?,?,?,?,?)";
-	String updateLegalEntityApp = "UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?";
+	String updateLegalEntityApp = "UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?,IsActive = ?, DatedModified = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?";
 	String findPaymentProcessorRemittanceByProcessorTransactionId = "SELECT PaymentProcessorRemittanceID, DateCreated, ReconciliationStatusID, ReconciliationDate, PaymentMethod, TransactionAmount, TransactionType, TransactionTime, AccountID, Application, ProcessorTransactionID, MerchantID, TransactionSource, FirstName, LastName, RemittanceCreationDate, PaymentProcessorID, ReProcessStatus, ETL_RUNID FROM PaymentProcessor_Remittance WHERE ProcessorTransactionID = ?";
 	String findAllReconciliationStatuses = "SELECT ReconciliationStatusID, ReconciliationStatus, Description, DateCreated, DateModified, ModifiedBy FROM ReconciliationStatus_Lookup";
 	String findReconciliationStatusByReconciliationStatusId = "SELECT ReconciliationStatusID, ReconciliationStatus, Description, DateCreated, DateModified, ModifiedBy FROM ReconciliationStatus_Lookup WHERE ReconciliationStatusID = ?";
@@ -74,7 +74,7 @@ public interface Queries {
 			.append("ppl.ProcessorName AS ProcessorName,").append("st.SaleTransactionID AS SaleTransactionID,")
 			.append("st.FirstName AS SaleFirstName,").append("st.LastName AS SaleLastName,")
 			.append("st.ProcessUser AS SaleProcessUser,").append("st.TransactionType AS SaleTransactionType,")
-			.append("st.Address1 AS SaleAddress1,").append("st.Address2 AS SaleAddress2,")
+			.append("st.Address1 AS SaleAddress1,").append("st.Addrbhaiess2 AS SaleAddress2,")
 			.append("st.City AS SaleCity,").append("st.State AS SaleState,").append("st.PostalCode AS SalePostalCode,")
 			.append("st.Country AS SaleCountry,").append("st.CardNumberFirst6Char AS SaleCardNumberFirst6Char,")
 			.append("st.CardNumberLast4Char AS SaleCardNumberLast4Char,").append("st.CardType AS SaleCardType,")

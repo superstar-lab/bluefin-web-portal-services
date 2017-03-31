@@ -39,8 +39,8 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	@Autowired
-	TransactionRepositoryCustom transactionRepositoryCustom;
+	/*@Autowired
+	TransactionRepositoryCustom transactionRepositoryCustom;*/
 
 	@Override
 	public PaymentProcessorRemittance findByProcessorTransactionId(String transactionId) {
@@ -146,9 +146,10 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 	@Override
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
 			TransactionTypeCode transactionType, String processorTransactionType) throws ParseException {
-		PaymentProcessorRemittance paymentProcessorRemittance = transactionRepositoryCustom.
+		/*PaymentProcessorRemittance paymentProcessorRemittance = transactionRepositoryCustom.
 				findRemittanceSaleRefundTransactionsDetail(transactionId, transactionType, processorTransactionType);
-		return paymentProcessorRemittance;
+		return paymentProcessorRemittance;*/
+		return null;
 	}
 }
 
