@@ -26,6 +26,8 @@ public class UserLegalEntityApp implements Serializable {
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
 	private String modifiedBy;
+	
+	private User user;
 
 	public UserLegalEntityApp() {
 	}
@@ -93,5 +95,13 @@ public class UserLegalEntityApp implements Serializable {
 
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 }

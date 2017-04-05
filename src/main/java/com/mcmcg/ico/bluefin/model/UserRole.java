@@ -26,6 +26,12 @@ public class UserRole implements Serializable {
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
 	private String modifiedBy;
+	
+	@JsonIgnore
+	private Role role;
+
+	@JsonIgnore
+    private User user;
 
 	public UserRole() {
 	}
@@ -93,4 +99,22 @@ public class UserRole implements Serializable {
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
 	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	
 }

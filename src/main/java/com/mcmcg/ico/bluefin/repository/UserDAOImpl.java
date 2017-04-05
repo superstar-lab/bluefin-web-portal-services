@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -20,6 +21,7 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -36,6 +38,8 @@ import com.mysema.query.types.expr.BooleanExpression;
 public class UserDAOImpl implements UserDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDAOImpl.class);
+
+	DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -188,7 +192,6 @@ public class UserDAOImpl implements UserDAO {
 		DateTime utc2 = user.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc3 = new DateTime(DateTimeZone.UTC);
 		DateTime utc4 = new DateTime(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));
@@ -200,8 +203,36 @@ public class UserDAOImpl implements UserDAO {
 						modifiedBy, user.getStatus(), user.getUserId() });
 
 		LOGGER.debug("Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
+		
+		updateRoles(user.getRoles());
 
 		return rows;
+	}
+	
+	@Override
+	public void updateRoles(
+			Collection<com.mcmcg.ico.bluefin.model.UserRole> userRoles) {
+		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserRole>(userRoles));
+	}
+	
+	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserRole> userRoles){
+		jdbcTemplate.batchUpdate(Queries.saveUserRole, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				com.mcmcg.ico.bluefin.model.UserRole userRole = userRoles.get(i);
+				DateTime utc1 = userRole.getDateModified() != null ? userRole.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+				LOGGER.info("Creating child item ");
+				ps.setLong(1, userRole.getUser().getUserId());
+				ps.setLong(2, userRole.getRole().getRoleId());
+				ps.setTimestamp(3, dateCreated);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return userRoles.size();
+			}
+		  });
 	}
 
 	@Override

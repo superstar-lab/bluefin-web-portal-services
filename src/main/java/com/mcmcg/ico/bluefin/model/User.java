@@ -1,6 +1,8 @@
 package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 import org.joda.time.DateTime;
@@ -40,6 +42,28 @@ public class User implements Serializable {
 	@LastModifiedBy
 	private String modifiedBy;
 	private String status;
+
+	@JsonIgnore
+	private Collection<UserRole> roles;
+
+	@JsonIgnore
+	private Collection<UserLegalEntityApp> legalEntities;
+
+	public Collection<UserRole> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Collection<UserRole> roles) {
+		this.roles = roles;
+	}
+
+	public Collection<UserLegalEntityApp> getLegalEntities() {
+		return legalEntities;
+	}
+
+	public void setLegalEntities(Collection<UserLegalEntityApp> legalEntities) {
+		this.legalEntities = legalEntities;
+	}
 
 	public User() {
 	}
@@ -166,4 +190,27 @@ public class User implements Serializable {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	public void addRole(Role role) {
+		if (roles == null) {
+			roles = new ArrayList<UserRole>();
+		}
+
+		UserRole userRole = new UserRole();
+		userRole.setRole(role);
+		userRole.setUser(this);
+		roles.add(userRole);
+	}
+
+	public void addLegalEntityApp(LegalEntityApp legalEntityApp) {
+		if (legalEntities == null) {
+			legalEntities = new ArrayList<UserLegalEntityApp>();
+		}
+
+		UserLegalEntityApp userLE = new UserLegalEntityApp();
+		userLE.setLegalEntityAppId(legalEntityApp.getLegalEntityAppId());
+		userLE.setUser(this);
+		legalEntities.add(userLE);
+	}
+
 }

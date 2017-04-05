@@ -248,11 +248,11 @@ public class UserService {
 
 		// Correct this when fixing code for User.
 		// Add new roles to the user but ignoring the existing ones
-		// for (Long roleId : newMapOfRoles.keySet()) {
-		// if (!rolesToKeep.contains(roleId)) {
-		// userToUpdate.addRole(newMapOfRoles.get(roleId));
-		// }
-		// }
+		for (Long roleId : newMapOfRoles.keySet()) {
+			if (!rolesToKeep.contains(roleId)) {
+				userToUpdate.addRole(newMapOfRoles.get(roleId));
+			}
+		}
 
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;

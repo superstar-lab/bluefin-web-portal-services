@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -24,4 +25,6 @@ public interface UserDAO {
 	int updateUser(User user, String modifiedBy);
 
 	int deleteByUsername(String username);
+	
+	public void updateRoles(Collection<com.mcmcg.ico.bluefin.model.UserRole> paymentRoles);
 }

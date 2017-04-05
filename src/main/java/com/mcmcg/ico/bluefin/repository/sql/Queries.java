@@ -64,6 +64,7 @@ public interface Queries {
 	String findUserLegalEntityAppByUserId = "SELECT UserLegalEntityAppID, UserID, LegalEntityAppID, DateCreated, DatedModified, ModifiedBy FROM User_LegalEntityApp WHERE UserID = ?";
 	String findUserRoleByUserId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE UserID = ?";
 	String findUserRoleByRoleId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE RoleID = ?";
+	String saveUserRole = "INSERT INTO User_Role (UserID,RoleID,DateCreated) VALUES(?,?,?)";
 	String remittanceSaleTransaction = new StringBuilder().append("SELECT * ").append("FROM ")
 			.append("(SELECT ppr.PaymentProcessorRemittanceID,").append("ppr.DateCreated,")
 			.append("ppr.ReconciliationStatusID,").append("ppr.ReconciliationDate,").append("ppr.PaymentMethod,")
