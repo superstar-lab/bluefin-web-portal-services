@@ -78,9 +78,11 @@ public class User implements Serializable {
     @Column(name = "userPassword")
     private String userPassword;
 
-    @JsonIgnore
     @Column(name = "IsActive")
-    private Short isActive = (short) 0;
+    private Short isActive = 0;
+
+    @Column(name = "Status")
+    private String status;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")

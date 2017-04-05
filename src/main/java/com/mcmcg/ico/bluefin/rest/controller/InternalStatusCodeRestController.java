@@ -61,6 +61,7 @@ public class InternalStatusCodeRestController {
             @RequestParam(value = "transactionType", required = false, defaultValue = "ALL") String transactionType,
             @RequestParam(value = "extended", required = false, defaultValue = "false") Boolean extended,
             @ApiIgnore Authentication authentication) throws JsonProcessingException {
+    	LOGGER.info("Request to fetch internal status code Transaction Type="+transactionType);
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -84,17 +85,20 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public InternalStatusCode createInternalStatusCodes(
-            @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors) {
+    public com.mcmcg.ico.bluefin.model.InternalStatusCode createInternalStatusCodes(
+            @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors,Authentication auth) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-
+        String currentLoginUserName = null;
+        if (auth != null) {
+        	currentLoginUserName = auth.getName();
+        }
         LOGGER.info("Creating internal status code");
-        return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource);
+        return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource,currentLoginUserName);
     }
 
     @ApiOperation(value = "updateInternalStatusCodes", nickname = "updateInternalStatusCodes")
@@ -106,17 +110,20 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public InternalStatusCode upsertInternalStatusCodes(
-            @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource, @ApiIgnore Errors errors) {
+    public com.mcmcg.ico.bluefin.model.InternalStatusCode upsertInternalStatusCodes(
+            @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource, @ApiIgnore Errors errors,Authentication auth) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             throw new CustomBadRequestException(errorDescription);
         }
-
+        String currentLoginUserName = null;
+        if (auth != null) {
+        	currentLoginUserName = auth.getName();
+        }
         LOGGER.info("Updating internal status code");
-        return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource);
+        return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource,currentLoginUserName);
     }
 
     @ApiOperation(value = "deleteInternalStatusCode", nickname = "deleteInternalStatusCode")
@@ -133,5 +140,23 @@ public class InternalStatusCodeRestController {
         LOGGER.info("Internal Status Code {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+    }
+    
+    /**
+     * Dheeraj : I created this method for temp purpose to get all values for one particular record
+     * @param id
+     * @return
+     */
+    @ApiOperation(value = "deleteInternalStatusCode", nickname = "deleteInternalStatusCode")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public com.mcmcg.ico.bluefin.model.InternalStatusCode get(@PathVariable Long id) {
+        LOGGER.info("Fetching Internal Status Code {}", id);
+        return internalStatusCodeService.getInternalStatusCode(id);
     }
 }

@@ -16,9 +16,10 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.CardType;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRuleRepository;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
@@ -29,6 +30,10 @@ public class PaymentProcessorRuleService {
 
     @Autowired
     private PaymentProcessorRuleRepository paymentProcessorRuleRepository;
+    
+    @Autowired
+    private PaymentProcessorRuleDAO paymentProcessorRuleDAO;
+    
     @Autowired
     private PaymentProcessorService paymentProcessorService;
 
@@ -38,26 +43,26 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorRule
      * @return
      */
-    public PaymentProcessorRule createPaymentProcessorRule(final long processorId,
-            PaymentProcessorRule paymentProcessorRule) {
-        // Verify if payment processor exists
-        PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
+    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule createPaymentProcessorRule(final long processorId,
+    		com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule) {
+    	// Verify if payment processor exists
+    	com.mcmcg.ico.bluefin.model.PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
 
-        // Payment processor must has merchants associate to it
-        if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
-            LOGGER.error(
-                    "Unable to create payment processor rule.  Payment processor MUST has at least one merchant associated.   Payment processor id = [{}]",
-                    loadedPaymentProcessor.getPaymentProcessorId());
-            throw new CustomNotFoundException(String.format(
-                    "Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
-                    loadedPaymentProcessor.getPaymentProcessorId()));
-        }
+    	// Payment processor must has merchants associate to it
+    	if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
+    		LOGGER.error(
+    				"Unable to create payment processor rule.  Payment processor MUST has at least one merchant associated.   Payment processor id = [{}]",
+    				loadedPaymentProcessor.getPaymentProcessorId());
+    		throw new CustomNotFoundException(String.format(
+    				"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
+    				loadedPaymentProcessor.getPaymentProcessorId()));
+    	}
 
-        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
+    	//validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
-        paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
-        paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
-        return paymentProcessorRuleRepository.save(paymentProcessorRule);
+    	paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
+    	paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
+    	return paymentProcessorRuleDAO.save(paymentProcessorRule);
     }
 
     /**
@@ -72,15 +77,15 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor rule is not found
      */
-    public PaymentProcessorRule updatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
+    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule updatePaymentProcessorRule(com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule,
             long processorId) {
 
-        PaymentProcessorRule paymentProcessorRuleToUpdate = getPaymentProcessorRule(
+    	com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRuleToUpdate = getPaymentProcessorRule(
                 paymentProcessorRule.getPaymentProcessorRuleId());
 
         // Verify if processor exists
-        PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-        validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
+    	com.mcmcg.ico.bluefin.model.PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
+       // validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
         // Update fields
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
@@ -90,7 +95,7 @@ public class PaymentProcessorRuleService {
         paymentProcessorRuleToUpdate.setPriority(paymentProcessorRule.getPriority());
         paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
 
-        return paymentProcessorRuleToUpdate;
+        return paymentProcessorRuleDAO.updatepaymentProcessorRule(paymentProcessorRuleToUpdate);
     }
 
     /**
@@ -112,8 +117,8 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor rule doesn't exist
      */
-    public PaymentProcessorRule getPaymentProcessorRule(final long id) {
-        PaymentProcessorRule paymentProcessorRule = paymentProcessorRuleRepository.findOne(id);
+    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule getPaymentProcessorRule(final long id) {
+    	com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule = paymentProcessorRuleDAO.findOne(id);
         if (paymentProcessorRule == null) {
             throw new CustomNotFoundException(
                     String.format("Unable to find payment processor rule with id = [%s]", id));
@@ -129,14 +134,14 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor doesn't exist
      */
-    public List<PaymentProcessorRule> getPaymentProcessorRulesByPaymentProcessorId(final long id) {
-        // Verify if processor exists
-        PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(id);
+    public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> getPaymentProcessorRulesByPaymentProcessorId(final long id) {
+    	// Verify if processor exists
+    	com.mcmcg.ico.bluefin.model.PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(id);
 
-        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
-                .findByPaymentProcessor(loadedPaymentProcessor);
+    	List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
+    			.findByPaymentProcessor(loadedPaymentProcessor.getPaymentProcessorId());
 
-        return paymentProcessorRules == null ? new ArrayList<PaymentProcessorRule>(0) : paymentProcessorRules;
+    	return paymentProcessorRules == null ? new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(0) : paymentProcessorRules;
     }
 
     /**
@@ -148,9 +153,9 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule doesn't exist
      */
     public void delete(final long id) {
-        PaymentProcessorRule paymentProcessorRule = getPaymentProcessorRule(id);
+    	com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule = getPaymentProcessorRule(id);
 
-        paymentProcessorRuleRepository.delete(paymentProcessorRule);
+    	paymentProcessorRuleDAO.delete(paymentProcessorRule.getPaymentProcessorRuleId());
     }
 
     public List<CardType> getTransactionTypes() {
@@ -166,16 +171,16 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorId,
      *            payment processor id
      */
-    private void validatePaymentProcessorRule(PaymentProcessorRule newPaymentProcessorRule,
+    private void validatePaymentProcessorRule(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
             final long paymentProcessorId) {
         validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule, paymentProcessorId);
     }
 
     @SuppressWarnings("unused")
-    private void validatePaymentProcessorRuleForUnknownCardType(PaymentProcessorRule newPaymentProcessorRule,
+    private void validatePaymentProcessorRuleForUnknownCardType(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
             final long loadedPaymentProcessorId) {
-        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
-                .findByCardType(newPaymentProcessorRule.getCardType());
+        List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
+                .findByCardType(newPaymentProcessorRule.getCardType().name());
 
         /*
          * Its impossible to have more than one payment processor rules with
@@ -200,7 +205,7 @@ public class PaymentProcessorRuleService {
              * Verify when exist one rule with UNKNOWN. ONLY update is allowed
              * with same id
              */
-            PaymentProcessorRule loadedPaymentProcessorRule = paymentProcessorRules.get(0);
+        	com.mcmcg.ico.bluefin.model.PaymentProcessorRule loadedPaymentProcessorRule = paymentProcessorRules.get(0);
 
             if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || loadedPaymentProcessorRule
                     .getPaymentProcessorRuleId() != newPaymentProcessorRule.getPaymentProcessorRuleId()) {
@@ -217,10 +222,10 @@ public class PaymentProcessorRuleService {
         }
     }
 
-    private void validatePaymentProcessorRuleForCreditDebitCardType(PaymentProcessorRule newPaymentProcessorRule,
+    private void validatePaymentProcessorRuleForCreditDebitCardType(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
             final long loadedPaymentProcessorId) {
-        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleRepository
-                .findByCardType(newPaymentProcessorRule.getCardType());
+        List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
+                .findByCardType(newPaymentProcessorRule.getCardType().name());
 
         if (paymentProcessorRules == null || paymentProcessorRules.isEmpty()) {
             // No validation because there is no rules
@@ -232,7 +237,7 @@ public class PaymentProcessorRuleService {
         // Exist a no maximum amount limit
         boolean existsNoLimitPaymentProcessorRule = false;
 
-        for (PaymentProcessorRule current : paymentProcessorRules) {
+        for (com.mcmcg.ico.bluefin.model.PaymentProcessorRule current : paymentProcessorRules) {
             if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || !current.getPaymentProcessorRuleId()
                     .equals(newPaymentProcessorRule.getPaymentProcessorRuleId())) {
                 // Priority already assigned for the same transaction type

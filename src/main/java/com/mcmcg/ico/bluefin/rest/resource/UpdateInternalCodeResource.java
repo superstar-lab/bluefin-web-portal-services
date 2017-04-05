@@ -20,7 +20,8 @@ public class UpdateInternalCodeResource {
     private String description;
     @NotBlank(message = "Please provide a transaction type name for the internal code")
     private String transactionTypeName;
-
+    private String internalStatusCategory;
+    private String internalStatusCategoryAbbr;
     @Valid
     private List<PaymentProcessorCodeResource> paymentProcessorCodes;
 }

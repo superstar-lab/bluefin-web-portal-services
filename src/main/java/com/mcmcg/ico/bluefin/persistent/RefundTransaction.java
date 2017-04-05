@@ -17,7 +17,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.mcmcg.ico.bluefin.model.TransactionType;
+import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -42,7 +42,7 @@ public class RefundTransaction implements Serializable, Transaction {
 
     // Transaction Detail
     @Transient
-    private String transactionType = TransactionType.REFUND.toString();
+    private String transactionType = TransactionTypeCode.REFUND.toString();
 
     @Column(name = "OriginalSaleTransactionID")
     private String originalSaleTransactionID;

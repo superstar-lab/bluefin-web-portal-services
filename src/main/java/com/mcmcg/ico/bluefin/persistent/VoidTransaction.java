@@ -15,7 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.mcmcg.ico.bluefin.model.TransactionType;
+import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,74 +28,74 @@ import lombok.ToString;
 @Table(name = "Void_Transaction")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "voidTransactionId")
 public class VoidTransaction implements Serializable, Transaction {
-    private static final long serialVersionUID = -6252148309760154839L;
+	private static final long serialVersionUID = -6252148309760154839L;
 
-    @Id
-    @Column(name = "VoidTransactionID")
-    private Long voidTransactionId;
+	@Id
+	@Column(name = "VoidTransactionID")
+	private Long voidTransactionId;
 
-    @ManyToOne
-    @JoinColumn(name = "SaleTransactionID")
-    private SaleTransaction saleTransaction;
+	@ManyToOne
+	@JoinColumn(name = "SaleTransactionID")
+	private SaleTransaction saleTransaction;
 
-    // Transaction Detail
-    @Transient
-    private String transactionType = TransactionType.VOID.toString();
+	// Transaction Detail
+	@Transient
+	private String transactionType = TransactionTypeCode.VOID.toString();
 
-    @Column(name = "OriginalSaleTransactionID")
-    private String originalSaleTransactionID;
+	@Column(name = "OriginalSaleTransactionID")
+	private String originalSaleTransactionID;
 
-    @Column(name = "ApplicationTransactionID")
-    private String applicationTransactionId;
+	@Column(name = "ApplicationTransactionID")
+	private String applicationTransactionId;
 
-    @Column(name = "ProcessorTransactionID")
-    private String processorTransactionId;
+	@Column(name = "ProcessorTransactionID")
+	private String processorTransactionId;
 
-    @Column(name = "MerchantID")
-    private String merchantId;
+	@Column(name = "MerchantID")
+	private String merchantId;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "TransactionDateTime")
-    private DateTime transactionDateTime;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@Column(name = "TransactionDateTime")
+	private DateTime transactionDateTime;
 
-    @Column(name = "ApprovalCode")
-    private String approvalCode;
+	@Column(name = "ApprovalCode")
+	private String approvalCode;
 
-    @Column(name = "InternalResponseCode")
-    private String internalResponseCode;
+	@Column(name = "InternalResponseCode")
+	private String internalResponseCode;
 
-    @Column(name = "InternalResponseDescription")
-    private String internalResponseDescription;
+	@Column(name = "InternalResponseDescription")
+	private String internalResponseDescription;
 
-    @Column(name = "InternalStatusCode")
-    private String internalStatusCode;
+	@Column(name = "InternalStatusCode")
+	private String internalStatusCode;
 
-    @Column(name = "InternalStatusDescription")
-    private String internalStatusDescription;
+	@Column(name = "InternalStatusDescription")
+	private String internalStatusDescription;
 
-    @Column(name = "PaymentProcessorResponseCode")
-    private String paymentProcessorResponseCode;
+	@Column(name = "PaymentProcessorResponseCode")
+	private String paymentProcessorResponseCode;
 
-    @Column(name = "PaymentProcessorResponseCodeDescription")
-    private String paymentProcessorResponseCodeDescription;
+	@Column(name = "PaymentProcessorResponseCodeDescription")
+	private String paymentProcessorResponseCodeDescription;
 
-    @Column(name = "PaymentProcessorStatusCode")
-    private String paymentProcessorStatusCode;
+	@Column(name = "PaymentProcessorStatusCode")
+	private String paymentProcessorStatusCode;
 
-    @Column(name = "PaymentProcessorStatusCodeDescription")
-    private String paymentProcessorStatusCodeDescription;
+	@Column(name = "PaymentProcessorStatusCodeDescription")
+	private String paymentProcessorStatusCodeDescription;
 
-    // Misc
-    @Column(name = "pUser")
-    private String processUser;
+	// Misc
+	@Column(name = "pUser")
+	private String processUser;
 
-    @Column(name = "Processor")
-    private String processorName;
+	@Column(name = "Processor")
+	private String processorName;
 
-    @Column(name = "Application")
-    private String application;
+	@Column(name = "Application")
+	private String application;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "DateCreated", insertable = false, updatable = false)
-    private DateTime createdDate;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@Column(name = "DateCreated", insertable = false, updatable = false)
+	private DateTime createdDate;
 }

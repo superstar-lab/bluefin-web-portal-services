@@ -1,0 +1,107 @@
+package com.mcmcg.ico.bluefin.repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.support.DataAccessUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
+import org.springframework.stereotype.Repository;
+
+import com.mcmcg.ico.bluefin.model.VoidTransaction;
+import com.mcmcg.ico.bluefin.repository.sql.Queries;
+
+@Repository
+public class VoidTransactionDAOImpl implements VoidTransactionDAO {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(VoidTransactionDAOImpl.class);
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	@Override
+	public List<VoidTransaction> findAll() {
+		List<VoidTransaction> list = jdbcTemplate.query(Queries.findAllVoidTransactions,
+				new VoidTransactionRowMapper());
+
+		LOGGER.debug("Number of rows: " + list.size());
+
+		return list;
+	}
+
+	@Override
+	public VoidTransaction findByApplicationTransactionId(String transactionId) {
+		VoidTransaction voidTransaction = null;
+
+		ArrayList<VoidTransaction> list = (ArrayList<VoidTransaction>) jdbcTemplate.query(
+				Queries.findVoidTransactionByApplicationTransactionId, new Object[] { transactionId },
+				new RowMapperResultSetExtractor<VoidTransaction>(new VoidTransactionRowMapper()));
+		voidTransaction = DataAccessUtils.singleResult(list);
+
+		if (voidTransaction != null) {
+			LOGGER.debug("Found VoidTransaction for transactionId: " + transactionId);
+		} else {
+			LOGGER.debug("VoidTransaction not found for transactionId: " + transactionId);
+		}
+
+		return voidTransaction;
+	}
+
+	@Override
+	public VoidTransaction findByProcessorTransactionId(String transactionId) {
+		VoidTransaction voidTransaction = null;
+
+		ArrayList<VoidTransaction> list = (ArrayList<VoidTransaction>) jdbcTemplate.query(
+				Queries.findVoidTransactionByProcessorTransactionId, new Object[] { transactionId },
+				new RowMapperResultSetExtractor<VoidTransaction>(new VoidTransactionRowMapper()));
+		voidTransaction = DataAccessUtils.singleResult(list);
+
+		if (voidTransaction != null) {
+			LOGGER.debug("Found VoidTransaction for transactionId: " + transactionId);
+		} else {
+			LOGGER.debug("VoidTransaction not found for transactionId: " + transactionId);
+		}
+
+		return voidTransaction;
+	}
+}
+
+class VoidTransactionRowMapper implements RowMapper<VoidTransaction> {
+
+	@Override
+	public VoidTransaction mapRow(ResultSet rs, int row) throws SQLException {
+		VoidTransaction voidTransaction = new VoidTransaction();
+		voidTransaction.setVoidTransactionId(rs.getLong("VoidTransactionID"));
+		voidTransaction.setSaleTransactionId(rs.getString("SaleTransactionID"));
+		voidTransaction.setApprovalCode(rs.getString("ApprovalCode"));
+		voidTransaction.setProcessor(rs.getString("Processor"));
+		voidTransaction.setMerchantId(rs.getString("merchantID"));
+		voidTransaction.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
+		voidTransaction.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
+		voidTransaction.setApplicationTransactionId(rs.getString("ApplicationTransactionID"));
+		voidTransaction.setApplication(rs.getString("Application"));
+		voidTransaction.setProcessUser(rs.getString("pUser"));
+		voidTransaction.setOriginalSaleTransactionId(rs.getString("OriginalSaleTransactionID"));
+		voidTransaction.setPaymentProcessorStatusCode(rs.getString("PaymentProcessorStatusCode"));
+		voidTransaction.setPaymentProcessorStatusCodeDescription(rs.getString("PaymentProcessorStatusCodeDescription"));
+		voidTransaction.setPaymentProcessorResponseCode(rs.getString("PaymentProcessorResponseCode"));
+		voidTransaction
+				.setPaymentProcessorResponseCodeDescription(rs.getString("PaymentProcessorResponseCodeDescription"));
+		voidTransaction.setInternalStatusCode(rs.getString("InternalStatusCode"));
+		voidTransaction.setInternalStatusDescription(rs.getString("InternalStatusDescription"));
+		voidTransaction.setInternalResponseCode(rs.getString("InternalResponseCode"));
+		voidTransaction.setInternalResponseDescription(rs.getString("InternalResponseDescription"));
+		voidTransaction.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
+		voidTransaction.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
+		voidTransaction.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+
+		return voidTransaction;
+	}
+}

@@ -23,7 +23,6 @@ import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
-import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorStatusResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
 
@@ -49,7 +48,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessor get(@PathVariable Long id) {
+    public com.mcmcg.ico.bluefin.model.PaymentProcessor get(@PathVariable Long id) {
         LOGGER.info("Getting information with the following id: {}", id);
         return paymentProcessorService.getPaymentProcessorById(id);
     }
@@ -62,7 +61,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public List<PaymentProcessor> get() {
+    public List<com.mcmcg.ico.bluefin.model.PaymentProcessor> get() {
         LOGGER.info("Getting information with the following filters: {}");
         return paymentProcessorService.getPaymentProcessors();
     }
@@ -89,7 +88,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<PaymentProcessor> create(
+    public ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessor> create(
             @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
@@ -99,7 +98,7 @@ public class PaymentProcessorRestController {
         }
 
         LOGGER.info("Creating new payment processor: {}", paymentProcessorResource.getProcessorName());
-        return new ResponseEntity<PaymentProcessor>(
+        return new ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessor>(
                 paymentProcessorService.createPaymentProcessor(paymentProcessorResource), HttpStatus.CREATED);
     }
 
@@ -111,7 +110,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessor update(@PathVariable Long id,
+    public com.mcmcg.ico.bluefin.model.PaymentProcessor update(@PathVariable Long id,
             @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -131,8 +130,8 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
-            @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
+    public com.mcmcg.ico.bluefin.model.PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
+            @Validated @RequestBody Set<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> paymentProcessorMerchants,
             @ApiIgnore Errors errors) {
         LOGGER.info("Updating payment processors merchants = [{}] from payment processor id = [{}]",
                 paymentProcessorMerchants, id);
