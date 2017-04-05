@@ -28,6 +28,10 @@ public interface PaymentProcessorInternalResponseCodeDAO {
 	
 	public  void savePaymentProcessorInternalResponseCodes(Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes);
 
+	public void deletePaymentProcessorInternalResponseCodeForPaymentProcessor(Long paymentProcessorId);
+	
+	public void deletePaymentProcessorInternalResponseCodeIds(List<Long> paymentProcessorInternalStatusCodeIds);
+	public void deleteInternalResponseCodeIds(List<Long> internalStatusCodeIds);
 	
 }
 

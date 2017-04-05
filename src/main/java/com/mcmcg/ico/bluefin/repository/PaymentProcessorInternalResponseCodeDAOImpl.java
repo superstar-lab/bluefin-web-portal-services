@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -19,10 +21,12 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -191,8 +195,79 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 			Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes) {
 		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>(paymentProcessorInternalResponseCodes));
 	}
+	
+	@Override
+	public void deletePaymentProcessorInternalResponseCodeForPaymentProcessor(Long paymentProcessorId) {
+		LOGGER.info("Delete Payment processr status code for paymentprocessorid="+paymentProcessorId);
+		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = fetchInternalResponseCodeIdsUsedForPaymentProcessor(paymentProcessorId);
+		LOGGER.info("Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
+		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null && !idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.isEmpty()) {
+			Set<Entry<Long,List<Long>>> allEntries = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.entrySet();
+			List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<Long>();
+			List<Long> internalStatusCodeIds = new ArrayList<Long>();
+			if (allEntries != null && !allEntries.isEmpty()) {
+				for (Entry<Long,List<Long>> entry : allEntries ) {
+					internalStatusCodeIds.add(entry.getKey());
+					paymentProcessorInternalStatusCodeIds.addAll(entry.getValue());
+				}
+			}
+			if (!paymentProcessorInternalStatusCodeIds.isEmpty()) {
+				deletePaymentProcessorInternalResponseCodeIds(paymentProcessorInternalStatusCodeIds);//;;;(paymentProcessorInternalStatusCodeIds);
+				LOGGER.info("PaymentProcessorInternalStatusCodeIds deletion completed");
+			}
+			if (!internalStatusCodeIds.isEmpty()) {
+				deleteInternalResponseCodeIds(internalStatusCodeIds);
+				LOGGER.info("InternalStatusCodeIds deletion completed");
+			}
+		}
+	}
+	
+	@Override
+	public void deleteInternalResponseCodeIds(List<Long> internalStatusCodeIds) {
+		LOGGER.debug("Delete Internal Status Code_IDs="+(internalStatusCodeIds));
+		Map<String, List<Long>> valuesToDelete = new HashMap<String,List<Long>>();
+		valuesToDelete.put("ids", internalStatusCodeIds);
+		executeQueryToDeleteRecords(Queries.deleteInternalResponseCodes,valuesToDelete);
+	}
+	
+	private Map<Long,List<Long>> fetchInternalResponseCodeIdsUsedForPaymentProcessor(Long paymentProcessId){
+		LOGGER.info("Fetching Internal Response Code Ids for paymentprocessorid="+paymentProcessId);
+		String query = " select InternalResponseCodeId,PaymentProcessorInternalResponseCodeID from PaymentProcessor_InternalResponseCode " +
+				" where PaymentProcessorResponseCodeID in ( " +
+			" select PaymentProcessorResponseCodeID from PaymentProcessorResponseCode_Lookup " +
+			" where PaymentProcessorID = ? ) ";
+		Map<Long,List<Long>> idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode = new HashMap<Long,List<Long>>();
+		jdbcTemplate.query(query, new Object[]{paymentProcessId}, new ResultSetExtractor<Map<Long,List<Long>>>(){
+			@Override
+			public Map<Long,List<Long>> extractData(ResultSet rs) throws SQLException,DataAccessException {
+				Long internalStatusCodeId = null;
+				Long paymentProcessorInternalStatusId = null;
+				while(rs.next()){
+					internalStatusCodeId = rs.getLong("InternalStatusCodeId");
+					paymentProcessorInternalStatusId = rs.getLong("PaymentProcessorInternalStatusCodeID");
+					List<Long> paymentProcessorInternalStatusCodeIds = idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode.get(internalStatusCodeId);
+					if (paymentProcessorInternalStatusCodeIds == null) {
+						paymentProcessorInternalStatusCodeIds = new ArrayList<Long>();
+						idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode.put(internalStatusCodeId,paymentProcessorInternalStatusCodeIds);
+					}
+					paymentProcessorInternalStatusCodeIds.add(paymentProcessorInternalStatusId);
+				}
+				return idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode;
+			}
+		});
+		return idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode;
+	}
+
+	@Override
+	public void deletePaymentProcessorInternalResponseCodeIds(List<Long> paymentProcessorInternalStatusCodeIds) {
+			LOGGER.info("Delete Payment Processor Internal Status Code_IDs="+(paymentProcessorInternalStatusCodeIds));
+			Map<String, List<Long>> valuesToDelete = new HashMap<String,List<Long>>();
+			valuesToDelete.put("ids", paymentProcessorInternalStatusCodeIds);
+			executeQueryToDeleteRecords(Queries.deletePaymentProcessorInternalResponseCodes,valuesToDelete);
+		
+	}
 }
-//SELECT PaymentProcessorInternalResponseCodeID, PaymentProcessorResponseCodeID,InternalResponseCodeID FROM PaymentProcessor_InternalResponseCode
+
 class PaymentProcessorInternalResponseCodeRowMapper implements RowMapper<PaymentProcessorInternalResponseCode> {
 	@Override
 	public PaymentProcessorInternalResponseCode mapRow(ResultSet rs, int row) throws SQLException {

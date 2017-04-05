@@ -20,8 +20,10 @@ import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalResponseCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorMerchantDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorResponseCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorStatusCodeDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -53,6 +55,12 @@ public class PaymentProcessorService {
 
 	@Autowired
 	private PaymentProcessorInternalStatusCodeDAO paymentProcessorInternalStatusCodeDAO;
+	
+	@Autowired
+	private PaymentProcessorInternalResponseCodeDAO paymentProcessorInternalResponseCodeDAO;
+	
+	@Autowired
+	private PaymentProcessorResponseCodeDAO paymentProcessorResponseCodeDAO;
 
 	@Autowired
 	private PaymentProcessorStatusCodeDAO paymentProcessorStatusCodeDAO;
@@ -273,6 +281,13 @@ public class PaymentProcessorService {
 			LOGGER.info("Payment processor internal status code deletion completed");
 			LOGGER.info("Payment processor status code deletion started");
 			paymentProcessorStatusCodeDAO.deletePaymentProcessorStatusCode(id);
+			LOGGER.info("Payment processor status code deletion completed");
+			
+			LOGGER.info("Payment processor internal response code deletion started");
+			paymentProcessorInternalResponseCodeDAO.deletePaymentProcessorInternalResponseCodeForPaymentProcessor(id);
+			LOGGER.info("Payment processor internal response code deletion completed");
+			LOGGER.info("Payment processor response code deletion started");
+			paymentProcessorResponseCodeDAO.deletePaymentProcessorResponseCode(id);
 			LOGGER.info("Payment processor status code deletion completed");
 			if (paymentProcessorToDelete.getPaymentProcessorRules() != null
 					&& !paymentProcessorToDelete.getPaymentProcessorRules().isEmpty()) {

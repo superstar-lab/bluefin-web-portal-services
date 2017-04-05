@@ -29,9 +29,9 @@ public interface Queries {
 	String findAllBatchUploads = "SELECT BatchUploadID,BatchApplication,DateCreated,Name,FileName,DateUploaded,UpLoadedBy,ProcessStart,ProcessEnd,NumberOfTransactions,NumberOfTransactionsProcessed,NumberOfApprovedTransactions,NumberOfDeclinedTransactions,NumberOfErrorTransactions,NumberOfRejected,DateModified FROM BatchUpload";
 	String findOneBatchUpload = "SELECT BatchUploadID,BatchApplication,DateCreated,Name,FileName,DateUploaded,UpLoadedBy,ProcessStart,ProcessEnd,NumberOfTransactions,NumberOfTransactionsProcessed,NumberOfApprovedTransactions,NumberOfDeclinedTransactions,NumberOfErrorTransactions,NumberOfRejected,DateModified FROM BatchUpload WHERE BatchUploadID = ?";
 	String findByDateUploadedAfter = "SELECT BatchUploadID,BatchApplication,DateCreated,Name,FileName,DateUploaded,UpLoadedBy,ProcessStart,ProcessEnd,NumberOfTransactions,NumberOfTransactionsProcessed,NumberOfApprovedTransactions,NumberOfDeclinedTransactions,NumberOfErrorTransactions,NumberOfRejected,DateModified FROM BatchUpload where DateUploaded > ?";
-	String findAllBatchUploadsByOrderByDateUploadedDesc = "SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY DateUploaded DESC ) AS RowNum, * FROM BatchUpload) AS RowConstrainedResult WHERE RowNum >= ? AND RowNum < ? ORDER BY RowNum";
+	String findAllBatchUploadsByOrderByDateUploadedDesc = "SELECT * FROM (SELECT *, (@row_number:=@row_number + 1) AS num FROM BatchUpload ORDER BY DateUploaded desc) AS RowConstrainedResult,(SELECT @row_number := 0) as r WHERE num >= ? AND num < ? ORDER BY num";
 	String findCountBatchUpload = "SELECT COUNT(*) FROM BatchUpload";
-	String findBatchUploadsByDateUploadedAfterOrderByDateUploadedDesc = "SELECT * FROM ( SELECT ROW_NUMBER() OVER ( ORDER BY DateUploaded DESC ) AS RowNum, * FROM BatchUpload WHERE DateUploaded > ?) AS RowConstrainedResult WHERE RowNum >= ? AND RowNum < ? ORDER BY RowNum";
+	String findBatchUploadsByDateUploadedAfterOrderByDateUploadedDesc = "SELECT * FROM (SELECT *, (@row_number:=@row_number + 1) AS num FROM BatchUpload WHERE DateUploaded > ? ORDER BY DateUploaded desc) AS RowConstrainedResult,(SELECT @row_number := 0) as r WHERE num >= ? AND num < ? ORDER BY num";
 	String findByLegalEntityAppId = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	String findByLegalEntityAppName = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppName = ?";
 	String findAllLegalEntityApps = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup";
@@ -318,4 +318,7 @@ public interface Queries {
 	String deletePaymentProcessorResponseCodeIds = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
 	String savePaymentProcessorMarchent = "INSERT INTO PaymentProcessor_Merchant (paymentProcessorId,TestOrProd,MerchantID,DateCreated,DatedModified,LegalEntityAppID) values (?, ?, ?, ?, ?, ?)";
 	String fetchInternalStatusCodeUsedForPaymentProcessor = " select InternalStatusCodeId,PaymentProcessorInternalStatusCodeID from PaymentProcessor_InternalStatusCode where PaymentProcessorStatusCodeID in (  select PaymentProcessorStatusCodeID from PaymentProcessorStatusCode_Lookup where PaymentProcessorID = ? ) ";
+
+	String deletePaymentProcessorInternalResponseCodes = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
+	String deleteInternalResponseCodes = "DELETE FROM InternalResponseCode_Lookup where InternalResponseCodeID IN (:ids)";
 }

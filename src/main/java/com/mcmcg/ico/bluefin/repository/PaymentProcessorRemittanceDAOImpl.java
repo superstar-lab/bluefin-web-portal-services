@@ -27,8 +27,8 @@ import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.RemittanceSale;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.persistent.jpa.TransactionRepositoryCustom;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.service.CustomSaleTransactionDAO;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
 @Repository
@@ -39,8 +39,8 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	/*@Autowired
-	TransactionRepositoryCustom transactionRepositoryCustom;*/
+	@Autowired
+	CustomSaleTransactionDAO customSaleTransactionDAO;
 
 	@Override
 	public PaymentProcessorRemittance findByProcessorTransactionId(String transactionId) {
@@ -146,10 +146,9 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 	@Override
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
 			TransactionTypeCode transactionType, String processorTransactionType) throws ParseException {
-		/*PaymentProcessorRemittance paymentProcessorRemittance = transactionRepositoryCustom.
+		PaymentProcessorRemittance paymentProcessorRemittance = customSaleTransactionDAO.
 				findRemittanceSaleRefundTransactionsDetail(transactionId, transactionType, processorTransactionType);
-		return paymentProcessorRemittance;*/
-		return null;
+		return paymentProcessorRemittance;
 	}
 }
 
