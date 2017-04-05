@@ -256,8 +256,8 @@ public class UserService {
 
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
-		long userId = userDAO.updateUser(userToUpdate, modifiedBy);
-		return userDAO.findByUserId(userId);
+		userDAO.updateUser(userToUpdate, modifiedBy);
+		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
 
 	/**
