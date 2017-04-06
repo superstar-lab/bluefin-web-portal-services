@@ -20,7 +20,7 @@ public class SecurityUser implements UserDetails {
 	private User user;
 	private Collection<? extends GrantedAuthority> authorities;
 	private Boolean accountNonExpired = true;
-	private Boolean accountNonLocked = true;
+    private Boolean accountNonLocked = false;
 	private Boolean credentialsNonExpired = true;
 	private Boolean enabled = false;
 	private Date expires;
@@ -56,7 +56,7 @@ public class SecurityUser implements UserDetails {
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return this.getAccountNonLocked();
+        return !user.getStatus().equals("INACTIVE");
 	}
 
 	@Override

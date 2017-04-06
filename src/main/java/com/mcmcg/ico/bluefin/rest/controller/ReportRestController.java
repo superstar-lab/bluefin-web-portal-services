@@ -76,13 +76,18 @@ public class ReportRestController {
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
+<<<<<<< HEAD
+		// Below line found in releases while merging, but was not available in develop branch
+		//response.setHeader("Content-Length", Long.toString(downloadFile.length()));
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}
+=======
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
 
+<<<<<<< HEAD
 	@ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
 	@RequestMapping(method = RequestMethod.GET, value = "/payment-processor-remittances")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -100,23 +105,64 @@ public class ReportRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-
-		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
-		}
-
-		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone);
-		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
+=======
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
 
+<<<<<<< HEAD
+		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
+			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+=======
+	@ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/payment-processor-remittances")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = PaymentProcessorRemittance.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getRemittanceTransactionsReport(
+			@RequestParam(value = "search", required = true) String search,
+			@RequestParam(value = "sort", required = false) String sort,
+			@RequestParam(value = "timeZone", required = true) String timeZone,
+			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
+		if (authentication == null) {
+			throw new AccessDeniedException("An authorization token is required to request this resource");
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
+		}
+
+<<<<<<< HEAD
+		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone);
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+=======
+		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
+			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		}
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
+
+<<<<<<< HEAD
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
+=======
+		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone);
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
+
+<<<<<<< HEAD
 	@ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
 	@RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -131,17 +177,48 @@ public class ReportRestController {
 			throws IOException {
 		LOGGER.info("Getting all batch uploads");
 		File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
-
-		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
+=======
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
 
+<<<<<<< HEAD
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+=======
+	@ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> get(@RequestParam(value = "noofdays", required = false) Integer noofdays,
+			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
+			throws IOException {
+		LOGGER.info("Getting all batch uploads");
+		File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
+
+<<<<<<< HEAD
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
+=======
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
+
+<<<<<<< HEAD
 	@ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
 	@RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -157,11 +234,43 @@ public class ReportRestController {
 			throws IOException {
 		LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
 		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
+=======
+		FileCopyUtils.copy(targetStream, response.getOutputStream());
+		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		downloadFile.delete();
+		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+	}
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
 
+<<<<<<< HEAD
+		InputStream targetStream = FileUtils.openInputStream(downloadFile);
+		response.setContentType("application/octet-stream");
+		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+=======
+	@ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
+	@RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getBatchUploadTransactionsReport(
+			@RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
+			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
+			throws IOException {
+		LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
+		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
+
+<<<<<<< HEAD
+=======
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
+>>>>>>> branch 'develop' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/Bluefin/_git/Bluefin-web-portal-services
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();

@@ -38,14 +38,13 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
         if (username != null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
             if (userDetails != null && this.tokenUtils.validateToken(authToken, userDetails)) {
                 String tokenType = this.tokenUtils.getTypeFromToken(authToken);
                 String tokenUrl = this.tokenUtils.getUrlFromToken(authToken);
 
-                if ((tokenType.equals(TokenType.AUTHENTICATION.name())
-                        || tokenType.equals(TokenType.APPLICATION.name()) && userDetails.isEnabled())
-                        || url.contains(tokenUrl)) {
+                if ((userDetails.isEnabled() && (tokenType.equals(TokenType.AUTHENTICATION.name())
+                        || tokenType.equals(TokenType.APPLICATION.name())))
+                        || (userDetails.isAccountNonLocked() && url.contains(tokenUrl))) {
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
