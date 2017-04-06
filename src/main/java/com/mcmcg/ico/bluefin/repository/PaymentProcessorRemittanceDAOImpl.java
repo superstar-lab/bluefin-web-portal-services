@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -158,13 +159,20 @@ class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorR
 	public PaymentProcessorRemittance mapRow(ResultSet rs, int row) throws SQLException {
 		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
 		paymentProcessorRemittance.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
-		paymentProcessorRemittance.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+		Timestamp ts = null;
+		if (rs.getString("DateCreated") != null){
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			paymentProcessorRemittance.setDateCreated(new DateTime(ts));
+		}
 		paymentProcessorRemittance.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
 		paymentProcessorRemittance.setReconciliationDate(new DateTime(rs.getTimestamp("ReconciliationDate")));
 		paymentProcessorRemittance.setPaymentMethod(rs.getString("PaymentMethod"));
 		paymentProcessorRemittance.setTransactionAmount(rs.getBigDecimal("TransactionAmount"));
 		paymentProcessorRemittance.setTransactionType(rs.getString("TransactionType"));
-		paymentProcessorRemittance.setTransactionTime(new DateTime(rs.getTimestamp("TransactionTime")));
+		if (rs.getString("TransactionTime") != null) {
+			ts = Timestamp.valueOf(rs.getString("TransactionTime"));
+			paymentProcessorRemittance.setTransactionTime(new DateTime(ts));
+		}
 		paymentProcessorRemittance.setAccountId(rs.getString("AccountID"));
 		paymentProcessorRemittance.setApplication(rs.getString("Application"));
 		paymentProcessorRemittance.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
@@ -194,7 +202,11 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 
 			PaymentProcessorRemittance ppr = new PaymentProcessorRemittance();
 			ppr.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
-			ppr.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+			Timestamp ts = null;
+			if (rs.getString("DateCreated") != null){
+				ts = Timestamp.valueOf(rs.getString("DateCreated"));
+				ppr.setDateCreated(new DateTime(ts));
+			}
 			// Mitul overrides this with ReconciliationStatus_ID
 			ppr.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
 			ppr.setReconciliationDate(new DateTime(rs.getTimestamp("ReconciliationDate")));
@@ -210,7 +222,10 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 			ppr.setTransactionSource(rs.getString("TransactionSource"));
 			ppr.setFirstName(rs.getString("FirstName"));
 			ppr.setLastName(rs.getString("LastName"));
-			ppr.setRemittanceCreationDate(new DateTime(rs.getTimestamp("RemittanceCreationDate")));
+			if (rs.getString("RemittanceCreationDate") != null){
+				ts = Timestamp.valueOf(rs.getString("RemittanceCreationDate"));
+				ppr.setRemittanceCreationDate(new DateTime(ts));
+			}
 			ppr.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
 			// Final value (ORDER BY)
 			ppr.setMerchantId(rs.getString("MID"));

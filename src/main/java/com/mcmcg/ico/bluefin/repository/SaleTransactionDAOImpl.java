@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -169,7 +170,9 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setApplication(rs.getString("Application"));
 		saleTransaction.setOrigin(rs.getString("Origin"));
 		saleTransaction.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
-		saleTransaction.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
+		Timestamp ts = Timestamp.valueOf(rs.getString("TransactionDateTime"));
+		saleTransaction.setTransactionDateTime(new DateTime(ts));
+//		saleTransaction.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
 		saleTransaction.setTestMode(rs.getShort("TestMode"));
 		saleTransaction.setApprovalCode(rs.getString("ApprovalCode"));
 		saleTransaction.setTokenized(rs.getShort("Tokenized"));
@@ -184,7 +187,8 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setInternalResponseDescription(rs.getString("InternalResponseDescription"));
 		saleTransaction.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
 		saleTransaction.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
-		saleTransaction.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+		ts = Timestamp.valueOf(rs.getString("DateCreated"));
+		saleTransaction.setDateCreated(new DateTime(ts));
 		saleTransaction.setPaymentProcessorRuleId(rs.getLong("PaymentProcessorRuleID"));
 		saleTransaction.setRulePaymentProcessorId(rs.getLong("RulePaymentProcessorID"));
 		saleTransaction.setRuleCardType(rs.getString("RuleCardType"));
@@ -198,7 +202,8 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setUserDefinedField2(rs.getString("UserDefinedField2"));
 		saleTransaction.setUserDefinedField3(rs.getString("UserDefinedField3"));
 		saleTransaction.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
-		saleTransaction.setReconciliationDate(new DateTime(rs.getTimestamp("ReconciliationDate")));
+		ts = Timestamp.valueOf(rs.getString("ReconciliationDate"));
+		saleTransaction.setReconciliationDate(new DateTime(ts));
 		saleTransaction.setBatchUploadId(rs.getLong("BatchUploadID"));
 		saleTransaction.setEtlRunId(rs.getLong("ETL_RUNID"));
 

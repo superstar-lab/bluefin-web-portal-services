@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +55,18 @@ class UserRoleRowMapper implements RowMapper<UserRole> {
 		userRole.setRoleId(rs.getLong("UserRoleID"));
 		userRole.setRoleId(rs.getLong("UserID"));
 		userRole.setRoleId(rs.getLong("RoleID"));
-		userRole.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		userRole.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		Timestamp ts = null;
+
+		if (rs.getString("DateCreated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			userRole.setDateCreated(new DateTime(ts));
+		}
+		if (rs.getString("DatedModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			userRole.setDateModified(new DateTime(ts));
+		}
 		userRole.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return userRole;

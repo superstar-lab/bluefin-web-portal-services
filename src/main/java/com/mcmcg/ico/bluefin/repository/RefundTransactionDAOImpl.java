@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,9 +104,18 @@ class RefundTransactionRowMapper implements RowMapper<RefundTransaction> {
 		refundTransaction.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
 		refundTransaction
 				.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
-		refundTransaction.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+		Timestamp ts = null;
+		if (rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			refundTransaction.setDateCreated(new DateTime(ts));
+		}
+		
 		refundTransaction.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
-		refundTransaction.setReconciliationDate(new DateTime(rs.getTimestamp("ReconciliationDate")));
+		if (rs.getString("ReconciliationDate") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("ReconciliationDate"));
+			refundTransaction.setReconciliationDate(new DateTime(ts));
+		}
 		refundTransaction.setEtlRunId(rs.getLong("ETL_RUNID"));
 
 		return refundTransaction;

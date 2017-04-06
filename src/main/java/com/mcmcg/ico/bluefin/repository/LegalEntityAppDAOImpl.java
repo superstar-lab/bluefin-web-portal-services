@@ -165,11 +165,19 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 
 	@Override
 	public LegalEntityApp mapRow(ResultSet rs, int row) throws SQLException {
+		Timestamp ts =null;
 		LegalEntityApp legalEntityApp = new LegalEntityApp();
 		legalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
 		legalEntityApp.setLegalEntityAppName(rs.getString("LegalEntityAppName"));
-		legalEntityApp.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		legalEntityApp.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		if(rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			legalEntityApp.setDateCreated(new DateTime(ts));
+		}
+		
+		if(rs.getString("DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			legalEntityApp.setDateModified(new DateTime(ts));
+		}
 		legalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
 		legalEntityApp.setIsActive(rs.getShort("IsActive"));
 

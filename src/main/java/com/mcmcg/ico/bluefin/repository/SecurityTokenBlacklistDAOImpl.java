@@ -152,8 +152,11 @@ class SecurityTokenBlacklistRowMapper implements RowMapper<SecurityTokenBlacklis
 		securityTokenBlacklist.setToken(rs.getString("Token"));
 		securityTokenBlacklist.setType(rs.getString("Type"));
 		securityTokenBlacklist.setUserId(rs.getLong("UserID"));
-		securityTokenBlacklist.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+		if(rs.getString("DateCreated") != null) {
+			Timestamp ts = Timestamp.valueOf(rs.getString("DateCreated"));
 
+			securityTokenBlacklist.setDateCreated(new DateTime(ts));
+		}
 		return securityTokenBlacklist;
 	}
 }

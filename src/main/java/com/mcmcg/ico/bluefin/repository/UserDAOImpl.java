@@ -255,12 +255,31 @@ class UserRowMapper implements RowMapper<User> {
 		user.setFirstName(rs.getString("FirstName"));
 		user.setLastName(rs.getString("LastName"));
 		user.setIsActive(rs.getShort("IsActive"));
-		user.setLastLogin(new DateTime(rs.getTimestamp("LastLogin")));
-		user.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		user.setDateUpdated(new DateTime(rs.getTimestamp("DateUpdated")));
+		Timestamp ts = null;
+		if (rs.getString("LastLogin") != null) {
+			ts = Timestamp.valueOf(rs.getString("LastLogin"));
+			user.setLastLogin(new DateTime(ts));
+		}
+		
+		if (rs.getString("DateCreated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			user.setDateCreated(new DateTime(ts));
+		}
+		if (rs.getString("DateUpdated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateUpdated"));
+			user.setDateUpdated(new DateTime(ts));
+		}
 		user.setEmail(rs.getString("Email"));
 		user.setPassword(rs.getString("UserPassword"));
-		user.setDateModified(new DateTime(rs.getTimestamp("DateModified")));
+		if (rs.getString("DateModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateModified"));
+			user.setDateModified(new DateTime(ts));
+		}
+		user.setEmail(rs.getString("Email"));
+		user.setPassword(rs.getString("UserPassword"));
 		user.setModifiedBy(rs.getString("ModifiedBy"));
 		user.setStatus(rs.getString("Status"));
 

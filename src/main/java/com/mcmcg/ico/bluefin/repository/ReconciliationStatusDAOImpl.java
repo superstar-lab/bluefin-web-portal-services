@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,8 +82,17 @@ class ReconciliationStatusRowMapper implements RowMapper<ReconciliationStatus> {
 		reconciliationStatus.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
 		reconciliationStatus.setReconciliationStatus(rs.getString("ReconciliationStatus"));
 		reconciliationStatus.setDescription(rs.getString("Description"));
-		reconciliationStatus.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		reconciliationStatus.setDateModified(new DateTime(rs.getTimestamp("DateModified")));
+		Timestamp ts =null;
+		if (rs.getString("DateCreated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			reconciliationStatus.setDateCreated(new DateTime(ts));	
+		}
+		if (rs.getString("DateModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateModified"));
+			reconciliationStatus.setDateModified(new DateTime(ts));	
+		}
 		reconciliationStatus.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return reconciliationStatus;

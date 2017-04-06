@@ -112,8 +112,17 @@ class RolePermissionRowMapper implements RowMapper<RolePermission> {
 		rolePermission.setRolePermissionId(rs.getLong("RolePermissionID"));
 		rolePermission.setRoleId(rs.getLong("RoleID"));
 		rolePermission.setPermissionId(rs.getLong("PermissionID"));
-		rolePermission.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		rolePermission.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		Timestamp ts = null;
+		if (rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			rolePermission.setDateCreated(new DateTime(ts));
+		}
+		
+		if (rs.getString("DatedModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			rolePermission.setDateModified(new DateTime(ts));
+		}
 		rolePermission.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return rolePermission;

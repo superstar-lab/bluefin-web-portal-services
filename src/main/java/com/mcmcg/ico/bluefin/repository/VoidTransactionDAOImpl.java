@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,8 +101,8 @@ class VoidTransactionRowMapper implements RowMapper<VoidTransaction> {
 		voidTransaction.setInternalResponseDescription(rs.getString("InternalResponseDescription"));
 		voidTransaction.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
 		voidTransaction.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
-		voidTransaction.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-
+		Timestamp ts = Timestamp.valueOf(rs.getString("DateCreated"));
+		voidTransaction.setDateCreated(new DateTime(ts));
 		return voidTransaction;
 	}
 }

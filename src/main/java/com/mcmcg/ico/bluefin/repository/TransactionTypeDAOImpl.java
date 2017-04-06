@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,8 +82,17 @@ class TransactionTypeRowMapper implements RowMapper<TransactionType> {
 		transactionType.setTransactionTypeId(rs.getLong("TransactionTypeID"));
 		transactionType.setTransactionType(rs.getString("TransactionType"));
 		transactionType.setDescription(rs.getString("Description"));
-		transactionType.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		transactionType.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		Timestamp ts = null;
+		if(rs.getString("DateCreated") != null) {
+			 ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			transactionType.setDateCreated(new DateTime(ts));
+				
+		}
+		if(rs.getString("DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			transactionType.setDateModified(new DateTime(ts));
+		}
+		
 		transactionType.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return transactionType;

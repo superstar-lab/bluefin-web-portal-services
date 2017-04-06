@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -42,8 +43,16 @@ class OriginPaymentFrequencyRowMapper implements RowMapper<OriginPaymentFrequenc
 		originPaymentFrequency.setOriginPaymentFrequencyId(rs.getLong("OriginPaymentFrequencyID"));
 		originPaymentFrequency.setOrigin(rs.getString("Origin"));
 		originPaymentFrequency.setPaymentFrequency(rs.getString("PaymentFrequency"));
-		originPaymentFrequency.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		originPaymentFrequency.setDateModified(new DateTime(rs.getTimestamp("DateModified")));
+		Timestamp ts = null;
+		if(rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			originPaymentFrequency.setDateCreated(new DateTime(ts));
+		}
+		
+		if(rs.getString("DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			originPaymentFrequency.setDateModified(new DateTime(ts));
+		}
 		originPaymentFrequency.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return originPaymentFrequency;

@@ -149,8 +149,17 @@ class RoleRowMapper implements RowMapper<Role> {
 		role.setRoleId(rs.getLong("RoleID"));
 		role.setRoleName(rs.getString("RoleName"));
 		role.setDescription(rs.getString("Description"));
-		role.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		role.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		Timestamp ts = null;
+		if (rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			role.setDateCreated(new DateTime(ts));
+		}
+		
+		if (rs.getString("DatedModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			role.setDateModified(new DateTime(ts));
+		}
 		role.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return role;

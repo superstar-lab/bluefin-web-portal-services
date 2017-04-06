@@ -179,6 +179,7 @@ class PaymentProcessorResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.b
 		// PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy
 		// FROM PaymentProcessorResponseCode_Lookup WHERE TransactionType='SALE'
 		// AND PaymentProcessorResponseCode=1 AND PaymentProcessorID=1
+		Timestamp ts =null;
 		com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeId(rs.getLong("PaymentProcessorResponseCodeID"));
 		paymentProcessorResponseCode.setPaymentProcessorResponseCode(rs.getString("PaymentProcessorResponseCode"));
@@ -187,8 +188,16 @@ class PaymentProcessorResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.b
 		PaymentProcessor paymentProcessor = new PaymentProcessor();
 		paymentProcessor.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
 		paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-		paymentProcessorResponseCode.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
-		paymentProcessorResponseCode.setModifiedDate(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		if(rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			paymentProcessorResponseCode.setCreatedDate(new DateTime(ts));
+		}
+		
+		if(rs.getString("DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			paymentProcessorResponseCode.setModifiedDate(new DateTime(ts));
+		}
+		
 		paymentProcessorResponseCode.setLastModifiedBy(rs.getString("ModifiedBy"));
 
 		return paymentProcessorResponseCode;

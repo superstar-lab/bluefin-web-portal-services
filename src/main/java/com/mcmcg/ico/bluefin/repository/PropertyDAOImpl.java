@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import org.joda.time.DateTime;
@@ -60,8 +61,16 @@ class PropertyRowMapper implements RowMapper<Property> {
 		property.setApplicationPropertyValue(rs.getString("ApplicationPropertyValue"));
 		property.setDataType(rs.getString("DataType"));
 		property.setDescription(rs.getString("Description"));
-		property.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		property.setDateModified(new DateTime(rs.getTimestamp("DateModified")));
+		Timestamp ts = null;
+		if (rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			property.setDateCreated(new DateTime(ts));
+		}
+		if (rs.getString("DateModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateModified"));
+			property.setDateModified(new DateTime(ts));
+		}
+		
 		property.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return property;

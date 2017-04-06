@@ -117,8 +117,16 @@ class PermissionRowMapper implements RowMapper<Permission> {
 		permission.setPermissionId(rs.getLong("PermissionID"));
 		permission.setPermissionName(rs.getString("PermissionName"));
 		permission.setDescription(rs.getString("Description"));
-		permission.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
-		permission.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		Timestamp ts =  null;
+		if(rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			permission.setDateCreated(new DateTime(ts));
+		}
+		if(rs.getString("DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			permission.setDateModified(new DateTime(ts));
+		}
+	
 		permission.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return permission;
