@@ -32,7 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.GeneralRestExceptionHandler;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;

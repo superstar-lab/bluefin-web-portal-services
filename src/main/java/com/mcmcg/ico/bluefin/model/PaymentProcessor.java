@@ -82,8 +82,8 @@ public class PaymentProcessor implements Serializable {
         return paymentProcessorRules == null || paymentProcessorRules.isEmpty() ? false : true;
     }
 
-    public com.mcmcg.ico.bluefin.persistent.PaymentProcessor createPaymentProcessor(){
-    	com.mcmcg.ico.bluefin.persistent.PaymentProcessor returnObj = new com.mcmcg.ico.bluefin.persistent.PaymentProcessor();
+    public com.mcmcg.ico.bluefin.model.PaymentProcessor createPaymentProcessor(){
+    	com.mcmcg.ico.bluefin.model.PaymentProcessor returnObj = new com.mcmcg.ico.bluefin.model.PaymentProcessor();
     	returnObj.setPaymentProcessorId(this.getPaymentProcessorId());
     	return returnObj;
     }

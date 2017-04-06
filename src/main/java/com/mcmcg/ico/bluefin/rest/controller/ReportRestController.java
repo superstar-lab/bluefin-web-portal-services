@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;

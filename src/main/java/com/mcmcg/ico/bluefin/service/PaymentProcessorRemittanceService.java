@@ -16,7 +16,7 @@ import com.mcmcg.ico.bluefin.model.RemittanceSale;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRemittanceDAO;
 import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
@@ -31,11 +31,12 @@ public class PaymentProcessorRemittanceService {
 	@Autowired
 	private SaleTransactionDAO saleTransactionDAO;
 	@Autowired
-	private PaymentProcessorRepository paymentProcessorRepository;
-	@Autowired
 	private ReconciliationStatusDAO reconciliationStatusDAO;
 	@Autowired
 	private PaymentProcessorRemittanceDAO paymentProcessorRemittanceDAO;
+	
+	@Autowired
+	private PaymentProcessorDAO paymentProcessorDAO;
 
 	/**
 	 * Get transaction information for details page.
@@ -125,7 +126,7 @@ public class PaymentProcessorRemittanceService {
 	 * @return processorName
 	 */
 	public String getProcessorNameById(String paymentProcessorId) {
-		return paymentProcessorRepository.findByPaymentProcessorId(Long.parseLong(paymentProcessorId))
+		return paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(paymentProcessorId))
 				.getProcessorName();
 	}
 

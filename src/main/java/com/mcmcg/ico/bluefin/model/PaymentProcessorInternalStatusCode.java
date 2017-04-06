@@ -3,12 +3,10 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 
 //Table : PaymentProcessor_InternalStatusCode
 public class PaymentProcessorInternalStatusCode implements Serializable{
@@ -50,7 +48,6 @@ public class PaymentProcessorInternalStatusCode implements Serializable{
     
 	// Column : ModifiedBy
     @JsonIgnore
-    @LastModifiedBy
     private String lastModifiedBy;
     
     // Column : InternalStatusCodeID

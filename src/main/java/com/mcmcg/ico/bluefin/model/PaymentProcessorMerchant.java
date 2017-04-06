@@ -2,10 +2,7 @@ package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -37,8 +34,6 @@ public class PaymentProcessorMerchant implements Serializable {
     private PaymentProcessor paymentProcessor;
 
     @JsonIgnore
-    @LastModifiedBy
-    @Column(name = "ModifiedBy")
     private String lastModifiedBy;
 
     @JsonIgnore

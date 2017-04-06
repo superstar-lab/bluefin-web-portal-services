@@ -6,7 +6,6 @@ import java.util.Collection;
 import javax.persistence.ManyToOne;
 
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -36,7 +35,6 @@ public class PaymentProcessorResponseCode implements Serializable {
     private com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor;
 
     @JsonIgnore
-    @LastModifiedBy
     private String lastModifiedBy;
 
     @JsonIgnore

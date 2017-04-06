@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -33,7 +32,6 @@ public class PaymentProcessorStatusCode implements Serializable {
     private PaymentProcessor paymentProcessor;
 
     @JsonIgnore
-    @LastModifiedBy
     private String lastModifiedBy;
 
     @JsonIgnore

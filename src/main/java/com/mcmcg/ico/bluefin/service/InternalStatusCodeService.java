@@ -16,11 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorInternalStatusCode;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.repository.InternalStatusCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAO;

@@ -2,7 +2,6 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,10 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
-import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalResponseCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAO;
@@ -37,9 +34,6 @@ import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorStatusResource;
 @Transactional
 public class PaymentProcessorService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorService.class);
-
-	@Autowired
-	private PaymentProcessorRepository paymentProcessorRepository;
 
 	@Autowired
 	private PaymentProcessorDAO paymentProcessorDAO;

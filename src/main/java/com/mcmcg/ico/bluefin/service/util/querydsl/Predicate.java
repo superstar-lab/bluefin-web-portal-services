@@ -22,11 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.mcmcg.ico.bluefin.persistent.QUserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.QUserRole;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.UserLegalEntity;
-import com.mcmcg.ico.bluefin.persistent.UserRole;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.CollectionPath;
@@ -95,17 +93,18 @@ class Predicate {
 
     private BooleanExpression getCollectionPredicate(PathBuilder<?> entityPath, String collectionType) {
         List<Long> criteriaValue = getListFromCriteria();
-        if (collectionType.equals(UserRole.class.getTypeName())) {
+        /*if (collectionType.equals(UserRole.class.getTypeName())) {
             CollectionPath<UserRole, QUserRole> userRolePath = entityPath.getCollection(criteria.getKey(),
                     UserRole.class, QUserRole.class);
             return userRolePath.any().role.roleId.in(criteriaValue);
-        } else if (collectionType.equals(UserLegalEntity.class.getTypeName())) {
-            CollectionPath<UserLegalEntity, QUserLegalEntity> userLegalEntityPath = entityPath
-                    .getCollection(criteria.getKey(), UserLegalEntity.class, QUserLegalEntity.class);
+        } else if (collectionType.equals(UserLegalEntityApp.class.getTypeName())) {
+            CollectionPath<UserLegalEntityApp, QUserLegalEntityApp> userLegalEntityPath = entityPath
+                    .getCollection(criteria.getKey(), UserLegalEntityApp.class, QUserLegalEntity.class);
             return userLegalEntityPath.any().legalEntityApp.legalEntityAppId.in(criteriaValue);
-        }
-        LOGGER.error("Unable to parse value of {}", criteria.getKey());
-        throw new CustomBadRequestException("Unable to parse value of " + criteria.getKey());
+        }*/
+        return null;
+        /*LOGGER.error("Unable to parse value of {}", criteria.getKey());
+        throw new CustomBadRequestException("Unable to parse value of " + criteria.getKey());*/
     }
 
     private List<Long> getListFromCriteria() {

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,8 +25,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
-import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRepository;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
@@ -42,7 +41,7 @@ public class PaymentProcessorServiceTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
     @Mock
-    private PaymentProcessorRepository paymentProcessorRepository;
+    private PaymentProcessorDAO paymentProcessorRepository;
 
     @InjectMocks
     @Autowired
@@ -71,11 +70,11 @@ public class PaymentProcessorServiceTest {
     public void testGetPaymentProcessorSuccess() {
         PaymentProcessor paymentProcessor = createValidPaymentProcessor();
 
-        Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(paymentProcessor);
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(1L)).thenReturn(paymentProcessor);
 
         paymentProcessorService.getPaymentProcessorById(1L);
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(1L);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -85,13 +84,13 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testGetPaymentProcessorSuccessNotFound() {
-        Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(null);
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(1L)).thenReturn(null);
         expectedEx.expect(CustomNotFoundException.class);
         expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id = [1]");
 
         paymentProcessorService.getPaymentProcessorById(1L);
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(1L);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -100,13 +99,13 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testGetPaymentProcessorRuntimeExceptionSaving() {
-        Mockito.when(paymentProcessorRepository.findOne(Mockito.anyLong())).thenThrow(new RuntimeException(""));
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong())).thenThrow(new RuntimeException(""));
 
         expectedEx.expect(RuntimeException.class);
 
         paymentProcessorService.getPaymentProcessorById(Mockito.anyLong());
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(Mockito.anyLong());
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -300,13 +299,13 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testUpdatePaymentProcessorRuntimeExceptionFindId() {
-        Mockito.when(paymentProcessorRepository.findOne(1L)).thenThrow(new RuntimeException(""));
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(1L)).thenThrow(new RuntimeException(""));
 
         expectedEx.expect(RuntimeException.class);
 
         paymentProcessorService.updatePaymentProcessor(1L, Mockito.any(BasicPaymentProcessorResource.class));
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(0)).save(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
@@ -317,7 +316,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testUpdatePaymentProcessorRuntimeExceptionSaving() {
-        Mockito.when(paymentProcessorRepository.findOne(Mockito.anyLong())).thenReturn(new PaymentProcessor());
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong())).thenReturn(new PaymentProcessor());
         Mockito.when(paymentProcessorRepository.save(Mockito.any(PaymentProcessor.class)))
                 .thenThrow(new RuntimeException(""));
 
@@ -326,7 +325,7 @@ public class PaymentProcessorServiceTest {
         paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(),
                 Mockito.any(BasicPaymentProcessorResource.class));
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
@@ -342,17 +341,17 @@ public class PaymentProcessorServiceTest {
         PaymentProcessor paymentProcessorToDelete = new PaymentProcessor();
         paymentProcessorToDelete.setPaymentProcessorId(1L);
 
-        Mockito.when(paymentProcessorRepository.findOne(1L)).thenReturn(paymentProcessorToDelete);
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(1L)).thenReturn(paymentProcessorToDelete);
         Mockito.doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 return null;
             }
-        }).when(paymentProcessorRepository).delete(1L);
+        }).when(paymentProcessorRepository).delete(paymentProcessorRepository.findByPaymentProcessorId(1L));
 
         paymentProcessorService.deletePaymentProcessor(1L);
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).delete(paymentProcessorToDelete);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
@@ -368,13 +367,13 @@ public class PaymentProcessorServiceTest {
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 return null;
             }
-        }).when(paymentProcessorRepository).delete(1L);
+        }).when(paymentProcessorRepository).delete(paymentProcessorRepository.findByPaymentProcessorId(1L));
 
         expectedEx.expect(CustomNotFoundException.class);
         expectedEx.expectMessage("Unable to process request payment processor doesn't exists with given id = [1]");
         paymentProcessorService.deletePaymentProcessor(1L);
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(0)).save(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
@@ -384,14 +383,14 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testDeletePaymentProcessorRuntimeExceptionFindId() {
-        Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository).findOne(1L);
+        Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository).findByPaymentProcessorId(1L);
 
         expectedEx.expect(RuntimeException.class);
 
         paymentProcessorService.deletePaymentProcessor(Mockito.anyLong());
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
-        Mockito.verify(paymentProcessorRepository, Mockito.times(0)).delete(Mockito.anyLong());
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(1L);
+        Mockito.verify(paymentProcessorRepository, Mockito.times(0)).delete(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong()));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -401,7 +400,7 @@ public class PaymentProcessorServiceTest {
      */
     @Test
     public void testDeletePaymentProcessorRuntimeExceptionSaving() {
-        Mockito.when(paymentProcessorRepository.findOne(Mockito.anyLong())).thenReturn(new PaymentProcessor());
+        Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong())).thenReturn(new PaymentProcessor());
         Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository)
                 .delete(Mockito.any(PaymentProcessor.class));
 
@@ -409,7 +408,7 @@ public class PaymentProcessorServiceTest {
 
         paymentProcessorService.deletePaymentProcessor(Mockito.anyLong());
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(Mockito.anyLong());
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findByPaymentProcessorId(Mockito.anyLong());
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).delete(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
@@ -441,12 +440,12 @@ public class PaymentProcessorServiceTest {
      */
     @Test(expected = CustomBadRequestException.class)
     public void testGetPaymentProcessorsByIdsEmptyList() {
-        Mockito.when(paymentProcessorRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+        Mockito.when(paymentProcessorRepository.findAll((Set<Long>) Mockito.anyCollectionOf(Long.class)))
                 .thenReturn(new ArrayList<PaymentProcessor>());
 
         paymentProcessorService.getPaymentProcessorsByIds(new HashSet<Long>(Arrays.asList(1L, 2L, 3L)));
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll((Set<Long>) Mockito.anyCollectionOf(Long.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
@@ -455,12 +454,12 @@ public class PaymentProcessorServiceTest {
      */
     @Test(expected = CustomBadRequestException.class)
     public void testGetPaymentProcessorsByIdsOneWrongElement() {
-        Mockito.when(paymentProcessorRepository.findAll(Mockito.anyCollectionOf(Long.class)))
+        Mockito.when(paymentProcessorRepository.findAll((Set<Long>) Mockito.anyCollectionOf(Long.class)))
                 .thenReturn(getValidPaymentProcessorList());
 
         paymentProcessorService.getPaymentProcessorsByIds(new HashSet<Long>(Arrays.asList(1L, 2L, 3L, 5L)));
 
-        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
+        Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll((Set<Long>) Mockito.anyCollectionOf(Long.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 

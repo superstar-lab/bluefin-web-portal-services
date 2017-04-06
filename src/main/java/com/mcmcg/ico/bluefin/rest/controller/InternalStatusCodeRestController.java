@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.mcmcg.ico.bluefin.persistent.InternalStatusCode;
+import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;

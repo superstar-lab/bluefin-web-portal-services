@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.InternalResponseCode;
+import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;

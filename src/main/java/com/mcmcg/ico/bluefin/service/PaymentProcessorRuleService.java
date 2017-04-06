@@ -10,15 +10,10 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.CardType;
-import com.mcmcg.ico.bluefin.model.PaymentProcessor;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
-import com.mcmcg.ico.bluefin.persistent.jpa.PaymentProcessorRuleRepository;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -28,9 +23,6 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 public class PaymentProcessorRuleService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorRuleService.class);
 
-    @Autowired
-    private PaymentProcessorRuleRepository paymentProcessorRuleRepository;
-    
     @Autowired
     private PaymentProcessorRuleDAO paymentProcessorRuleDAO;
     
@@ -103,12 +95,13 @@ public class PaymentProcessorRuleService {
      * 
      * @return list of payment processor rules
      */
-    public List<PaymentProcessorRule> getPaymentProcessorRules() {
+    public List<PaymentProcessorRule> getPaymentProcessorRules() {/*
         LOGGER.info("Getting all payment processor rules");
 
         return paymentProcessorRuleRepository.findAll(new Sort(new Order(Direction.ASC, "cardType"),
                 new Order(Direction.ASC, "priority"), new Order(Direction.ASC, "paymentProcessor")));
-    }
+    */
+    return null;	}
 
     /**
      * Get payment processor rule by id

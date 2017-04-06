@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Objects;
 
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -39,7 +38,6 @@ public class User implements Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime dateModified = new DateTime();
 	@JsonIgnore
-	@LastModifiedBy
 	private String modifiedBy;
 	private String status;
 

@@ -3,7 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 
 import org.joda.time.DateTime;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -32,7 +31,6 @@ public class PaymentProcessorInternalResponseCode implements Serializable {
     private DateTime createdDate;
 
     @JsonIgnore
-    @LastModifiedBy
     private String lastModifiedBy;
 
 }

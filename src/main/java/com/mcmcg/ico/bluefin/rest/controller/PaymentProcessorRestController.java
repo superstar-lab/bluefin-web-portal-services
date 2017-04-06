@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessor;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
