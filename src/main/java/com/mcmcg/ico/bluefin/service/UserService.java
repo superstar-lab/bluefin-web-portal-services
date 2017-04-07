@@ -457,7 +457,7 @@ public class UserService {
 
 	private void activateAccount(User userToUpdate, String status) {
 		String username = userToUpdate.getUsername();
-		if (userToUpdate.getStatus() != status) {
+		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
 			userToUpdate.setStatus(status);
 			if (status.equals("NEW")) {
 				userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
