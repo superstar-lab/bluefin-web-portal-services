@@ -34,8 +34,8 @@ public class UpdateUserResource implements Serializable {
 		// Correct this when fixing code for User.
 		// New User will not contain Role and Legal Entity App.
 		// Create a new object to contain everything?
-		// userResource.setRoles(roles);
-		// userResource.setLegalEntityApps(entities);
+		userResource.setRoles(roles);
+		userResource.setLegalEntityApps(entities);
 		return userResource;
 	}
 

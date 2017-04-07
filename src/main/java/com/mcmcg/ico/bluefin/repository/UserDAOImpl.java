@@ -30,7 +30,10 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -40,6 +43,12 @@ public class UserDAOImpl implements UserDAO {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDAOImpl.class);
 
 	DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	
+	@Autowired
+	private UserRoleDAO userRoleDAO;
+	
+	@Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -175,8 +184,34 @@ public class UserDAOImpl implements UserDAO {
 		Long id = holder.getKey().longValue();
 		user.setUserId(id);
 		LOGGER.debug("Saved user - id: " + id);
+		createUserRoles(user);
+		createLegalEntityApp(user);
+		return user.getUserId();
+	}
 
-		return id;
+	/**
+	 * @param user
+	 */
+	private void createLegalEntityApp(User user) {
+		if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+			LOGGER.debug("Number of childs LegalEntityApp items associated with User {}"+user.getLegalEntities().size());
+			// in this case we need to create child items also.
+			legalEntityAppDAO.createLegalEntityApps(user.getLegalEntities());
+		}
+	}
+
+	/**
+	 * @param user
+	 */
+	private void createUserRoles(User user) {
+		if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+			LOGGER.debug("Number of childs Role items associated with User {}"+user.getRoles().size());
+			// in this case we need to create child items also.
+			for (UserRole userRole : user.getRoles()) {
+				userRole.setUserId(user.getUserId());
+			}
+			userRoleDAO.saveRoles(user.getRoles());
+		}
 	}
 
 	@Override
@@ -204,13 +239,13 @@ public class UserDAOImpl implements UserDAO {
 
 		LOGGER.debug("Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
 		
-		updateRoles(user.getRoles());
+		saveRoles(user.getRoles());
 
 		return rows;
 	}
 	
 	@Override
-	public void updateRoles(
+	public void saveRoles(
 			Collection<com.mcmcg.ico.bluefin.model.UserRole> userRoles) {
 		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserRole>(userRoles));
 	}
@@ -222,7 +257,7 @@ public class UserDAOImpl implements UserDAO {
 				com.mcmcg.ico.bluefin.model.UserRole userRole = userRoles.get(i);
 				DateTime utc1 = userRole.getDateModified() != null ? userRole.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-				LOGGER.info("Creating child item ");
+				LOGGER.info("Creating child item for , UserId = "+(userRole.getUserId()));
 				ps.setLong(1, userRole.getUser().getUserId());
 				ps.setLong(2, userRole.getRole().getRoleId());
 				ps.setTimestamp(3, dateCreated);

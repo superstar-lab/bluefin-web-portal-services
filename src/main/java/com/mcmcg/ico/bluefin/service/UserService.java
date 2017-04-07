@@ -95,7 +95,10 @@ public class UserService {
 		if (user == null) {
 			throw new CustomNotFoundException("Unable to find user by username provided: " + username);
 		}
-
+		List<UserRole> userRoles = userRoleDAO.findByUserId(user.getUserId());
+		user.setRoles(userRoles);
+		List<UserLegalEntityApp> userLegalEntityApps = userLegalEntityAppDAO.findByUserId(user.getUserId());
+		user.setLegalEntities(userLegalEntityApps);
 		return user;
 	}
 

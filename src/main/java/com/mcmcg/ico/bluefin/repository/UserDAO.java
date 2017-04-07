@@ -26,5 +26,5 @@ public interface UserDAO {
 
 	int deleteByUsername(String username);
 	
-	public void updateRoles(Collection<com.mcmcg.ico.bluefin.model.UserRole> paymentRoles);
+	public void saveRoles(Collection<com.mcmcg.ico.bluefin.model.UserRole> userRoles);
 }

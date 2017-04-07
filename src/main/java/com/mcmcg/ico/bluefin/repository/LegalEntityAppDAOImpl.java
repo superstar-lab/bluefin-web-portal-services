@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,13 +30,15 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
 public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
-
+	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -158,6 +163,31 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		LOGGER.debug("Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
 
 		return legalEntityApp;
+	}
+
+	@Override
+	public void createLegalEntityApps(Collection<UserLegalEntityApp> legalEntities) {
+		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserLegalEntityApp>(legalEntities));
+	}
+	
+	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserLegalEntityApp> userLegalEntities){
+		jdbcTemplate.batchUpdate(Queries.saveUserLegalEntityApp, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				com.mcmcg.ico.bluefin.model.UserLegalEntityApp userLegalEntity = userLegalEntities.get(i);
+				DateTime utc1 = userLegalEntity.getDateCreated() != null ? userLegalEntity.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+				LOGGER.info("Creating child item for , UserLegalEntityApp ");
+				ps.setLong(1, userLegalEntity.getUser().getUserId());
+				ps.setLong(2, userLegalEntity.getLegalEntityAppId());
+				ps.setTimestamp(3, dateCreated);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return userLegalEntities.size();
+			}
+		  });
 	}
 }
 

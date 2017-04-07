@@ -48,6 +48,13 @@ public class RegisterUserResource implements Serializable {
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setEmail(email);
+		for (Role role : roles) {
+			user.addRole(role);
+		}
+		for (LegalEntityApp legalEntityApp : legalEntityApps) {
+			user.addLegalEntityApp(legalEntityApp);
+		}
+		
 		// Correct this when fixing code for User.
 		// New User will not contain Role and Legal Entity App.
 		// Create a new object to contain everything?

@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
@@ -53,6 +54,21 @@ public class UserResource implements Serializable {
 		this.lastName = user.getLastName();
 		this.status = user.getStatus();
 		this.email = user.getEmail();
+		roles = new HashSet<Role>();
+		for (UserRole role : user.getRoles()) {
+			Role roleObj = new Role();
+			roleObj.setRoleId(role.getRoleId());
+			this.roles.add(roleObj);
+		}
+		legalEntityApps = new HashSet<LegalEntityApp>();
+		for (UserLegalEntityApp legalEntity : user.getLegalEntities()) {
+			LegalEntityApp userLegal = new LegalEntityApp();
+			userLegal.setLegalEntityAppId(legalEntity.getLegalEntityAppId());
+			this.legalEntityApps.add(userLegal);
+		}
+		/*for (UserLegalEntityApp legalEntityApp : user.getLegalEntities()) {
+			this.legalEntityApps.add(legalEntityApp.get);
+		}*/
 		// Correct this when fixing code for User.
 		// New User will not contain Role and Legal Entity App.
 		// Create a new object to contain everything?
@@ -69,8 +85,8 @@ public class UserResource implements Serializable {
 		user.setLastName(lastName);
 		user.setEmail(email);
 		user.setStatus(status);
-		// user.setRoles(roles);
-		// user.setLegalEntities(entities);
+		user.setRoles(roles);
+		user.setLegalEntities(entities);
 
 		return user;
 	}

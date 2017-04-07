@@ -1,8 +1,10 @@
 package com.mcmcg.ico.bluefin.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 
 public interface LegalEntityAppDAO {
 	LegalEntityApp findByLegalEntityAppName(String legalEntityAppName);
@@ -18,4 +20,6 @@ public interface LegalEntityAppDAO {
 	LegalEntityApp updateLegalEntityApp(LegalEntityApp legalEntityApp, String modifiedBy);
 
 	void deleteLegalEntityApp(LegalEntityApp legalEntityAppToDelete);
+
+	void createLegalEntityApps(Collection<UserLegalEntityApp> legalEntities);
 }
