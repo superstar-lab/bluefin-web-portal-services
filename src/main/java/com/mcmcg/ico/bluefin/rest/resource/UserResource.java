@@ -55,16 +55,20 @@ public class UserResource implements Serializable {
 		this.status = user.getStatus();
 		this.email = user.getEmail();
 		roles = new HashSet<Role>();
-		for (UserRole role : user.getRoles()) {
-			Role roleObj = new Role();
-			roleObj.setRoleId(role.getRoleId());
-			this.roles.add(roleObj);
+		if(user.getRoles() != null) {
+			for (UserRole role : user.getRoles()) {
+				Role roleObj = new Role();
+				roleObj.setRoleId(role.getRoleId());
+				this.roles.add(roleObj);
+			}
 		}
 		legalEntityApps = new HashSet<LegalEntityApp>();
-		for (UserLegalEntityApp legalEntity : user.getLegalEntities()) {
-			LegalEntityApp userLegal = new LegalEntityApp();
-			userLegal.setLegalEntityAppId(legalEntity.getLegalEntityAppId());
-			this.legalEntityApps.add(userLegal);
+		if (user.getLegalEntities() != null) {
+			for (UserLegalEntityApp legalEntity : user.getLegalEntities()) {
+				LegalEntityApp userLegal = new LegalEntityApp();
+				userLegal.setLegalEntityAppId(legalEntity.getLegalEntityAppId());
+				this.legalEntityApps.add(userLegal);
+			}
 		}
 		/*for (UserLegalEntityApp legalEntityApp : user.getLegalEntities()) {
 			this.legalEntityApps.add(legalEntityApp.get);

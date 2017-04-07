@@ -193,7 +193,7 @@ public class UserDAOImpl implements UserDAO {
 	 * @param user
 	 */
 	private void createLegalEntityApp(User user) {
-		if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+		if (user.getLegalEntities() != null && !user.getLegalEntities().isEmpty()) {
 			LOGGER.debug("Number of childs LegalEntityApp items associated with User {}"+user.getLegalEntities().size());
 			// in this case we need to create child items also.
 			legalEntityAppDAO.createLegalEntityApps(user.getLegalEntities());
