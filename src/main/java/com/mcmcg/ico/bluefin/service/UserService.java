@@ -209,9 +209,13 @@ public class UserService {
 		user.setEmail(userResource.getEmail());
 		user.setDateUpdated(new DateTime());
 		String modifiedBy = null;
-
+		
+		//TODO
+		//We are setting empty collectionn object not  to update roles in case of password update
+		user.setRoles(Collections.EMPTY_LIST);
+		
 		long userId = userDAO.updateUser(user, modifiedBy);
-		return new UserResource(userDAO.findByUserId(userId));
+		return new UserResource(userDAO.findByUserId(user.getUserId()));
 	}
 
 	/**
@@ -310,6 +314,9 @@ public class UserService {
 		}
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
+		//TODO
+		//We are setting empty collectionn object not  to update roles in case of password update
+		userToUpdate.setRoles(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
@@ -429,6 +436,7 @@ public class UserService {
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
+		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);

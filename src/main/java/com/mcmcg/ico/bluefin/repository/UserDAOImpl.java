@@ -241,6 +241,8 @@ public class UserDAOImpl implements UserDAO {
 		
 		//saveRoles(user.getRoles());
 		createUserRoles(user);
+		//TODO create LEs
+		createLegalEntityApp(user);
 		return rows;
 	}
 	
