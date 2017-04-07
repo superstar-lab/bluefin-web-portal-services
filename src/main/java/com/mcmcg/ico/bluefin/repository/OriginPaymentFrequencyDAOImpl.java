@@ -48,9 +48,9 @@ class OriginPaymentFrequencyRowMapper implements RowMapper<OriginPaymentFrequenc
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			originPaymentFrequency.setDateCreated(new DateTime(ts));
 		}
-		
-		if(rs.getString("DatedModified") != null) {
-			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+		// In this table, field name is not DatedModified, actual field name in this table is DateModified
+		if(rs.getString("DateModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateModified"));
 			originPaymentFrequency.setDateModified(new DateTime(ts));
 		}
 		originPaymentFrequency.setModifiedBy(rs.getString("ModifiedBy"));
