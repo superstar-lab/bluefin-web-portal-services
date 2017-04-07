@@ -196,6 +196,8 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 			// in this case we need to create child items also.
 			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()) {
 				paymentProcessorInternalResponseCode.setInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId());
+				paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
+				
 			}
 			paymentProcessorInternalResponseCodeDAO.delete(internalResponseCode.getInternalResponseCodeId().longValue());
 			LOGGER.info("Old Child Items deleted successfully");

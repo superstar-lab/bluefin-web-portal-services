@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.InternalResponseCode;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
 import com.mcmcg.ico.bluefin.repository.InternalResponseCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalResponseCodeDAO;
@@ -57,6 +59,7 @@ public class InternalResponseCodeService {
 					Long paymentProcessorResponseCodeId = paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId();
 					com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorResponseCodeId);
 					paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
+					paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
 				}
 			}
 		}
@@ -334,7 +337,12 @@ public class InternalResponseCodeService {
 				//paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(current);
 				paymentProcessorInternalResponseCode.setPaymentProcessorInternalResponseCodeId(current.getPaymentProcessorResponseCodeId());
 				paymentProcessorInternalResponseCode.setInternalResponseCodeId(internalResponseCodeIdToModify);
-				internalResponseCode.addPaymentProcessorInternalResponseCode(paymentProcessorInternalResponseCode);
+					InternalResponseCode internalResponseCodeUpdate = internalResponseCodeDAO.findOne(paymentProcessorInternalResponseCode.getInternalResponseCodeId());
+					paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCodeUpdate);
+					PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId());
+					paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
+					paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCodeUpdate);
+				//internalResponseCode.addPaymentProcessorInternalResponseCode(paymentProcessorInternalResponseCode);
 			}
 
 		}

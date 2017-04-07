@@ -135,8 +135,8 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 				DateTime utc1 = paymentProcessorInternalResponseCode.getCreatedDate() != null ? paymentProcessorInternalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 				LOGGER.info("Creating child item , InternalResponseCodeId="+(paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId()));//+ " , PaymentProcessorStatusCodeId="+paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
-				ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId());
-				ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCodeId());
+				ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
+				ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
 				ps.setTimestamp(3, dateCreated);
 			}
 
