@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -428,8 +429,10 @@ public class UserService {
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
-		long userId = userDAO.updateUser(userToUpdate, modifiedBy);
-		return userDAO.findByUserId(userId);
+		//We are setting empty collectionn object not  to update roles in case of password update
+		userToUpdate.setRoles(Collections.EMPTY_LIST);
+		userDAO.updateUser(userToUpdate, modifiedBy);
+		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
 
 	public void userActivation(ActivationResource activationResource) {

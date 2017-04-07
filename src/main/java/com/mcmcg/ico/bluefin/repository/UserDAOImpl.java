@@ -239,37 +239,12 @@ public class UserDAOImpl implements UserDAO {
 
 		LOGGER.debug("Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
 		
-		saveRoles(user.getRoles());
-
+		//saveRoles(user.getRoles());
+		createUserRoles(user);
 		return rows;
 	}
 	
-	@Override
-	public void saveRoles(
-			Collection<com.mcmcg.ico.bluefin.model.UserRole> userRoles) {
-		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserRole>(userRoles));
-	}
 	
-	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserRole> userRoles){
-		jdbcTemplate.batchUpdate(Queries.saveUserRole, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				com.mcmcg.ico.bluefin.model.UserRole userRole = userRoles.get(i);
-				DateTime utc1 = userRole.getDateModified() != null ? userRole.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-				LOGGER.info("Creating child item for , UserId = "+(userRole.getUserId()));
-				ps.setLong(1, userRole.getUser().getUserId());
-				ps.setLong(2, userRole.getRole().getRoleId());
-				ps.setTimestamp(3, dateCreated);
-			}
-
-			@Override
-			public int getBatchSize() {
-				return userRoles.size();
-			}
-		  });
-	}
-
 	@Override
 	public int deleteByUsername(String username) {
 		int rows = jdbcTemplate.update(Queries.deleteUserByUsername, new Object[] { username });
