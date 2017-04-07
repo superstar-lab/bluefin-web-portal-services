@@ -26,7 +26,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
@@ -39,8 +41,9 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	private JdbcTemplate jdbcTemplate;
 	
 	public List<PaymentProcessorInternalStatusCode> findAllForInternalStatusCodeId(Long internalStatusCodeId){
-		return jdbcTemplate.query( Queries.findAllPaymentProcessorInternalStatusCodeForInternalStatusCodeId, new Object[] {internalStatusCodeId},
+		List<PaymentProcessorInternalStatusCode> list = jdbcTemplate.query( Queries.findAllPaymentProcessorInternalStatusCodeForInternalStatusCodeId, new Object[] {internalStatusCodeId},
 				new PaymentProcessorInternalStatusCodeRowMapper());
+		return list;
 	}
 	
 	class PaymentProcessorInternalStatusCodeRowMapper implements RowMapper<PaymentProcessorInternalStatusCode> {

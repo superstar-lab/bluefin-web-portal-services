@@ -71,7 +71,7 @@ public class InternalResponseCodeService {
 
 		com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode = internalResponseCodeDAO
 				.findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(),
-						transactionType.getTransactionType());
+						transactionType.getTransactionTypeName());
 
 		if (internalResponseCode != null) {
 			throw new CustomBadRequestException(
@@ -83,7 +83,7 @@ public class InternalResponseCodeService {
 		internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
 		internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 		internalResponseCode.setLastModifiedBy(userName);
-		internalResponseCode.setTransactionTypeName(transactionType.getTransactionType());
+		internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 		internalResponseCode
 				.setPaymentProcessorInternalResponseCodes(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>());
 
@@ -102,7 +102,7 @@ public class InternalResponseCodeService {
 				if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
 					paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
 							.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
-									resourceProcessorCode.getCode(), transactionType.getTransactionType(),
+									resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
 									paymentProcessor);
 				} else {
 					Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
@@ -116,7 +116,7 @@ public class InternalResponseCodeService {
 						codeModified = true;
 						if (paymentProcessorResponseCodeDAO
 								.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
-										resourceProcessorCode.getCode(), transactionType.getTransactionType(),
+										resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
 										paymentProcessor) != null) {
 							throw new CustomBadRequestException("The code " + resourceProcessorCode.getCode()
 									+ " is already used by other Payment Processor Response Code.");
@@ -143,7 +143,7 @@ public class InternalResponseCodeService {
 				paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
 				paymentProcessorResponseCode
 						.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-				paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionType());
+				paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
 				// save or update payment processor status code..
 				if (paymentProcessorResponseCode.getPaymentProcessorResponseCodeId() != null) {
@@ -191,7 +191,7 @@ public class InternalResponseCodeService {
 		if (!internalResponseCodeResource.getCode().equals(internalResponseCode.getInternalResponseCode())) {
 			com.mcmcg.ico.bluefin.model.InternalResponseCode existingInternalResponseCode = internalResponseCodeDAO
 					.findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(),
-							transactionType.getTransactionType());
+							transactionType.getTransactionTypeName());
 			if (existingInternalResponseCode != null) {
 				throw new CustomBadRequestException(
 						"Another Internal response code already exists and is assigned to this transaction type.");
@@ -200,7 +200,7 @@ public class InternalResponseCodeService {
 
 		internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
 		internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
-		internalResponseCode.setTransactionTypeName(transactionType.getTransactionType());
+		internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
 		Set<Long> paymentProcessorResponseCodeToDelete = new HashSet<Long>();
 		if (internalResponseCodeResource.getPaymentProcessorCodes() != null	&& !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
@@ -227,7 +227,7 @@ public class InternalResponseCodeService {
 					if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
 						paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
 								.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
-										resourceProcessorCode.getCode(), transactionType.getTransactionType(),
+										resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
 										paymentProcessor);
 					} else {
 						Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
@@ -241,7 +241,7 @@ public class InternalResponseCodeService {
 							codeModified = true;
 							if (paymentProcessorResponseCodeDAO
 									.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
-											resourceProcessorCode.getCode(), transactionType.getTransactionType(),
+											resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
 											paymentProcessor) != null) {
 								throw new CustomBadRequestException("The code " + resourceProcessorCode.getCode()
 										+ " is already used by other Payment Processor Response Code.");
@@ -258,7 +258,7 @@ public class InternalResponseCodeService {
 						paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
 						paymentProcessorResponseCode
 								.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionType());
+						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
 						newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
 						/*newMapOfPaymentProcessorResponseCodes.put(
@@ -282,7 +282,7 @@ public class InternalResponseCodeService {
 						paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
 						paymentProcessorResponseCode
 								.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionType());
+						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 						/*newMapOfPaymentProcessorResponseCodes.put(
 								paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
 								paymentProcessorResponseCode);*/

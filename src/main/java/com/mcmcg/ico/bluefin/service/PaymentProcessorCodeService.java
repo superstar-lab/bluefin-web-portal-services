@@ -32,9 +32,9 @@ public class PaymentProcessorCodeService {
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> responseCodes = paymentProcessorResponseCodeDAO
-					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionType(), paymentProcessor);
+					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionTypeName(), paymentProcessor);
 
-			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionType());
+			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
 			paymentProcessorStatusCodeResource.setCompleted(hasInternalResponseCodesAssociated(responseCodes));
 			result.add(paymentProcessorStatusCodeResource);
 		}
@@ -56,8 +56,8 @@ public class PaymentProcessorCodeService {
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> responseCodes = paymentProcessorStatusCodeDAO
-					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionType(), paymentProcessor);
-			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionType());
+					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionTypeName(), paymentProcessor);
+			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
 			paymentProcessorStatusCodeResource.setCompleted(hasInternalStatusCodesAssociated(responseCodes));
 			result.add(paymentProcessorStatusCodeResource);
 		}

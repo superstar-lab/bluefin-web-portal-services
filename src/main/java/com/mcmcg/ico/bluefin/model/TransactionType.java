@@ -29,7 +29,7 @@ public class TransactionType implements Serializable {
 	}
 
 	private Long transactionTypeId;
-	private String transactionType;
+	private String transactionTypeName;
 	private String description;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -52,13 +52,13 @@ public class TransactionType implements Serializable {
 		}
 		TransactionType transactionType = (TransactionType) o;
 		return transactionTypeId == transactionType.transactionTypeId
-				&& Objects.equals(transactionType, transactionType.transactionType)
+				&& Objects.equals(transactionType, transactionType.transactionTypeName)
 				&& Objects.equals(description, transactionType.description);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(transactionTypeId, transactionType, description);
+		return Objects.hash(transactionTypeId, transactionTypeName, description);
 	}
 
 	public Long getTransactionTypeId() {
@@ -69,12 +69,12 @@ public class TransactionType implements Serializable {
 		this.transactionTypeId = transactionTypeId;
 	}
 
-	public String getTransactionType() {
-		return transactionType;
+	public String getTransactionTypeName() {
+		return transactionTypeName;
 	}
 
-	public void setTransactionType(String transactionType) {
-		this.transactionType = transactionType;
+	public void setTransactionTypeName(String transactionTypeName) {
+		this.transactionTypeName = transactionTypeName;
 	}
 
 	public String getDescription() {

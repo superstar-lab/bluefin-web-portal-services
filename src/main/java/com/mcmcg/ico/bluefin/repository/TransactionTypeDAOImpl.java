@@ -80,7 +80,7 @@ class TransactionTypeRowMapper implements RowMapper<TransactionType> {
 	public TransactionType mapRow(ResultSet rs, int row) throws SQLException {
 		TransactionType transactionType = new TransactionType();
 		transactionType.setTransactionTypeId(rs.getLong("TransactionTypeID"));
-		transactionType.setTransactionType(rs.getString("TransactionType"));
+		transactionType.setTransactionTypeName(rs.getString("TransactionType"));
 		transactionType.setDescription(rs.getString("Description"));
 		Timestamp ts = null;
 		if(rs.getString("DateCreated") != null) {
