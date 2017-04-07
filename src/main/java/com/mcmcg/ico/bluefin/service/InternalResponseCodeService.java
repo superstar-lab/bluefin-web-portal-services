@@ -283,6 +283,7 @@ public class InternalResponseCodeService {
 						paymentProcessorResponseCode
 								.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
 						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
+						
 						/*newMapOfPaymentProcessorResponseCodes.put(
 								paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),
 								paymentProcessorResponseCode);*/

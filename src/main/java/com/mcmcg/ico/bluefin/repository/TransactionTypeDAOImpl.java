@@ -76,6 +76,7 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 
 class TransactionTypeRowMapper implements RowMapper<TransactionType> {
 
+	
 	@Override
 	public TransactionType mapRow(ResultSet rs, int row) throws SQLException {
 		TransactionType transactionType = new TransactionType();
