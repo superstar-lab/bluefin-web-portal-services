@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
@@ -66,8 +65,9 @@ public class InternalStatusCodeService {
 				
 				
 				for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : list) {
-					InternalStatusCode internalStatusCode1 = internalStatusCodeDAO.findOne(paymentProcessorInternalStatusCode.getInternalStatusCodeId());
-					paymentProcessorInternalStatusCode.setInternalStatusCode(internalStatusCode1);
+					//TODO - Dheeraj will verify this.
+					//InternalStatusCode internalStatusCode = internalStatusCodeDAO.findOne(paymentProcessorInternalStatusCode.getInternalStatusCodeId());
+					paymentProcessorInternalStatusCode.setInternalStatusCode(internalStatusCode);
 					PaymentProcessorStatusCode paymentProcessorStatusCode = paymentProcessorStatusCodeDAO.findOne(paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
 					paymentProcessorInternalStatusCode.setPaymentProcessorStatusCode(paymentProcessorStatusCode);
 				}

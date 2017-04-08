@@ -126,7 +126,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Payment Processor {}", id);
+        LOGGER.info("Deleting Legal Entity {}", id);
         legalEntityAppService.deleteLegalEntityApp(id);
         LOGGER.info("Legal Entity {} has been deleted.", id);
 

@@ -6,7 +6,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -19,9 +22,9 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -33,6 +36,10 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private NamedParameterJdbcTemplate namedJDBCTemplate;
+	
 
 	@Override
 	public List<UserRole> findByUserId(long userId) {
@@ -78,6 +85,22 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 				return userRoles.size();
 			}
 		  });
+	}
+
+	@Override
+	public void deleteUserRoleById(Set<Long> rolesToRemove) {
+		if(!rolesToRemove.isEmpty()) {
+			Map<String, Set<Long>> valuesToDelete = new HashMap<String,Set<Long>>();
+			valuesToDelete.put("userRoleIds", rolesToRemove);
+			executeQueryToDeleteUserRoles(Queries.deleteUserRoles,valuesToDelete);
+		}
+	}
+	
+	private void executeQueryToDeleteUserRoles(String deleteQuery,Map<String, Set<Long>> idsToDelete){
+		LOGGER.debug("Finally deleteing records, idsToDelete="+idsToDelete);
+		
+		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
+		LOGGER.debug("Number of rows of roles deleted (Using user role id) ="+(noOfRowsDeleted));
 	}
 }
 

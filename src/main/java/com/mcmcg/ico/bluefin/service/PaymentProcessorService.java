@@ -150,7 +150,10 @@ public class PaymentProcessorService {
 
 		if (paymentProcessorToUpdate.getIsActive() == 0 && !isReadyToBeActivated(id)) {
 			paymentProcessorToUpdate.setIsActive((short) 0);
-			paymentProcessorDAO.save(paymentProcessorToUpdate);
+			paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
+			paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
+			paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
+			paymentProcessorDAO.update(paymentProcessorToUpdate);
 		}
 		if (paymentProcessorResource.getIsActive() == 1 && !isReadyToBeActivated(id)) {
 			LOGGER.error("Unable to activate Payment Processor, processor has some pending steps: [{}]",
@@ -159,12 +162,6 @@ public class PaymentProcessorService {
 					String.format("Unable to activate Payment Processor, processor has some pending steps: %s",
 							paymentProcessorToUpdate.getProcessorName()));
 		}
-
-		// Update fields for existing Payment Processor
-		paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
-		paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
-		paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
-		paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
 
 		return paymentProcessorToUpdate;
 	}

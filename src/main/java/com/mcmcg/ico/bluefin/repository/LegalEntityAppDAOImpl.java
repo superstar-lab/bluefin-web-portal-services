@@ -140,10 +140,8 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		// database.
 		// Convert this string to Timestamp, which is supported by
 		// PreparedStatement.
-		DateTime utc1 = legalEntityApp.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc2 = new DateTime(DateTimeZone.UTC);
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
-		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
@@ -151,11 +149,12 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.updateLegalEntityApp,
 						Statement.RETURN_GENERATED_KEYS);
+//UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?,IsActive = ?, DatedModified = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?				
 				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
-				ps.setTimestamp(2, dateCreated); // DateCreated
+				ps.setShort(2, legalEntityApp.getIsActive()); // IsActive
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, modifiedBy); // ModifiedBy
-				ps.setShort(5, legalEntityApp.getIsActive()); // IsActive
+				ps.setLong(5, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
 				return ps;
 			}
 		}, holder);
@@ -178,7 +177,11 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				DateTime utc1 = userLegalEntity.getDateCreated() != null ? userLegalEntity.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 				LOGGER.info("Creating child item for , UserLegalEntityApp ");
-				ps.setLong(1, userLegalEntity.getUser().getUserId());
+				if (userLegalEntity.getUser() != null) {
+					ps.setLong(1, userLegalEntity.getUser().getUserId());
+				} else {
+					ps.setLong(1, userLegalEntity.getUserId());
+				}
 				ps.setLong(2, userLegalEntity.getLegalEntityAppId());
 				ps.setTimestamp(3, dateCreated);
 			}

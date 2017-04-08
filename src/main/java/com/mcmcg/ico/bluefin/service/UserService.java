@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -213,6 +214,7 @@ public class UserService {
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		user.setRoles(Collections.EMPTY_LIST);
+		user.setLegalEntities(Collections.EMPTY_LIST);
 		
 		long userId = userDAO.updateUser(user, modifiedBy);
 		return new UserResource(userDAO.findByUserId(user.getUserId()));
@@ -240,16 +242,19 @@ public class UserService {
 
 		// Temporal list of roles that we need to keep in the user role list
 		Set<Long> rolesToKeep = new HashSet<Long>();
-
+		Set<Long> rolesToRemove = new HashSet<Long>();
 		// Update current role list from user
-		Iterator<UserRole> iter = userRoleDAO.findByUserId(userToUpdate.getUserId()).iterator();
+		//Iterator<UserRole> iter = userRoleDAO.findByUserId(userToUpdate.getUserId()).iterator();
+		Iterator<UserRole> iter = userToUpdate.getRoles().iterator();
 		while (iter.hasNext()) {
 			UserRole element = iter.next();
 
 			Role role = newMapOfRoles.get(element.getRoleId());
 			if (role == null) {
-				iter.remove();
+				iter.remove();//
+				rolesToRemove.add(element.getUserRoleId());
 			} else {
+				iter.remove();// No need to have this Roles objetct , as it is already in db associated with this user
 				rolesToKeep.add(element.getRoleId());
 			}
 		}
@@ -259,13 +264,21 @@ public class UserService {
 		for (Long roleId : newMapOfRoles.keySet()) {
 			if (!rolesToKeep.contains(roleId)) {
 				userToUpdate.addRole(newMapOfRoles.get(roleId));
-			}
+			} 
 		}
 
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
+		removeRolesFromUser(rolesToRemove);
+		//TODO
+		//We are setting empty collectionn object not  to update roles in case of password update
+		userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return userDAO.findByUserId(userToUpdate.getUserId());
+	}
+
+	private void removeRolesFromUser(Set<Long> rolesToRemove) {
+		userRoleDAO.deleteUserRoleById(rolesToRemove);
 	}
 
 	/**
@@ -291,17 +304,18 @@ public class UserService {
 		// Temporal list of legal entity apps that we need to keep in the user
 		// legal entity app list
 		Set<Long> legalEntityAppsToKeep = new HashSet<Long>();
-
+		Set<Long> legalEntityAppsToRemove = new HashSet<Long>();
 		// Update current role list from user
-		Iterator<UserLegalEntityApp> iter = userLegalEntityAppDAO.findByUserId(userToUpdate.getUserId()).iterator();
+		Iterator<UserLegalEntityApp> iter = userToUpdate.getLegalEntities().iterator();
 		while (iter.hasNext()) {
 			UserLegalEntityApp element = iter.next();
 
 			LegalEntityApp legalEntityApp = newMapOfLegalEntityApps.get(element.getLegalEntityAppId());
 			if (legalEntityApp == null) {
 				iter.remove();
-				//userLegalEntityAppDAO.d
+				legalEntityAppsToRemove.add(element.getUserLegalEntityAppId());
 			} else {
+				iter.remove();
 				legalEntityAppsToKeep.add(element.getLegalEntityAppId());
 			}
 		}
@@ -309,16 +323,21 @@ public class UserService {
 		// Add new roles to the user but ignoring the existing ones
 		for (Long legalEntityAppId : newMapOfLegalEntityApps.keySet()) {
 			if (!legalEntityAppsToKeep.contains(legalEntityAppId)) {
-				// userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
+				userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
 			}
 		}
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
+		removeLegalEntityFromUser(legalEntityAppsToRemove);
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return userDAO.findByUserId(userToUpdate.getUserId());
+	}
+
+	public void removeLegalEntityFromUser(Collection<Long> legalEntityAppsToRemove) {
+		userLegalEntityAppDAO.deleteUserLegalEntityAppById(legalEntityAppsToRemove);
 	}
 
 	/**

@@ -324,4 +324,10 @@ public interface Queries {
 	String deletePaymentProcessorInternalResponseCodes = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
 	String deleteInternalResponseCodes = "DELETE FROM InternalResponseCode_Lookup where InternalResponseCodeID IN (:ids)";
 	String findAllProcessorRules = "SELECT * FROM PaymentProcessor_Rule";
+	
+	String deleteUserRoles = "DELETE FROM User_Role where UserRoleID IN (:userRoleIds)";
+	String deleteUserLegalEntities = "DELETE FROM User_LegalEntityApp WHERE UserLegalEntityAppID IN (:userLegalEntityAppIds)";
+	String findLegalEntitiesAssociatedWithUserByLEId  = "SELECT UserLegalEntityAppID FROM User_LegalEntityApp WHERE LegalEntityAppID=?";
+	String findLegalEntitiesAssociatedWithUserByUserId  = "select count(*) from User_LegalEntityApp where UserID=? and LegalEntityAppID not in(:)";
+	String updatePaymentProcessor = "UPDATE PaymentProcessor_Lookup SET ProcessorName=?,IsActive=?,RemitTransactionOpenTime=?,RemitTransactionCloseTime=?,DatedModified=? WHERE PaymentProcessorID=?";
 }

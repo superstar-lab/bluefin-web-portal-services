@@ -46,9 +46,6 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	private JdbcTemplate jdbcTemplate;
 	
 	@Autowired
-	private PaymentProcessorRuleDAO paymentProcessorRulesDAO;
-	
-	@Autowired
 	private PaymentProcessorMerchantDAO paymentProcessorMerchantDAO;
 
 	/* (non-Javadoc)
@@ -149,7 +146,21 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		if (paymentProcessor.getPaymentProcessorMerchants() == null & paymentProcessor.getPaymentProcessorMerchants().isEmpty()) {
 			paymentProcessorMerchantDAO.deletPaymentProcessorMerchantByProcID(paymentProcessor.getPaymentProcessorId());
 		}
-		return null;
+		if (paymentProcessor.getPaymentProcessorRules() == null & paymentProcessor.getPaymentProcessorRules().isEmpty()) {
+			paymentProcessorMerchantDAO.deletePaymentProcessorRules(paymentProcessor.getPaymentProcessorId());
+		}
+		LOGGER.debug("Updating Payment Processor, PaymentProcessorId - "+(paymentProcessor.getPaymentProcessorId()));
+		DateTime utc4 = paymentProcessor.getModifiedDate() != null ? paymentProcessor.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
+		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
+//UPDATE PaymentProcessor_Lookup SET ProcessorName=?,IsActive=?,RemitTransactionOpenTime=?,RemitTransactionCloseTime=?,DatedModified=? WHERE PaymentProcessorID=?		
+		int rows = jdbcTemplate.update(Queries.updatePaymentProcessor,
+					new Object[] { 	paymentProcessor.getProcessorName(), paymentProcessor.getIsActive(), paymentProcessor.getRemitTransactionOpenTime(),
+							paymentProcessor.getRemitTransactionOpenTime(), dateModified, 
+							paymentProcessor.getPaymentProcessorId()
+								 });
+		LOGGER.debug("Updated PaymentProcessor, No of Rows Updated " + rows);
+		return paymentProcessor;
 	}
 }
 

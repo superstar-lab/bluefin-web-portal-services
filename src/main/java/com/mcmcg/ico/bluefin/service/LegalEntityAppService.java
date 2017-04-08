@@ -35,6 +35,10 @@ public class LegalEntityAppService {
 	private UserDAO userDAO;
 	@Autowired
 	private SessionService sessionService;
+
+	@Autowired
+	private UserService userService;
+	
 	@Autowired
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
@@ -110,8 +114,13 @@ public class LegalEntityAppService {
 		if (legalEntityAppToDelete == null) {
 			throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
 		}
-
+		deleteUserLegalEntityApp(id);
 		legalEntityAppDAO.deleteLegalEntityApp(legalEntityAppToDelete);
+	}
+
+	private void deleteUserLegalEntityApp(Long id) {
+		List<Long> userLegalEntityApps = userLegalEntityAppDAO.fetchLegalEntityApps(id);
+		userService.removeLegalEntityFromUser(userLegalEntityApps);
 	}
 
 	/**
