@@ -76,7 +76,9 @@ public class ReportRestController {
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
+		
+		// Below line found in releases while merging, but was not available in develop branch
+		//response.setHeader("Content-Length", Long.toString(downloadFile.length()));
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();

@@ -99,6 +99,7 @@ public class TokenUtils {
 		return new Date(System.currentTimeMillis());
 	}
 
+<<<<<<< HEAD
 	private Date generateExpirationDate(TokenType type) {
 		switch (type) {
 		case AUTHENTICATION:
@@ -118,6 +119,27 @@ public class TokenUtils {
 					+ Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);
 		}
 	}
+=======
+    private Date generateExpirationDate(TokenType type) {
+        switch (type) {
+        case AUTHENTICATION:
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("AUTHENTICATION_TOKEN_EXPIRATION")) * 1000);
+        case FORGOT_PASSWORD:
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("RESET_PASSWORD_TOKEN_EXPIRATION")) * 1000);
+        case REGISTER_USER:
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("REGISTER_USER_TOKEN_EXPIRATION")) * 1000);
+        case APPLICATION:
+            return new Date(System.currentTimeMillis()
+                    + Long.parseLong(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
+        default:
+            return new Date(System.currentTimeMillis()
+                    + Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);
+        }
+    }
+>>>>>>> refs/remotes/origin/develop
 
 	private Boolean isTokenExpired(String token) {
 		final Date expiration = this.getExpirationDateFromToken(token);
