@@ -374,7 +374,10 @@ public class InternalStatusCodeService {
 		// First delete internal status code and payment processor internal status code
 		internalStatusCodeDAO.delete(internalStatusCodeId);
 		// Second delete all payment processor status code which were in used by deleted internal status code
-		paymentProcessorInternalStatusCodeDAO.deletePaymentProcessorStatusCodeIds(paymentProcessorStatusCodeIds);
+		if(paymentProcessorStatusCodeIds != null && !paymentProcessorStatusCodeIds.isEmpty()){
+			paymentProcessorInternalStatusCodeDAO.deletePaymentProcessorStatusCodeIds(paymentProcessorStatusCodeIds);
+		}
+		
 	}
 
 	public com.mcmcg.ico.bluefin.model.InternalStatusCode getInternalStatusCode(Long internalStatusCodeId) {

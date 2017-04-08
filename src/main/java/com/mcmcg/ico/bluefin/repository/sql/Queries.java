@@ -323,4 +323,5 @@ public interface Queries {
 
 	String deletePaymentProcessorInternalResponseCodes = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
 	String deleteInternalResponseCodes = "DELETE FROM InternalResponseCode_Lookup where InternalResponseCodeID IN (:ids)";
+	String findAllProcessorRules = "SELECT * FROM PaymentProcessor_Rule";
 }

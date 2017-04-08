@@ -36,4 +36,6 @@ public interface PaymentProcessorRuleDAO {
 			com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRuleToUpdate);
 
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByPaymentProcessor(Long paymentProcessorId);
+	
+	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findAll();
 }

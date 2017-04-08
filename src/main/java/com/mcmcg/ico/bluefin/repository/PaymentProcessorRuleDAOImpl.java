@@ -204,6 +204,16 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 		return paymentProcessorRules;
 	}
 
+	@Override
+	public List<PaymentProcessorRule> findAll() {
+		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
+				.query(Queries.findAllProcessorRules,
+						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
+								new PaymentProcessorRuleRowMapper()));
+
+		return paymentProcessorRules;
+	}
+
 }
 
 class PaymentProcessorRuleRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> {

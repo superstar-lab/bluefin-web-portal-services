@@ -95,13 +95,12 @@ public class PaymentProcessorRuleService {
      * 
      * @return list of payment processor rules
      */
-    public List<PaymentProcessorRule> getPaymentProcessorRules() {/*
+    public List<PaymentProcessorRule> getPaymentProcessorRules() {
         LOGGER.info("Getting all payment processor rules");
 
-        return paymentProcessorRuleRepository.findAll(new Sort(new Order(Direction.ASC, "cardType"),
-                new Order(Direction.ASC, "priority"), new Order(Direction.ASC, "paymentProcessor")));
-    */
-    return null;	}
+          return paymentProcessorRuleDAO.findAll();
+   
+   	}
 
     /**
      * Get payment processor rule by id
