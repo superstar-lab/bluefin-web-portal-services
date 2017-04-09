@@ -506,8 +506,14 @@ public class UserService {
 				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
 			}
 			String modifiedBy = null;
+			//TODO
+			// Why we need to update roles and LE while activating/deactivating user, so make Roles/LE list as empty.[Matloob]
+			userToUpdate.setRoles(Collections.EMPTY_LIST);
+			userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
+			
 			long userId = userDAO.updateUser(userToUpdate, modifiedBy);
-			userToUpdate = userDAO.findByUserId(userId);
+			//TOOD.................Why are you calling below operation again, I have commented this [Matloob]
+			//userToUpdate = userDAO.findByUserId(userToUpdate.getUserId());
 		}
 	}
 
