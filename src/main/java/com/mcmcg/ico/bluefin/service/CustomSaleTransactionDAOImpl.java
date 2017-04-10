@@ -1090,19 +1090,19 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		StringBuilder querySbPart2 = new StringBuilder();
 		querySbPart2.append("UNION ");
 		querySbPart2.append(getSaleQuery());
-		querySbPart2.append("WHERE SALE.TransactionDateTime >= DATEADD(DAY, -2, CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
-		querySbPart2.append("AND SALE.TransactionDateTime <= DATEADD(DAY, -1, CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
+		querySbPart2.append("WHERE SALE.TransactionDateTime >= DATE_ADD(CAST('" + remittanceCreationDateBegin
+				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
+		querySbPart2.append("AND SALE.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
+				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
 		querySbPart2.append("AND SALE.InternalStatusCode = 1 ");
 		querySbPart2.append("AND (Upper(SALE.TransactionType) = 'SALE') ");
 		querySbPart2.append("AND SALE.ReconciliationStatusID = " + statusId + " ");
 		querySbPart2.append("UNION ");
 		querySbPart2.append(getRefundQuery());
-		querySbPart2.append("WHERE REFUND.TransactionDateTime >= DATEADD(DAY, -2, CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
-		querySbPart2.append("AND REFUND.TransactionDateTime <= DATEADD(DAY, -1, CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ");
+		querySbPart2.append("WHERE REFUND.TransactionDateTime >= DATE_ADD(CAST('" + remittanceCreationDateBegin
+				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
+		querySbPart2.append("AND REFUND.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
+				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
 		querySbPart2.append("AND REFUND.InternalStatusCode = 1 ");
 		querySbPart2.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
 		LOGGER.debug("query (part 2): " + querySbPart2.toString());
