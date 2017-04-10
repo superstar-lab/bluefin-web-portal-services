@@ -123,14 +123,12 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		
 		Map<String, CustomQuery> queriesMap = createQueries(query, null);
 		CustomQuery result = queriesMap.get("result");
-
+		String finalQueryToExecute = result.getFinalQueryToExecute();
 		int transactionsReportMaxSize=getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
 		if (transactionsReportMaxSize > 0) {
-			//jdbcTemplate.setFetchSize(transactionsReportMaxSize); ?? need to check
-			jdbcTemplate.setMaxRows(transactionsReportMaxSize);
+			finalQueryToExecute = finalQueryToExecute + " LIMIT " + transactionsReportMaxSize;
 		}
-		String finalQueryToExecute = result.getFinalQueryToExecute();
-		
+		LOGGER.info("Query to execute="+finalQueryToExecute);
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		List<SaleTransaction> tr = namedJDBCTemplate.query(finalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 		LOGGER.info("Total number of rows="+( tr != null ? tr.size() :0 ) );
@@ -154,9 +152,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.debug("Dynamic Query {}", query);
 		int transactionsReportMaxSize = getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
 		if (transactionsReportMaxSize > 0) {
-			//jdbcTemplate.setFetchSize(transactionsReportMaxSize); ?? need to check
-			jdbcTemplate.setMaxRows(transactionsReportMaxSize);
+			query = query + " LIMIT " + transactionsReportMaxSize;
 		}
+		LOGGER.info("Query to execute="+query);
 		@SuppressWarnings("unchecked")
 		List<PaymentProcessorRemittance> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceRowMapper());
 		LOGGER.info("Total number of rows="+( tr != null ? tr.size() :0 ));
@@ -166,11 +164,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
 			TransactionTypeCode transactionType, String processorTransactionType) throws ParseException {
-		LOGGER.info("Executing findRemittanceSaleRefundTransactionsDetail , Transaction Id {} , Transaction Type {} , Processor Transaction Type {}",transactionId,transactionType,processorTransactionType);
+		LOGGER.info("Executing findRemittanceSaleRefundTransactionsDetail, Transaction_Id {} , Transaction Type {} , Processor Transaction Type {}",transactionId,transactionType,processorTransactionType);
 		String query = getNativeQueryForRemittanceSaleRefundDetail(transactionId, transactionType,processorTransactionType);
 		PaymentProcessorRemittance ppr = null;
 		if (query != null && query.length() > 0) {
-			LOGGER.debug("Detail Page Query: {}", query);
+			LOGGER.info("Detail Page Query: {}", query);
 			ppr = fetchPaymentProcessorRemittanceCustomMappingResult_Single(query); 
 		}
 		return ppr;
@@ -185,9 +183,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.debug("Dynamic params map="+ dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
-
+		
 		int pageNumber = ( page != null ? page.getPageNumber() : 0 );
 		int pageSize = ( page != null ? page.getPageSize() : 0 );
+		if ( result != null ) {
+			result.setPagination(true);
+			result.setPageSize(pageSize);
+			result.setPageNumber(pageNumber);
+		}
 		String queryTotal_FinalQueryToExecute = queryTotal.getFinalQueryToExecute();
 		LOGGER.debug("queryTotal_FinalQueryToExecute="+queryTotal_FinalQueryToExecute);
 		// Set the paging for the created select
@@ -210,7 +213,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		result.setMaxResults(pageSize);
 
 		String result_FinalQueryToExecute = result.getFinalQueryToExecute();
-		LOGGER.debug("result_FinalQueryToExecute="+(result_FinalQueryToExecute));
+		LOGGER.info("result_FinalQueryToExecute="+(result_FinalQueryToExecute));
 		List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 		LOGGER.info("Total number of Rows="+( tr != null ? tr.size() :0 ) );
 		Page<SaleTransaction> list = new PageImpl<SaleTransaction>(tr,page,countResult);
@@ -224,10 +227,15 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		String query = getNativeQueryForRemittanceSaleRefund(search,page);
 		LOGGER.debug("Query Prepared="+query);
 		CustomQuery queryObj = new CustomQuery(query);
+		if ( queryObj != null && page != null ) {
+			queryObj.setPagination(true);
+			queryObj.setPageSize(page.getPageSize());
+			queryObj.setPageNumber(page.getPageNumber());
+		}
 		// need to check how order will work
 //		queryObj.setSort(page != null ? page.getSort() : null);
 		query = queryObj.getFinalQueryToExecute();
-		LOGGER.info("Query To Execute="+query);
+		LOGGER.debug("Query To Execute="+query);
 //		LOGGER.debug("Query_2 after order="+query);
 		// Currently this is only used if the user selects 'Not Reconcilied' on
 		// the UI.
@@ -235,7 +243,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (negate) {
 			query = query.replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
 		}	
-		LOGGER.debug("Finally Native query to execute: " + query);
+		LOGGER.info("Finally Native query to execute: " + query);
 
 		// Sort is no longer passed from the UI. It is hard-coded.
 
@@ -412,6 +420,24 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	private class CustomQuery {
+		public int getPageNumber() {
+			return pageNumber;
+		}
+		public void setPageNumber(int pageNumber) {
+			this.pageNumber = pageNumber;
+		}
+		public int getPageSize() {
+			return pageSize;
+		}
+		public void setPageSize(int pageSize) {
+			this.pageSize = pageSize;
+		}
+		public boolean isPagination() {
+			return pagination;
+		}
+		public void setPagination(boolean pagination) {
+			this.pagination = pagination;
+		}
 		public int getFirstResult() {
 			return firstResult;
 		}
@@ -429,6 +455,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		private Sort sort;
 		private int firstResult;
 		private int maxResults;
+		private int pageNumber;
+		private int pageSize;
+		private boolean pagination;
 		
 		public Map<String,Object> getParametersMap(){
 			return this.parametersMap;
@@ -450,7 +479,17 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		
 		public String getFinalQueryToExecute(){
-			return this.queryAsString + ( this.sort != null ? addSort(this.sort) : "" );
+			String query = this.queryAsString + ( this.sort != null ? addSort(this.sort) : "" );
+			if ( isPagination() ) {
+				if ( pageSize < 1 ) {
+					pageSize = 15;
+				}
+				if ( pageNumber < 1 ) {
+					pageNumber = 1;
+				}
+				query = query + " LIMIT " + ( pageSize * pageNumber ) + "," + pageSize;
+			}
+			return query;
 		}
 		
 		public Sort getSort() {
@@ -1229,7 +1268,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySb.append("FROM PaymentProcessor_Remittance ppr ");
 		querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
 		querySb.append("LEFT JOIN Refund_Transaction rt ON (ppr.ProcessorTransactionID = rt.ProcessorTransactionID) ");
-		querySb.append("LEFT JOIN sale_transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
+		querySb.append("LEFT JOIN Sale_Transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
 		return querySb.toString();
 	}
 
@@ -1303,8 +1342,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				"REFUND.ReconciliationStatusID,REFUND.ReconciliationDate,NULL AS RefundBatchUploadID,0 AS REFUNDIsVoided,0 AS REFUNDIsRefunded,");
 		querySb.append(
 				"REFUND.MerchantID AS MID,REFUND.Processor AS Processor_Name,REFUND.ReconciliationStatusID AS ReconciliationStatus_ID ");
-		querySb.append("FROM REFUND_Transaction REFUND ");
-		querySb.append("JOIN sale_transaction st2 on (REFUND.SaleTransactionId = st2.SaleTransactionId) ");
+		querySb.append("FROM Refund_Transaction REFUND ");
+		querySb.append("JOIN Sale_Transaction st2 on (REFUND.SaleTransactionId = st2.SaleTransactionId) ");
 		querySb.append("JOIN PaymentProcessor_Lookup ppl ON (REFUND.Processor = ppl.ProcessorName) ");
 		return querySb.toString();
 	}
