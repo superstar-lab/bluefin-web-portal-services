@@ -26,5 +26,11 @@ public interface UserDAO {
 
 	int deleteByUsername(String username);
 	
+<<<<<<< HEAD
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
+=======
+	
+	Page<User> findAllUingFilter(BooleanExpression expression, PageRequest pageRequest);
+	
+>>>>>>> branch 'ORM_Refactoring' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/_git/Bluefin-web-portal-services
 }
