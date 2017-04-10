@@ -26,4 +26,7 @@ public interface UserDAO {
 
 	int deleteByUsername(String username);
 	
+	
+	Page<User> findAllUingFilter(BooleanExpression expression, PageRequest pageRequest);
+	
 }
