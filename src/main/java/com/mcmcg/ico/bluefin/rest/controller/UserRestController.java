@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,8 +109,19 @@ public class UserRestController {
 			search = getVerifiedSearch(userName, search);
 		}
 
+		int anyOtherParamsIndex = search.indexOf("&");
+		if (anyOtherParamsIndex != -1) {
+			if (anyOtherParamsIndex < search.length()) {
+				search = search.substring(0, anyOtherParamsIndex);
+			}
+		}
+		String[] searchArray = (search!= null && StringUtils.isNotBlank(search)?search.split("\\$\\$"):null);
+		List<String>  filterList=  null;
+		if(searchArray!=null)
+			filterList = Arrays.asList(searchArray);
+		
 		LOGGER.info("Generating report with the following filters: {}", search);
-		return userService.getUsers(QueryDSLUtil.createExpression(search, User.class), page, size, sort);
+		return userService.getUsers(filterList, page, size, sort);
 	}
 
 	@ApiOperation(value = "createUser", nickname = "createUser")

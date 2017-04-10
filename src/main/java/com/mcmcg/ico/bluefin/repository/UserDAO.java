@@ -1,7 +1,7 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,4 +26,5 @@ public interface UserDAO {
 
 	int deleteByUsername(String username);
 	
+	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
 }

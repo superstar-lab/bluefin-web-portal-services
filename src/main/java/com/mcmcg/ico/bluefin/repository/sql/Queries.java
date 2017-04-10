@@ -54,7 +54,7 @@ public interface Queries {
 	String findAllVoidTransactions = "SELECT VoidTransactionID, SaleTransactionID, ApprovalCode, Processor, MerchantID, ProcessorTransactionID, TransactionDateTime, ApplicationTransactionID, Application, pUser, OriginalSaleTransactionID, PaymentProcessorStatusCode, PaymentProcessorStatusCodeDescription, PaymentProcessorResponseCode, PaymentProcessorResponseCodeDescription, InternalStatusCode, InternalStatusDescription, InternalResponseCode, InternalResponseDescription, PaymentProcessorInternalStatusCodeID, PaymentProcessorInternalResponseCodeID, DateCreated FROM Void_Transaction";
 	String findVoidTransactionByApplicationTransactionId = "SELECT VoidTransactionID, SaleTransactionID, ApprovalCode, Processor, MerchantID, ProcessorTransactionID, TransactionDateTime, ApplicationTransactionID, Application, pUser, OriginalSaleTransactionID, PaymentProcessorStatusCode, PaymentProcessorStatusCodeDescription, PaymentProcessorResponseCode, PaymentProcessorResponseCodeDescription, InternalStatusCode, InternalStatusDescription, InternalResponseCode, InternalResponseDescription, PaymentProcessorInternalStatusCodeID, PaymentProcessorInternalResponseCodeID, DateCreated FROM Void_Transaction WHERE ApplicationTransactionID = ?";
 	String findVoidTransactionByProcessorTransactionId = "SELECT VoidTransactionID, SaleTransactionID, ApprovalCode, Processor, MerchantID, ProcessorTransactionID, TransactionDateTime, ApplicationTransactionID, Application, pUser, OriginalSaleTransactionID, PaymentProcessorStatusCode, PaymentProcessorStatusCodeDescription, PaymentProcessorResponseCode, PaymentProcessorResponseCodeDescription, InternalStatusCode, InternalStatusDescription, InternalResponseCode, InternalResponseDescription, PaymentProcessorInternalStatusCodeID, PaymentProcessorInternalResponseCodeID, DateCreated FROM Void_Transaction WHERE ProcessorTransactionID = ?";
-	String findAllUsers = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup";
+	String findAllUsers = "SELECT ul.UserID, UserName, FirstName, LastName, ul.IsActive, LastLogin, ul.DateCreated, DateUpdated, Email, UserPassword, ul.DateModified, ul.ModifiedBy, Status FROM User_Lookup ul";
 	String findUserByUserId = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE UserID = ?";
 	String findUserByUsername = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE UserName = ?";
 	String findUserByEmail = "SELECT UserID, UserName, FirstName, LastName, IsActive, LastLogin, DateCreated, DateUpdated, Email, UserPassword, DateModified, ModifiedBy, Status FROM User_Lookup WHERE Email = ?";
@@ -167,7 +167,7 @@ public interface Queries {
 			.append("FROM PaymentProcessor_Remittance ppr ")
 			.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ")
 			.append("LEFT JOIN Refund_Transaction rt ON (ppr.ProcessorTransactionID = rt.ProcessorTransactionID) ")
-			.append("LEFT JOIN sale_transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ")
+			.append("LEFT JOIN Sale_Transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ")
 			.append("WHERE ppr.RemittanceCreationDate >= ':remittanceCreationDateParam1' ")
 			.append("AND ppr.RemittanceCreationDate <= ':remittanceCreationDateParam2' ")
 			.append("AND (Upper(ppr.TransactionType) = 'REFUND') ")
@@ -204,8 +204,8 @@ public interface Queries {
 			.append("SALE.Processor AS Processor_Name,")
 			.append("SALE.ReconciliationStatusID AS ReconciliationStatus_ID ").append("FROM Sale_Transaction SALE ")
 			.append("JOIN PaymentProcessor_Lookup ppl ON (SALE.Processor = ppl.ProcessorName) ")
-			.append("WHERE SALE.TransactionDateTime >= DATEADD(DAY, -2, CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ")
-			.append("AND SALE.TransactionDateTime <= DATEADD(DAY, -1, CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ")
+			.append("WHERE SALE.TransactionDateTime >= DATE_ADD(CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ")
+			.append("AND SALE.TransactionDateTime <= DATE_ADD(CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ")
 			.append("AND SALE.InternalStatusCode = 1 ").append("AND (Upper(SALE.TransactionType) = 'SALE') ")
 			.append("AND SALE.ReconciliationStatusID = 3 ").append("UNION SELECT NULL AS PaymentProcessorRemittanceID,")
 			.append("NULL AS DateCreated,").append("NULL AS ReconciliationStatusID,")
@@ -244,11 +244,11 @@ public interface Queries {
 			.append("0 AS REFUNDIsRefunded,").append("REFUND.MerchantID AS MID,")
 			.append("REFUND.Processor AS Processor_Name,")
 			.append("REFUND.ReconciliationStatusID AS ReconciliationStatus_ID ")
-			.append("FROM REFUND_Transaction REFUND ")
-			.append("JOIN sale_transaction st2 ON (REFUND.SaleTransactionId = st2.SaleTransactionId) ")
+			.append("FROM Refund_Transaction REFUND ")
+			.append("JOIN Sale_Transaction st2 ON (REFUND.SaleTransactionId = st2.SaleTransactionId) ")
 			.append("JOIN PaymentProcessor_Lookup ppl ON (REFUND.Processor = ppl.ProcessorName) ")
-			.append("WHERE REFUND.TransactionDateTime >= DATEADD(DAY, -2, CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ")
-			.append("AND REFUND.TransactionDateTime <= DATEADD(DAY, -1, CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS DATETIME)) ")
+			.append("WHERE REFUND.TransactionDateTime >= DATE_ADD(CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ")
+			.append("AND REFUND.TransactionDateTime <= DATE_ADD(CAST(':remittanceCreationDateParam1' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ")
 			.append("AND REFUND.InternalStatusCode = 1 ").append("AND REFUND.ReconciliationStatusID = 3 ) ReconDate ")
 			.append("WHERE ReconDate.Processor_Name = ':processorNameParam' ")
 			.append("AND (ReconDate.MID IN (':merchantIdParam')) ")

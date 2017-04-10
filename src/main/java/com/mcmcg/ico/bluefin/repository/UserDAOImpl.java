@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -21,20 +21,19 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
 import com.mysema.query.types.expr.BooleanExpression;
 
 @Repository
@@ -52,6 +51,9 @@ public class UserDAOImpl implements UserDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private NamedParameterJdbcTemplate namedJDBCTemplate;
 
 	@Override
 	public List<User> findAll() {
@@ -71,6 +73,51 @@ public class UserDAOImpl implements UserDAO {
 		int countResult = list.size();
 		int pageNumber = pageRequest.getPageNumber();
 		int pageSize = pageRequest.getPageSize();
+
+		List<User> onePage = new ArrayList<User>();
+		int index = pageSize * pageNumber;
+		int increment = pageSize;
+		// Check upper bound to avoid IndexOutOfBoundsException
+		if ((index + increment) > countResult) {
+			int adjustment = (index + increment) - countResult;
+			increment -= adjustment;
+		}
+		for (int i = index; i < (index + increment); i++) {
+			onePage.add(list.get(i));
+		}
+
+		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
+
+		return pageList;
+	}
+	
+	public int countUserRecords(String query,Map<String,String> filterMap){
+		Integer count = namedJDBCTemplate.queryForObject(query, filterMap,Integer.class);
+		return count;
+	}
+	@Override
+	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap ) {
+		String query = QueryBuilderHelper.buildQuery(filterMap);
+		LOGGER.debug("Formed Sql query:"+query);
+		int pageNumber = pageRequest.getPageNumber();
+		int pageSize = pageRequest.getPageSize();
+		int offset=pageNumber*pageSize;
+		query  =  QueryBuilderHelper.appendLimit(query, offset, pageSize);
+		
+		/*filterMap.put("offset", new Integer(offset).toString());
+		filterMap.put("pageSize", new Integer(pageSize).toString());*/
+		
+		/*ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(
+				query, new Object[] {  },
+				new RowMapperResultSetExtractor<User>(new UserRowMapper()));*/
+		//int count = countUserRecords(query,filterMap);
+		int totalCount=134;
+		List<User> list = namedJDBCTemplate.query(query, filterMap, new UserRowMapper());
+
+		LOGGER.debug("Number of rows: " + list.size());
+
+		int countResult = list.size();
+
 
 		List<User> onePage = new ArrayList<User>();
 		int index = pageSize * pageNumber;

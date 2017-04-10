@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,6 @@ import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
-import com.mysema.query.types.expr.BooleanExpression;
 
 @Service
 @Transactional
@@ -104,8 +104,15 @@ public class UserService {
 		return user;
 	}
 
-	public Iterable<User> getUsers(BooleanExpression exp, Integer page, Integer size, String sort) {
-		Page<User> result = userDAO.findAll(exp, QueryDSLUtil.getPageRequest(page, size, sort));
+	public Iterable<User> getUsers(List<String> search, Integer page, Integer size, String sort) {
+		Map<String,String> filterMap = new HashMap<String,String>(7);
+		if(search != null && !search.isEmpty() && search.size()>0) {
+			for(String searchParam:search){
+				String[] str1 = searchParam.split(":");
+				filterMap.put(str1[0], str1[1]);
+			}
+		}
+		Page<User> result = userDAO.findAllWithDynamicFilter(search, QueryDSLUtil.getPageRequest(page, size, sort),filterMap);
 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
