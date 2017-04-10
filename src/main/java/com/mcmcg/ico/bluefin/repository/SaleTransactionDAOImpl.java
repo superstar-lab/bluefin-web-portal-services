@@ -103,7 +103,10 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException {
-		String sql = Queries.findAllSaleTransactions + " WHERE " + search;
+		String sql = Queries.findAllSaleTransactions ;
+		if (search != null && !search.isEmpty()) {
+			sql = sql  + " WHERE "  + search;
+		}
 		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
 
 		LOGGER.debug("Number of rows: " + list.size());
@@ -170,8 +173,11 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setApplication(rs.getString("Application"));
 		saleTransaction.setOrigin(rs.getString("Origin"));
 		saleTransaction.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
-		Timestamp ts = Timestamp.valueOf(rs.getString("TransactionDateTime"));
-		saleTransaction.setTransactionDateTime(new DateTime(ts));
+		Timestamp ts = null;
+		if(rs.getString("TransactionDateTime") != null) {
+			ts = Timestamp.valueOf(rs.getString("TransactionDateTime"));
+			saleTransaction.setTransactionDateTime(new DateTime(ts));
+		}
 //		saleTransaction.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
 		saleTransaction.setTestMode(rs.getShort("TestMode"));
 		saleTransaction.setApprovalCode(rs.getString("ApprovalCode"));
@@ -187,8 +193,10 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setInternalResponseDescription(rs.getString("InternalResponseDescription"));
 		saleTransaction.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
 		saleTransaction.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
-		ts = Timestamp.valueOf(rs.getString("DateCreated"));
-		saleTransaction.setDateCreated(new DateTime(ts));
+		if(rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			saleTransaction.setDateCreated(new DateTime(ts));
+		}
 		saleTransaction.setPaymentProcessorRuleId(rs.getLong("PaymentProcessorRuleID"));
 		saleTransaction.setRulePaymentProcessorId(rs.getLong("RulePaymentProcessorID"));
 		saleTransaction.setRuleCardType(rs.getString("RuleCardType"));
@@ -202,8 +210,10 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setUserDefinedField2(rs.getString("UserDefinedField2"));
 		saleTransaction.setUserDefinedField3(rs.getString("UserDefinedField3"));
 		saleTransaction.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
-		ts = Timestamp.valueOf(rs.getString("ReconciliationDate"));
-		saleTransaction.setReconciliationDate(new DateTime(ts));
+		if(rs.getString("ReconciliationDate") != null) {
+			ts = Timestamp.valueOf(rs.getString("ReconciliationDate"));
+			saleTransaction.setReconciliationDate(new DateTime(ts));
+		}
 		saleTransaction.setBatchUploadId(rs.getLong("BatchUploadID"));
 		saleTransaction.setEtlRunId(rs.getLong("ETL_RUNID"));
 
