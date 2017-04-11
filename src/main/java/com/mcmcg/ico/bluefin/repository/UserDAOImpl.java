@@ -91,7 +91,6 @@ public class UserDAOImpl implements UserDAO {
 		return pageList;
 	}
 	
-<<<<<<< HEAD
 	public int countUserRecords(String query,Map<String,String> filterMap){
 		Integer count = namedJDBCTemplate.queryForObject(query, filterMap,Integer.class);
 		return count;
@@ -112,12 +111,11 @@ public class UserDAOImpl implements UserDAO {
 				query, new Object[] {  },
 				new RowMapperResultSetExtractor<User>(new UserRowMapper()));*/
 		//int count = countUserRecords(query,filterMap);
-		int totalCount=134;
 		List<User> list = namedJDBCTemplate.query(query, filterMap, new UserRowMapper());
 
 		LOGGER.debug("Number of rows: " + list.size());
 
-		int countResult = list.size();
+		int countResult = jdbcTemplate.queryForObject(Queries.findCountUserLookup, Integer.class);
 
 
 		List<User> onePage = new ArrayList<User>();
@@ -136,36 +134,6 @@ public class UserDAOImpl implements UserDAO {
 
 		return pageList;
 	}
-=======
-	
-	@Override
-	public Page<User> findAllUingFilter(BooleanExpression expression, PageRequest pageRequest) {
-		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
->>>>>>> branch 'ORM_Refactoring' of http://tfs-prd.internal.mcmcg.com:8080/tfs/Encore/ICO/_git/Bluefin-web-portal-services
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		int countResult = list.size();
-		int pageNumber = pageRequest.getPageNumber();
-		int pageSize = pageRequest.getPageSize();
-
-		List<User> onePage = new ArrayList<User>();
-		int index = pageSize * pageNumber;
-		int increment = pageSize;
-		// Check upper bound to avoid IndexOutOfBoundsException
-		if ((index + increment) > countResult) {
-			int adjustment = (index + increment) - countResult;
-			increment -= adjustment;
-		}
-		for (int i = index; i < (index + increment); i++) {
-			onePage.add(list.get(i));
-		}
-
-		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
-
-		return pageList;
-	}
-	
 	
 	@Override
 	public User findByUserId(long userId) {

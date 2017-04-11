@@ -330,4 +330,5 @@ public interface Queries {
 	String findLegalEntitiesAssociatedWithUserByLEId  = "SELECT UserLegalEntityAppID FROM User_LegalEntityApp WHERE LegalEntityAppID=?";
 	String findLegalEntitiesAssociatedWithUserByUserId  = "select count(*) from User_LegalEntityApp where UserID=? and LegalEntityAppID not in(:)";
 	String updatePaymentProcessor = "UPDATE PaymentProcessor_Lookup SET ProcessorName=?,IsActive=?,RemitTransactionOpenTime=?,RemitTransactionCloseTime=?,DatedModified=? WHERE PaymentProcessorID=?";
+	String findCountUserLookup = "SELECT COUNT(*) From User_Lookup";
 }
