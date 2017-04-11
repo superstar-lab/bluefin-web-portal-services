@@ -35,6 +35,7 @@ import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
 import com.mysema.query.types.expr.BooleanExpression;
+import com.mysql.jdbc.StringUtils;
 
 @Repository
 public class UserDAOImpl implements UserDAO {
@@ -95,41 +96,49 @@ public class UserDAOImpl implements UserDAO {
 		Integer count = namedJDBCTemplate.queryForObject(query, filterMap,Integer.class);
 		return count;
 	}
+	
+	public static void main(String[]  a ){
+		StringBuffer sb= new StringBuffer("SELECT  ul.UserID, UserName, FirstName, LastName, ul.IsActive, LastLogin, ul.DateCreated, DateUpdated, Email, UserPassword, ul.DateModified, ul.ModifiedBy, Status  FROM User_Lookup ul");
+		String s1=sb.toString();
+		int index = StringUtils.indexOfIgnoreCase(s1, "SELECT");
+		int index1 = StringUtils.indexOfIgnoreCase(s1, "FROM");
+		String s2 = sb.replace( sb.indexOf("SELECT",0)+7,sb.indexOf("FROM",160)-1, "count(*)").toString();
+		System.out.println(sb.indexOf("SELECT", 0)+":"+sb.indexOf("FROM")+":"+s2);
+		
+	}
+	
 	@Override
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap ) {
-		String query = QueryBuilderHelper.buildQuery(filterMap);
-		LOGGER.debug("Formed Sql query:"+query);
+		StringBuffer queryBuffer = QueryBuilderHelper.buildQuery(filterMap);
+		
 		int pageNumber = pageRequest.getPageNumber();
 		int pageSize = pageRequest.getPageSize();
 		int offset=pageNumber*pageSize;
+		String query =  queryBuffer.toString();
+		String queryForTotalCount = queryBuffer.replace( queryBuffer.indexOf("SELECT",0)+7,queryBuffer.indexOf("FROM",160)-1, "count(ul.UserID)").toString();
+		LOGGER.debug("Query for result:"+query);
+		LOGGER.debug("Query for count:"+queryForTotalCount);
 		query  =  QueryBuilderHelper.appendLimit(query, offset, pageSize);
 		
-		/*filterMap.put("offset", new Integer(offset).toString());
-		filterMap.put("pageSize", new Integer(pageSize).toString());*/
+		int countResult = jdbcTemplate.queryForObject(queryForTotalCount, Integer.class);
+		LOGGER.info("Search result count:"+countResult);
+		List<User> searchResultlist = namedJDBCTemplate.query(query, filterMap, new UserRowMapper());
 		
-		/*ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(
-				query, new Object[] {  },
-				new RowMapperResultSetExtractor<User>(new UserRowMapper()));*/
-		//int count = countUserRecords(query,filterMap);
-		List<User> list = namedJDBCTemplate.query(query, filterMap, new UserRowMapper());
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		int countResult = jdbcTemplate.queryForObject(Queries.findCountUserLookup, Integer.class);
-
+		LOGGER.info("Search result coontents:"+searchResultlist.size());
+		LOGGER.debug("Number of rows: " + searchResultlist.size());
 
 		List<User> onePage = new ArrayList<User>();
 		int index = pageSize * pageNumber;
 		int increment = pageSize;
 		// Check upper bound to avoid IndexOutOfBoundsException
-		if ((index + increment) > countResult) {
+		/*if ((index + increment) > countResult) {
 			int adjustment = (index + increment) - countResult;
 			increment -= adjustment;
 		}
 		for (int i = index; i < (index + increment); i++) {
 			onePage.add(list.get(i));
-		}
-
+		}*/
+		onePage =searchResultlist;
 		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
 
 		return pageList;

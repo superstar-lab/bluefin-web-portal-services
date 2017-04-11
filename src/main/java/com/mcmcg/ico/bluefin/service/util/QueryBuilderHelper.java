@@ -7,7 +7,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 public class QueryBuilderHelper {
 	
 
-	public static String buildQuery(Map<String,String> filterMap ){
+	public static StringBuffer buildQuery(Map<String,String> filterMap ){
 		//String query = Queries.findAllUsers;
 		StringBuffer  bf = new StringBuffer( Queries.findAllUsers);
 		
@@ -17,7 +17,7 @@ public class QueryBuilderHelper {
 		bf.append(clauseAppender(filterMap));
 		//bf.append("LIMIT :offset, :pageSize");
 		
-		return bf.toString();
+		return bf;
 	}
 
 	public static String appendLimit(String query,int offset,int pageSize){
