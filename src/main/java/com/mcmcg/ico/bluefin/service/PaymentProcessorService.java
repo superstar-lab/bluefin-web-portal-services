@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -217,21 +218,25 @@ public class PaymentProcessorService {
 
 		// Temporal list of legal entity app ids already updated
 		Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
+	//	Set<Long> PaymentProcessorMerchantsToDelete = new HashSet<Long>();
 
 		// Update information from current payment processor merchants
-		/*Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate
+		Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate
 				.getPaymentProcessorMerchants().iterator();
 		while (iter.hasNext()) {
 			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant element = iter.next();
 
 			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
 					.get(element.getLegalEntityApp().getLegalEntityAppId());
-			
+			if(ppmr!= null) {
 				element.setMerchantId(ppmr.getMerchantId());
 				element.setTestOrProd(ppmr.getTestOrProd());
 				PaymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
+			}
 			
-		}*/
+		}
+		
+		
 
 		// Add the new payment processor merchants
 		for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
