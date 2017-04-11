@@ -2,12 +2,15 @@ package com.mcmcg.ico.bluefin.service.util;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Sort;
+
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 public class QueryBuilderHelper {
 	
 
-	public static StringBuffer buildQuery(Map<String,String> filterMap ){
+	public static StringBuffer buildQuery(Map<String,String> filterMap ,Sort sort){
 		//String query = Queries.findAllUsers;
 		StringBuffer  bf = new StringBuffer( Queries.findAllUsers);
 		
@@ -15,7 +18,7 @@ public class QueryBuilderHelper {
 		setRoles(bf,filterMap);
 		setWhere(bf,filterMap);
 		bf.append(clauseAppender(filterMap));
-		//bf.append("LIMIT :offset, :pageSize");
+		placeOderBy(bf,sort);
 		
 		return bf;
 	}
@@ -46,19 +49,28 @@ public class QueryBuilderHelper {
 		if(filterMap.containsKey("legalEntities"))
 			bf2.append(" AND ule.LegalEntityAppID=:legalEntities");
 		if(filterMap.containsKey("roles"))
-			bf2.append(" AND ur.roles=:roles ");
+			bf2.append(" AND ur.RoleID=:roles ");
 		if(filterMap.containsKey("username"))
 			bf2.append(" AND userName=:username ");		
 		if(filterMap.containsKey("lastName"))
-			bf2.append(" AND  lastName:lastName ");
+			bf2.append(" AND  lastName=:lastName ");
 		if(filterMap.containsKey("firstName"))
 			bf2.append(" AND  firstName=:firstName ");
 		if(filterMap.containsKey("email"))
 			bf2.append(" AND  emailId=:email ");
 		if(filterMap.containsKey("status"))
-			bf2.append(" AND  status:status ");
+			bf2.append(" AND  status=:status ");
 		
 		bf2.replace(0, 4, " ");
 		return bf2.toString();
+	}
+	
+	private static void placeOderBy(StringBuffer  bf,Sort sort){
+		String sortString =  sort.toString();
+			if(StringUtils.isNotEmpty(sortString)){
+				String[] str1 = sortString.split(":");
+				bf.append(" Order By ").append(str1[0]).append(" ").append(str1[1]);
+			}
+			
 	}
 }

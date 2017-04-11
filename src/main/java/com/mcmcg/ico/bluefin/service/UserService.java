@@ -108,7 +108,12 @@ public class UserService {
 		Map<String,String> filterMap = new HashMap<String,String>(7);
 		if(search != null && !search.isEmpty() && search.size()>0) {
 			for(String searchParam:search){
+				
 				String[] str1 = searchParam.split(":");
+				if (str1[0].equalsIgnoreCase("legalEntities") || str1[0].equalsIgnoreCase("roles") ) {
+					str1[1] = str1[1].replace("[", "");
+					str1[1] = str1[1].replace("]", "");
+				}
 				filterMap.put(str1[0], str1[1]);
 			}
 		}

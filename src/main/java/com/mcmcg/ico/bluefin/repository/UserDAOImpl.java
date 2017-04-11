@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,12 +105,21 @@ public class UserDAOImpl implements UserDAO {
 		int index1 = StringUtils.indexOfIgnoreCase(s1, "FROM");
 		String s2 = sb.replace( sb.indexOf("SELECT",0)+7,sb.indexOf("FROM",160)-1, "count(*)").toString();
 		System.out.println(sb.indexOf("SELECT", 0)+":"+sb.indexOf("FROM")+":"+s2);
+		//displayUser();
 		
 	}
+
+	/*private static void displayUser() {
+		Map<String, String> map = new HashMap<>();
+		map.put("firstName", "Chetan1");
+		String query = "SELECT *FROM User_Lookup WHERE firstName=:firstName";
+		List<User> searchResultlist = namedJDBCTemplate.query(query, map, new UserRowMapper());
+		System.out.println(searchResultlist.size());
+	}*/
 	
 	@Override
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap ) {
-		StringBuffer queryBuffer = QueryBuilderHelper.buildQuery(filterMap);
+		StringBuffer queryBuffer = QueryBuilderHelper.buildQuery(filterMap,pageRequest.getSort());
 		
 		int pageNumber = pageRequest.getPageNumber();
 		int pageSize = pageRequest.getPageSize();
@@ -119,25 +129,14 @@ public class UserDAOImpl implements UserDAO {
 		LOGGER.debug("Query for result:"+query);
 		LOGGER.debug("Query for count:"+queryForTotalCount);
 		query  =  QueryBuilderHelper.appendLimit(query, offset, pageSize);
-		
-		int countResult = jdbcTemplate.queryForObject(queryForTotalCount, Integer.class);
-		LOGGER.info("Search result count:"+countResult);
 		List<User> searchResultlist = namedJDBCTemplate.query(query, filterMap, new UserRowMapper());
 		
-		LOGGER.info("Search result coontents:"+searchResultlist.size());
 		LOGGER.debug("Number of rows: " + searchResultlist.size());
 
+		int countResult = namedJDBCTemplate.queryForObject(queryForTotalCount,filterMap, Integer.class);
+		LOGGER.debug("Search result count:"+countResult);
+		
 		List<User> onePage = new ArrayList<User>();
-		int index = pageSize * pageNumber;
-		int increment = pageSize;
-		// Check upper bound to avoid IndexOutOfBoundsException
-		/*if ((index + increment) > countResult) {
-			int adjustment = (index + increment) - countResult;
-			increment -= adjustment;
-		}
-		for (int i = index; i < (index + increment); i++) {
-			onePage.add(list.get(i));
-		}*/
 		onePage =searchResultlist;
 		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
 
