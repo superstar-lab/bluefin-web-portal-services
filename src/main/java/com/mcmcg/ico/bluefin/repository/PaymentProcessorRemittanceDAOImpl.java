@@ -64,6 +64,12 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 	@Override
 	public Page<RemittanceSale> findRemittanceSaleRefundTransactions(String search, PageRequest pageRequest,
 			boolean negate) throws ParseException {
+		return customSaleTransactionDAO.findRemittanceSaleRefundTransactions(search, pageRequest,negate);
+	}
+	
+	// not in use
+	public Page<RemittanceSale> findRemittanceSaleRefundTransactions_Old(String search, PageRequest pageRequest,
+			boolean negate) throws ParseException {
 
 		// Parameters to set in query with examples:
 		// remittanceCreationDate1 - 2016-10-20 00:00:00
@@ -85,7 +91,7 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 		for (Map.Entry<String, Object> entry : parameters.entrySet()) {
 			LOGGER.debug("parameter: " + entry.getKey() + ", value: " + entry.getValue());
 		}
-
+		LOGGER.info("Remittance Query Before Execute="+sql);
 		List<RemittanceSale> list = (List<RemittanceSale>) jdbcTemplate.query(sql,
 				new PaymentProcessorRemittanceExtractor(), parameters);
 

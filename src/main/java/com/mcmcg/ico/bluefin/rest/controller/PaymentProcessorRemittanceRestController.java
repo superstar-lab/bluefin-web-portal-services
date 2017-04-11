@@ -67,7 +67,7 @@ public class PaymentProcessorRemittanceRestController {
 			@RequestParam(value = "page", required = true) Integer page,
 			@RequestParam(value = "size", required = true) Integer size,
 			@RequestParam(value = "sort", required = false) String sort) throws JsonProcessingException {
-		LOGGER.info("Generating report with the following filters: {}", search);
+		LOGGER.info("Generating report with the following Filters= {}", search);
 
 		boolean negate = false;
 
@@ -83,7 +83,7 @@ public class PaymentProcessorRemittanceRestController {
 			}
 		}
 
-		QueryDSLUtil.createExpression(search, SaleTransaction.class);
+//		QueryDSLUtil.createExpression(search, SaleTransaction.class);
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

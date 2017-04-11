@@ -31,9 +31,7 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 	public List<ReconciliationStatus> findAll() {
 		List<ReconciliationStatus> list = jdbcTemplate.query(Queries.findAllReconciliationStatuses,
 				new ReconciliationStatusRowMapper());
-
-		LOGGER.debug("Number of rows: " + list.size());
-
+		LOGGER.debug("Number of rows: " + ( list != null ? list.size() : 0 ));
 		return list;
 	}
 

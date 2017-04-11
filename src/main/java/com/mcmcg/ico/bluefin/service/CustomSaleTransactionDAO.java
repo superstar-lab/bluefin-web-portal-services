@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
+import com.mcmcg.ico.bluefin.model.RemittanceSale;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
@@ -28,10 +29,10 @@ public interface CustomSaleTransactionDAO  {
 
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException;
 
-	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest page,
-			boolean negate) throws ParseException;
+	public Page<RemittanceSale> findRemittanceSaleRefundTransactions(String search, PageRequest page,
+			boolean negate) throws ParseException ;
 
-	public List<PaymentProcessorRemittance> findRemittanceSaleRefundTransactionsReport(String search)
+	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search)
 			throws ParseException;
 
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,

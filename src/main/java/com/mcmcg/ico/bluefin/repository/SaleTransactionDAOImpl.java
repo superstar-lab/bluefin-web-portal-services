@@ -103,31 +103,49 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException {
+		LOGGER.info("Find Transaction, Search="+(search) );
 		String sql = Queries.findAllSaleTransactions ;
-		if (search != null && !search.isEmpty()) {
-			sql = sql  + " WHERE "  + search;
-		}
-		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		int countResult = list.size();
 		int pageNumber = pageRequest.getPageNumber();
 		int pageSize = pageRequest.getPageSize();
-
-		List<SaleTransaction> onePage = new ArrayList<SaleTransaction>();
-		int index = pageSize * pageNumber;
-		int increment = pageSize;
-		// Check upper bound to avoid IndexOutOfBoundsException
-		if ((index + increment) > countResult) {
-			int adjustment = (index + increment) - countResult;
-			increment -= adjustment;
+		int limit_PageNumber = pageNumber;
+		if (limit_PageNumber < 0) {
+			limit_PageNumber = 1;
 		}
-		for (int i = index; i < (index + increment); i++) {
-			onePage.add(list.get(i));
+		limit_PageNumber = limit_PageNumber + 1;
+		if (search != null && !search.isEmpty()) {
+			sql = sql  + " WHERE "  + search + " LIMIT " + ( pageSize * limit_PageNumber ) + ","+pageSize;
+		} else {
+			sql = sql  + " LIMIT " + ( pageSize * limit_PageNumber ) + ","+pageSize;
 		}
+		String sql_Count = Queries.findAllSaleTransactions_Count;
+		if (search != null && !search.isEmpty()) {
+			sql_Count = sql_Count  + " WHERE "  + search;
+		}
+		LOGGER.info("Sale Trans Count Query Before Execute="+sql_Count);
+		Integer saleTrans_Count = jdbcTemplate.queryForObject(sql_Count, Integer.class);
+		LOGGER.info("Sale Trans Count=" + ( saleTrans_Count != null ? saleTrans_Count.intValue() : 0 ) );
+		LOGGER.info("Sale Trans Query Before Execute="+sql);
+		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
+		if (list == null) {
+			list = new ArrayList<SaleTransaction>();
+		}
+		LOGGER.debug("Number of rows: " + list.size());
 
-		Page<SaleTransaction> pageList = new PageImpl<SaleTransaction>(onePage, pageRequest, countResult);
+		int countResult = saleTrans_Count != null ? saleTrans_Count.intValue() : 0;
+
+//		List<SaleTransaction> onePage = new ArrayList<SaleTransaction>();
+//		int index = pageSize * pageNumber;
+//		int increment = pageSize;
+//		// Check upper bound to avoid IndexOutOfBoundsException
+//		if ((index + increment) > countResult) {
+//			int adjustment = (index + increment) - countResult;
+//			increment -= adjustment;
+//		}
+//		for (int i = index; i < (index + increment); i++) {
+//			onePage.add(list.get(i));
+//		}
+
+		Page<SaleTransaction> pageList = new PageImpl<SaleTransaction>(list, pageRequest, countResult);
 
 		return pageList;
 	}

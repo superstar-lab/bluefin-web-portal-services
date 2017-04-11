@@ -34,7 +34,6 @@ public class PaymentProcessorRemittanceService {
 	private ReconciliationStatusDAO reconciliationStatusDAO;
 	@Autowired
 	private PaymentProcessorRemittanceDAO paymentProcessorRemittanceDAO;
-	
 	@Autowired
 	private PaymentProcessorDAO paymentProcessorDAO;
 
