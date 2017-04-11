@@ -209,14 +209,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			}
 		});
 		LOGGER.debug("QueryTotal_Count Result=" + countResult);
-		// need to check what below rows effect result
-		result.setFirstResult(pageSize * pageNumber);
-		result.setMaxResults(pageSize);
 
 		String result_FinalQueryToExecute = result.getFinalQueryToExecute();
 		LOGGER.info("result_FinalQueryToExecute="+(result_FinalQueryToExecute));
 		List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 		LOGGER.info("Total number of Rows="+( tr != null ? tr.size() :0 ) );
+		if (tr == null) {
+			tr = new ArrayList<SaleTransaction>();
+		}
 		Page<SaleTransaction> list = new PageImpl<SaleTransaction>(tr,page,countResult);
 		return list;
 	}
@@ -432,23 +432,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		public void setPagination(boolean pagination) {
 			this.pagination = pagination;
 		}
-		public int getFirstResult() {
-			return firstResult;
-		}
-		public void setFirstResult(int firstResult) {
-			this.firstResult = firstResult;
-		}
-		public int getMaxResults() {
-			return maxResults;
-		}
-		public void setMaxResults(int maxResults) {
-			this.maxResults = maxResults;
-		}
+		
 		private String queryAsString;
 		private Map<String,Object> parametersMap = new HashMap<String,Object>();
 		private Sort sort;
-		private int firstResult;
-		private int maxResults;
 		private int pageNumber;
 		private int pageSize;
 		private boolean pagination;

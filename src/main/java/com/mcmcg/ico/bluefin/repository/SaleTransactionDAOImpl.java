@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.service.CustomSaleTransactionDAO;
 
 @Repository
 public class SaleTransactionDAOImpl implements SaleTransactionDAO {
@@ -30,7 +31,9 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-
+	@Autowired
+	private CustomSaleTransactionDAO customSaleTransactionDAO;
+	
 	@Override
 	public List<SaleTransaction> findAll() {
 		List<SaleTransaction> list = jdbcTemplate.query(Queries.findAllSaleTransactions,
@@ -100,9 +103,12 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 		return list;
 	}
-
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException {
+		return customSaleTransactionDAO.findTransaction(search, pageRequest);
+	}
+	
+	public Page<SaleTransaction> findTransaction_Old(String search, PageRequest pageRequest) throws ParseException {
 		LOGGER.info("Find Transaction, Search="+(search) );
 		String sql = Queries.findAllSaleTransactions ;
 		int pageNumber = pageRequest.getPageNumber();
@@ -111,7 +117,6 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 		if (limit_PageNumber < 0) {
 			limit_PageNumber = 1;
 		}
-		limit_PageNumber = limit_PageNumber + 1;
 		if (search != null && !search.isEmpty()) {
 			sql = sql  + " WHERE "  + search + " LIMIT " + ( pageSize * limit_PageNumber ) + ","+pageSize;
 		} else {
@@ -152,11 +157,10 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
-		String sql = Queries.findAllSaleTransactions + " WHERE " + search;
-		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
-
+//		String sql = Queries.findAllSaleTransactions + " WHERE " + search;
+		List<SaleTransaction> list = customSaleTransactionDAO.findTransactionsReport(search);
+//				jdbcTemplate.query(sql, new SaleTransactionRowMapper());
 		LOGGER.debug("Number of rows: " + list.size());
-
 		return list;
 	}
 }

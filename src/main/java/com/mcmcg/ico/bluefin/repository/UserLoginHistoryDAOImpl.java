@@ -47,12 +47,14 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		Timestamp loginDateTime = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 
+		//INSERT INTO User_Login_History (UserID, LoginDateTime, DateCreated, MessageID, UserName, UserPassword) VALUES (?, ?, ?, ?, ?, ?)
+		
 		jdbcTemplate.update(new PreparedStatementCreator() {
 
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUserLoginHistory,
 						Statement.RETURN_GENERATED_KEYS);
-				ps.setLong(1, userLoginHistory.getUserId()); // UserID
+				ps.setLong(1, (userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0"))); // UserID
 				ps.setTimestamp(2, loginDateTime); // LoginDateTime
 				ps.setTimestamp(3, dateCreated); // DateCreated
 				ps.setInt(4, userLoginHistory.getMessageId()); // MessageID

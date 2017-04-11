@@ -84,15 +84,15 @@ public class TransactionsRestController {
 			search = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 		}
 
-		LOGGER.info("Generating report with the following Filters= {}", search);
+		LOGGER.info("Generating Report with the following filters= {}", search);
 
-		String expression = QueryUtil.createExpression(search);
-		LOGGER.info("Expression="+expression + " for search value="+search);
+//		String expression = QueryUtil.createExpression(search);
+//		LOGGER.info("Expression="+expression + " for search value="+search);
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+		
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(expression, QueryUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(search, QueryUtil.getPageRequest(page, size, sort)));
 	}
 }
