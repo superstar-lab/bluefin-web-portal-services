@@ -57,7 +57,7 @@ public class QueryBuilderHelper {
 		if(filterMap.containsKey("firstName"))
 			bf2.append(" AND  firstName=:firstName ");
 		if(filterMap.containsKey("email"))
-			bf2.append(" AND  emailId=:email ");
+			bf2.append(" AND  email=:email ");
 		if(filterMap.containsKey("status"))
 			bf2.append(" AND  status=:status ");
 		

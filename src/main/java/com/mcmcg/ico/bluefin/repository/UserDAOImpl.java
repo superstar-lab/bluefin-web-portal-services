@@ -98,7 +98,7 @@ public class UserDAOImpl implements UserDAO {
 		return count;
 	}
 	
-	public static void main(String[]  a ){
+/*	public static void main(String[]  a ){
 		StringBuffer sb= new StringBuffer("SELECT  ul.UserID, UserName, FirstName, LastName, ul.IsActive, LastLogin, ul.DateCreated, DateUpdated, Email, UserPassword, ul.DateModified, ul.ModifiedBy, Status  FROM User_Lookup ul");
 		String s1=sb.toString();
 		int index = StringUtils.indexOfIgnoreCase(s1, "SELECT");
@@ -107,7 +107,7 @@ public class UserDAOImpl implements UserDAO {
 		System.out.println(sb.indexOf("SELECT", 0)+":"+sb.indexOf("FROM")+":"+s2);
 		//displayUser();
 		
-	}
+	}*/
 
 	/*private static void displayUser() {
 		Map<String, String> map = new HashMap<>();
