@@ -184,7 +184,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.debug("Dynamic params map="+ dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
-		
+		System.out.println("Query - " + result);
 		int pageNumber = ( page != null ? page.getPageNumber() : 0 );
 		int pageSize = ( page != null ? page.getPageSize() : 0 );
 		if ( result != null ) {
@@ -236,6 +236,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		query = queryObj.getFinalQueryToExecute();
 		queryObj.setPagination(false);
 		String queryForCount = queryObj.getFinalQueryToExecute();
+		System.out.println(queryForCount);
 		int astrikIndex = queryForCount.indexOf("*");
 		if (astrikIndex != -1) {
 			String beforeAsktrik = queryForCount.substring(0,astrikIndex);
@@ -252,12 +253,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}	
 		LOGGER.info("Finally Native query to execute: " + query);
 		// Brings the data and transform it into a Page value list
+		System.out.println(query);
 		@SuppressWarnings("unchecked")
 		List<RemittanceSale> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
 		if (tr == null) {
 			tr = new ArrayList<RemittanceSale>();
 		}
 		LOGGER.info("Rows fetched size="+( tr != null ? tr.size() :0 ));
+		System.out.println(queryForCount);
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		LOGGER.info("Total count="+(countResult));
 
@@ -1094,6 +1097,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		StringBuilder querySbPart3 = new StringBuilder();
 
 		int numberOfFilters = 0;
+		if (remittanceCreationDateBegin != null) {
+			numberOfFilters++;
+		}
+		
 		if (processorName != null) {
 			numberOfFilters++;
 		}
@@ -1105,32 +1112,43 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 
 		if (numberOfFilters != 0) {
-			querySbPart3.append("ReconDate WHERE ");
+			querySbPart3.append("ReconDate ");
 		}
+	
+		
+		StringBuffer afterWhereClauseSB= new StringBuffer();
 		if (processorName != null) {
-			querySbPart3.append("AND ReconDate.Processor_Name = '" + processorName + "' ");
+			afterWhereClauseSB.append(" AND  ReconDate.Processor_Name = '" + processorName + "' ");
 		}
 		if (merchantIdArray != null) {
-			querySbPart3.append("AND (ReconDate.MID IN (");
+			afterWhereClauseSB.append(" AND  (ReconDate.MID IN (");
 			for (int i = 0; i < merchantIdArray.length; i++) {
-				querySbPart3.append("'" + merchantIdArray[i] + "'");
+				afterWhereClauseSB.append("'" + merchantIdArray[i] + "'");
 				if (i != (merchantIdArray.length - 1)) {
-					querySbPart3.append(", ");
+					afterWhereClauseSB.append(", ");
 				}
 			}
-			querySbPart3.append(")) ");
+			afterWhereClauseSB.append(")) ");
 		}
 		if (reconciliationStatusId != null) {
-			querySbPart3.append("AND ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
+			afterWhereClauseSB.append(" AND  ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
 		}
 		// To avoid a SQL grammar error, which will happen if more than one
 		// filter is chosen.
-		String temp = querySbPart3.toString();
+		/*String temp = querySbPart3.toString();
 		if (temp.contains("WHERE AND")) {
 			temp = temp.replaceAll("WHERE AND ", "WHERE ");
 			querySbPart3.delete(0, querySbPart3.length());
 			querySbPart3.append(temp);
+		}*/
+		afterWhereClauseSB.replace(0, 4, " ");
+		
+		if(StringUtils.isNotEmpty(afterWhereClauseSB.toString().trim())){
+			querySbPart3.append("  Where ");
+			querySbPart3.append(afterWhereClauseSB);
+			
 		}
+		
 		querySbPart3.append("ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
 		LOGGER.debug("query (part 3): " + querySbPart3.toString());
 
