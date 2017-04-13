@@ -113,8 +113,10 @@ public class UserService {
 				if (str1[0].equalsIgnoreCase("legalEntities") || str1[0].equalsIgnoreCase("roles") ) {
 					str1[1] = str1[1].replace("[", "");
 					str1[1] = str1[1].replace("]", "");
+					filterMap.put(str1[0], str1[1]);
+				} else {
+					filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));
 				}
-				filterMap.put(str1[0], str1[1]);
 			}
 		}
 		Page<User> result = userDAO.findAllWithDynamicFilter(search, QueryDSLUtil.getPageRequest(page, size, sort),filterMap);

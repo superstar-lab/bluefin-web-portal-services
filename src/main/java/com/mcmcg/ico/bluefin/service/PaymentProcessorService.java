@@ -106,6 +106,10 @@ public class PaymentProcessorService {
 
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
 					.findPaymentProccessorMerchantByProcessorId(processor.getPaymentProcessorId());
+			/*for (com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant : paymentProcessorMerchants) {
+				paymentProcessorMerchant.setPaymentProcessor(processor);
+				paymentProcessorMerchant.setLegalEntityApp(legalEntityApp);
+			}*/
 			processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
 		}
 
@@ -206,7 +210,7 @@ public class PaymentProcessorService {
 		} else {
 			for (PaymentProcessorMerchant paymentProcessorMerchant : paymentProcessorToUpdate.getPaymentProcessorMerchants()) {
 				PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(paymentProcessorToUpdate.getPaymentProcessorId());
-				paymentProcessorMerchant.setPaymentProcessor(paymentProcessor);
+				paymentProcessorMerchant.setPaymentProcessorId(paymentProcessor.getPaymentProcessorId());
 			}
 
 		}
@@ -227,7 +231,7 @@ public class PaymentProcessorService {
 			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant element = iter.next();
 
 			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
-					.get(element.getLegalEntityApp().getLegalEntityAppId());
+					.get(element.getLegalEntityAppId());
 			if(ppmr!= null) {
 				element.setMerchantId(ppmr.getMerchantId());
 				element.setTestOrProd(ppmr.getTestOrProd());
@@ -361,6 +365,13 @@ public class PaymentProcessorService {
 		if (paymentProcessor == null) {
 			throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
 		}
+		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
+				.findPaymentProccessorRulByProcessorId(paymentProcessor.getPaymentProcessorId());
+		paymentProcessor.setPaymentProcessorRules(paymentProcessorRules);
+
+		List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
+				.findPaymentProccessorMerchantByProcessorId(paymentProcessor.getPaymentProcessorId());
+		paymentProcessor.setPaymentProcessorMerchants(paymentProcessorMerchants);
 		ItemStatusResource hasPaymentProcessorName = new ItemStatusResource(1, "Add Payment Processor Name", null,
 				true);
 		ItemStatusResource hasSameDayProcessing = new ItemStatusResource(2, "Same Day Processing Window", null,

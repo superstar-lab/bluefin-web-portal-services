@@ -146,7 +146,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	@Override
-	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search)
+	public List<PaymentProcessorRemittance> findRemittanceSaleRefundTransactionsReport(String search)
 			throws ParseException {
 		LOGGER.info("Executing findRemittanceSaleRefundTransactionsReport , Search Value {}",search);
 		String query = getNativeQueryForRemittanceSaleRefund(search,null);
@@ -157,7 +157,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		LOGGER.info("Query to execute="+query);
 		@SuppressWarnings("unchecked")
-		List<RemittanceSale> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceRowMapper());
+		List<PaymentProcessorRemittance> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceRowMapper());
 		LOGGER.info("Total number of rows="+( tr != null ? tr.size() :0 ));
 		return tr;
 	}
@@ -222,7 +222,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 
 	@Override
-	public Page<RemittanceSale> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
+	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
 		LOGGER.info("Executing findRemittanceSaleRefundTransactions, Search  Value {} , Page {}, negate {}",search,page,negate); 
 		// Creates the query for the total and for the retrieved data
 		String query = getNativeQueryForRemittanceSaleRefund(search,page);
@@ -255,16 +255,16 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		// Brings the data and transform it into a Page value list
 		System.out.println(query);
 		@SuppressWarnings("unchecked")
-		List<RemittanceSale> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
+		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
 		if (tr == null) {
-			tr = new ArrayList<RemittanceSale>();
+			tr = new ArrayList<PaymentProcessorRemittance>();
 		}
 		LOGGER.info("Rows fetched size="+( tr != null ? tr.size() :0 ));
 		System.out.println(queryForCount);
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		LOGGER.info("Total count="+(countResult));
 
-		Page<RemittanceSale> list = new PageImpl<RemittanceSale>(tr, page, countResult);
+		Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 		return list;
 	}
 	
@@ -751,14 +751,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return transactionType;
 	}
 
-	private List<RemittanceSale> fetchPaymentProcessorRemittanceCustomMappingResult(String query){
+	private List<PaymentProcessorRemittance> fetchPaymentProcessorRemittanceCustomMappingResult(String query){
 		return jdbcTemplate.query( query,	new PaymentProcessorRemittanceRowMapper());
 	}
 	
-	class PaymentProcessorRemittanceRowMapper implements RowMapper<RemittanceSale> {
+	class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorRemittance> {
 
 		@Override
-		public RemittanceSale mapRow(ResultSet rs, int rowNum) throws SQLException {
+		public PaymentProcessorRemittance mapRow(ResultSet rs, int rowNum) throws SQLException {
 			PaymentProcessorRemittance record = new PaymentProcessorRemittance();
 			record.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
 			record.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
@@ -797,6 +797,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setSaleChargeAmount(rs.getBigDecimal("SaleChargeAmount"));
 			record.setSaleLegalEntityApp(rs.getString("SaleLegalEntityApp"));
 			record.setSaleAccountId(rs.getString("SaleAccountId"));
+			record.setSaleAccountNumber(rs.getString("SaleAccountId"));
+			record.setSaleAmount(rs.getBigDecimal("SaleChargeAmount"));
 			record.setSaleApplicationTransactionId(rs.getString("SaleApplicationTransactionID"));
 			record.setSaleMerchantId(rs.getString("SaleMerchantID"));
 			record.setSaleProcessor(rs.getString("SaleProcessor"));
@@ -840,9 +842,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setProcessor_Name(rs.getString("Processor_Name"));
 			record.setReconciliationStatus_ID(rs.getString("ReconciliationStatus_ID"));
 			
-			RemittanceSale obj = new RemittanceSale();
-			obj.setPaymentProcessorRemittance(record);
-			return obj;
+			/*RemittanceSale obj = new RemittanceSale();
+			obj.setPaymentProcessorRemittance(record);*/
+			return record;
 		} 
 	}
 	
@@ -859,8 +861,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
 			record.setMerchantId(rs.getString("MerchantID"));
 			record.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
-			record.setCardNumberFirst6Char(rs.getString("CardNumberFirst6Char"));
-			record.setCardNumberLast4Char(rs.getString("CardNumberLast4Char"));
+			record.setCardNumberFirst6Char(rs.getString("SaleCardNumberFirst6Char"));
+			if (rs.getString("SaleCardNumberLast4Char") != null && !rs.getString("SaleCardNumberLast4Char").isEmpty()) {
+				record.setCardNumberLast4Char(rs.getString("SaleCardNumberLast4Char"));
+			} else {
+				record.setCardNumberLast4Char(" ");
+			}
+			
 			record.setCardType(rs.getString("CardType"));
 			record.setChargeAmount(rs.getBigDecimal("ChargeAmount"));
 			record.setExpiryDate(rs.getDate("ExpiryDate"));

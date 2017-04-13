@@ -51,13 +51,13 @@ public class QueryBuilderHelper {
 		if(filterMap.containsKey("roles"))
 			bf2.append(" AND ur.RoleID=:roles ");
 		if(filterMap.containsKey("username"))
-			bf2.append(" AND userName=:username ");		
+			bf2.append(" AND userName like :username");		
 		if(filterMap.containsKey("lastName"))
-			bf2.append(" AND  lastName=:lastName ");
+			bf2.append(" AND  lastName like :lastName ");
 		if(filterMap.containsKey("firstName"))
-			bf2.append(" AND  firstName=:firstName ");
+			bf2.append(" AND  firstName like :firstName ");
 		if(filterMap.containsKey("email"))
-			bf2.append(" AND  email=:email ");
+			bf2.append(" AND  email like :email ");
 		if(filterMap.containsKey("status"))
 			bf2.append(" AND  status=:status ");
 		

@@ -132,7 +132,8 @@ public class TransactionService {
 				ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
 				ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
 				ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(), ppr.getFirstName(),
-				ppr.getLastName(), ppr.getRemittanceCreationDate(), ppr.getPaymentProcessorId(), null, null);
+				ppr.getLastName(), ppr.getRemittanceCreationDate(), ppr.getPaymentProcessorId(), null, null, 
+				ppr.getSaleAccountNumber(), ppr.getSaleAmount());
 
 		result = (Transaction) paymentProcessorRemittance;
 
@@ -306,9 +307,9 @@ public class TransactionService {
 	 * 
 	 * @return list of objects containing these transactions
 	 */
-	public Iterable<RemittanceSale> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging,
+	public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging,
 			boolean negate) {
-		Page<RemittanceSale> result;
+		Page<PaymentProcessorRemittance> result;
 		try {
 			result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
 		} catch (ParseException e) {

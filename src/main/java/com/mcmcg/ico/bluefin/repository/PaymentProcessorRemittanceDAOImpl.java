@@ -62,7 +62,7 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 	}
 
 	@Override
-	public Page<RemittanceSale> findRemittanceSaleRefundTransactions(String search, PageRequest pageRequest,
+	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest pageRequest,
 			boolean negate) throws ParseException {
 		return customSaleTransactionDAO.findRemittanceSaleRefundTransactions(search, pageRequest,negate);
 	}

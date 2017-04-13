@@ -29,10 +29,10 @@ public interface CustomSaleTransactionDAO  {
 
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException;
 
-	public Page<RemittanceSale> findRemittanceSaleRefundTransactions(String search, PageRequest page,
+	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest page,
 			boolean negate) throws ParseException ;
 
-	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search)
+	public List<PaymentProcessorRemittance> findRemittanceSaleRefundTransactionsReport(String search)
 			throws ParseException;
 
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,

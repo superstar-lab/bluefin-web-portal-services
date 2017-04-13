@@ -24,14 +24,18 @@ public class PaymentProcessorMerchant implements Serializable {
     private String merchantId;
 
     private Short testOrProd;
+    
+    private Long legalEntityAppId;
+    
+    private Long paymentProcessorId;
 
-    @JsonProperty(value = "legalEntityAppId")
+  /*  @JsonProperty(value = "legalEntityAppId")
     @JsonIdentityReference(alwaysAsId = true)
-    private LegalEntityApp legalEntityApp;
+    private LegalEntityApp legalEntityApp;*/
 
-    @JsonProperty(value = "paymentProcessorId")
+ /*   @JsonProperty(value = "paymentProcessorId")
     @JsonIdentityReference(alwaysAsId = true)
-    private PaymentProcessor paymentProcessor;
+    private PaymentProcessor paymentProcessor;*/
 
     @JsonIgnore
     private String lastModifiedBy;

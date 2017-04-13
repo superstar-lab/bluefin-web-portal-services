@@ -63,7 +63,7 @@ public class PaymentProcessor implements Serializable {
             this.paymentProcessorMerchants = new HashSet<PaymentProcessorMerchant>();
         }
 
-        paymentProcessorMerchant.setPaymentProcessor(this);
+        paymentProcessorMerchant.setPaymentProcessorId(this.paymentProcessorId);
         paymentProcessorMerchants.add(paymentProcessorMerchant);
     }
 

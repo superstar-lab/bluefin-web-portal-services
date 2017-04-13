@@ -39,7 +39,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-
+	
 	@Override
 	public List<PaymentProcessorMerchant> findPaymentProccessorMerchantByProcessorId(Long paymentProcessorId) {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>) jdbcTemplate.query(
@@ -80,12 +80,12 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 						DateTime utc2 = paymentProcessorMerchant.getModifiedDate() != null ? paymentProcessorMerchant.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 						Timestamp modifyDate = Timestamp.valueOf(dtf.print(utc2));
 						LOGGER.info("Creating child item - PaymentProcessorMerchant, of PaymentProcessorMerchant Id :" + paymentProcessorMerchant.getPaymentProcessorMechantId());
-						ps.setLong(1, paymentProcessorMerchant.getPaymentProcessor().getPaymentProcessorId());
+						ps.setLong(1, paymentProcessorMerchant.getPaymentProcessorId());
 						ps.setShort(2, paymentProcessorMerchant.getTestOrProd());
 						ps.setString(3,paymentProcessorMerchant.getMerchantId() );
 						ps.setTimestamp(4, dateCreated);
 						ps.setTimestamp(5, modifyDate);
-						ps.setLong(6, paymentProcessorMerchant.getLegalEntityApp().getLegalEntityAppId());
+						ps.setLong(6, paymentProcessorMerchant.getLegalEntityAppId());
 					}
 
 					@Override
@@ -108,9 +108,11 @@ class PaymentProcessorMerchantRowMapper implements RowMapper<com.mcmcg.ico.bluef
 		paymentProcessorMerchant.setLastModifiedBy(rs.getString("ModifiedBy"));
 		paymentProcessorMerchant.setTestOrProd(rs.getShort("TestOrProd"));
 		paymentProcessorMerchant.setModifiedDate(new DateTime(rs.getTimestamp("DatedModified")));
-		com.mcmcg.ico.bluefin.model.LegalEntityApp legalEntityApp = new com.mcmcg.ico.bluefin.model.LegalEntityApp();
+		paymentProcessorMerchant.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
+		paymentProcessorMerchant.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
+		/*com.mcmcg.ico.bluefin.model.LegalEntityApp legalEntityApp = new com.mcmcg.ico.bluefin.model.LegalEntityApp();
 		legalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
-		paymentProcessorMerchant.setLegalEntityApp(legalEntityApp);
+		paymentProcessorMerchant.setLegalEntityApp(legalEntityApp);*/
 		return paymentProcessorMerchant;
 	}
 }

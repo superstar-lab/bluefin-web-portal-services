@@ -5,11 +5,14 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
+import javax.persistence.Transient;
+
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 
@@ -27,7 +30,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 			BigDecimal transactionAmount, String transactionType, DateTime transactionTime, String accountId,
 			String application, String processorTransactionId, String merchantId, String transactionSource,
 			String firstName, String lastName, DateTime remittanceCreationDate, Long paymentProcessorId,
-			String reProcessStatus, Long etlRunId) {
+			String reProcessStatus, Long etlRunId, String saleAccountNumber, BigDecimal saleAmount) {
 		this.paymentProcessorRemittanceId = paymentProcessorRemittanceId;
 		this.dateCreated = dateCreated;
 		this.reconciliationStatusId = reconciliationStatusId;
@@ -47,104 +50,358 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.paymentProcessorId = paymentProcessorId;
 		this.reProcessStatus = reProcessStatus;
 		this.etlRunId = etlRunId;
+		this.saleAccountNumber = saleAccountNumber;
+		this.saleAmount = saleAmount;
 	}
 
+	@JsonProperty("remittance.paymentProcessorRemittanceId")
 	private Long paymentProcessorRemittanceId;
+	
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime dateCreated;
+	
+	@JsonProperty("remittance.reconciliationStatusId")
 	@JsonView({ Views.Extend.class, Views.Summary.class })
 	private Long reconciliationStatusId;
+	
+	@JsonProperty("remittance.reconciliationDate")
 	@JsonView({ Views.Extend.class, Views.Summary.class })
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private DateTime reconciliationDate;
+	
+	@JsonProperty("remittance.paymentMethod")
 	private String paymentMethod;
+	
+	@JsonProperty("remittance.transactionAmount")
 	private BigDecimal transactionAmount;
+	
+	@JsonProperty("remittance.transactionType")
 	private String transactionType;
+	
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime transactionTime;
+	
+	@JsonProperty("remittance.accountId")
 	private String accountId;
+	
+	@JsonProperty("remittance.application")
 	private String application;
+	
+	@JsonProperty("remittance.processorTransactionId")
 	private String processorTransactionId;
+	
+	@JsonProperty("remittance.merchantId")
 	private String merchantId;
+	
+	@JsonProperty("remittance.transactionSource")
 	private String transactionSource;
+	
+	@JsonProperty("remittance.firstName")
 	private String firstName;
+	
+	@JsonProperty("remittance.lastName")
 	private String lastName;
+	
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	private DateTime remittanceCreationDate;
+	
+	@JsonProperty("remittance.paymentProcessorId")
 	@JsonView({ Views.Extend.class, Views.Summary.class })
 	private Long paymentProcessorId;
+	
+	@Transient
 	@JsonIgnore
 	private String reProcessStatus;
+	
+	@Transient
 	@JsonIgnore
 	private Long etlRunId;
 	// Fields added by dheeraj
+	
 	private DateTime createdDate;
+	
+	@Transient
+	@JsonProperty("remittance.processorName")
 	private String processorName; 
+	
+	@Transient
+    @JsonProperty("sale.saleTransactionId")
 	private Long saleTransactionId; 
+	
+	@Transient
+	@JsonProperty("sale.transactionType")
 	private String saleTransactionType; 
+	
+	@Transient
+    @JsonProperty("sale.legalEntityApp")
 	private String saleLegalEntityApp;
+	
+	@Transient
+    @JsonProperty("sale.accountNumber")
 	private String saleAccountNumber; 
+	
+	@Transient
+	@JsonProperty("sale.applicationTransactionId")
 	private String saleApplicationTransactionId; 
+	
+	@Transient
+    @JsonProperty("sale.processorTransactionId")
 	private String saleProcessorTransactionId;
-	private String saleMerchantId; 
+	
+	@Transient
+    @JsonProperty("sale.merchantId")
+	private String saleMerchantId;
+	
+	@Transient
+    @JsonProperty("sale.transactionDateTime")
 	private DateTime saleTransactionDateTime;
+	
+	@Transient
+    @JsonProperty("sale.cardNumberFirst6Char")
 	private String saleCardNumberFirst6Char;
-	private String saleCardNumberLast4Char; 
-	private String saleCardType; 
+	
+	@Transient
+    @JsonProperty("sale.cardNumberLast4Char")
+	private String saleCardNumberLast4Char;
+	
+	@Transient
+    @JsonProperty("sale.cardType")
+	private String saleCardType;
+	
+	@Transient
+    @JsonProperty("sale.amount")
 	private BigDecimal saleAmount; 
+	
+	@Transient
+    @JsonProperty("sale.expiryDate")
 	private Date saleExpiryDate;
-	private String saleFirstName; 
-	private String saleLastName; 
-	private String saleAddress1; 
-	private String saleAddress2; 
-	private String saleCity;
-	private String saleState; 
-	private String salePostalCode; 
-	private String saleCountry; 
-	private Short saleTestMode; 
-	private String saleToken;
-	private Short saleTokenized; 
-	private String salePaymentProcessorResponseCode;
-	private String salePaymentProcessorResponseCodeDescription; 
-	private String saleApprovalCode;
-	private String saleInternalResponseCode; 
-	private String saleInternalResponseDescription; 
-	private String saleInternalStatusCode;
-	private String saleInternalStatusDescription; 
-	private String salePaymentProcessorStatusCode;
-	private String salePaymentProcessorStatusCodeDescription; 
-	private Long salePaymentProcessorRuleId;
-	private Long saleRulePaymentProcessorId; 
-	private String saleRuleCardType; 
-	private BigDecimal saleRuleMaximumMonthlyAmount;
-	private Short saleRuleNoMaximumMonthlyAmountFlag; 
-	private Short saleRulePriority; 
-	private String saleProcessUser;
-	private String saleProcessorName; 
-	private String saleApplication; 
-	private String saleOrigin; 
-	private String saleAccountPeriod;
-	private String saleDesk; 
-	private String saleInvoiceNumber; 
-	private String saleUserDefinedField1; 
-	private String saleUserDefinedField2;
-	private String saleUserDefinedField3; 
-	private DateTime saleCreatedDate; 
-	private Integer saleIsVoided; 
-	private Integer saleIsRefunded;
-	private Long salePaymentProcessorInternalStatusCodeId; 
-	private Long salePaymentProcessorInternalResponseCodeId;
-	private Long saleReconciliationStatusId; 
-	private DateTime saleReconciliationDate; 
-	private Long saleBatchUploadId;
-	private String Processor_Name; 
-	private String MID; 
-	private String ReconciliationStatus_ID;
+	
+	@Transient
+    @JsonProperty("sale.firstName")
+	private String saleFirstName;
+	
+	@Transient
+    @JsonProperty("sale.lastName")
+	private String saleLastName;
+	
+	@Transient
+    @JsonProperty("sale.address1")
+	private String saleAddress1;
+	
+	@Transient
+    @JsonProperty("sale.address2")
+	private String saleAddress2;
+	@Transient
+    @JsonProperty("sale.city")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleCity;
+
+    @Transient
+    @JsonProperty("sale.state")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleState;
+
+    @Transient
+    @JsonProperty("sale.postalCode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String salePostalCode;
+
+    @Transient
+    @JsonProperty("sale.country")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleCountry;
+
+    @Transient
+    @JsonProperty("sale.testMode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Short saleTestMode;
+
+    @Transient
+    @JsonProperty("sale.token")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleToken;
+
+    @Transient
+    @JsonProperty("sale.tokenized")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Short saleTokenized;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorResponseCode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String salePaymentProcessorResponseCode;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorResponseCodeDescription")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String salePaymentProcessorResponseCodeDescription;
+
+    @Transient
+    @JsonProperty("sale.approvalCode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleApprovalCode;
+
+    @Transient
+    @JsonProperty("sale.internalResponseCode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleInternalResponseCode;
+
+    @Transient
+    @JsonProperty("sale.internalResponseDescription")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleInternalResponseDescription;
+
+    @Transient
+    @JsonProperty("sale.internalStatusCode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleInternalStatusCode;
+
+    @Transient
+    @JsonProperty("sale.internalStatusDescription")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleInternalStatusDescription;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorStatusCode")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String salePaymentProcessorStatusCode;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorStatusCodeDescription")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String salePaymentProcessorStatusCodeDescription;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorInternalStatusCodeId")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Long salePaymentProcessorInternalStatusCodeId;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorInternalResponseCodeId")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Long salePaymentProcessorInternalResponseCodeId;
+
+    @Transient
+    @JsonProperty("sale.paymentProcessorRuleId")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Long salePaymentProcessorRuleId;
+
+    @Transient
+    @JsonProperty("sale.rulePaymentProcessorId")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Long saleRulePaymentProcessorId;
+
+    @Transient
+    @JsonProperty("sale.ruleCardType")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleRuleCardType;
+
+    @Transient
+    @JsonProperty("sale.ruleMaximumMonthlyAmount")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private BigDecimal saleRuleMaximumMonthlyAmount;
+
+    @Transient
+    @JsonProperty("sale.ruleNoMaximumMonthlyAmountFlag")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Short saleRuleNoMaximumMonthlyAmountFlag;
+
+    @Transient
+    @JsonProperty("sale.rulePriority")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Short saleRulePriority;
+
+    @Transient
+    @JsonProperty("sale.processUser")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleProcessUser;
+
+    @Transient
+    @JsonProperty("sale.processorName")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleProcessorName;
+
+    @Transient
+    @JsonProperty("sale.application")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleApplication;
+
+    @Transient
+    @JsonProperty("sale.origin")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleOrigin;
+
+    @Transient
+    @JsonProperty("sale.accountPeriod")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleAccountPeriod;
+
+    @Transient
+    @JsonProperty("sale.desk")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleDesk;
+
+    @Transient
+    @JsonProperty("sale.invoiceNumber")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleInvoiceNumber;
+    
+    @Transient
+    @JsonProperty("sale.userDefinedField1")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleUserDefinedField1;
+
+    @Transient
+    @JsonProperty("sale.userDefinedField2")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleUserDefinedField2;
+
+    @Transient
+    @JsonProperty("sale.userDefinedField3")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String saleUserDefinedField3;
+
+    @Transient
+    @JsonProperty("sale.reconciliationStatusId")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Long saleReconciliationStatusId;
+
+    @Transient
+    @JsonProperty("sale.reconciliationDate")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private DateTime saleReconciliationDate;
+
+    @Transient
+    @JsonProperty("sale.batchUploadId")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Long saleBatchUploadId;
+
+    @Transient
+    @JsonProperty("sale.createdDate")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private DateTime saleCreatedDate;
+
+    @Transient
+    @JsonProperty("sale.isVoided")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Integer saleIsVoided;
+
+    @Transient
+    @JsonProperty("sale.isRefunded")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private Integer saleIsRefunded;
+
+    @JsonProperty("sale.paymentFrequency")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    public String getSalePaymentFrequency() {
+        return PaymentFrequency.getPaymentFrequency(saleOrigin).toString();
+    }
+
 	private String saleProcessor;
 	private String saleAccountId;
 	private BigDecimal saleChargeAmount;
@@ -322,18 +579,33 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.etlRunId = etlRunId;
 	}
 
-	@Override
+	@JsonProperty("remittance.applicationTransactionId")
+    @Override
 	public String getApplicationTransactionId() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public DateTime getTransactionDateTime() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+	@JsonProperty("remittance.transactionDate")
+    @Override
+    public DateTime getTransactionDateTime() {
+        return transactionTime;
+    }
+
+	@Transient
+    @JsonProperty("ReconDate.Processor_Name")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String Processor_Name;
+
+    @Transient
+    @JsonProperty("ReconDate.MID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String MID;
+
+    @Transient
+    @JsonProperty("ReconDate.ReconciliationStatus_ID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String ReconciliationStatus_ID;
 	// setter and getters added by dheeraj
 	public DateTime getCreatedDate() {
 		return createdDate;

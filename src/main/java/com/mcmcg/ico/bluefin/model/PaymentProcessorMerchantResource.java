@@ -21,7 +21,7 @@ public class PaymentProcessorMerchantResource implements Serializable {
 
     public com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant toPaymentProcessorMerchant() {
     	com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant = new com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant();
-        paymentProcessorMerchant.setLegalEntityApp(new LegalEntityApp(legalEntityAppId.longValue()));
+        paymentProcessorMerchant.setLegalEntityAppId(legalEntityAppId.longValue());
         paymentProcessorMerchant.setMerchantId(merchantId);
         paymentProcessorMerchant.setTestOrProd(testOrProd);
 
