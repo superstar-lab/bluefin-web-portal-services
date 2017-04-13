@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.service;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	private HashMap<String, String> dynamicParametersMap = new HashMap<String, String>();
+	//private HashMap<String, String> dynamicParametersMap = new HashMap<String, String>();
 	private HashMap<String, String> predicatesHashMapping = new HashMap<String, String>();
 	
 	@Autowired
@@ -119,10 +120,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
 		LOGGER.info("Executing findTransactionsReport , Search Value {}",search);
-		String query = getQueryByCriteria(search);
+		HashMap<String, String> dynamicParametersMap = new HashMap<String, String> ();
+		String query = getQueryByCriteria(search,dynamicParametersMap);
 		LOGGER.debug("Dynamic Query {}", query);
 		
-		Map<String, CustomQuery> queriesMap = createQueries(query, null);
+		Map<String, CustomQuery> queriesMap = createQueries(query, null,dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		String finalQueryToExecute = result.getFinalQueryToExecute();
 		int transactionsReportMaxSize=getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
@@ -178,13 +180,15 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException {
 		LOGGER.info("Executing findTransaction, Search  Value {} , page{} ",search,page); 
-		String query = getQueryByCriteria(search);
+		HashMap<String, String> dynamicParametersMap = new HashMap<String, String> ();
+		String query = getQueryByCriteria(search,dynamicParametersMap);
 		LOGGER.debug("Query="+(query));
-		Map<String, CustomQuery> queriesMap = createQueries(query, page);
-		LOGGER.debug("Dynamic params map="+ dynamicParametersMap);
+		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
+		//LOGGER.debug("Dynamic params map="+ dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
-		System.out.println("Query - " + result);
+		System.out.println("Query - " + result.queryAsString);
+		System.out.println("Query For Count - " + queryTotal.queryAsString);
 		int pageNumber = ( page != null ? page.getPageNumber() : 0 );
 		int pageSize = ( page != null ? page.getPageSize() : 0 );
 		if ( result != null ) {
@@ -268,28 +272,28 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return list;
 	}
 	
-	private String getQueryByCriteria(String search) {
+	private String getQueryByCriteria(String search,HashMap<String, String> dynamicParametersMap) {
 		StringBuilder querySb = new StringBuilder();
 		querySb.append(" SELECT * FROM (");
 
 		switch (getTransactionType(search).toLowerCase()) {
 		case "void":
-			querySb.append(getSelectForVoidTransaction(search));
+			querySb.append(getSelectForVoidTransaction(search,dynamicParametersMap));
 			break;
 		case "refund":
-			querySb.append(getSelectForRefundTransaction(search));
+			querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
 			break;
 		case "all":
-			querySb.append(getSelectForSaleTransaction(search));
+			querySb.append(getSelectForSaleTransaction(search,dynamicParametersMap));
 			querySb.append(" UNION ");
-			querySb.append(getSelectForVoidTransaction(search));
+			querySb.append(getSelectForVoidTransaction(search,dynamicParametersMap));
 			querySb.append(" UNION ");
-			querySb.append(getSelectForRefundTransaction(search));
+			querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
 			break;
 		case "sale":
 		case "tokenize":
 		default:
-			querySb.append(getSelectForSaleTransaction(search));
+			querySb.append(getSelectForSaleTransaction(search,dynamicParametersMap));
 			break;
 		}
 		querySb.append(" ) RESULTINFO ");
@@ -303,7 +307,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param search
 	 * @return String with the select of the sale transaction table
 	 */
-	private String getSelectForSaleTransaction(String search) {
+	private String getSelectForSaleTransaction(String search,HashMap<String, String> dynamicParametersMap) {
 		StringBuilder querySb = new StringBuilder();
 
 		// create select from transaction type
@@ -324,7 +328,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate, MAINSALE.BatchUploadID ")
 				.append("FROM Sale_Transaction MAINSALE ");
 
-		querySb.append(createWhereStatement(search, "MAINSALE"));
+		querySb.append(createWhereStatement(search, "MAINSALE",dynamicParametersMap));
 
 		return querySb.toString();
 	}
@@ -339,7 +343,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param prefix
 	 * @return where element that is going to be attached to the select element
 	 */
-	private String createWhereStatement(String search, String prefix) {
+	private String createWhereStatement(String search, String prefix,HashMap<String, String> dynamicParametersMap) {
 		StringJoiner statement = new StringJoiner(" AND ");
 
 		if (search != null && !search.isEmpty()) {
@@ -514,7 +518,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return result.toString();
 	}
 	
-	public Map<String, CustomQuery> createQueries(String query, PageRequest page) throws ParseException {
+	public Map<String, CustomQuery> createQueries(String query, PageRequest page,HashMap<String, String> dynamicParametersMap) throws ParseException {
 		CustomQuery queryTotal_CustomQuery = new CustomQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
 		CustomQuery result_CustomQuery = new CustomQuery(query);
 		result_CustomQuery.setSort(page != null ? page.getSort() : null);
@@ -643,7 +647,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param search
 	 * @return String with the select of the refund transaction table
 	 */
-	private String getSelectForRefundTransaction(String search) {
+	private String getSelectForRefundTransaction(String search,HashMap<String, String> dynamicParametersMap ) {
 		StringBuilder querySb = new StringBuilder();
 
 		querySb.append(
@@ -676,9 +680,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate,SALEINNERREFUND.BatchUploadID ")
 				.append("FROM Sale_Transaction SALEINNERREFUND ")
 
-				.append(createWhereStatement(search, "SALEINNERREFUND"))
+				.append(createWhereStatement(search, "SALEINNERREFUND",dynamicParametersMap))
 				.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
-				.append(createWhereStatement(search, "REFUND"));
+				.append(createWhereStatement(search, "REFUND",dynamicParametersMap));
 
 		return querySb.toString();
 	}
@@ -689,7 +693,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param search
 	 * @return String with the select of the void transaction table
 	 */
-	private String getSelectForVoidTransaction(String search) {
+	private String getSelectForVoidTransaction(String search,HashMap<String, String> dynamicParametersMap) {
 		StringBuilder querySb = new StringBuilder();
 
 		querySb.append(
@@ -722,9 +726,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated ")
 				.append("FROM Sale_Transaction SALEINNERVOID ")
 
-				.append(createWhereStatement(search, "SALEINNERVOID"))
+				.append(createWhereStatement(search, "SALEINNERVOID",dynamicParametersMap))
 				.append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
-				.append(createWhereStatement(search, "VOID"));
+				.append(createWhereStatement(search, "VOID",dynamicParametersMap));
 		return querySb.toString();
 
 	}
@@ -860,13 +864,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setApplicationTransactionId(rs.getString("ApplicationTransactionID"));
 			record.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
 			record.setMerchantId(rs.getString("MerchantID"));
-			record.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
-			record.setCardNumberFirst6Char(rs.getString("SaleCardNumberFirst6Char"));
-			if (rs.getString("SaleCardNumberLast4Char") != null && !rs.getString("SaleCardNumberLast4Char").isEmpty()) {
-				record.setCardNumberLast4Char(rs.getString("SaleCardNumberLast4Char"));
-			} else {
-				record.setCardNumberLast4Char(" ");
+			Timestamp ts = null;
+			if (rs.getString("TransactionDateTime") != null) {
+				ts = Timestamp.valueOf(rs.getString("TransactionDateTime"));
+				record.setTransactionDateTime(new DateTime(ts));
 			}
+			record.setCardNumberFirst6Char(rs.getString("CardNumberFirst6Char"));
+			record.setCardNumberLast4Char(rs.getString("CardNumberLast4Char"));
 			
 			record.setCardType(rs.getString("CardType"));
 			record.setChargeAmount(rs.getBigDecimal("ChargeAmount"));
