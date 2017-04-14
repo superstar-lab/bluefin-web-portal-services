@@ -231,7 +231,7 @@ public class UserService {
 		user.setLegalEntities(Collections.EMPTY_LIST);
 		
 		long userId = userDAO.updateUser(user, modifiedBy);
-		return new UserResource(userDAO.findByUserId(user.getUserId()));
+		return new UserResource(user);
 	}
 
 	/**
@@ -288,7 +288,7 @@ public class UserService {
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);
-		return userDAO.findByUserId(userToUpdate.getUserId());
+		return getUser(username);
 	}
 
 	private void removeRolesFromUser(Set<Long> rolesToRemove) {
@@ -347,7 +347,7 @@ public class UserService {
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);
-		return userDAO.findByUserId(userToUpdate.getUserId());
+		return getUser(username);
 	}
 
 	public void removeLegalEntityFromUser(Collection<Long> legalEntityAppsToRemove) {
