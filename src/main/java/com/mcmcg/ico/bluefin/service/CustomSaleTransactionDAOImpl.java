@@ -187,8 +187,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		//LOGGER.debug("Dynamic params map="+ dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
-		System.out.println("Query - " + result.queryAsString);
-		System.out.println("Query For Count - " + queryTotal.queryAsString);
 		int pageNumber = ( page != null ? page.getPageNumber() : 0 );
 		int pageSize = ( page != null ? page.getPageSize() : 0 );
 		if ( result != null ) {
@@ -197,7 +195,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			result.setPageNumber(pageNumber);
 		}
 		String queryTotal_FinalQueryToExecute = queryTotal.getFinalQueryToExecute();
-		LOGGER.debug("queryTotal_FinalQueryToExecute="+queryTotal_FinalQueryToExecute);
+		LOGGER.info("TTT***-Count Query to execute:"+queryTotal_FinalQueryToExecute);
 		// Set the paging for the created select
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		Integer countResult = namedJDBCTemplate.query(queryTotal_FinalQueryToExecute, queryTotal.getParametersMap(), new ResultSetExtractor<Integer>() {
@@ -215,9 +213,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.debug("QueryTotal_Count Result=" + countResult);
 
 		String result_FinalQueryToExecute = result.getFinalQueryToExecute();
-		LOGGER.info("result_FinalQueryToExecute="+(result_FinalQueryToExecute));
+		LOGGER.info("TTT***-Result Data Query to execute:"+(result_FinalQueryToExecute));
+		LOGGER.info("TTT***-Query Parameter Map-placeholder:"+result.getParametersMap());
 		List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-		LOGGER.info("Total number of Rows="+( tr != null ? tr.size() :0 ) );
+		LOGGER.info("TTT***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
 		if (tr == null) {
 			tr = new ArrayList<SaleTransaction>();
 		}
@@ -247,15 +246,17 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			String afterAsktrik = queryForCount.substring(astrikIndex+1);
 			queryForCount = beforeAsktrik + " COUNT(*) " + afterAsktrik;
 		}
-		LOGGER.info("Query To Execute="+query);
-		LOGGER.info("Query To Execute for count="+(queryForCount));
 		// Currently this is only used if the user selects 'Not Reconcilied' on
 		// the UI.
 		// Change to: WHERE ReconciliationID != 'Reconciled'
 		if (negate) {
 			query = query.replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
-		}	
-		LOGGER.info("Finally Native query to execute: " + query);
+			queryForCount=queryForCount.replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
+		}
+		
+		LOGGER.info("RRR***-Result Data Query to execute:"+query);
+		LOGGER.info("RRR***-Count Query to execute:"+(queryForCount));
+		
 		// Brings the data and transform it into a Page value list
 		System.out.println(query);
 		@SuppressWarnings("unchecked")
@@ -263,10 +264,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (tr == null) {
 			tr = new ArrayList<PaymentProcessorRemittance>();
 		}
-		LOGGER.info("Rows fetched size="+( tr != null ? tr.size() :0 ));
-		System.out.println(queryForCount);
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
-		LOGGER.info("Total count="+(countResult));
+		LOGGER.info("RRR***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
 
 		Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 		return list;
