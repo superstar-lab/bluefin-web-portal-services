@@ -148,9 +148,16 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	}
 	
 	@Override
-	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListById(
-			Long internalResponseCode) {
-		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.findAllPaymentProcessorInternalResponseCode, new Object[]{internalResponseCode},
+	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(Long internalResponseCode) {
+		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.findAllPaymentProcessorInternalResponseCodeByInternalRespCodeId, new Object[]{internalResponseCode},
+				new PaymentProcessorInternalResponseCodeRowMapper());
+		return paymentProcessorInternalResponseCodes;
+	}
+
+	@Override
+	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByPmtProcessorRspCdId(
+			Long pmtProcessorResponseCodeId) {
+		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.findAllPaymentProcessorInternalResponseCodeByPaymentProcessorResponseCode, new Object[]{pmtProcessorResponseCodeId},
 				new PaymentProcessorInternalResponseCodeRowMapper());
 		return paymentProcessorInternalResponseCodes;
 	}

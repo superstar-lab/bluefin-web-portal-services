@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
@@ -38,6 +39,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	
 	@Autowired
 	private PaymentProcessorInternalResponseCodeDAO paymentProcessorInternalResponseCodeDAO;
+	
+	@Autowired
+	private PaymentProcessorResponseCodeDAO paymentProcessorResponseCodeDAO;
 	
 	@Override
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode findByInternalResponseCodeAndTransactionTypeName(String internalResponseCode,
@@ -214,7 +218,12 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	public InternalResponseCode findOneWithChilds(Long internalResponseCodeId) {
 		InternalResponseCode internalStatusCode = findOne(internalResponseCodeId);
 		if (internalStatusCode != null){
-			internalStatusCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.paymentProcessorInternalResponseCodeId(internalResponseCodeId));
+			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeList = paymentProcessorInternalResponseCodeDAO.paymentProcessorInternalResponseCodeId(internalResponseCodeId);
+			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodeList) {
+				PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
+				paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
+			}
+			internalStatusCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeList);
 		}
 		return internalStatusCode;
 	}

@@ -312,7 +312,9 @@ public interface Queries {
 	String updatePaymentProcessorResponseCode = "UPDATE PaymentProcessorResponseCode_Lookup SET PaymentProcessorID = ?, PaymentProcessorResponseCode =?, TransactionType=?,PaymentProcessorResponseCodeDescription=?, DatedModified=?, ModifiedBy=? WHERE PaymentProcessorResponseCodeID = ?";
 	String savePaymentProcessorInternalResponseCode = "INSERT INTO PaymentProcessor_InternalResponseCode ( PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated) VALUES(?,?,?)";
 	String findOnePaymentProcessorInternalResponseCode = "SELECT * FROM PaymentProcessor_InternalResponseCode WHERE PaymentProcessorResponseCodeID = ?";
-	String findAllPaymentProcessorInternalResponseCode = "SELECT PaymentProcessorInternalResponseCodeID,PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated,ModifiedBy FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
+	String findAllPaymentProcessorInternalResponseCodeByInternalRespCodeId = "SELECT PaymentProcessorInternalResponseCodeID,PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated,ModifiedBy FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
+	String findAllPaymentProcessorInternalResponseCodeByPaymentProcessorResponseCode = "SELECT PaymentProcessorInternalResponseCodeID,PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated,ModifiedBy FROM PaymentProcessor_InternalResponseCode WHERE PaymentProcessorResponseCodeID=?";
+	String findAllPaymentProcessorInternalResponseCode="SELECT PaymentProcessorInternalResponseCodeID,PaymentProcessorResponseCodeID,InternalResponseCodeID,DateCreated,ModifiedBy FROM PaymentProcessor_InternalResponseCode";
 	String deletePaymentProcessorPaymentProcessorResponseCodeId = "DELETE FROM PaymentProcessor_InternalResponseCode WHERE PaymentProcessorResponseCodeID = ?";
 	String paymentProcessorInternalResponseCodeId = "SELECT * FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID = ?";
 	String deletePaymentProcessorInternalResponseCode = "DELETE FROM PaymentProcessor_InternalResponseCode where InternalResponseCodeId = ?";

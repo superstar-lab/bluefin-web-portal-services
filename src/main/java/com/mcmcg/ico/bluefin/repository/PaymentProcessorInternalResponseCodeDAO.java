@@ -3,6 +3,8 @@ package com.mcmcg.ico.bluefin.repository;
 import java.util.Collection;
 import java.util.List;
 
+import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
+
 public interface PaymentProcessorInternalResponseCodeDAO {
 	public  com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode save(com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponse);
 
@@ -16,7 +18,7 @@ public interface PaymentProcessorInternalResponseCodeDAO {
 	
 	public void createPaymentProcessorInternalStatusCode(Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes);
 
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListById(Long paymentProcessorresponseCodeId);
+	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(Long paymentProcessorresponseCodeId);
 	
 	public void  deleteByInternalResponseCode(Long internalResponseCode);
 	
@@ -32,6 +34,8 @@ public interface PaymentProcessorInternalResponseCodeDAO {
 	
 	public void deletePaymentProcessorInternalResponseCodeIds(List<Long> paymentProcessorInternalStatusCodeIds);
 	public void deleteInternalResponseCodeIds(List<Long> internalStatusCodeIds);
+	
+	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByPmtProcessorRspCdId(Long pmtProcessorResponseCode);
 	
 }
 

@@ -472,6 +472,7 @@ public class UserService {
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.EMPTY_LIST);
+		userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return userDAO.findByUserId(userToUpdate.getUserId());
 	}

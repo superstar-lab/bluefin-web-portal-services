@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.InternalResponseCode;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
 import com.mcmcg.ico.bluefin.repository.InternalResponseCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
@@ -54,7 +55,7 @@ public class InternalResponseCodeService {
 		List<com.mcmcg.ico.bluefin.model.InternalResponseCode> internalResponseCodeList =internalResponseCodeDAO.findByTransactionTypeNameOrderByInternalResponseCodeAsc(transactionType);
 		if(null != internalResponseCodeList && !internalResponseCodeList.isEmpty()){
 			for (com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode : internalResponseCodeList) {
-				internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeListById(internalResponseCode.getInternalResponseCodeId()));
+				internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId()));
 				for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()){
 					Long paymentProcessorResponseCodeId = paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId();
 					com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorResponseCodeId);
@@ -236,6 +237,7 @@ public class InternalResponseCodeService {
 						Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
 						paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
 								.findOne(paymentProcessorCodeId);
+						
 						if (paymentProcessorResponseCode == null) {
 							throw new CustomNotFoundException(
 									"Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
@@ -249,6 +251,9 @@ public class InternalResponseCodeService {
 								throw new CustomBadRequestException("The code " + resourceProcessorCode.getCode()
 										+ " is already used by other Payment Processor Response Code.");
 							}
+						}
+						for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorResponseCode.getInternalResponseCode()) {
+							paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
 						}
 					}
 

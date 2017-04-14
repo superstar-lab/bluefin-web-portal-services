@@ -29,6 +29,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
@@ -48,7 +49,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	
 	@Autowired
 	private PaymentProcessorInternalResponseCodeDAO paymentProcessorInternalResponseCodeDAO;
-
+	
 	@Override
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
 			String paymentProcessorResponseCode, String transactionTypeName, PaymentProcessor paymentProcessor) {
@@ -142,7 +143,10 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 			PaymentProcessorResponseCode paymentProcessorResponseCode = jdbcTemplate.queryForObject(Queries.findPaymentProcessorResponseCodeByID, new Object[] { paymentProcessorCodeId },
 					new PaymentProcessorResponseCodeRowMapper());
 			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = paymentProcessorInternalResponseCodeDAO.
-					findPaymentProcessorInternalResponseCodeListById(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId());
+					findPaymentProcessorInternalResponseCodeListByPmtProcessorRspCdId(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId());
+			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodes) {
+				paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
+			}
 			paymentProcessorResponseCode.setInternalResponseCode(paymentProcessorInternalResponseCodes);
 			return paymentProcessorResponseCode;
 		} catch (EmptyResultDataAccessException e) {
