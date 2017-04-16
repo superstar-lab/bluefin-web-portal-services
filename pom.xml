@@ -25,6 +25,7 @@
 		<org.powermock.version>1.6.2</org.powermock.version>
 		<endpoint.email.wsdl.base.url>http://phxiowasq34.internal.mcmcg.com</endpoint.email.wsdl.base.url>
 		<endpoint.email.wsdl.uri>${endpoint.email.wsdl.base.url}/MailManagerEJBHttpRouter/services/EmailRequestor</endpoint.email.wsdl.uri>
+		<springdata.commons>1.11.4.RELEASE</springdata.commons>
 	</properties>
 
 	<!-- Profiles -->
@@ -121,14 +122,20 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<!-- Remove the two JPA dependencies for ORM refactoring -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
+		</dependency> -->
+		<!-- <dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
+		</dependency> -->
+		<!-- Added below one for Page, PageRequest classes of data package-->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
 		</dependency>
+		
 		<!-- JDBCTemplate -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
