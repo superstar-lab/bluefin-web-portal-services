@@ -23,6 +23,7 @@ public class PaymentProcessorInternalResponseCode implements Serializable {
     private Long internalResponseCodeId;
     private InternalResponseCode internalResponseCode;
 
+    private Long paymentProcessorResponseCodeId;
     private PaymentProcessorResponseCode paymentProcessorResponseCode;
 
     @JsonIgnore

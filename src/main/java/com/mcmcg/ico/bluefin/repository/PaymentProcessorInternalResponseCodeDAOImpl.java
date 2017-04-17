@@ -135,7 +135,16 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 				DateTime utc1 = paymentProcessorInternalResponseCode.getCreatedDate() != null ? paymentProcessorInternalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 				LOGGER.info("Creating child item , InternalResponseCodeId="+(paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId()));//+ " , PaymentProcessorStatusCodeId="+paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
-				ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
+				if (paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode() != null && paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId()!= null) {
+					ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
+				} else {
+					ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCodeId());
+				}
+				if (paymentProcessorInternalResponseCode.getInternalResponseCode() != null && paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId()!= null) {
+					ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
+				} else {
+					ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCodeId());
+				}
 				ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
 				ps.setTimestamp(3, dateCreated);
 			}
@@ -165,7 +174,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	@Override
 	public void deleteByInternalResponseCode(Long internalResponseCode) {
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorInternalResponseCode, new Object[] {internalResponseCode});
-		
+		LOGGER.info("Number of PaymentProcessorInternalResponseCode deleted = "+rows);
 	}
 	
 	@Override

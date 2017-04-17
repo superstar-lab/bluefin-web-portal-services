@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -205,6 +206,13 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 			}
 			paymentProcessorInternalResponseCodeDAO.delete(internalResponseCode.getInternalResponseCodeId().longValue());
 			LOGGER.info("Old Child Items deleted successfully");
+			for (Iterator<PaymentProcessorInternalResponseCode> iterator = internalResponseCode.getPaymentProcessorInternalResponseCodes().iterator(); iterator.hasNext();) {
+				PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = iterator.next();
+				if (paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId() != null) {
+					// removing old items from collection
+					iterator.remove();
+				}
+			}
 			paymentProcessorInternalResponseCodeDAO.savePaymentProcessorInternalResponseCodes(internalResponseCode.getPaymentProcessorInternalResponseCodes());
 			LOGGER.info("New Child Items created successfully");
 		} else {

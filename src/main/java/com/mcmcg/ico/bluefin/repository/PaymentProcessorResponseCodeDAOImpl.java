@@ -29,9 +29,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -46,9 +44,6 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
-	@Autowired
-	private PaymentProcessorInternalResponseCodeDAO paymentProcessorInternalResponseCodeDAO;
 	
 	@Override
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -142,12 +137,6 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		try {
 			PaymentProcessorResponseCode paymentProcessorResponseCode = jdbcTemplate.queryForObject(Queries.findPaymentProcessorResponseCodeByID, new Object[] { paymentProcessorCodeId },
 					new PaymentProcessorResponseCodeRowMapper());
-			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = paymentProcessorInternalResponseCodeDAO.
-					findPaymentProcessorInternalResponseCodeListByPmtProcessorRspCdId(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId());
-			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodes) {
-				paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
-			}
-			paymentProcessorResponseCode.setInternalResponseCode(paymentProcessorInternalResponseCodes);
 			return paymentProcessorResponseCode;
 		} catch (EmptyResultDataAccessException e) {
 			return null;
@@ -168,7 +157,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 								dateModified,paymentProcessorResponseCode.getLastModifiedBy(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeId()
 							 });
 		
-		LOGGER.info("Updated Payment Processor Response Code - id: " + paymentProcessorResponseCode.getPaymentProcessorResponseCodeId());
+		LOGGER.info("Updated Payment Processor Response Code - id: " + paymentProcessorResponseCode.getPaymentProcessorResponseCodeId() + "Number of rows updated - " + rows);
 		return paymentProcessorResponseCode;
 	}
 	

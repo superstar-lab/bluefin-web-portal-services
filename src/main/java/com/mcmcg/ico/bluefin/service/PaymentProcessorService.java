@@ -96,7 +96,7 @@ public class PaymentProcessorService {
 			boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
 			if (processor.isActive() && !isReadyToBeActivated) {
 				processor.setIsActive((short) 0);
-				// paymentProcessorRepository.save(processor);
+				paymentProcessorDAO.update(processor);
 				isReadyToBeActivated = false;
 			}
 			processor.setReadyToBeActivated(isReadyToBeActivated);
@@ -106,10 +106,6 @@ public class PaymentProcessorService {
 
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
 					.findPaymentProccessorMerchantByProcessorId(processor.getPaymentProcessorId());
-			/*for (com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant : paymentProcessorMerchants) {
-				paymentProcessorMerchant.setPaymentProcessor(processor);
-				paymentProcessorMerchant.setLegalEntityApp(legalEntityApp);
-			}*/
 			processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
 		}
 
@@ -153,11 +149,8 @@ public class PaymentProcessorService {
 
 		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
-		if (paymentProcessorToUpdate.getIsActive() == 0 && !isReadyToBeActivated(id)) {
+		if (paymentProcessorToUpdate.getIsActive() == 1 && !isReadyToBeActivated(id)) {
 			paymentProcessorToUpdate.setIsActive((short) 0);
-			paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
-			paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
-			paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
 			paymentProcessorDAO.update(paymentProcessorToUpdate);
 		}
 		if (paymentProcessorResource.getIsActive() == 1 && !isReadyToBeActivated(id)) {
@@ -167,7 +160,11 @@ public class PaymentProcessorService {
 					String.format("Unable to activate Payment Processor, processor has some pending steps: %s",
 							paymentProcessorToUpdate.getProcessorName()));
 		}
-
+		paymentProcessorToUpdate.setProcessorName(paymentProcessorResource.getProcessorName());
+		paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
+		paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
+		paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
+		paymentProcessorDAO.update(paymentProcessorToUpdate);
 		return paymentProcessorToUpdate;
 	}
 
@@ -245,13 +242,6 @@ public class PaymentProcessorService {
 		// Add the new payment processor merchants
 		for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
 			if (!PaymentProcessorMerchantsToKeep.contains(legalEntityId)) {
-				/*LegalEntityApp legalEntityApp = new LegalEntityApp();
-				legalEntityApp.setLegalEntityAppId(legalEntityId);
-				PaymentProcessorMerchant paymentProcessorMerchant = new PaymentProcessorMerchant();
-						
-				paymentProcessorMerchant = newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant();
-						*/
-						
 				paymentProcessorToUpdate.addPaymentProcessorMerchant(
 						newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant());
 			}
@@ -407,7 +397,7 @@ public class PaymentProcessorService {
 						&& paymentProcessorStatusResource.getHasRulesAssociated().getCompleted()
 						&& paymentProcessorStatusResource.getHasStatusCodesAssociated().getCompleted())) {
 			paymentProcessor.setIsActive((short) 0);
-			// paymentProcessorRepository.save(paymentProcessor);
+			paymentProcessorDAO.update(paymentProcessor);
 		}
 
 		return paymentProcessorStatusResource;
