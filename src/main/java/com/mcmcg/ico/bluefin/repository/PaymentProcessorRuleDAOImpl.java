@@ -67,12 +67,6 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	private void insertBatch(final List<PaymentProcessorRule> paymentProcessorRules) {
 		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorRules, new BatchPreparedStatementSetter() {
-			// INSERT INTO PaymentProcessor_Rule (PaymentProcessorRuleID,
-			// PaymentProcessorID, CardType, MaximumMonthlyAmount,
-			// NoMaximumMonthlyAmountFlag,
-			// Priority, MonthToDateCumulativeAmount,
-			// CurrentYear,CurrentMonth,DateCreated,ModifiedBy) VALUES
-			// (?,?,?,?,?,?,?,?,?,?,?)
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				PaymentProcessorRule paymentProcessorRule = paymentProcessorRules.get(i);
@@ -125,7 +119,6 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 		
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-//INSERT INTO PaymentProcessor_Rule (PaymentProcessorID, CardType, MaximumMonthlyAmount, NoMaximumMonthlyAmountFlag, Priority, MonthToDateCumulativeAmount, DateCreated,ModifiedBy) VALUES (?,?,?,?,?,?,?,?)
 		jdbcTemplate.update(new PreparedStatementCreator() {
 
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -178,7 +171,6 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public PaymentProcessorRule updatepaymentProcessorRule(PaymentProcessorRule paymentProcessorRuleToUpdate) {
 		LOGGER.info("Updating PaymentProcessorRule##"+(paymentProcessorRuleToUpdate.toString()) );
-//UPDATE PaymentProcessor_Rule SET PaymentProcessorID= ?, CardType= ?,MaximumMonthlyAmount=?,NoMaximumMonthlyAmountFlag=?,Priority=?,MonthToDateCumulativeAmount=?,CurrentYear=?,CurrentMonth=? WHERE PaymentProcessorRuleID= ?		
 		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorRule,
 					new Object[] { 	paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorRuleToUpdate.getCardType().name(), paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(), 
 							paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(), paymentProcessorRuleToUpdate.getPriority(),paymentProcessorRuleToUpdate.getPaymentProcessorRuleId()

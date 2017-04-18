@@ -110,8 +110,6 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-//INSERT INTO PaymentProcessorResponseCode_Lookup (PaymentProcessorID,PaymentProcessorResponseCode,TransactionType,
-			//PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy) VALUES (?,?,?,?,?,?,?)
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorResponseCode,
 						Statement.RETURN_GENERATED_KEYS);
@@ -167,11 +165,6 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 class PaymentProcessorResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> {
 	@Override
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode mapRow(ResultSet rs, int row) throws SQLException {
-		// SELECT PaymentProcessorResponseCode, PaymentProcessorID,
-		// PaymentProcessorResponseCode,TransactionType,
-		// PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy
-		// FROM PaymentProcessorResponseCode_Lookup WHERE TransactionType='SALE'
-		// AND PaymentProcessorResponseCode=1 AND PaymentProcessorID=1
 		Timestamp ts =null;
 		com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeId(rs.getLong("PaymentProcessorResponseCodeID"));

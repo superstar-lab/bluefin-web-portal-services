@@ -66,6 +66,7 @@ public interface Queries {
 	String findUserRoleByRoleId = "SELECT UserRoleID, UserID, RoleID, DateCreated, DatedModified, ModifiedBy FROM User_Role WHERE RoleID = ?";
 	String saveUserRole = "INSERT INTO User_Role (UserID,RoleID,DateCreated) VALUES(?,?,?)";
 	String saveUserLegalEntityApp = "INSERT INTO User_LegalEntityApp (UserID,LegalEntityAppID,DateCreated) VALUES(?,?,?)";
+	/**
 	String remittanceSaleTransaction = new StringBuilder().append("SELECT * ").append("FROM ")
 			.append("(SELECT ppr.PaymentProcessorRemittanceID,").append("ppr.DateCreated,")
 			.append("ppr.ReconciliationStatusID,").append("ppr.ReconciliationDate,").append("ppr.PaymentMethod,")
@@ -255,6 +256,7 @@ public interface Queries {
 			.append("AND ReconDate.ReconciliationStatus_ID = :reconciliationStatusIdParam ")
 			.append("ORDER BY Processor_Name ASC, ").append("MID ASC, ").append("ReconciliationStatus_ID ASC")
 			.toString();
+	**/
 	String findPaymentProcessorById = "SELECT PaymentProcessorID, ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime FROM PaymentProcessor_Lookup WHERE PaymentProcessorID = ?";
 	String findPaymentProcessorByName = "SELECT PaymentProcessorID, ProcessorName, DateCreated, DatedModified, ModifiedBy, IsActive, RemitTransactionOpenTime, RemitTransactionCloseTime FROM PaymentProcessor_Lookup WHERE ProcessorName = ?";
 	String findPaymentProcessorRuleById= "SELECT PaymentProcessorRuleID, PaymentProcessorID, CardType, MaximumMonthlyAmount, NoMaximumMonthlyAmountFlag, Priority, MonthToDateCumulativeAmount, CurrentYear,CurrentMonth,DateCreated,ModifiedBy FROM PaymentProcessor_Rule WHERE PaymentProcessorID = ?";

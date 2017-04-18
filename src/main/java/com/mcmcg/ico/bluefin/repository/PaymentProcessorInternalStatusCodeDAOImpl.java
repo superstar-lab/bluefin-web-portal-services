@@ -91,28 +91,6 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 			}
 		  });
 	}
-//
-//	private void updateBatch(final List<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes){
-//		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalStatusCode, new BatchPreparedStatementSetter() {
-//			
-//			@Override
-//			public void setValues(PreparedStatement ps, int i) throws SQLException {
-//				PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = paymentProcessorInternalStatusCodes.get(i);
-//				DateTime utc1 = paymentProcessorInternalStatusCode.getCreatedDate() != null ? paymentProcessorInternalStatusCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-//				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-//				LOGGER.info("Creating child item , InternalStatusCodeId="+(paymentProcessorInternalStatusCode.getInternalStatusCodeId()) + " , PaymentProcessorStatusCodeId="+paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
-//				ps.setLong(1, paymentProcessorInternalStatusCode.getInternalStatusCodeId());
-//				ps.setLong(2, paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
-//				ps.setTimestamp(3, dateCreated);
-//				ps.setString(4, paymentProcessorInternalStatusCode.getLastModifiedBy() );
-//			}
-//
-//			@Override
-//			public int getBatchSize() {
-//				return paymentProcessorInternalStatusCodes.size();
-//			}
-//		  });
-//	}
 	
 	@Override
 	public void save(PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode) {

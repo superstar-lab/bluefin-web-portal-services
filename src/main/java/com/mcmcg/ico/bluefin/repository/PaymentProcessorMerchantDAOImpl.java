@@ -99,8 +99,6 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 
 class PaymentProcessorMerchantRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> {
 	@Override
-	//	SELECT PaymentProcessorMerchantID, LegalEntityAppID, PaymentProcessorID, 
-	//TestOrProd, MerchantID, DateCreated, DatedModified, ModifiedBy FROM PaymentProcessor_Merchant
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant mapRow(ResultSet rs, int row) throws SQLException {
 		com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant = new com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant();
 		paymentProcessorMerchant.setMerchantId(rs.getString("MerchantID"));
@@ -110,9 +108,6 @@ class PaymentProcessorMerchantRowMapper implements RowMapper<com.mcmcg.ico.bluef
 		paymentProcessorMerchant.setModifiedDate(new DateTime(rs.getTimestamp("DatedModified")));
 		paymentProcessorMerchant.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
 		paymentProcessorMerchant.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
-		/*com.mcmcg.ico.bluefin.model.LegalEntityApp legalEntityApp = new com.mcmcg.ico.bluefin.model.LegalEntityApp();
-		legalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
-		paymentProcessorMerchant.setLegalEntityApp(legalEntityApp);*/
 		return paymentProcessorMerchant;
 	}
 }

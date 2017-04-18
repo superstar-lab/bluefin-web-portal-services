@@ -143,10 +143,6 @@ public class TransactionService {
 		return result;
 	}
 
-	public Long countTransactionsWithPaymentProcessorRuleID(final Long paymentProcessorRuleId) {
-		return saleTransactionDAO.countByPaymentProcessorRuleId(paymentProcessorRuleId);
-	}
-
 	public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
 		Page<SaleTransaction> result;
 		try {
@@ -298,35 +294,6 @@ public class TransactionService {
 			LOGGER.info("CSV file report was created successfully !!!");
 		}
 		return file;
-	}
-
-	/**
-	 * Get remittance, sale, refund, and void transactions. This will be one
-	 * column of the UI.
-	 * 
-	 * @param search
-	 * @param paging
-	 * @param negate
-	 * 
-	 * @return list of objects containing these transactions
-	 */
-	public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging,
-			boolean negate) {
-		Page<PaymentProcessorRemittance> result;
-		try {
-			result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
-		} catch (ParseException e) {
-			throw new CustomNotFoundException(
-					"Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
-		}
-		final int page = paging.getPageNumber();
-
-		if (page > result.getTotalPages() && page != 0) {
-			LOGGER.error("Unable to find the page requested");
-			throw new CustomNotFoundException("Unable to find the page requested");
-		}
-
-		return result;
 	}
 
 	/**

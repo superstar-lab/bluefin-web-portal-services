@@ -62,7 +62,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	//private HashMap<String, String> dynamicParametersMap = new HashMap<String, String>();
 	private HashMap<String, String> predicatesHashMapping = new HashMap<String, String>();
 	
 	@Autowired
@@ -155,7 +154,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		CustomQuery queryObj = new CustomQuery(query);
 		query = queryObj.getFinalQueryToExecute();
 		
-		
 		int transactionsReportMaxSize = getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
 		if (transactionsReportMaxSize > 0) {
 			query = query + " LIMIT " + transactionsReportMaxSize;
@@ -187,7 +185,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		String query = getQueryByCriteria(search,dynamicParametersMap);
 		LOGGER.debug("Query="+(query));
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
-		//LOGGER.debug("Dynamic params map="+ dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
 		int pageNumber = ( page != null ? page.getPageNumber() : 0 );
@@ -260,7 +257,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		LOGGER.info("RRD***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
-
 		Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 		return list;
 	}
@@ -1137,14 +1133,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (reconciliationStatusId != null) {
 			afterWhereClauseSB.append(" AND  ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
 		}
-		// To avoid a SQL grammar error, which will happen if more than one
-		// filter is chosen.
-		/*String temp = querySbPart3.toString();
-		if (temp.contains("WHERE AND")) {
-			temp = temp.replaceAll("WHERE AND ", "WHERE ");
-			querySbPart3.delete(0, querySbPart3.length());
-			querySbPart3.append(temp);
-		}*/
 		afterWhereClauseSB.replace(0, 4, " ");
 		
 		if(StringUtils.isNotEmpty(afterWhereClauseSB.toString().trim())){
@@ -1394,7 +1382,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		return querySb.toString();
 	}
-
 	
 }
 

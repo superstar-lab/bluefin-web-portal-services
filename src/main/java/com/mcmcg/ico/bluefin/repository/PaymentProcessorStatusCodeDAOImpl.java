@@ -147,8 +147,6 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-			//INSERT INTO PaymentProcessorResponseCode_Lookup (PaymentProcessorID,PaymentProcessorResponseCode,TransactionType,
-			//PaymentProcessorResponseCodeDescription,DateCreated,DatedModified,ModifiedBy) VALUES (?,?,?,?,?,?,?)
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorStatusCode,
 						Statement.RETURN_GENERATED_KEYS);
@@ -190,8 +188,6 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 class PaymentProcessorStatusCodeRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> {
 	@Override
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode mapRow(ResultSet rs, int row) throws SQLException {
-	//SELECT PaymentProcessorStatusCodeID, PaymentProcessorID, PaymentProcessorStatusCode,TransactionType,
-		//PaymentProcessorStatusDescription,DateCreated,DatedModified,ModifiedBy FROM PaymentProcessorStatusCode_Lookup WHERE TransactionType=? AND PaymentProcessorStatusCode=? AND PaymentProcessorID=?
 		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode();
 		paymentProcessorStatusCode.setPaymentProcessorStatusCodeId(rs.getLong("PaymentProcessorStatusCodeID"));
 		paymentProcessorStatusCode.setPaymentProcessorStatusCode(rs.getString("PaymentProcessorStatusCode"));
