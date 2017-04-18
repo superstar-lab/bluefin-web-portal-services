@@ -143,10 +143,10 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 
 	@Override
 	public PaymentProcessor update(PaymentProcessor paymentProcessor) {
-		if (paymentProcessor.getPaymentProcessorMerchants() == null & paymentProcessor.getPaymentProcessorMerchants().isEmpty()) {
+		if (paymentProcessor.getPaymentProcessorMerchants() != null & !paymentProcessor.getPaymentProcessorMerchants().isEmpty()) {
 			paymentProcessorMerchantDAO.deletPaymentProcessorMerchantByProcID(paymentProcessor.getPaymentProcessorId());
 		}
-		if (paymentProcessor.getPaymentProcessorRules() == null & paymentProcessor.getPaymentProcessorRules().isEmpty()) {
+		if (paymentProcessor.getPaymentProcessorRules() != null & !paymentProcessor.getPaymentProcessorRules().isEmpty()) {
 			paymentProcessorMerchantDAO.deletePaymentProcessorRules(paymentProcessor.getPaymentProcessorId());
 		}
 		LOGGER.debug("Updating Payment Processor, PaymentProcessorId - "+(paymentProcessor.getPaymentProcessorId()));
