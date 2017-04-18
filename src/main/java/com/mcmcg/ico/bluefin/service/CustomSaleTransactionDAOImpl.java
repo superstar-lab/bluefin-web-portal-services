@@ -148,18 +148,21 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	@Override
-	public List<PaymentProcessorRemittance> findRemittanceSaleRefundTransactionsReport(String search)
+	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search,boolean negate)
 			throws ParseException {
 		LOGGER.info("Executing findRemittanceSaleRefundTransactionsReport , Search Value {}",search);
-		String query = getNativeQueryForRemittanceSaleRefund(search,null);
-		LOGGER.debug("Dynamic Query {}", query);
+		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
+		CustomQuery queryObj = new CustomQuery(query);
+		query = queryObj.getFinalQueryToExecute();
+		
+		
 		int transactionsReportMaxSize = getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
 		if (transactionsReportMaxSize > 0) {
 			query = query + " LIMIT " + transactionsReportMaxSize;
 		}
-		LOGGER.info("Query to execute="+query);
+		LOGGER.info("RRR***-Result Data Query to execute:"+query);
 		@SuppressWarnings("unchecked")
-		List<PaymentProcessorRemittance> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceRowMapper());
+		List<RemittanceSale> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceExtractor());
 		LOGGER.info("Total number of rows="+( tr != null ? tr.size() :0 ));
 		return tr;
 	}
@@ -228,7 +231,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
 		LOGGER.info("Executing findRemittanceSaleRefundTransactions, Search  Value {} , Page {}, negate {}",search,page,negate); 
 		// Creates the query for the total and for the retrieved data
-		String query = getNativeQueryForRemittanceSaleRefund(search,page);
+		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
 		LOGGER.debug("Query Prepared="+query);
 		CustomQuery queryObj = new CustomQuery(query);
 		if ( queryObj != null && page != null ) {
@@ -239,23 +242,15 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		query = queryObj.getFinalQueryToExecute();
 		queryObj.setPagination(false);
 		String queryForCount = queryObj.getFinalQueryToExecute();
-		System.out.println(queryForCount);
 		int astrikIndex = queryForCount.indexOf("*");
 		if (astrikIndex != -1) {
 			String beforeAsktrik = queryForCount.substring(0,astrikIndex);
 			String afterAsktrik = queryForCount.substring(astrikIndex+1);
 			queryForCount = beforeAsktrik + " COUNT(*) " + afterAsktrik;
 		}
-		// Currently this is only used if the user selects 'Not Reconcilied' on
-		// the UI.
-		// Change to: WHERE ReconciliationID != 'Reconciled'
-		if (negate) {
-			query = query.replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
-			queryForCount=queryForCount.replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
-		}
 		
-		LOGGER.info("RRR***-Result Data Query to execute:"+query);
-		LOGGER.info("RRR***-Count Query to execute:"+(queryForCount));
+		LOGGER.info("RRD***-Result Data Query to execute:"+query);
+		LOGGER.info("RRD***-Count Query to execute:"+(queryForCount));
 		
 		// Brings the data and transform it into a Page value list
 		System.out.println(query);
@@ -265,7 +260,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			tr = new ArrayList<PaymentProcessorRemittance>();
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
-		LOGGER.info("RRR***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
+		LOGGER.info("RRD***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
 
 		Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 		return list;
@@ -1026,7 +1021,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * 
 	 * @return SQL query
 	 */
-	private String getNativeQueryForRemittanceSaleRefund(String search,PageRequest page) {
+	private String getNativeQueryForRemittanceSaleRefund(String search,boolean negate) {
 
 		String remittanceCreationDateBegin = null;
 		String remittanceCreationDateEnd = null;
@@ -1171,8 +1166,19 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			querySb.append(")");
 		}
 		querySb.append(querySbPart3);
-
-		return querySb.toString();
+		
+		/**
+		 *  Currently this is only used if the user selects 'Not Reconcilied' on
+		 *  the UI.
+		 *  Change to: WHERE ReconciliationID != 'Reconciled'
+		 */
+		
+		if (negate) {
+			return querySb.toString().replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
+		}else{
+			return querySb.toString();
+		}
+		
 	}
 
 	
@@ -1390,4 +1396,120 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return querySb.toString();
 	}
 
+	
+}
+
+class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<RemittanceSale>> {
+
+	@Override
+	public List<RemittanceSale> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+		ArrayList<RemittanceSale> list = new ArrayList<RemittanceSale>();
+
+		while (rs.next()) {
+
+			RemittanceSale remittanceSale = new RemittanceSale();
+
+			PaymentProcessorRemittance ppr = new PaymentProcessorRemittance();
+			ppr.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
+			Timestamp ts = null;
+			if (rs.getString("DateCreated") != null){
+				ts = Timestamp.valueOf(rs.getString("DateCreated"));
+				ppr.setDateCreated(new DateTime(ts));
+			}
+			// Mitul overrides this with ReconciliationStatus_ID
+			ppr.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
+			ppr.setReconciliationDate(new DateTime(rs.getTimestamp("ReconciliationDate")));
+			ppr.setPaymentMethod(rs.getString("PaymentMethod"));
+			ppr.setTransactionAmount(rs.getBigDecimal("TransactionAmount"));
+			ppr.setTransactionType(rs.getString("TransactionType"));
+			ppr.setTransactionTime(new DateTime(rs.getTimestamp("TransactionTime")));
+			ppr.setAccountId(rs.getString("AccountID"));
+			ppr.setApplication(rs.getString("Application"));
+			ppr.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
+			// Mitul overrides this with MID
+			ppr.setMerchantId(rs.getString("MerchantID"));
+			ppr.setTransactionSource(rs.getString("TransactionSource"));
+			ppr.setFirstName(rs.getString("FirstName"));
+			ppr.setLastName(rs.getString("LastName"));
+			if (rs.getString("RemittanceCreationDate") != null){
+				ts = Timestamp.valueOf(rs.getString("RemittanceCreationDate"));
+				ppr.setRemittanceCreationDate(new DateTime(ts));
+			}
+			ppr.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
+			// Final value (ORDER BY)
+			ppr.setMerchantId(rs.getString("MID"));
+			// Final value (ORDER BY)
+			ppr.setReconciliationStatusId(rs.getLong("ReconciliationStatus_ID"));
+			remittanceSale.setPaymentProcessorRemittance(ppr);
+
+			SaleTransaction st = new SaleTransaction();
+			// Mitul overrides this with Processor_Name
+			st.setProcessor(rs.getString("ProcessorName"));
+			st.setSaleTransactionId(rs.getLong("SaleTransactionID"));
+			st.setFirstName(rs.getString("SaleFirstName"));
+			st.setLastName(rs.getString("SaleLastName"));
+			st.setProcessUser(rs.getString("SaleProcessUser"));
+			st.setTransactionType(rs.getString("SaleTransactionType"));
+			st.setAddress1(rs.getString("SaleAddress1"));
+			st.setAddress2(rs.getString("SaleAddress2"));
+			st.setCity(rs.getString("SaleCity"));
+			st.setState(rs.getString("SaleState"));
+			st.setPostalCode(rs.getString("SalePostalCode"));
+			st.setCountry(rs.getString("SaleCountry"));
+			st.setCardNumberFirst6Char(rs.getString("SaleCardNumberFirst6Char"));
+			st.setCardNumberLast4Char(rs.getString("SaleCardNumberLast4Char"));
+			st.setCardType(rs.getString("SaleCardType"));
+			st.setExpiryDate(rs.getTimestamp("SaleExpiryDate"));
+			st.setToken(rs.getString("SaleToken"));
+			st.setChargeAmount(rs.getBigDecimal("SaleChargeAmount"));
+			st.setLegalEntityApp(rs.getString("SaleLegalEntityApp"));
+			st.setAccountId(rs.getString("SaleAccountId"));
+			st.setApplicationTransactionId(rs.getString("SaleApplicationTransactionID"));
+			st.setMerchantId(rs.getString("SaleMerchantID"));
+			st.setProcessor(rs.getString("SaleProcessor"));
+			st.setApplication(rs.getString("SaleApplication"));
+			st.setOrigin(rs.getString("SaleOrigin"));
+			st.setProcessorTransactionId(rs.getString("SaleProcessorTransactionID"));
+			st.setTransactionDateTime(new DateTime(rs.getTimestamp("SaleTransactionDateTime")));
+			st.setTestMode(rs.getShort("SaleTestMode"));
+			st.setApprovalCode(rs.getString("SaleApprovalCode"));
+			st.setTokenized(rs.getShort("SaleTokenized"));
+			st.setPaymentProcessorStatusCode(rs.getString("SalePaymentProcessorStatusCode"));
+			st.setPaymentProcessorStatusCodeDescription(rs.getString("SalePaymentProcessorStatusCodeDescription"));
+			st.setPaymentProcessorResponseCode(rs.getString("SalePaymentProcessorResponseCode"));
+			st.setPaymentProcessorResponseCodeDescription(rs.getString("SalePaymentProcessorResponseCodeDescription"));
+			st.setInternalStatusCode(rs.getString("SaleInternalStatusCode"));
+			st.setInternalStatusDescription(rs.getString("SaleInternalStatusDescription"));
+			st.setInternalResponseCode(rs.getString("SaleInternalResponseCode"));
+			st.setInternalResponseDescription(rs.getString("SaleInternalResponseDescription"));
+			st.setPaymentProcessorInternalStatusCodeId(rs.getLong("SalePaymentProcessorInternalStatusCodeID"));
+			st.setPaymentProcessorInternalResponseCodeId(rs.getLong("SalePaymentProcessorInternalResponseCodeID"));
+			st.setDateCreated(new DateTime(rs.getTimestamp("SaleDateCreated")));
+			st.setPaymentProcessorRuleId(rs.getLong("SalePaymentProcessorRuleID"));
+			st.setRulePaymentProcessorId(rs.getLong("SaleRulePaymentProcessorID"));
+			st.setRuleCardType(rs.getString("SaleRuleCardType"));
+			st.setRuleMaximumMonthlyAmount(rs.getBigDecimal("SaleRuleMaximumMonthlyAmount"));
+			st.setRuleNoMaximumMonthlyAmountFlag(rs.getShort("SaleRuleNoMaximumMonthlyAmountFlag"));
+			st.setRulePriority(rs.getShort("SaleRulePriority"));
+			st.setAccountPeriod(rs.getString("SaleAccountPeriod"));
+			st.setDesk(rs.getString("SaleDesk"));
+			st.setInvoiceNumber(rs.getString("SaleInvoiceNumber"));
+			st.setUserDefinedField1(rs.getString("SaleUserDefinedField1"));
+			st.setUserDefinedField2(rs.getString("SaleUserDefinedField2"));
+			st.setUserDefinedField3(rs.getString("SaleUserDefinedField3"));
+			st.setReconciliationStatusId(rs.getLong("SaleReconciliationStatusID"));
+			st.setReconciliationDate(new DateTime(rs.getTimestamp("SaleReconciliationDate")));
+			st.setBatchUploadId(rs.getLong("SaleBatchUploadID"));
+			st.setIsVoided(rs.getInt("SaleIsVoided"));
+			st.setIsRefunded(rs.getInt("SaleIsRefunded"));
+			// Final value (ORDER BY)
+			st.setProcessor(rs.getString("Processor_Name"));
+			remittanceSale.setSaleTransaction(st);
+
+			list.add(remittanceSale);
+		}
+
+		return list;
+	}
 }

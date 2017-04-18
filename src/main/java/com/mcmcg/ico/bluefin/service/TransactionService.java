@@ -90,6 +90,9 @@ public class TransactionService {
 	private LegalEntityAppDAO legalEntityAppDAO;     
 	@Autowired
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
+	
+	@Autowired
+	CustomSaleTransactionDAO customSaleTransactionDAO;
 
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
 		Transaction result = null;
@@ -335,13 +338,19 @@ public class TransactionService {
 	 * 
 	 * @throws IOException
 	 */
-	public File getRemittanceTransactionsReport(String search, String timeZone) throws IOException {
+	public File getRemittanceTransactionsReport(String search, String timeZone,boolean negate) throws IOException {
 		List<RemittanceSale> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		File file = null;
 		try {
-			result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactionsReport(search);
+			/**
+			 * Commenting below mehtod to call from reittance dao, due to having some conflicts between display data logic result on UI and report generation
+			 * Now having same dao logic will eliminate those descrepencies
+			 */
+			//result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactionsReport(search);
+			result= customSaleTransactionDAO.findRemittanceSaleRefundTransactionsReport(search, negate);
+			
 		} catch (ParseException e) {
 			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
 		}

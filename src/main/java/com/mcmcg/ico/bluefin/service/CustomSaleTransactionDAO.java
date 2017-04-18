@@ -32,7 +32,7 @@ public interface CustomSaleTransactionDAO  {
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest page,
 			boolean negate) throws ParseException ;
 
-	public List<PaymentProcessorRemittance> findRemittanceSaleRefundTransactionsReport(String search)
+	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search,boolean negate)
 			throws ParseException;
 
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,

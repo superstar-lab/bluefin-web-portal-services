@@ -37,6 +37,9 @@ public class PaymentProcessorRemittanceService {
 	@Autowired
 	private PaymentProcessorDAO paymentProcessorDAO;
 
+	@Autowired
+	CustomSaleTransactionDAO customSaleTransactionDAO;
+	
 	/**
 	 * Get transaction information for details page.
 	 * 
@@ -103,7 +106,11 @@ public class PaymentProcessorRemittanceService {
 			boolean negate) {
 		Page<PaymentProcessorRemittance> result;
 		try {
-			result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
+			/**
+			 * Commented below call, as one dao was calling another dao, removed extra layer of calling, all logic is placed in customSaleDaoimple
+			 */
+			//result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
+			result = customSaleTransactionDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(
 					"Unable to process find remittance, sale, refund or void transactions, due an error with date formatting");
@@ -142,29 +149,5 @@ public class PaymentProcessorRemittanceService {
 				.toString();
 	}
 
-	/**
-	 * Get the value of parameter in search string.
-	 * 
-	 * @param search
-	 *            string
-	 * @param parameter
-	 *            in search string
-	 * 
-	 * @return value of parameter
-	 */
-	public String getValueFromParameter(String search, String parameter) {
 
-		String value = null;
-		String[] array1 = search.split("\\$\\$");
-
-		for (String pair : array1) {
-			if (pair.startsWith(parameter)) {
-				String[] array2 = pair.split(":");
-				value = array2[1];
-				break;
-			}
-		}
-
-		return value;
-	}
 }

@@ -19,6 +19,7 @@ import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorRemittanceService;
+import com.mcmcg.ico.bluefin.service.util.ApplicationUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -73,8 +74,7 @@ public class PaymentProcessorRemittanceRestController {
 
 		// For 'Not Reconciled' status, which is not in the database, simply
 		// use: WHERE ReconciliationID != 'Reconciled'
-		String reconciliationStatusId = paymentProcessorRemittanceService.getValueFromParameter(search,
-				"reconciliationStatusId");
+		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(search,"reconciliationStatusId");
 		if (reconciliationStatusId != null) {
 			if (reconciliationStatusId.equals("notReconciled")) {
 				String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
