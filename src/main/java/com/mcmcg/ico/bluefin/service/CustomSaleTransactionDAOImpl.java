@@ -253,7 +253,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.info("RRD***-Count Query to execute:"+(queryForCount));
 		
 		// Brings the data and transform it into a Page value list
-		System.out.println(query);
 		@SuppressWarnings("unchecked")
 		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
 		if (tr == null) {
@@ -1069,13 +1068,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySbPart1.append(getPaymentProcessorRemittanceAndSaleQuery());
 		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
 		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-		querySbPart1.append("AND (Upper(ppr.TransactionType) = 'SALE') ");
+		querySbPart1.append("AND (ppr.TransactionType = 'SALE') ");
 		querySbPart1.append("AND (st.TestMode = " + testOrProd + " OR st.TestMode IS NULL) ");
 		querySbPart1.append("UNION ");
 		querySbPart1.append(getPaymentProcessorRemittanceAndRefundQuery());
 		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
 		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-		querySbPart1.append("AND (Upper(ppr.TransactionType) = 'REFUND') ");
+		querySbPart1.append("AND (ppr.TransactionType = 'REFUND') ");
 		querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
 		LOGGER.debug("query (part 1): " + querySbPart1.toString());
 
@@ -1087,7 +1086,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySbPart2.append("AND SALE.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
 				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
 		querySbPart2.append("AND SALE.InternalStatusCode = 1 ");
-		querySbPart2.append("AND (Upper(SALE.TransactionType) = 'SALE') ");
+		querySbPart2.append("AND (SALE.TransactionType = 'SALE') ");
 		querySbPart2.append("AND SALE.ReconciliationStatusID = " + statusId + " ");
 		querySbPart2.append("UNION ");
 		querySbPart2.append(getRefundQuery());

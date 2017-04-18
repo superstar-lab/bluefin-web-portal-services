@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 
@@ -69,12 +70,15 @@ public class SaleTransaction implements Serializable, Transaction {
 	private String token;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
+	@JsonProperty("amount")
 	private BigDecimal chargeAmount;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
+	@JsonProperty("legalEntity")
 	private String legalEntityApp;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
+	@JsonProperty("accountNumber")
 	private String accountId;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
@@ -84,6 +88,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	private String merchantId;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
+	@JsonProperty("processorName")
 	private String processor;
 
 	@JsonView(Views.Extend.class)
@@ -116,9 +121,11 @@ public class SaleTransaction implements Serializable, Transaction {
 	private String paymentProcessorStatusCodeDescription;
 
 	@JsonView(Views.Extend.class)
+	@JsonProperty("paymentProcessorResponseCode")
 	private String paymentProcessorResponseCode;
 
 	@JsonView(Views.Extend.class)
+	@JsonProperty("paymentProcessorResponseCodeDescription")
 	private String paymentProcessorResponseCodeDescription;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
@@ -200,6 +207,9 @@ public class SaleTransaction implements Serializable, Transaction {
 	// Not in the table.
 	private Integer isRefunded = 0;
 
+	@JsonView({ Views.Extend.class, Views.Summary.class })
+	private String paymentFrequency;
+	
 	public SaleTransaction() {
 	}
 
@@ -766,4 +776,8 @@ public class SaleTransaction implements Serializable, Transaction {
 	public static String getCardMask() {
 		return CARD_MASK;
 	}
+	
+	public String getPaymentFrequency() {
+        return PaymentFrequency.getPaymentFrequency(origin).toString();
+    }
 }
