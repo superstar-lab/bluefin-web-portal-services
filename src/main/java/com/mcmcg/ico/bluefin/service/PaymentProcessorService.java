@@ -96,7 +96,6 @@ public class PaymentProcessorService {
 			boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
 			if (processor.isActive() && !isReadyToBeActivated) {
 				processor.setIsActive((short) 0);
-				paymentProcessorDAO.update(processor);
 				isReadyToBeActivated = false;
 			}
 			processor.setReadyToBeActivated(isReadyToBeActivated);
