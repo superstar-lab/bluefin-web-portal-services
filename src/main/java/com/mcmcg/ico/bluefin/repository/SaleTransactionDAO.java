@@ -15,8 +15,7 @@ public interface SaleTransactionDAO {
 
 	SaleTransaction findByProcessorTransactionId(String transactionId);
 
-	Long countByPaymentProcessorRuleId(Long paymentProcessorRuleId);
-
+	
 	List<SaleTransaction> findByBatchUploadId(Long batchUploadId);
 
 	Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException;

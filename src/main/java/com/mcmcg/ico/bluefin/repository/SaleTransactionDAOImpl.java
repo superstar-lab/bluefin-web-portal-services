@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -81,19 +80,6 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	}
 
 	@Override
-	public Long countByPaymentProcessorRuleId(Long paymentProcessorRuleId) {
-		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findCountByPaymentProcessorRuleId, new Object[] { paymentProcessorRuleId },
-				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
-
-		Long count = (long) list.size();
-
-		LOGGER.debug("Number of rows: " + count);
-
-		return count;
-	}
-
-	@Override
 	public List<SaleTransaction> findByBatchUploadId(Long batchUploadId) {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				Queries.findSaleTransactionByBatchUploadId, new Object[] { batchUploadId },
@@ -103,63 +89,15 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 		return list;
 	}
+	
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException {
 		return customSaleTransactionDAO.findTransaction(search, pageRequest);
 	}
 	
-	public Page<SaleTransaction> findTransaction_Old(String search, PageRequest pageRequest) throws ParseException {
-		LOGGER.info("Find Transaction, Search="+(search) );
-		String sql = Queries.findAllSaleTransactions ;
-		int pageNumber = pageRequest.getPageNumber();
-		int pageSize = pageRequest.getPageSize();
-		int limit_PageNumber = pageNumber;
-		if (limit_PageNumber < 0) {
-			limit_PageNumber = 1;
-		}
-		if (search != null && !search.isEmpty()) {
-			sql = sql  + " WHERE "  + search + " LIMIT " + ( pageSize * limit_PageNumber ) + ","+pageSize;
-		} else {
-			sql = sql  + " LIMIT " + ( pageSize * limit_PageNumber ) + ","+pageSize;
-		}
-		String sql_Count = Queries.findAllSaleTransactions_Count;
-		if (search != null && !search.isEmpty()) {
-			sql_Count = sql_Count  + " WHERE "  + search;
-		}
-		LOGGER.info("Sale Trans Count Query Before Execute="+sql_Count);
-		Integer saleTrans_Count = jdbcTemplate.queryForObject(sql_Count, Integer.class);
-		LOGGER.info("Sale Trans Count=" + ( saleTrans_Count != null ? saleTrans_Count.intValue() : 0 ) );
-		LOGGER.info("Sale Trans Query Before Execute="+sql);
-		List<SaleTransaction> list = jdbcTemplate.query(sql, new SaleTransactionRowMapper());
-		if (list == null) {
-			list = new ArrayList<SaleTransaction>();
-		}
-		LOGGER.debug("Number of rows: " + list.size());
-
-		int countResult = saleTrans_Count != null ? saleTrans_Count.intValue() : 0;
-
-//		List<SaleTransaction> onePage = new ArrayList<SaleTransaction>();
-//		int index = pageSize * pageNumber;
-//		int increment = pageSize;
-//		// Check upper bound to avoid IndexOutOfBoundsException
-//		if ((index + increment) > countResult) {
-//			int adjustment = (index + increment) - countResult;
-//			increment -= adjustment;
-//		}
-//		for (int i = index; i < (index + increment); i++) {
-//			onePage.add(list.get(i));
-//		}
-
-		Page<SaleTransaction> pageList = new PageImpl<SaleTransaction>(list, pageRequest, countResult);
-
-		return pageList;
-	}
-
 	@Override
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
-//		String sql = Queries.findAllSaleTransactions + " WHERE " + search;
 		List<SaleTransaction> list = customSaleTransactionDAO.findTransactionsReport(search);
-//				jdbcTemplate.query(sql, new SaleTransactionRowMapper());
 		LOGGER.debug("Number of rows: " + list.size());
 		return list;
 	}
