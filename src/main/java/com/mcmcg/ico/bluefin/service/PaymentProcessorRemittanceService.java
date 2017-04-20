@@ -54,7 +54,7 @@ public class PaymentProcessorRemittanceService {
 		Transaction result = null;
 
 		try {
-			result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactionsDetail(transactionId,
+			result = customSaleTransactionDAO.findRemittanceSaleRefundTransactionsDetail(transactionId,
 					transactionType, processorTransactionType);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException("Unable to process find remittance, sale, or refund transactions!");

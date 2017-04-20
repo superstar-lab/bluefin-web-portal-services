@@ -3,11 +3,8 @@ package com.mcmcg.ico.bluefin.repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -15,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -27,10 +21,8 @@ import org.springframework.stereotype.Repository;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.RemittanceSale;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
-import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 import com.mcmcg.ico.bluefin.service.CustomSaleTransactionDAO;
-import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
 @Repository
 public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemittanceDAO {
@@ -61,13 +53,6 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 		return paymentProcessorRemittance;
 	}
 	
-	@Override
-	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
-			TransactionTypeCode transactionType, String processorTransactionType) throws ParseException {
-		PaymentProcessorRemittance paymentProcessorRemittance = customSaleTransactionDAO.
-				findRemittanceSaleRefundTransactionsDetail(transactionId, transactionType, processorTransactionType);
-		return paymentProcessorRemittance;
-	}
 }
 
 class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorRemittance> {

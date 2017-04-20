@@ -92,7 +92,7 @@ public class TransactionService {
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	
 	@Autowired
-	CustomSaleTransactionDAO customSaleTransactionDAO;
+	private CustomSaleTransactionDAO customSaleTransactionDAO;
 
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
 		Transaction result = null;
@@ -146,7 +146,7 @@ public class TransactionService {
 	public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
 		Page<SaleTransaction> result;
 		try {
-			result = saleTransactionDAO.findTransaction(search, paging);
+			result = customSaleTransactionDAO.findTransaction(search, paging);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
 		}
@@ -178,7 +178,7 @@ public class TransactionService {
 
 		File file = null;
 		try {
-			result = saleTransactionDAO.findTransactionsReport(search);
+			result = customSaleTransactionDAO.findTransactionsReport(search);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
 		}

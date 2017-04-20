@@ -3,7 +3,6 @@ package com.mcmcg.ico.bluefin.repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
-import com.mcmcg.ico.bluefin.service.CustomSaleTransactionDAO;
 
 @Repository
 public class SaleTransactionDAOImpl implements SaleTransactionDAO {
@@ -30,8 +26,8 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	@Autowired
-	private CustomSaleTransactionDAO customSaleTransactionDAO;
+//	@Autowired
+//	private CustomSaleTransactionDAO customSaleTransactionDAO;
 	
 	@Override
 	public List<SaleTransaction> findAll() {
@@ -87,18 +83,6 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 		LOGGER.debug("Number of rows: " + list.size());
 
-		return list;
-	}
-	
-	@Override
-	public Page<SaleTransaction> findTransaction(String search, PageRequest pageRequest) throws ParseException {
-		return customSaleTransactionDAO.findTransaction(search, pageRequest);
-	}
-	
-	@Override
-	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
-		List<SaleTransaction> list = customSaleTransactionDAO.findTransactionsReport(search);
-		LOGGER.debug("Number of rows: " + list.size());
 		return list;
 	}
 }
