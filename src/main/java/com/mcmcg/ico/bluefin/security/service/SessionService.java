@@ -41,6 +41,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
+import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
@@ -211,23 +212,29 @@ public class SessionService {
 		return response;
 	}
 
-	public BasicTokenResponse registerApplication(String username) {
+	public BasicTokenResponse registerApplication(ThirdPartyAppResource thirdparyApp) {
 		RegisterUserResource userResource = new RegisterUserResource();
-		userResource.setUsername(username);
-		userResource.setFirstName(username);
-		userResource.setLastName(username);
-
+		userResource.setUsername(thirdparyApp.getUsername());
+		userResource.setFirstName(thirdparyApp.getUsername());
+		userResource.setLastName(thirdparyApp.getUsername());
+		userResource.setEmail(thirdparyApp.getEmail());
+		//userResource.set
+		
+		
+		
+		
 		Collection<Role> rolesToAssign = new ArrayList<Role>();
 		rolesToAssign.add(getRoleThirdParty());
 
-		if (!userService.existUsername(username)) {
+		if (!userService.existUsername(thirdparyApp.getUsername())) {
 			User newUser = userResource.toUser(rolesToAssign, new ArrayList<LegalEntityApp>());
 			newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 			newUser.setIsActive((short) 1);
+			newUser.setStatus("ACTIVE");
 
 			userDAO.saveUser(newUser);
 		}
-		return new BasicTokenResponse(generateNewToken(username, TokenType.APPLICATION, null));
+		return new BasicTokenResponse(generateNewToken(thirdparyApp.getUsername(), TokenType.APPLICATION, null));
 	}
 
 	public Role getRoleThirdParty() {
