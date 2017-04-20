@@ -28,16 +28,6 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public List<RefundTransaction> findAll() {
-		List<RefundTransaction> list = jdbcTemplate.query(Queries.findAllRefundTransactions,
-				new RefundTransactionRowMapper());
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		return list;
-	}
-
-	@Override
 	public RefundTransaction findByApplicationTransactionId(String transactionId) {
 		RefundTransaction refundTransaction = null;
 
@@ -55,23 +45,6 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 		return refundTransaction;
 	}
 
-	@Override
-	public RefundTransaction findByProcessorTransactionId(String transactionId) {
-		RefundTransaction refundTransaction = null;
-
-		ArrayList<RefundTransaction> list = (ArrayList<RefundTransaction>) jdbcTemplate.query(
-				Queries.findRefundTransactionByProcessorTransactionId, new Object[] { transactionId },
-				new RowMapperResultSetExtractor<RefundTransaction>(new RefundTransactionRowMapper()));
-		refundTransaction = DataAccessUtils.singleResult(list);
-
-		if (refundTransaction != null) {
-			LOGGER.debug("Found RefundTransaction for transactionId: " + transactionId);
-		} else {
-			LOGGER.debug("RefundTransaction not found for transactionId: " + transactionId);
-		}
-
-		return refundTransaction;
-	}
 }
 
 class RefundTransactionRowMapper implements RowMapper<RefundTransaction> {

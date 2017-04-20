@@ -28,16 +28,6 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public List<VoidTransaction> findAll() {
-		List<VoidTransaction> list = jdbcTemplate.query(Queries.findAllVoidTransactions,
-				new VoidTransactionRowMapper());
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		return list;
-	}
-
-	@Override
 	public VoidTransaction findByApplicationTransactionId(String transactionId) {
 		VoidTransaction voidTransaction = null;
 
@@ -55,23 +45,6 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 		return voidTransaction;
 	}
 
-	@Override
-	public VoidTransaction findByProcessorTransactionId(String transactionId) {
-		VoidTransaction voidTransaction = null;
-
-		ArrayList<VoidTransaction> list = (ArrayList<VoidTransaction>) jdbcTemplate.query(
-				Queries.findVoidTransactionByProcessorTransactionId, new Object[] { transactionId },
-				new RowMapperResultSetExtractor<VoidTransaction>(new VoidTransactionRowMapper()));
-		voidTransaction = DataAccessUtils.singleResult(list);
-
-		if (voidTransaction != null) {
-			LOGGER.debug("Found VoidTransaction for transactionId: " + transactionId);
-		} else {
-			LOGGER.debug("VoidTransaction not found for transactionId: " + transactionId);
-		}
-
-		return voidTransaction;
-	}
 }
 
 class VoidTransactionRowMapper implements RowMapper<VoidTransaction> {

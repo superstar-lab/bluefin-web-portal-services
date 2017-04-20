@@ -93,13 +93,6 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	}
 	
 	@Override
-	public void save(PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode) {
-		List<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes = new ArrayList<PaymentProcessorInternalStatusCode>();
-		paymentProcessorInternalStatusCodes.add(paymentProcessorInternalStatusCode);
-		save(paymentProcessorInternalStatusCodes);
-	}
-	
-	@Override
 	public void save(List<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes) {
 		insertBatch(paymentProcessorInternalStatusCodes);
 	}
@@ -196,14 +189,5 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		valuesToDelete.put("ids", paymentProcessorStatusCodeIds);
 		executeQueryToDeleteRecords(Queries.deletePaymentProcessorStatusCodeIds,valuesToDelete);
 	}
-
-	@Override
-	public void deletePaymentProcessorStatusCodeIds(Long internalStatusCodeId) {
-		List<Long> paymentProcessorStatusCodeIds = findPaymentProcessorStatusCodeIdsForInternalStatusCodeId(internalStatusCodeId);
-		if (paymentProcessorStatusCodeIds != null && !paymentProcessorStatusCodeIds.isEmpty()) {
-			deletePaymentProcessorStatusCodeIds(paymentProcessorStatusCodeIds);
-		}
-	}
-	
 	
 }

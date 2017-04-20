@@ -171,8 +171,6 @@ public class InternalStatusCodeService {
 				}
 				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode();
 				// no need to set these two objects  in create case
-//				paymentProcessorInternalStatusCode.setPaymentProcessorStatusCode(paymentProcessorStatusCode.convertPersistentObjectToModelObject());
-//				paymentProcessorInternalStatusCode.setInternalStatusCode(internalStatusCode);
 				
 				paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId());
 				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCode.getInternalStatusCodeId());
@@ -280,8 +278,6 @@ public class InternalStatusCodeService {
 						paymentProcessorStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
 						newPaymentProcessorStatusCode.add(paymentProcessorStatusCode);
-						// Dheeraj : as per my analysis if code enter in this block and then paymentProcessorStatusCode.getPaymentProcessorStatusCodeId() == null , so need to put entry after saving paymentProcessorStatusCode
-//						newMapOfPaymentProcessorStatusCodes.put(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),paymentProcessorStatusCode);
 
 					} else {
 						Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
@@ -345,7 +341,6 @@ public class InternalStatusCodeService {
 			// Add the new payment processor Status codes
 			for (com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode current : newPaymentProcessorStatusCode) {
 				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode();
-//				paymentProcessorInternalStatusCode.setPaymentProcessorStatusCode(current);
 				paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(current.getPaymentProcessorStatusCodeId());
 				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCodeIdToModify);
 				internalStatusCode.getPaymentProcessorInternalStatusCodes().add(paymentProcessorInternalStatusCode);
@@ -353,15 +348,7 @@ public class InternalStatusCodeService {
 
 		}
 		
-		com.mcmcg.ico.bluefin.model.InternalStatusCode result = internalStatusCodeDAO.update(internalStatusCode);
-
-		if (paymentProcessorStatusCodeToDelete != null && !paymentProcessorStatusCodeToDelete.isEmpty()) {
-			// finally deletes payment processor status codes
-//			List<PaymentProcessorStatusCode> paymentProcessorStatusCodeEntitiesToDelete = paymentProcessorStatusCodeDAO.findAll(paymentProcessorStatusCodeToDelete);
-//			paymentProcessorStatusCodeDAO.delete(paymentProcessorStatusCodeEntitiesToDelete);
-		}
-
-		return result;
+		return internalStatusCodeDAO.update(internalStatusCode);
 	}
 
 	public void deleteInternalStatusCode(Long internalStatusCodeId) {

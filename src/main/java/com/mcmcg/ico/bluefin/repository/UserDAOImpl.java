@@ -65,57 +65,11 @@ public class UserDAOImpl implements UserDAO {
 
 		return list;
 	}
-
-	@Override
-	public Page<User> findAll(BooleanExpression expression, PageRequest pageRequest) {
-		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		int countResult = list.size();
-		int pageNumber = pageRequest.getPageNumber();
-		int pageSize = pageRequest.getPageSize();
-
-		List<User> onePage = new ArrayList<User>();
-		int index = pageSize * pageNumber;
-		int increment = pageSize;
-		// Check upper bound to avoid IndexOutOfBoundsException
-		if ((index + increment) > countResult) {
-			int adjustment = (index + increment) - countResult;
-			increment -= adjustment;
-		}
-		for (int i = index; i < (index + increment); i++) {
-			onePage.add(list.get(i));
-		}
-
-		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
-
-		return pageList;
-	}
 	
 	public int countUserRecords(String query,Map<String,String> filterMap){
 		Integer count = namedJDBCTemplate.queryForObject(query, filterMap,Integer.class);
 		return count;
 	}
-	
-/*	public static void main(String[]  a ){
-		StringBuffer sb= new StringBuffer("SELECT  ul.UserID, UserName, FirstName, LastName, ul.IsActive, LastLogin, ul.DateCreated, DateUpdated, Email, UserPassword, ul.DateModified, ul.ModifiedBy, Status  FROM User_Lookup ul");
-		String s1=sb.toString();
-		int index = StringUtils.indexOfIgnoreCase(s1, "SELECT");
-		int index1 = StringUtils.indexOfIgnoreCase(s1, "FROM");
-		String s2 = sb.replace( sb.indexOf("SELECT",0)+7,sb.indexOf("FROM",160)-1, "count(*)").toString();
-		System.out.println(sb.indexOf("SELECT", 0)+":"+sb.indexOf("FROM")+":"+s2);
-		//displayUser();
-		
-	}*/
-
-	/*private static void displayUser() {
-		Map<String, String> map = new HashMap<>();
-		map.put("firstName", "Chetan1");
-		String query = "SELECT *FROM User_Lookup WHERE firstName=:firstName";
-		List<User> searchResultlist = namedJDBCTemplate.query(query, map, new UserRowMapper());
-		System.out.println(searchResultlist.size());
-	}*/
 	
 	@Override
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap ) {
@@ -172,23 +126,6 @@ public class UserDAOImpl implements UserDAO {
 			LOGGER.debug("Found User for username: " + username);
 		} else {
 			LOGGER.debug("User not found for username: " + username);
-		}
-
-		return user;
-	}
-
-	@Override
-	public User findByEmail(String email) {
-		User user = null;
-
-		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.findUserByEmail, new Object[] { email },
-				new RowMapperResultSetExtractor<User>(new UserRowMapper()));
-		user = DataAccessUtils.singleResult(list);
-
-		if (user != null) {
-			LOGGER.debug("Found User for email: " + email);
-		} else {
-			LOGGER.debug("User not found for email: " + email);
 		}
 
 		return user;
@@ -300,14 +237,31 @@ public class UserDAOImpl implements UserDAO {
 		return rows;
 	}
 	
-	
 	@Override
-	public int deleteByUsername(String username) {
-		int rows = jdbcTemplate.update(Queries.deleteUserByUsername, new Object[] { username });
+	public Page<User> findAll(BooleanExpression expression, PageRequest pageRequest) {
+		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
 
-		LOGGER.debug("Deleted user with username: " + username + ", rows affected = " + rows);
+		LOGGER.debug("Number of rows: " + list.size());
 
-		return rows;
+		int countResult = list.size();
+		int pageNumber = pageRequest.getPageNumber();
+		int pageSize = pageRequest.getPageSize();
+
+		List<User> onePage = new ArrayList<User>();
+		int index = pageSize * pageNumber;
+		int increment = pageSize;
+		// Check upper bound to avoid IndexOutOfBoundsException
+		if ((index + increment) > countResult) {
+			int adjustment = (index + increment) - countResult;
+			increment -= adjustment;
+		}
+		for (int i = index; i < (index + increment); i++) {
+			onePage.add(list.get(i));
+		}
+
+		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
+
+		return pageList;
 	}
 }
 
@@ -351,4 +305,6 @@ class UserRowMapper implements RowMapper<User> {
 
 		return user;
 	}
+	
+	
 }

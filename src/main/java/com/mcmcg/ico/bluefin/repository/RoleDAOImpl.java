@@ -130,15 +130,6 @@ public class RoleDAOImpl implements RoleDAO {
 		return id;
 	}
 
-	@Override
-	public int deleteByRoleName(String roleName) {
-
-		int rows = jdbcTemplate.update(Queries.deleteRoleByRoleName, new Object[] { roleName });
-
-		LOGGER.debug("Deleted role with roleName: " + roleName + ", rows affected = " + rows);
-
-		return rows;
-	}
 }
 
 class RoleRowMapper implements RowMapper<Role> {

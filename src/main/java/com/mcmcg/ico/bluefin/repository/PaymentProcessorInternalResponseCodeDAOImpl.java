@@ -46,63 +46,6 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	private JdbcTemplate jdbcTemplate;
 	
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode save(
-			com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode) {
-			KeyHolder holder = new GeneratedKeyHolder();
-		
-		DateTime utc1 = paymentProcessorInternalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
-		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-
-		jdbcTemplate.update(new PreparedStatementCreator() {
-
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorInternalResponseCode,
-						Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1,paymentProcessorInternalResponseCode.getLastModifiedBy()); // ModifiedBy
-				ps.setTimestamp(6, dateCreated);
-				return ps;
-				
-			}
-		}, holder);
-
-		Long id = holder.getKey().longValue();
-		paymentProcessorInternalResponseCode.setPaymentProcessorInternalResponseCodeId(id);
-		LOGGER.debug("Saved paymentProcessorInternalResponseCode - id: " + id);
-
-		return paymentProcessorInternalResponseCode;
-	}
-	
-	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode findOne(long paymentProcessorInternalResponseCodeId) {
-		try {
-			return jdbcTemplate.queryForObject(Queries.findOnePaymentProcessorInternalResponseCode, new Object[] { paymentProcessorInternalResponseCodeId },
-					new PaymentProcessorInternalResponseCodeRowMapper());
-		} catch (EmptyResultDataAccessException e) {
-			return null;
-		}
-	}
-	
-	@Override
-	public void delete(com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorPaymentProcessorResponseCodeId, new Object[] { paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId()});
-
-		LOGGER.debug("Deleted PaymentProcessorResponseCode with PaymentProcessorResponseCodeId: " + paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId()+ ", rows affected = " + rows);
-
-		//return rows;
-		
-		
-	}
-	
-	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> findAll() {
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>) jdbcTemplate.query(
-				Queries.findAllPaymentProcessorInternalResponseCode, new PaymentProcessorInternalResponseCodeRowMapper());
-		LOGGER.debug("Number of rows: ");
-		return list;
-	}
-	
-	@Override
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeId(
 			long internalResponseCodeId) {
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>) jdbcTemplate.query(
@@ -159,14 +102,6 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	@Override
 	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(Long internalResponseCode) {
 		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.findAllPaymentProcessorInternalResponseCodeByInternalRespCodeId, new Object[]{internalResponseCode},
-				new PaymentProcessorInternalResponseCodeRowMapper());
-		return paymentProcessorInternalResponseCodes;
-	}
-
-	@Override
-	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByPmtProcessorRspCdId(
-			Long pmtProcessorResponseCodeId) {
-		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.findAllPaymentProcessorInternalResponseCodeByPaymentProcessorResponseCode, new Object[]{pmtProcessorResponseCodeId},
 				new PaymentProcessorInternalResponseCodeRowMapper());
 		return paymentProcessorInternalResponseCodes;
 	}

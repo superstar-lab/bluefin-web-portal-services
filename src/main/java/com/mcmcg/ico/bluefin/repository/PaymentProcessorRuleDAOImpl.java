@@ -61,44 +61,10 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	}
 
 	@Override
-	public void createPaymentProcessorRules(Collection<PaymentProcessorRule> paymentProcessorInternalStatusCodes) {
-		insertBatch(new ArrayList<PaymentProcessorRule>(paymentProcessorInternalStatusCodes));
-	}
-
-	private void insertBatch(final List<PaymentProcessorRule> paymentProcessorRules) {
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorRules, new BatchPreparedStatementSetter() {
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				PaymentProcessorRule paymentProcessorRule = paymentProcessorRules.get(i);
-				DateTime utc1 = paymentProcessorRule.getCreatedDate() != null
-						? paymentProcessorRule.getCreatedDate().withZone(DateTimeZone.UTC)
-						: DateTime.now(DateTimeZone.UTC);
-				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-				LOGGER.info("Creating child item , paymentProcessorRule ="
-						+ (paymentProcessorRule.getPaymentProcessorRuleId()) + " , PaymentProcessorID="
-						+ paymentProcessorRule.getPaymentProcessor().getPaymentProcessorId());
-				ps.setLong(1, paymentProcessorRule.getPaymentProcessor().getPaymentProcessorId());
-				// ps.setString(2,
-				// paymentProcessorRule.getCardType().toString());
-				ps.setTimestamp(2, dateCreated);
-				ps.setString(3, paymentProcessorRule.getLastModifiedBy());
-			}
-
-			@Override
-			public int getBatchSize() {
-				return paymentProcessorRules.size();
-			}
-		});
-	}
-
-	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
-
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorRules, new Object[] { paymentProcessorId });
-
 		LOGGER.debug("Deleted Payment Processor Rules for PaymentProcessor Id: " + paymentProcessorId
 				+ ", rows affected = " + rows);
-
 	}
 
 	@Override

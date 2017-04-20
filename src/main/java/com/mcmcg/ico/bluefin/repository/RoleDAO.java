@@ -14,6 +14,4 @@ public interface RoleDAO {
 	Role findByRoleName(String roleName);
 
 	long saveRole(Role role);
-
-	int deleteByRoleName(String roleName);
 }

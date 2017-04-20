@@ -10,9 +10,6 @@ import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
 public interface PaymentProcessorRemittanceDAO {
 	PaymentProcessorRemittance findByProcessorTransactionId(String transactionId);
-
-	Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest pageRequest, boolean negate)
-			throws ParseException;
 	PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
 			TransactionTypeCode transactionType, String processorTransactionType) throws ParseException;
 }

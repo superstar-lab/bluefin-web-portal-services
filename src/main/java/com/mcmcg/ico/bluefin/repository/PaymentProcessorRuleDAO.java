@@ -19,8 +19,6 @@ public interface PaymentProcessorRuleDAO {
 	 * @return paymentProcessor - type of <PaymentProcessor>.
 	 */
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findPaymentProccessorRulByProcessorId(Long paymentProcessorId);
-	
-	public void createPaymentProcessorRules(Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorInternalStatusCodes);
 
 	public void deletePaymentProcessorRules(Long paymentProcessorId);
 

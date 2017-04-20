@@ -109,33 +109,6 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	}
 
 	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> findByPaymentProcessorId(Long paymentProcessorId) {
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorSatusCodesByPPId,
-						new Object[] { paymentProcessorId },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
-								new PaymentProcessorStatusCodeRowMapper()));
-
-		if (list != null) {
-			LOGGER.debug("Found payment processor statuscode for : ");
-		} else {
-			LOGGER.debug("Found payment processor statuscode not found for payment processor id: " + paymentProcessorId);
-		}
-
-		return list;
-	}
-
-	@Override
-	public void deletePaymentProcessorStatusCode(List<Long> paymentProcessorStatusCodes) {
-		Map<String, List<Long>> namedParameters = Collections.singletonMap("paymentProcessorStatusCodes", paymentProcessorStatusCodes);
-
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorStatusCodes, new Object[] { namedParameters });
-
-		LOGGER.debug("Deleted List of payment Processor status Codes by Ids " + "rows affected = " + rows);
-	
-	}
-
-	@Override
 	public PaymentProcessorStatusCode save(PaymentProcessorStatusCode paymentProcessorStatusCode) {
 		KeyHolder holder = new GeneratedKeyHolder();
 

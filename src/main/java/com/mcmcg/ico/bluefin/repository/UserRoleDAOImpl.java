@@ -39,28 +39,6 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
-	
-
-	@Override
-	public List<UserRole> findByUserId(long userId) {
-		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByUserId,
-				new Object[] { userId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		return list;
-	}
-
-	@Override
-	public List<UserRole> findByRoleId(long roleId) {
-		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByRoleId,
-				new Object[] { roleId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
-
-		LOGGER.debug("Number of rows: " + list.size());
-
-		return list;
-	}
-
 	@Override
 	public void saveRoles(
 			Collection<com.mcmcg.ico.bluefin.model.UserRole> userRoles) {
@@ -102,6 +80,16 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
 		LOGGER.debug("Number of rows of roles deleted (Using user role id) ="+(noOfRowsDeleted));
 	}
+	
+	@Override
+	public List<UserRole> findByUserId(long userId) {
+		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByUserId,
+				new Object[] { userId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
+
+		LOGGER.debug("Number of rows: " + list.size());
+
+		return list;
+	}
 }
 
 class UserRoleRowMapper implements RowMapper<UserRole> {
@@ -128,4 +116,6 @@ class UserRoleRowMapper implements RowMapper<UserRole> {
 
 		return userRole;
 	}
+	
+	
 }

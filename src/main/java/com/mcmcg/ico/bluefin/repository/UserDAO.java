@@ -11,20 +11,16 @@ import com.mysema.query.types.expr.BooleanExpression;
 
 public interface UserDAO {
 	List<User> findAll();
-
+	
 	Page<User> findAll(BooleanExpression expression, PageRequest pageRequest);
-
+	
 	User findByUserId(long userId);
 
 	User findByUsername(String username);
 
-	User findByEmail(String email);
-
 	long saveUser(User user);
 
 	int updateUser(User user, String modifiedBy);
-
-	int deleteByUsername(String username);
 	
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
 	

@@ -37,24 +37,6 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public RolePermission findByRolePermissionId(long rolePermissionId) {
-		RolePermission rolePermission = null;
-
-		ArrayList<RolePermission> list = (ArrayList<RolePermission>) jdbcTemplate.query(
-				Queries.findRolePermissionByRolePermissionId, new Object[] { rolePermissionId },
-				new RowMapperResultSetExtractor<RolePermission>(new RolePermissionRowMapper()));
-		rolePermission = DataAccessUtils.singleResult(list);
-
-		if (rolePermission != null) {
-			LOGGER.debug("Found RolePermission for rolePermissionId: " + rolePermissionId);
-		} else {
-			LOGGER.debug("RolePermission not found for rolePermissionId: " + rolePermissionId);
-		}
-
-		return rolePermission;
-	}
-
-	@Override
 	public List<RolePermission> findByRoleId(long roleId) {
 		ArrayList<RolePermission> list = (ArrayList<RolePermission>) jdbcTemplate.query(
 				Queries.findRolePermissionByRoleId, new Object[] { roleId },
