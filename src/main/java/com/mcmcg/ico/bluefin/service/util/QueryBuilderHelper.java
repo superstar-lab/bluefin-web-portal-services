@@ -59,7 +59,7 @@ public class QueryBuilderHelper {
 		if(filterMap.containsKey("email"))
 			bf2.append(" AND  email like :email ");
 		if(filterMap.containsKey("status"))
-			bf2.append(" AND  status=:status ");
+			bf2.append(" AND  status like :status ");
 		
 		bf2.replace(0, 4, " ");
 		return bf2.toString();
