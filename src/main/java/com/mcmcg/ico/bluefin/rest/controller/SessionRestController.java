@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,6 +28,7 @@ import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
 import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 
@@ -90,14 +92,14 @@ public class SessionRestController {
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "refreshToken", nickname = "refreshToken")
+    @ApiOperation(value = "refreshAuthanticationToken", nickname = "refreshAuthanticationToken")
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public AuthenticationResponse refreshToken(HttpServletRequest request) {
+    public AuthenticationResponse refreshAuthanticationToken(HttpServletRequest request) {
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 
         if (token != null) {
@@ -143,7 +145,7 @@ public class SessionRestController {
     }*/
   
     @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/consumer")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/api-consumer")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -156,5 +158,15 @@ public class SessionRestController {
         return sessionService.registerApplication(thirdparyApp);
     }
     
+    @ApiOperation(value = "generateApplicationOrAPIToken", nickname = "generateApplicationOrAPIToken")
+    @RequestMapping(method = RequestMethod.PUT, produces = "application/json", value = "/generateAPIToken")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public BasicTokenResponse generateAPIToken(@PathVariable String username) {
+            return sessionService.generateAPIToken(username,TokenType.APPLICATION);
+    }
 
 }

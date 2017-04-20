@@ -38,6 +38,7 @@ import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
@@ -160,6 +161,20 @@ public class SessionService {
 		return getLoginResponse(user, newToken);
 	}
 
+	/**
+	 * Regenerate Application or API token of already registered user
+	 */
+	public BasicTokenResponse generateAPIToken(final String username,TokenType tokenType) {
+		
+		// Find user by username
+		User user = userDAO.findByUsername(username);
+		if(user!=null && !StringUtils.isEmptyOrWhitespace(user.getUsername())){
+			throw new CustomNotFoundException("Unable to find Application/API registered by username: " + username);
+		}
+		LOGGER.info("Re Generated token to API/Application for user-{}", username);
+		return new BasicTokenResponse(generateNewToken(username, TokenType.APPLICATION, null));
+	}
+	
 	public void deleteSession(final String token) {
 		LOGGER.info("Sending token to blacklist");
 		String username = tokenUtils.getUsernameFromToken(token);
