@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -114,8 +115,14 @@ public class LegalEntityAppService {
 		if (legalEntityAppToDelete == null) {
 			throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
 		}
-		deleteUserLegalEntityApp(id);
-		legalEntityAppDAO.deleteLegalEntityApp(legalEntityAppToDelete);
+		try {
+			deleteUserLegalEntityApp(id);
+			legalEntityAppDAO.deleteLegalEntityApp(legalEntityAppToDelete);
+		} catch (DataIntegrityViolationException exp) {
+			LOGGER.debug(exp.getMessage());
+			LOGGER.error("Legal Entity= {} with id = {} already in use.",id,legalEntityAppToDelete.getLegalEntityAppName() );
+			throw new CustomNotFoundException(String.format("Unable to delete Legal entity = [%s] with id = [%s] because this record already exists/saved for other entities",legalEntityAppToDelete.getLegalEntityAppName(), id));
+		}
 	}
 
 	private void deleteUserLegalEntityApp(Long id) {
