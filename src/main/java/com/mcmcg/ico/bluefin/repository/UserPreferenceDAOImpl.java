@@ -76,8 +76,12 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 
 	@Override
 	public String getSelectedTimeZone(Long userId) {
-		String selectedTimeZone = jdbcTemplate.queryForObject(Queries.findSelectedTimeZoneByUserId, new Object[] { userId },  String.class);
-		return selectedTimeZone;
+		try {
+			return jdbcTemplate.queryForObject(Queries.findSelectedTimeZoneByUserId, new Object[] { userId },  String.class);
+		} catch (EmptyResultDataAccessException e) {
+			LOGGER.debug("No time zone saved for userid="+userId);
+			return null;
+		}
 	}
 	
 }
