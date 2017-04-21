@@ -36,6 +36,7 @@ import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
+import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -87,6 +88,8 @@ public class SessionService {
 	private LegalEntityAppDAO legalEntityAppDAO;
 	@Autowired
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
+	@Autowired
+	private UserPreferenceDAO userPreferenceDAO;
 
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
 		User user = userDAO.findByUsername(username);
@@ -126,13 +129,13 @@ public class SessionService {
 
 	public AuthenticationResponse generateToken(final String username) {
 		User user = userService.getUser(username);
-
 		final String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
 		user.setLastLogin(new DateTime());
-		if (userDAO.findByUsername(username) == null) {
+		// Commented below lines , why these logic is written by someone----Reduntant code and not valid/reachable
+		/*if (userDAO.findByUsername(username) == null) {
 			userDAO.saveUser(user);
-		}
+		}*/
 
 		LOGGER.info("Creating login response for user: {}", username);
 		return getLoginResponse(user, token);
@@ -223,7 +226,8 @@ public class SessionService {
 			legalEntityAppSet.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 		}
 		response.setLegalEntityApps(legalEntityAppSet);
-
+		String selectedTimeZone = userPreferenceDAO.getSelectedTimeZone(user.getUserId()); 
+		response.setSelectedTimeZone(selectedTimeZone);
 		return response;
 	}
 

@@ -27,10 +27,13 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserPreference;
+import com.mcmcg.ico.bluefin.model.UserPreferenceEnum;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -68,6 +71,8 @@ public class UserService {
 	private UserRoleDAO userRoleDAO;
 	@Autowired
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
+	@Autowired
+	private UserPreferenceDAO userPreferenceDAO;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
@@ -224,14 +229,38 @@ public class UserService {
 		user.setEmail(userResource.getEmail());
 		user.setDateUpdated(new DateTime());
 		String modifiedBy = null;
-		
+		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		user.setRoles(Collections.EMPTY_LIST);
 		user.setLegalEntities(Collections.EMPTY_LIST);
-		
+		updaUserPrefernce(user);
 		long userId = userDAO.updateUser(user, modifiedBy);
 		return new UserResource(user);
+	}
+
+	private void updaUserPrefernce(User user) {
+		long preferenceId = userPreferenceDAO.findPreferenceIdByPreferenceKey(UserPreferenceEnum.USERTIMEZONEPREFRENCE.toString());
+		/**
+		 * fetching UserPreferenceID from UserPreference_Lookup table based on userId & PreferenceID.
+		 */
+		UserPreference userPreference = userPreferenceDAO.findUserPreferenceIdByPreferenceId(user.getUserId(), preferenceId);
+		
+		if (userPreference != null && userPreference.getUserPrefeenceID() != null) {
+			userPreference.setPreferenceValue(user.getSelectedTimeZone());
+			userPreferenceDAO.updateUserTimeZonePreference(userPreference);
+		}else{
+			UserPreference UserPreferenceToInsert = createUserPreference(preferenceId, user.getUserId(), user.getSelectedTimeZone());
+			UserPreferenceToInsert = userPreferenceDAO.insertUserTimeZonePreference(UserPreferenceToInsert);
+		}
+	}
+
+	private UserPreference createUserPreference(long preferenceId, Long userId, String selectedTimeZone) {
+		UserPreference userPreference = new UserPreference();
+		userPreference.setPreferenceKeyID(preferenceId);
+		userPreference.setPreferenceValue(selectedTimeZone);
+		userPreference.setUserID(userId);
+		return userPreference;
 	}
 
 	/**

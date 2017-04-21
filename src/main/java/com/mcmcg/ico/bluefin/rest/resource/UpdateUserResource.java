@@ -25,6 +25,9 @@ public class UpdateUserResource implements Serializable {
 
 	@NotBlank(message = "Please provide an email address for the user")
 	private String email;
+	
+	@NotBlank
+	private String selectedTimeZone;
 
 	public UserResource toUserResource(Set<Role> roles, Set<LegalEntityApp> entities) {
 		UserResource userResource = new UserResource();
@@ -36,6 +39,7 @@ public class UpdateUserResource implements Serializable {
 		// Create a new object to contain everything?
 		userResource.setRoles(roles);
 		userResource.setLegalEntityApps(entities);
+		userResource.setSelectedTimeZone(selectedTimeZone);
 		return userResource;
 	}
 
@@ -69,4 +73,14 @@ public class UpdateUserResource implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public String getSelectedTimeZone() {
+		return selectedTimeZone;
+	}
+
+	public void setSelectedTimeZone(String selectedTimeZone) {
+		this.selectedTimeZone = selectedTimeZone;
+	}
+	
+	
 }

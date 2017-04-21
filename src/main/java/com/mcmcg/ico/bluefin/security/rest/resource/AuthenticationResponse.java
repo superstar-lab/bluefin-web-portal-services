@@ -18,6 +18,7 @@ public class AuthenticationResponse implements Serializable {
 	private Set<Role> roles;
 	private Set<Permission> permissions;
 	private Set<LegalEntityApp> legalEntityApps;
+	private String selectedTimeZone;
 
 	public AuthenticationResponse() {
 	}
@@ -76,5 +77,19 @@ public class AuthenticationResponse implements Serializable {
 
 	public void setLegalEntityApps(Set<LegalEntityApp> legalEntityApps) {
 		this.legalEntityApps = legalEntityApps;
+	}
+
+	/**
+	 * @return the selectedTimeZone
+	 */
+	public String getSelectedTimeZone() {
+		return selectedTimeZone;
+	}
+
+	/**
+	 * @param selectedTimeZone the selectedTimeZone to set
+	 */
+	public void setSelectedTimeZone(String selectedTimeZone) {
+		this.selectedTimeZone = selectedTimeZone;
 	}
 }

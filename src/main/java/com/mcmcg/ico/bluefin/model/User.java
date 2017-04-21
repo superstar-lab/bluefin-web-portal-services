@@ -40,7 +40,10 @@ public class User implements Serializable {
 	@JsonIgnore
 	private String modifiedBy;
 	private String status;
-
+	
+	private String selectedTimeZone;
+	//private String preferenceKey;
+	
 	@JsonIgnore
 	private Collection<UserRole> roles;
 
@@ -77,7 +80,7 @@ public class User implements Serializable {
 		return userId == user.userId && Objects.equals(username, user.username)
 				&& Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName)
 				&& isActive == user.isActive && Objects.equals(email, user.email)
-				&& Objects.equals(password, user.password) && Objects.equals(status, user.status);
+				&& Objects.equals(password, user.password) && Objects.equals(status, user.status) &&  Objects.equals(selectedTimeZone, user.selectedTimeZone);
 	}
 
 	@Override
@@ -187,6 +190,15 @@ public class User implements Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+	
+
+	public String getSelectedTimeZone() {
+		return selectedTimeZone;
+	}
+
+	public void setSelectedTimeZone(String selectedTimeZone) {
+		this.selectedTimeZone = selectedTimeZone;
 	}
 
 	public void addRole(Role role) {

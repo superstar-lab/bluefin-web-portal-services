@@ -336,4 +336,9 @@ public interface Queries {
 	String updatePaymentProcessor = "UPDATE PaymentProcessor_Lookup SET ProcessorName=?,IsActive=?,RemitTransactionOpenTime=?,RemitTransactionCloseTime=?,DatedModified=? WHERE PaymentProcessorID=?";
 	String findCountUserLookup = "SELECT COUNT(*) From User_Lookup";
 	String findAllSaleTransactions_Count = "SELECT COUNT(SaleTransactionID) FROM Sale_Transaction";
+	String findPreferenceIdByPreferenceKey = "SELECT PreferenceID from Preference_Lookup Where PreferenceKey = ?";
+	String findPreferenceIdByPreferenceId = "SELECT * from User_Preference_Lookup where UserID=? and PreferenceID=?";
+	String updateUserPreference = "UPDATE User_Preference_Lookup SET PreferenceValue = ? WHERE UserPreferenceID =?"; 
+	String saveUserPreference = "INSERT INTO User_Preference_Lookup (PreferenceID, PreferenceValue, UserID) VALUES (?,?,?)";
+	String findSelectedTimeZoneByUserId = "SELECT PreferenceValue From User_Preference_Lookup WHERE UserID = ? ";
 }

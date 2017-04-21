@@ -42,6 +42,8 @@ public class UserResource implements Serializable {
 	@Size(min = 1, message = "Please provide a legal entity for the user")
 	@NotNull(message = "Please provide a legal entity for the user")
 	private Set<LegalEntityApp> legalEntityApps;
+	
+	private String selectedTimeZone;
 
 	private String status;
 
@@ -54,6 +56,7 @@ public class UserResource implements Serializable {
 		this.lastName = user.getLastName();
 		this.status = user.getStatus();
 		this.email = user.getEmail();
+		this.selectedTimeZone = user.getSelectedTimeZone();
 		roles = new HashSet<Role>();
 		if(user.getRoles() != null) {
 			for (UserRole role : user.getRoles()) {
@@ -149,5 +152,13 @@ public class UserResource implements Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getSelectedTimeZone() {
+		return selectedTimeZone;
+	}
+
+	public void setSelectedTimeZone(String selectedTimeZone) {
+		this.selectedTimeZone = selectedTimeZone;
 	}
 }
