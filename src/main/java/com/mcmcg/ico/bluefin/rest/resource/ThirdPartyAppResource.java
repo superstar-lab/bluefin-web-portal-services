@@ -17,8 +17,8 @@ public class ThirdPartyAppResource implements Serializable {
 	@NotBlank(message = "Please provide an email address for the user")
 	private String email;
 
-	@NotBlank(message = "Please provide type of app. Valid values 'API_Consumer or BF_PROTAL_Consumer' ")
-	private String type;
+	/*@NotBlank(message = "Please provide type of app. Valid values 'API_Consumer or BF_PROTAL_Consumer' ")
+	private String type;*/
 	
 	public String getUsername() {
 		return username;
@@ -36,12 +36,12 @@ public class ThirdPartyAppResource implements Serializable {
 		this.email = email;
 	}
 
-	public String getType() {
+/*	public String getType() {
 		return type;
 	}
 
 	public void setType(String type) {
 		this.type = type;
-	}
+	}*/
 
 }

@@ -16,6 +16,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.StringUtils;
@@ -41,7 +42,7 @@ import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
-import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
+import com.mcmcg.ico.bluefin.rest.resource.TokenResponse;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
@@ -165,18 +166,16 @@ public class SessionService {
 	}
 
 	/**
-	 * Regenerate Application or API token of already registered user
+	 * Regenerate 
+	 * 1. Application or API token of already registered user
+	 * 2. Transaction Token
+	 * 
 	 */
-	public BasicTokenResponse generateAPIToken(final String username,TokenType tokenType) {
-		
-		// Find user by username
-		User user = userDAO.findByUsername(username);
-		if(user!=null && !StringUtils.isEmptyOrWhitespace(user.getUsername())){
-			throw new CustomNotFoundException("Unable to find Application/API registered by username: " + username);
-		}
-		LOGGER.info("Re Generated token to API/Application for user-{}", username);
-		return new BasicTokenResponse(generateNewToken(username, TokenType.APPLICATION, null));
+	public TokenResponse generateToken(final String username, TokenType tokenType) {
+		LOGGER.info("Generat token for user-{} of type-{}", username,tokenType);
+		return new TokenResponse(generateNewToken(username, tokenType, null));
 	}
+	
 	
 	public void deleteSession(final String token) {
 		LOGGER.info("Sending token to blacklist");
@@ -231,16 +230,12 @@ public class SessionService {
 		return response;
 	}
 
-	public BasicTokenResponse registerApplication(ThirdPartyAppResource thirdparyApp) {
+	public TokenResponse registerApplication(ThirdPartyAppResource thirdparyApp) {
 		RegisterUserResource userResource = new RegisterUserResource();
 		userResource.setUsername(thirdparyApp.getUsername());
 		userResource.setFirstName(thirdparyApp.getUsername());
 		userResource.setLastName(thirdparyApp.getUsername());
 		userResource.setEmail(thirdparyApp.getEmail());
-		//userResource.set
-		
-		
-		
 		
 		Collection<Role> rolesToAssign = new ArrayList<Role>();
 		rolesToAssign.add(getRoleThirdParty());
@@ -250,10 +245,9 @@ public class SessionService {
 			newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 			newUser.setIsActive((short) 1);
 			newUser.setStatus("ACTIVE");
-
 			userDAO.saveUser(newUser);
 		}
-		return new BasicTokenResponse(generateNewToken(thirdparyApp.getUsername(), TokenType.APPLICATION, null));
+		return new TokenResponse(generateNewToken(thirdparyApp.getUsername(), TokenType.APPLICATION, null));
 	}
 
 	public Role getRoleThirdParty() {
@@ -292,5 +286,19 @@ public class SessionService {
 			}
 		}
 		return hasPermission;
+	}
+	
+	public boolean validateToken(final String token) {
+		LOGGER.info("Parsing token to get user information");
+		final String username = tokenUtils.getUsernameFromToken(token);
+
+		// Find user by username
+		User user = userDAO.findByUsername(username);
+		if (user == null) {
+			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
+		} 
+
+		
+		return true;
 	}
 }

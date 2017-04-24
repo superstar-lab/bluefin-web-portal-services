@@ -113,6 +113,9 @@ public class TokenUtils {
 		case APPLICATION:
 			return new Date(System.currentTimeMillis()
 					+ Long.parseLong(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
+		case TRANSACTION:
+			return new Date(System.currentTimeMillis()
+					+ Long.parseLong(propertyService.getPropertyValue("TOKEN_TRANSACTION_EXPIRATION")) * 1000);			
 		default:
 			return new Date(System.currentTimeMillis()
 					+ Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);
@@ -166,7 +169,7 @@ public class TokenUtils {
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = this.getUsernameFromToken(token);
-		return (username.equals(userDetails.getUsername()) && !this.isTokenExpired(token)
+		return (username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
 				&& !isTokenInBlacklist(token, username));
 	}
 

@@ -7,12 +7,14 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
 
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 
+@Component
 public class SecurityUserFactory {
 
 	private static RoleDAO roleDAO;

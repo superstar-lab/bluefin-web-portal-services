@@ -17,10 +17,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private UserDAO userDAO;
-	@Autowired
+	/*@Autowired
 	private RoleDAO roleDAO;
 	@Autowired
-	private UserRoleDAO userRoleDAO;
+	private UserRoleDAO userRoleDAO;*/
 
 	@Override
 	public SecurityUser loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -29,7 +29,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} else {
-			new SecurityUserFactory(roleDAO, userRoleDAO);
+			//new SecurityUserFactory(roleDAO, userRoleDAO);
 			return SecurityUserFactory.create(user);
 		}
 	}
