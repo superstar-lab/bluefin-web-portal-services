@@ -45,6 +45,7 @@ public class LegalEntityAppService {
 
 	public List<LegalEntityApp> getLegalEntities(Authentication authentication) {
 		User user = userDAO.findByUsername(authentication.getName());
+		
 
 		if (user == null) {
 			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
@@ -57,7 +58,7 @@ public class LegalEntityAppService {
 		} else {
 			List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
-				long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+				long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
 				list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 
 			}
@@ -121,7 +122,7 @@ public class LegalEntityAppService {
 		} catch (DataIntegrityViolationException exp) {
 			LOGGER.debug(exp.getMessage());
 			LOGGER.error("Legal Entity= {} with id = {} already in use.",id,legalEntityAppToDelete.getLegalEntityAppName() );
-			throw new CustomNotFoundException(String.format("Unable to delete Legal entity = [%s] with id = [%s] because this record already exists/saved for other entities",legalEntityAppToDelete.getLegalEntityAppName(), id));
+			throw new CustomNotFoundException("Unable to delete, this legal entity is attached either with User or payment processor merchant id");
 		}
 	}
 
