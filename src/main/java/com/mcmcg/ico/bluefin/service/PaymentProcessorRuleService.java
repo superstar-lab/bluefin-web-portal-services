@@ -50,7 +50,7 @@ public class PaymentProcessorRuleService {
     				loadedPaymentProcessor.getPaymentProcessorId()));
     	}
 
-    	//validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
+    	validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
     	paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
     	paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
@@ -77,7 +77,7 @@ public class PaymentProcessorRuleService {
 
         // Verify if processor exists
     	com.mcmcg.ico.bluefin.model.PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-       // validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
+       validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
 
         // Update fields
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
