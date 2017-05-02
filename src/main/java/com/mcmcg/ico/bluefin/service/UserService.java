@@ -164,7 +164,7 @@ public class UserService {
 		newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 		long userId = userDAO.saveUser(newUser);
-		UserResource newUserResource = new UserResource(userDAO.findByUserId(userId));
+		UserResource newUserResource = new UserResource(getUser(username));
 
 		// Send email
 		final String link = "/api/users/" + username + "/password";
