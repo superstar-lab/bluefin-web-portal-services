@@ -205,7 +205,8 @@ public class SessionService {
 		response.setFirstName(user.getFirstName());
 		response.setLastName(user.getLastName());
 		response.setUsername(user.getUsername());
-
+		response.setEmail(user.getEmail());
+		
 		Set<Role> roleSet = new HashSet<Role>();
 		Set<Permission> permissionSet = new HashSet<Permission>();
 		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {

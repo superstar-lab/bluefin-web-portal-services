@@ -40,6 +40,9 @@ public class RegisterUserResource implements Serializable {
 	@Size(min = 1, message = "Please provide a legal entity for the user")
 	@NotNull(message = "Please provide a legal entity for the user")
 	private Set<Long> legalEntityApps;
+	
+	@NotBlank(message = "Please provide time zone")
+	private String timeZone;
 
 	public User toUser(Collection<Role> roles, Collection<LegalEntityApp> legalEntityApps) {
 		User user = new User();
@@ -117,4 +120,14 @@ public class RegisterUserResource implements Serializable {
 	public void setLegalEntityApps(Set<Long> legalEntityApps) {
 		this.legalEntityApps = legalEntityApps;
 	}
+
+	public String getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(String timeZone) {
+		this.timeZone = timeZone;
+	}
+
+
 }

@@ -16,6 +16,8 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ import com.mcmcg.ico.bluefin.model.UserPreferenceEnum;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAOImpl;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
@@ -50,6 +53,8 @@ import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 @Service
 @Transactional
 public class UserService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserDAO userDAO;
@@ -164,8 +169,17 @@ public class UserService {
 		newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 		long userId = userDAO.saveUser(newUser);
+		
 		UserResource newUserResource = new UserResource(getUser(username));
 
+		try{
+		//Create/Update User preference of time zone
+		newUser.setUserId(userId);
+		updaUserPrefernce(newUser);
+		}catch(Exception ex){
+			LOGGER.error("Error while update user prefrence time zone", ex);
+		}
+		
 		// Send email
 		final String link = "/api/users/" + username + "/password";
 		final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);

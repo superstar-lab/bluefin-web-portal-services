@@ -19,7 +19,8 @@ public class AuthenticationResponse implements Serializable {
 	private Set<Permission> permissions;
 	private Set<LegalEntityApp> legalEntityApps;
 	private String selectedTimeZone;
-
+	private String email;
+	
 	public AuthenticationResponse() {
 	}
 
@@ -91,5 +92,13 @@ public class AuthenticationResponse implements Serializable {
 	 */
 	public void setSelectedTimeZone(String selectedTimeZone) {
 		this.selectedTimeZone = selectedTimeZone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }
