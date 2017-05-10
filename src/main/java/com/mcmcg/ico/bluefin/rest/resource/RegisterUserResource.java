@@ -51,6 +51,7 @@ public class RegisterUserResource implements Serializable {
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
 		user.setEmail(email);
+		user.setSelectedTimeZone(timeZone);
 		for (Role role : roles) {
 			user.addRole(role);
 		}
