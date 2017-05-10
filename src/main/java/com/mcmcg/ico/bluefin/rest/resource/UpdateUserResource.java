@@ -26,7 +26,7 @@ public class UpdateUserResource implements Serializable {
 	@NotBlank(message = "Please provide an email address for the user")
 	private String email;
 	
-	@NotBlank
+	@NotBlank(message = "Please provide time zone")
 	private String selectedTimeZone;
 
 	public UserResource toUserResource(Set<Role> roles, Set<LegalEntityApp> entities) {
