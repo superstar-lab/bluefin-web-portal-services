@@ -160,7 +160,7 @@ public class SessionRestController {
     }
     
     @ApiOperation(value = "re-generateApplicationOrAPIToken", nickname = "regenerateApplicationOrAPIToken")
-    @RequestMapping(method = RequestMethod.PUT, produces = "application/json", value = "/api-consumer")
+    @RequestMapping(method = RequestMethod.PUT, produces = "application/json", value = "/api-consumer/{username}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
