@@ -25,11 +25,11 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.mcmcg.ico.bluefin.model.BatchUpload;
+import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.StatusCode;
-import com.mcmcg.ico.bluefin.persistent.BatchUpload;
-import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
-import com.mcmcg.ico.bluefin.persistent.jpa.BatchUploadRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.SaleTransactionRepository;
+import com.mcmcg.ico.bluefin.repository.BatchUploadDAO;
+import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.HttpsUtil;
@@ -41,9 +41,9 @@ public class BatchUploadService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BatchUploadService.class);
 
 	@Autowired
-	private BatchUploadRepository batchUploadRepository;
+	private BatchUploadDAO batchUploadDAO;
 	@Autowired
-	private SaleTransactionRepository saleTransactionRepository;
+	private SaleTransactionDAO saleTransactionDAO;
 	@Autowired
 	private PropertyService propertyService;
 
@@ -58,7 +58,7 @@ public class BatchUploadService {
 			"Error Message" };
 
 	public BatchUpload getBatchUploadById(Long id) {
-		BatchUpload batchUpload = batchUploadRepository.findOne(id);
+		BatchUpload batchUpload = batchUploadDAO.findOne(id);
 
 		if (batchUpload == null) {
 			LOGGER.error("Unable to find batch upload with id = {}", id);
@@ -69,7 +69,7 @@ public class BatchUploadService {
 	}
 
 	public Iterable<BatchUpload> getAllBatchUploads(Integer page, Integer size, String sort) {
-		Page<BatchUpload> result = batchUploadRepository
+		Page<BatchUpload> result = batchUploadDAO
 				.findAllByOrderByDateUploadedDesc(QueryDSLUtil.getPageRequest(page, size, sort));
 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
@@ -81,8 +81,8 @@ public class BatchUploadService {
 	public Iterable<BatchUpload> getBatchUploadsFilteredByNoofdays(Integer page, Integer size, String sort,
 			Integer noofdays) {
 		DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
-		Page<BatchUpload> result = batchUploadRepository.findByDateUploadedAfterOrderByDateUploadedDesc(
-				dateBeforeNoofdays, QueryDSLUtil.getPageRequest(page, size, sort));
+		Page<BatchUpload> result = batchUploadDAO.findByDateUploadedAfterOrderByDateUploadedDesc(dateBeforeNoofdays,
+				QueryDSLUtil.getPageRequest(page, size, sort));
 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
@@ -94,7 +94,7 @@ public class BatchUploadService {
 		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
 		LOGGER.info("Creating new basic Batch Upload");
 		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
-		batchUpload = batchUploadRepository.save(batchUpload);
+		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
 		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
@@ -136,12 +136,12 @@ public class BatchUploadService {
 		// "America/Los_Angeles") is passed as a parameter
 		// and applied to the UTC from the database.
 		if (noofdays == null) {
-			result = batchUploadRepository.findAll();
+			result = batchUploadDAO.findAll();
 		} else {
 			DateTime dateBeforeNoofdaysUTC = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
 			DateTimeZone dtZone = DateTimeZone.forID(timeZone);
 			DateTime dateBeforeNoofdays = dateBeforeNoofdaysUTC.withZone(dtZone);
-			result = batchUploadRepository.findByDateUploadedAfter(dateBeforeNoofdays);
+			result = batchUploadDAO.findByDateUploadedAfter(dateBeforeNoofdays);
 		}
 
 		// Create the CSVFormat object with "\n" as a record delimiter
@@ -233,9 +233,9 @@ public class BatchUploadService {
 		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		if (batchUploadId == null) {
-			result = saleTransactionRepository.findAll();
+			result = saleTransactionDAO.findAll();
 		} else {
-			result = saleTransactionRepository.findByBatchUploadId(batchUploadId);
+			result = saleTransactionDAO.findByBatchUploadId(batchUploadId);
 		}
 
 		try {
@@ -297,14 +297,14 @@ public class BatchUploadService {
 				// Invoice
 				saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
 
-				BigDecimal amount = saleTransaction.getAmount().setScale(2, BigDecimal.ROUND_DOWN);
+				BigDecimal amount = saleTransaction.getChargeAmount().setScale(2, BigDecimal.ROUND_DOWN);
 				DecimalFormat df = new DecimalFormat();
 				df.setMaximumFractionDigits(2);
 				df.setMinimumFractionDigits(0);
 				df.setGroupingUsed(false);
 
 				// Amount
-				saleTransactionDataRecord.add(saleTransaction.getAmount() == null ? "" : df.format(amount));
+				saleTransactionDataRecord.add(saleTransaction.getChargeAmount() == null ? "" : df.format(amount));
 
 				// Result
 				saleTransactionDataRecord.add(StatusCode.getStatusCode(saleTransaction.getInternalStatusCode()));

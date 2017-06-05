@@ -1,0 +1,219 @@
+package com.mcmcg.ico.bluefin.repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.repository.sql.Queries;
+
+@Repository
+public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
+	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+
+	@Override
+	public LegalEntityApp findByLegalEntityAppName(String legalEntityAppName) {
+		try {
+			return jdbcTemplate.queryForObject(Queries.findByLegalEntityAppName, new Object[] { legalEntityAppName },
+					new LegalEntityAppRowMapper());
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId) {
+
+		try {
+			return jdbcTemplate.queryForObject(Queries.findByLegalEntityAppId, new Object[] { legalEntityAppId },
+					new LegalEntityAppRowMapper());
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
+
+	}
+
+	@Override
+	public List<LegalEntityApp> findAll() {
+		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.findAllLegalEntityApps,
+				new LegalEntityAppRowMapper());
+
+		LOGGER.debug("Number of rows: " + legalEntityApps.size());
+
+		return legalEntityApps;
+	}
+
+	@Override
+	public List<LegalEntityApp> findAll(List<Long> legalEntityAppIds) {
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+		Map<String, List<Long>> map = Collections.singletonMap("legalEntityAppIds", legalEntityAppIds);
+		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.findAllLegalEntityAppsByIds,
+				map, new LegalEntityAppRowMapper());
+
+		LOGGER.debug("Number of rows: " + legalEntityApps.size());
+
+		return legalEntityApps;
+	}
+
+	@Override
+	public LegalEntityApp saveLegalEntityApp(LegalEntityApp legalEntityApp, String modifiedBy) {
+		KeyHolder holder = new GeneratedKeyHolder();
+
+		// The Java class uses Joda DateTime, which isn't supported by
+		// PreparedStatement.
+		// Convert Joda DateTime to UTC (the format for the database).
+		// Remove the 'T' and 'Z' from the format, because it's not in the
+		// database.
+		// Convert this string to Timestamp, which is supported by
+		// PreparedStatement.
+		DateTime utc1 = legalEntityApp.getDateCreated().withZone(DateTimeZone.UTC);
+		DateTime utc2 = legalEntityApp.getDateModified().withZone(DateTimeZone.UTC);
+		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
+
+		jdbcTemplate.update(new PreparedStatementCreator() {
+
+			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+				PreparedStatement ps = connection.prepareStatement(Queries.saveLegalEntityApp,
+						Statement.RETURN_GENERATED_KEYS);
+				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
+				ps.setTimestamp(2, dateCreated); // DateCreated
+				ps.setTimestamp(3, dateModified); // DateModified
+				ps.setString(4, legalEntityApp.getModifiedBy()); // ModifiedBy
+				ps.setShort(5, legalEntityApp.getIsActive()); // IsActive
+				return ps;
+			}
+		}, holder);
+
+		Long id = holder.getKey().longValue();
+		legalEntityApp.setLegalEntityAppId(id);
+		LOGGER.debug("Created legalEntityAppId: " + id);
+
+		return legalEntityApp;
+	}
+
+	@Override
+	public void deleteLegalEntityApp(LegalEntityApp legalEntityApp) {
+		jdbcTemplate.update(Queries.deleteLegalEntityApp, legalEntityApp.getLegalEntityAppId());
+	}
+
+	@Override
+	public LegalEntityApp updateLegalEntityApp(LegalEntityApp legalEntityApp, String modifiedBy) {
+		KeyHolder holder = new GeneratedKeyHolder();
+
+		// The Java class uses Joda DateTime, which isn't supported by
+		// PreparedStatement.
+		// Convert Joda DateTime to UTC (the format for the database).
+		// Remove the 'T' and 'Z' from the format, because it's not in the
+		// database.
+		// Convert this string to Timestamp, which is supported by
+		// PreparedStatement.
+		DateTime utc2 = new DateTime(DateTimeZone.UTC);
+		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
+
+		jdbcTemplate.update(new PreparedStatementCreator() {
+
+			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+				PreparedStatement ps = connection.prepareStatement(Queries.updateLegalEntityApp,
+						Statement.RETURN_GENERATED_KEYS);
+//UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?,IsActive = ?, DatedModified = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?				
+				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
+				ps.setShort(2, legalEntityApp.getIsActive()); // IsActive
+				ps.setTimestamp(3, dateModified); // DateModified
+				ps.setString(4, modifiedBy); // ModifiedBy
+				ps.setLong(5, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
+				return ps;
+			}
+		}, holder);
+
+		LOGGER.debug("Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
+
+		return legalEntityApp;
+	}
+
+	@Override
+	public void createLegalEntityApps(Collection<UserLegalEntityApp> legalEntities) {
+		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserLegalEntityApp>(legalEntities));
+	}
+	
+	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserLegalEntityApp> userLegalEntities){
+		jdbcTemplate.batchUpdate(Queries.saveUserLegalEntityApp, new BatchPreparedStatementSetter() {
+			@Override
+			public void setValues(PreparedStatement ps, int i) throws SQLException {
+				com.mcmcg.ico.bluefin.model.UserLegalEntityApp userLegalEntity = userLegalEntities.get(i);
+				DateTime utc1 = userLegalEntity.getDateCreated() != null ? userLegalEntity.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+				LOGGER.info("Creating child item for , UserLegalEntityApp ");
+				if (userLegalEntity.getUser() != null) {
+					ps.setLong(1, userLegalEntity.getUser().getUserId());
+				} else {
+					ps.setLong(1, userLegalEntity.getUserId());
+				}
+				ps.setLong(2, userLegalEntity.getLegalEntityAppId());
+				ps.setTimestamp(3, dateCreated);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return userLegalEntities.size();
+			}
+		  });
+	}
+}
+
+class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
+
+	@Override
+	public LegalEntityApp mapRow(ResultSet rs, int row) throws SQLException {
+		Timestamp ts =null;
+		LegalEntityApp legalEntityApp = new LegalEntityApp();
+		legalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
+		legalEntityApp.setLegalEntityAppName(rs.getString("LegalEntityAppName"));
+		if(rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			legalEntityApp.setDateCreated(new DateTime(ts));
+		}
+		
+		if(rs.getString("DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			legalEntityApp.setDateModified(new DateTime(ts));
+		}
+		legalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
+		legalEntityApp.setIsActive(rs.getShort("IsActive"));
+
+		return legalEntityApp;
+	}
+}

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.Role;
+import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.RoleService;
 
@@ -40,7 +40,7 @@ public class RoleRestController {
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Role get(@PathVariable Long id) {
-        LOGGER.info("Getting role by id");
+        LOGGER.info("Getting role by id.");
         return roleService.getRoleById(id);
     }
 
@@ -53,7 +53,7 @@ public class RoleRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<Role> get(@ApiIgnore Authentication authentication) {
-        LOGGER.info("Getting all roles");
+        LOGGER.info("Getting all roles.");
         return roleService.getRoles(authentication);
     }
 }

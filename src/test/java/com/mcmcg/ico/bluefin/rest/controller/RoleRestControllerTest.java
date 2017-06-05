@@ -18,7 +18,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.mcmcg.ico.bluefin.persistent.Role;
+import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
@@ -26,67 +26,67 @@ import com.mcmcg.ico.bluefin.service.RoleService;
 
 public class RoleRestControllerTest {
 
-    private MockMvc mockMvc;
+	private MockMvc mockMvc;
 
-    @InjectMocks
-    private RoleRestController roleControllerMock;
+	@InjectMocks
+	private RoleRestController roleControllerMock;
 
-    @Mock
-    private RoleService roleService;
+	@Mock
+	private RoleService roleService;
 
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
-        mockMvc = standaloneSetup(roleControllerMock).addFilters().build();
-    }
+	@Before
+	public void initMocks() {
+		MockitoAnnotations.initMocks(this);
+		mockMvc = standaloneSetup(roleControllerMock).addFilters().build();
+	}
 
-    @Test
-    public void getRolesOK() throws Exception { // 200
-        List<Role> roleList = new ArrayList<Role>();
-        Role role = new Role();
-        role.setRoleId(1L);
-        role.setRoleName("ROLE_TESTING");
-        role.setDescription("test description");
-        roleList.add(role);
+	@Test
+	public void getRolesOK() throws Exception { // 200
+		List<Role> roleList = new ArrayList<Role>();
+		Role role = new Role();
+		role.setRoleId(1L);
+		role.setRoleName("ROLE_TESTING");
+		role.setDescription("test description");
+		roleList.add(role);
 
-        Mockito.when(roleService.getRoles()).thenReturn(roleList);
+		Mockito.when(roleService.getRoles()).thenReturn(roleList);
 
-        mockMvc.perform(get("/api/roles")).andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].roleId").value(1)).andExpect(jsonPath("$[0].roleName").value("ROLE_TESTING"))
-                .andExpect(jsonPath("$[0].description").value("test description"));
+		mockMvc.perform(get("/api/roles")).andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$[0].roleId").value(1)).andExpect(jsonPath("$[0].roleName").value("ROLE_TESTING"))
+				.andExpect(jsonPath("$[0].description").value("test description"));
 
-        Mockito.verify(roleService, Mockito.times(1)).getRoles();
-        Mockito.verifyNoMoreInteractions(roleService);
-    }
+		Mockito.verify(roleService, Mockito.times(1)).getRoles();
+		Mockito.verifyNoMoreInteractions(roleService);
+	}
 
-    @Test
-    public void getRolesNotFound() throws Exception { // 404
-        Mockito.when(roleService.getRoles()).thenThrow(new CustomNotFoundException(""));
+	@Test
+	public void getRolesNotFound() throws Exception { // 404
+		Mockito.when(roleService.getRoles()).thenThrow(new CustomNotFoundException(""));
 
-        mockMvc.perform(get("/api/roles")).andExpect(status().isNotFound());
+		mockMvc.perform(get("/api/roles")).andExpect(status().isNotFound());
 
-        Mockito.verify(roleService, Mockito.times(1)).getRoles();
-        Mockito.verifyNoMoreInteractions(roleService);
-    }
+		Mockito.verify(roleService, Mockito.times(1)).getRoles();
+		Mockito.verifyNoMoreInteractions(roleService);
+	}
 
-    @Test
-    public void getRolesBadRequest() throws Exception { // 400
-        Mockito.when(roleService.getRoles()).thenThrow(new CustomBadRequestException(""));
+	@Test
+	public void getRolesBadRequest() throws Exception { // 400
+		Mockito.when(roleService.getRoles()).thenThrow(new CustomBadRequestException(""));
 
-        mockMvc.perform(get("/api/roles")).andExpect(status().isBadRequest());
+		mockMvc.perform(get("/api/roles")).andExpect(status().isBadRequest());
 
-        Mockito.verify(roleService, Mockito.times(1)).getRoles();
-        Mockito.verifyNoMoreInteractions(roleService);
-    }
+		Mockito.verify(roleService, Mockito.times(1)).getRoles();
+		Mockito.verifyNoMoreInteractions(roleService);
+	}
 
-    @Test
-    public void getRolesInternalServerError() throws Exception { // 500
-        Mockito.when(roleService.getRoles()).thenThrow(new CustomException(""));
+	@Test
+	public void getRolesInternalServerError() throws Exception { // 500
+		Mockito.when(roleService.getRoles()).thenThrow(new CustomException(""));
 
-        mockMvc.perform(get("/api/roles")).andExpect(status().isInternalServerError());
+		mockMvc.perform(get("/api/roles")).andExpect(status().isInternalServerError());
 
-        Mockito.verify(roleService, Mockito.times(1)).getRoles();
-        Mockito.verifyNoMoreInteractions(roleService);
-    }
+		Mockito.verify(roleService, Mockito.times(1)).getRoles();
+		Mockito.verifyNoMoreInteractions(roleService);
+	}
 }

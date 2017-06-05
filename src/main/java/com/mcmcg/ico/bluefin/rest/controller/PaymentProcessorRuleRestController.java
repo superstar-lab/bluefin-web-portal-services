@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.model.CardType;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRule;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
@@ -47,7 +47,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessorRule get(@PathVariable Long id) {
+    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule get(@PathVariable Long id) {
         LOGGER.info("Getting information with the following id: {}", id);
 
         return paymentProcessorRuleService.getPaymentProcessorRule(id);
@@ -89,7 +89,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<PaymentProcessorRule> create(
+    public ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> create(
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors) {
         // First checks if all required fields are set
@@ -100,8 +100,8 @@ public class PaymentProcessorRuleRestController {
         }
 
         LOGGER.info("Creating new payment processor rule: {}", paymentProcessorRuleResource);
-        return new ResponseEntity<PaymentProcessorRule>(paymentProcessorRuleService.createPaymentProcessorRule(
-                paymentProcessorRuleResource.getPaymentProcessorId(),
+        return new ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(paymentProcessorRuleService.createPaymentProcessorRule(
+                paymentProcessorRuleResource.getPaymentProcessorId().longValue(),
                 paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);
     }
 
@@ -113,7 +113,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public PaymentProcessorRule update(@PathVariable Long id,
+    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule update(@PathVariable Long id,
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
@@ -125,7 +125,7 @@ public class PaymentProcessorRuleRestController {
         LOGGER.info("Updating payment processor rule: {}", paymentProcessorRuleResource);
         return paymentProcessorRuleService.updatePaymentProcessorRule(
                 paymentProcessorRuleResource.toPaymentProcessorRule(id),
-                paymentProcessorRuleResource.getPaymentProcessorId());
+                paymentProcessorRuleResource.getPaymentProcessorId().longValue());
     }
 
     @ApiOperation(value = "Delete payment processor rule", nickname = "deletePaymentProcessorRule")

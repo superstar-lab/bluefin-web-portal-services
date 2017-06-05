@@ -21,14 +21,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.persistent.BatchUpload;
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorRemittance;
-import com.mcmcg.ico.bluefin.persistent.SaleTransaction;
+import com.mcmcg.ico.bluefin.model.BatchUpload;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
+import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
+import com.mcmcg.ico.bluefin.service.PaymentProcessorRemittanceService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
+import com.mcmcg.ico.bluefin.service.util.ApplicationUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -49,6 +51,8 @@ public class ReportRestController {
 	private SessionService sessionService;
 	@Autowired
 	private BatchUploadService batchUploadService;
+	@Autowired
+	private PaymentProcessorRemittanceService paymentProcessorRemittanceService;
 
 	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
 	@RequestMapping(method = RequestMethod.GET, value = "/transactions")
@@ -76,7 +80,9 @@ public class ReportRestController {
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
+		
+		// Below line found in releases while merging, but was not available in develop branch
+		//response.setHeader("Content-Length", Long.toString(downloadFile.length()));
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
@@ -106,7 +112,19 @@ public class ReportRestController {
 			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 		}
 
-		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone);
+		boolean negate = false;
+		// For 'Not Reconciled' status, which is not in the database, simply
+		// use: WHERE ReconciliationID != 'Reconciled'
+		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(search,"reconciliationStatusId");
+		if (reconciliationStatusId != null) {
+			if (reconciliationStatusId.equals("notReconciled")) {
+				String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
+				search = search.replaceAll("notReconciled", id);
+				negate = true;
+			}
+		}
+		
+		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone,negate);
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());

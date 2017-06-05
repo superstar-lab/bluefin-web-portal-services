@@ -22,11 +22,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.resource.BasicTokenResponse;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
+import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
+import com.mcmcg.ico.bluefin.rest.resource.TokenResponse;
+import com.mcmcg.ico.bluefin.rest.resource.TransactionTokenRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 
@@ -90,14 +93,14 @@ public class SessionRestController {
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "refreshToken", nickname = "refreshToken")
+    @ApiOperation(value = "refreshAuthanticationToken", nickname = "refreshAuthanticationToken")
     @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public AuthenticationResponse refreshToken(HttpServletRequest request) {
+    public AuthenticationResponse refreshAuthanticationToken(HttpServletRequest request) {
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 
         if (token != null) {
@@ -128,7 +131,7 @@ public class SessionRestController {
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
 
-    @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
+/*    @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/consumer/{username}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Success"),
@@ -136,10 +139,69 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public BasicTokenResponse registerApplication(@PathVariable String username) {
-        LOGGER.info("Genereting session token for username: {}", username);
+    public BasicTokenResponse registerApplication(@PathVariable String username,@PathVariable Optional<String> emailId,@PathVariable Optional<String> type) {
+        LOGGER.info("Genereting session token for username, emailId and Type: {} {} {}", username,emailId,type);
 
         return sessionService.registerApplication(username);
+    }*/
+  
+    @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/api-consumer")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public TokenResponse registerApplication(@Valid @RequestBody ThirdPartyAppResource thirdparyApp) {
+        LOGGER.info("Registering and Creating session token for API using username-{} & emailId-{}", thirdparyApp.getUsername(),thirdparyApp.getEmail());
+
+        return sessionService.registerApplication(thirdparyApp);
+    }
+    
+    @ApiOperation(value = "re-generateApplicationOrAPIToken", nickname = "regenerateApplicationOrAPIToken")
+    @RequestMapping(method = RequestMethod.PUT, produces = "application/json", value = "/api-consumer/{username}")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public TokenResponse generateAPIToken(@PathVariable String username) {
+    		LOGGER.info("Re-Generating/Refreshing API token for user-{}",username);
+            return sessionService.generateToken(username,TokenType.APPLICATION);
+    }
+    
+    @ApiOperation(value = "generateTransactionToken", nickname = "generateTransactionToken")
+    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/transaction-token/{username}")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public TokenResponse generateTransactionToken(@PathVariable String username) {
+    	LOGGER.info("Generated token to SALE/VOID/REFUND transaction using expirty/life set in DB for user-{}", username);
+            return sessionService.generateToken(username,TokenType.TRANSACTION);
+    }
+    
+    @ApiOperation(value = "authanticateTransaction", nickname = "authanticateTransaction")
+    @RequestMapping(method = RequestMethod.GET, produces = "application/json",value = "/transaction-token")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public Boolean authenticationTransaction(HttpServletRequest request,@ApiIgnore Authentication authentication) {
+        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+
+       /* if (token != null) {
+            return sessionService.validateToken(token);
+        }*/
+        if(authentication != null && authentication.isAuthenticated() ){
+        	// do nothing, that means filter has already validated token and move forward
+        	return true;
+        }
+
+        throw new CustomBadRequestException("An authorization token is required to request this resource");
     }
 
 }

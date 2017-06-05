@@ -5,7 +5,7 @@
 
 	<groupId>com.mcmcg.ico.bluefin</groupId>
 	<artifactId>bluefin-web-portal-services</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>3.2.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<name>bluefin-web-portal-services</name>
@@ -26,6 +26,7 @@
 		<!-- <endpoint.email.wsdl.base.url>http://phxiowasq34.internal.mcmcg.com</endpoint.email.wsdl.base.url> -->
 		<endpoint.email.wsdl.base.url>http://emailservice.internal.mcmcg.com</endpoint.email.wsdl.base.url>
 		<endpoint.email.wsdl.uri>${endpoint.email.wsdl.base.url}/MailManagerEJBHttpRouter/services/EmailRequestor</endpoint.email.wsdl.uri>
+		<springdata.commons>1.11.4.RELEASE</springdata.commons>
 	</properties>
 
 	<!-- Profiles -->
@@ -121,13 +122,25 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
+		<!-- Remove the two JPA dependencies for ORM refactoring -->
+		<!-- <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		<dependency>
+		</dependency> -->
+		<!-- <dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-jpa</artifactId>
+		</dependency> -->
+		<!-- Added below one for Page, PageRequest classes of data package-->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+		</dependency>
+		
+		<!-- JDBCTemplate -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -186,21 +199,21 @@
 		</dependency>
 
 		<!-- Query DSL -->
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-core</artifactId>
 			<version>${querydsl.version}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-apt</artifactId>
 			<version>${querydsl.version}</version>
 		</dependency>
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>com.mysema.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
 			<version>${querydsl.version}</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- Swagger 2 -->
 		<dependency>
@@ -391,7 +404,7 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<groupId>com.mysema.maven</groupId>
 				<artifactId>apt-maven-plugin</artifactId>
 				<version>1.1.3</version>
@@ -407,7 +420,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 		</plugins>
 	</build>
 </project>

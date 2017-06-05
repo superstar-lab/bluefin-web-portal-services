@@ -10,13 +10,16 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.User;
-import com.mcmcg.ico.bluefin.persistent.jpa.LegalEntityAppRepository;
-import com.mcmcg.ico.bluefin.persistent.jpa.UserRepository;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
+import com.mcmcg.ico.bluefin.repository.UserDAO;
+import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
@@ -25,117 +28,140 @@ import com.mcmcg.ico.bluefin.security.service.SessionService;
 @Service
 @Transactional
 public class LegalEntityAppService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppService.class);
 
-    @Autowired
-    private LegalEntityAppRepository legalEntityAppRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private SessionService sessionService;
+	@Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
+	@Autowired
+	private UserDAO userDAO;
+	@Autowired
+	private SessionService sessionService;
 
-    public List<LegalEntityApp> getLegalEntities(Authentication authentication) {
-        User user = userRepository.findByUsername(authentication.getName());
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
-        if (user == null) {
-            LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
-                    authentication.getName());
-            return new ArrayList<LegalEntityApp>();
-        }
+	public List<LegalEntityApp> getLegalEntities(Authentication authentication) {
+		User user = userDAO.findByUsername(authentication.getName());
+		
 
-        if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-            return legalEntityAppRepository.findAll();
-        } else {
-            List<Long> legalEntitiesFromUser = user.getLegalEntities().stream()
-                    .map(userLegalEntity -> userLegalEntity.getLegalEntityApp().getLegalEntityAppId())
-                    .collect(Collectors.toList());
-            return legalEntityAppRepository.findAll(legalEntitiesFromUser);
-        }
-    }
+		if (user == null) {
+			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
+					authentication.getName());
+			return new ArrayList<LegalEntityApp>();
+		}
 
-    /**
-     * This method will find a legal entity by its id, not found exception if it
-     * does not exist
-     * 
-     * @param id
-     * @return Legal entity object if found
-     */
-    public LegalEntityApp getLegalEntityAppById(Long id) {
-        LegalEntityApp legalEntityApp = legalEntityAppRepository.findOne(id);
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			return legalEntityAppDAO.findAll();
+		} else {
+			List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+				long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
+				list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 
-        if (legalEntityApp == null) {
-            throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
-        }
+			}
+			List<Long> legalEntitiesFromUser = list.stream()
+					.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toList());
+			return legalEntityAppDAO.findAll(legalEntitiesFromUser);
+		}
+	}
 
-        return legalEntityApp;
-    }
+	/**
+	 * This method will find a legal entity by its id, not found exception if it
+	 * does not exist
+	 * 
+	 * @param id
+	 * @return Legal entity object if found
+	 */
+	public LegalEntityApp getLegalEntityAppById(Long id) {
+		LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppId(id);
 
-    public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource) {
-        final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
+		if (legalEntityApp == null) {
+			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
+		}
 
-        if (existLegalEntityAppName(newLegalEntityAppName)) {
-            throw new CustomBadRequestException(
-                    String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
-        }
+		return legalEntityApp;
+	}
 
-        return legalEntityAppRepository.save(legalEntityResource.toLegalEntityApp());
-    }
+	public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource, String modifiedBy) {
+		final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
 
-    public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource) {
-        LegalEntityApp legalEntityAppToUpdate = legalEntityAppRepository.findOne(id);
+		if (existLegalEntityAppName(newLegalEntityAppName)) {
+			throw new CustomBadRequestException(
+					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
+		}
 
-        if (legalEntityAppToUpdate == null) {
-            throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
-        }
+		return legalEntityAppDAO.saveLegalEntityApp(legalEntityResource.toLegalEntityApp(), modifiedBy);
+	}
 
-        // Update fields for existing Legal Entity App
-        legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
+	public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource,
+			String modifiedBy) {
+		LegalEntityApp legalEntityAppToUpdate = legalEntityAppDAO.findByLegalEntityAppId(id);
 
-        return legalEntityAppRepository.save(legalEntityAppToUpdate);
-    }
+		if (legalEntityAppToUpdate == null) {
+			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
+		}
 
-    public void deleteLegalEntityApp(Long id) {
-        LegalEntityApp legalEntityAppToDelete = legalEntityAppRepository.findOne(id);
+		// Update fields for existing Legal Entity App
+		legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
 
-        if (legalEntityAppToDelete == null) {
-            throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
-        }
+		return legalEntityAppDAO.updateLegalEntityApp(legalEntityAppToUpdate, modifiedBy);
+	}
 
-        legalEntityAppRepository.delete(legalEntityAppToDelete);
-    }
+	public void deleteLegalEntityApp(Long id) {
+		LegalEntityApp legalEntityAppToDelete = legalEntityAppDAO.findByLegalEntityAppId(id);
 
-    /**
-     * Get all legal entity app objects by the entered ids
-     * 
-     * @param legalEntityAppsIds
-     *            list of legal entity apps ids that we need to find
-     * @return list of legal entity apps
-     * @throws CustomBadRequestException
-     *             when at least one id does not exist
-     */
-    public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
-        List<LegalEntityApp> result = legalEntityAppRepository.findAll(legalEntityAppsIds);
+		if (legalEntityAppToDelete == null) {
+			throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
+		}
+		try {
+			deleteUserLegalEntityApp(id);
+			legalEntityAppDAO.deleteLegalEntityApp(legalEntityAppToDelete);
+		} catch (DataIntegrityViolationException exp) {
+			LOGGER.debug(exp.getMessage());
+			LOGGER.error("Legal Entity= {} with id = {} already in use.",id,legalEntityAppToDelete.getLegalEntityAppName() );
+			throw new CustomNotFoundException("Unable to delete this legal entity. There are active payment processor merchant ids that are mapped to this legal entity.");
+		}
+	}
 
-        if (result.size() == legalEntityAppsIds.size()) {
-            return result;
-        }
+	private void deleteUserLegalEntityApp(Long id) {
+		List<Long> userLegalEntityApps = userLegalEntityAppDAO.fetchLegalEntityApps(id);
+		userService.removeLegalEntityFromUser(userLegalEntityApps);
+	}
 
-        // Create a detail error
-        if (result == null || result.isEmpty()) {
-            throw new CustomBadRequestException(
-                    "The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
-        }
+	/**
+	 * Get all legal entity app objects by the entered ids
+	 * 
+	 * @param legalEntityAppsIds
+	 *            list of legal entity apps ids that we need to find
+	 * @return list of legal entity apps
+	 * @throws CustomBadRequestException
+	 *             when at least one id does not exist
+	 */
+	public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
+		List<LegalEntityApp> result = legalEntityAppDAO.findAll(new ArrayList<Long>(legalEntityAppsIds));
 
-        Set<Long> legalEntityAppsNotFound = legalEntityAppsIds.stream().filter(
-                x -> !result.stream().map(LegalEntityApp::getLegalEntityAppId).collect(Collectors.toSet()).contains(x))
-                .collect(Collectors.toSet());
+		if (result.size() == legalEntityAppsIds.size()) {
+			return result;
+		}
 
-        throw new CustomBadRequestException(
-                "The following legal entity apps don't exist.  List = " + legalEntityAppsNotFound);
-    }
+		// Create a detail error
+		if (result == null || result.isEmpty()) {
+			throw new CustomBadRequestException(
+					"The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
+		}
 
-    private boolean existLegalEntityAppName(String legalEntityAppName) {
-        return legalEntityAppRepository.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
-    }
+		Set<Long> legalEntityAppsNotFound = legalEntityAppsIds.stream().filter(
+				x -> !result.stream().map(LegalEntityApp::getLegalEntityAppId).collect(Collectors.toSet()).contains(x))
+				.collect(Collectors.toSet());
 
+		throw new CustomBadRequestException(
+				"The following legal entity apps don't exist.  List = " + legalEntityAppsNotFound);
+	}
+
+	private boolean existLegalEntityAppName(String legalEntityAppName) {
+		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
+	}
 }

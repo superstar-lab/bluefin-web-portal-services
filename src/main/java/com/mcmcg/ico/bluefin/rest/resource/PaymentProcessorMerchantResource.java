@@ -6,8 +6,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.mcmcg.ico.bluefin.persistent.LegalEntityApp;
-import com.mcmcg.ico.bluefin.persistent.PaymentProcessorMerchant;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 
 import lombok.Data;
 
@@ -22,9 +22,9 @@ public class PaymentProcessorMerchantResource implements Serializable {
     @NotNull(message = "Please provide a testOrProd flag for the payment processor merchant")
     private Short testOrProd;
 
-    public PaymentProcessorMerchant toPaymentProcessorMerchant() {
+    public com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant toPaymentProcessorMerchant() {
         PaymentProcessorMerchant paymentProcessorMerchant = new PaymentProcessorMerchant();
-        paymentProcessorMerchant.setLegalEntityApp(new LegalEntityApp(legalEntityAppId));
+        paymentProcessorMerchant.setLegalEntityAppId(legalEntityAppId);
         paymentProcessorMerchant.setMerchantId(merchantId);
         paymentProcessorMerchant.setTestOrProd(testOrProd);
 

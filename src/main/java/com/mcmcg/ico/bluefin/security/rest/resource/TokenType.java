@@ -2,5 +2,5 @@ package com.mcmcg.ico.bluefin.security.rest.resource;
 
 public enum TokenType {
 
-    AUTHENTICATION, FORGOT_PASSWORD, REGISTER_USER, APPLICATION;
+    AUTHENTICATION, FORGOT_PASSWORD, REGISTER_USER, APPLICATION,TRANSACTION;
 }

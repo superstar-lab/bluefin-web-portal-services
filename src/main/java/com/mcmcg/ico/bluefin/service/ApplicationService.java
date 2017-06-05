@@ -9,20 +9,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.persistent.Application;
-import com.mcmcg.ico.bluefin.persistent.jpa.ApplicationRepository;
+import com.mcmcg.ico.bluefin.model.Application;
+import com.mcmcg.ico.bluefin.repository.ApplicationDAO;
 
 @Service
 @Transactional
 public class ApplicationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationService.class);
 
-    @Autowired
-    private ApplicationRepository applicationRepository;
+	@Autowired
+	private ApplicationDAO applicationDAO;
 
-    public List<Application> getApplications() {
-        LOGGER.info("Getting Applications list.");
-        return applicationRepository.findAll();
-    }
+	public List<Application> getApplications() {
+		LOGGER.info("Getting Applications list.");
+		return applicationDAO.findAll();
+	}
 }
