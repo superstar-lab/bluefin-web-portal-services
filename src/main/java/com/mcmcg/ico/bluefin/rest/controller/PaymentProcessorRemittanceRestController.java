@@ -48,7 +48,7 @@ public class PaymentProcessorRemittanceRestController {
 	public Transaction get(@PathVariable("transactionId") String transactionId,
 			@RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
 			@RequestParam(value = "processorTransactionType", required = true, defaultValue = "BlueFin") String processorTransactionType) {
-		LOGGER.info("Getting transaction information by id = [{}], transactionType = [{}] and ", transactionId,
+		LOGGER.debug("Getting transaction information by id = [{}], transactionType = [{}] and processorTransactionType = [{}] ", transactionId,
 				transactionType, processorTransactionType);
 
 		return paymentProcessorRemittanceService.getTransactionInformation(transactionId,
@@ -68,7 +68,7 @@ public class PaymentProcessorRemittanceRestController {
 			@RequestParam(value = "page", required = true) Integer page,
 			@RequestParam(value = "size", required = true) Integer size,
 			@RequestParam(value = "sort", required = false) String sort) throws JsonProcessingException {
-		LOGGER.info("Generating report with the following Filters= {}", search);
+		LOGGER.debug("Generating report with the following Filters= {}", search);
 
 		boolean negate = false;
 
@@ -92,6 +92,7 @@ public class PaymentProcessorRemittanceRestController {
 				.writeValueAsString(paymentProcessorRemittanceService.getRemittanceSaleRefundVoidTransactions(search,
 						QueryDSLUtil.getPageRequest(page, size, sort), negate));
 
+		LOGGER.info("Exit from getPaymentProcessorRemittances");
 		return json;
 	}
 }

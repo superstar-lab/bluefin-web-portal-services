@@ -34,7 +34,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 		List<SaleTransaction> list = jdbcTemplate.query(Queries.findAllSaleTransactions,
 				new SaleTransactionRowMapper());
 
-		LOGGER.debug("Number of rows: " + list.size());
+		LOGGER.debug("SaleTransactionDAOImpl :: findAll() : Number of rows: " + list.size());
 
 		return list;
 	}
@@ -46,12 +46,13 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				Queries.findSaleTransactionByApplicationTransactionId, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+		LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Number of rows: " + list.size());
 		saleTransaction = DataAccessUtils.singleResult(list);
 
 		if (saleTransaction != null) {
-			LOGGER.debug("Found SaleTransaction for transactionId: " + transactionId);
+			LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Found SaleTransaction for transactionId: " + transactionId);
 		} else {
-			LOGGER.debug("SaleTransaction not found for transactionId: " + transactionId);
+			LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : SaleTransaction not found for transactionId: " + transactionId);
 		}
 
 		return saleTransaction;
@@ -64,12 +65,13 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				Queries.findSaleTransactionByProcessorTransactionId, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());
 		saleTransaction = DataAccessUtils.singleResult(list);
 
 		if (saleTransaction != null) {
-			LOGGER.debug("Found SaleTransaction for transactionId: " + transactionId);
+			LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Found SaleTransaction for transactionId: " + transactionId);
 		} else {
-			LOGGER.debug("SaleTransaction not found for transactionId: " + transactionId);
+			LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : SaleTransaction not found for transactionId: " + transactionId);
 		}
 
 		return saleTransaction;
@@ -81,7 +83,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 				Queries.findSaleTransactionByBatchUploadId, new Object[] { batchUploadId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 
-		LOGGER.debug("Number of rows: " + list.size());
+		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());
 
 		return list;
 	}

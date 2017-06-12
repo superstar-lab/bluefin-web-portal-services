@@ -57,7 +57,7 @@ public class InternalResponseCodeRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        LOGGER.info("Getting internal response code list");
+        LOGGER.debug("Getting internal response code list of transactionType "+transactionType);
         return internalResponseCodeService.getInternalResponseCodesByTransactionType(transactionType);
     }
 
@@ -82,7 +82,7 @@ public class InternalResponseCodeRestController {
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.info("Creating internal response code");
+        LOGGER.debug("Creating internal response code for currentLoginUserName "+currentLoginUserName);
         return internalResponseCodeService.createInternalResponseCodes(internalResponseCodeResource, currentLoginUserName);
     }
 
@@ -118,9 +118,9 @@ public class InternalResponseCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Internal Response Code {}", id);
+        LOGGER.debug("Deleting Internal Response Code {}", id);
         internalResponseCodeService.deleteInternalResponseCode(id);
-        LOGGER.info("Internal Response Code {} has been deleted.", id);
+        LOGGER.debug("Internal Response Code {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }

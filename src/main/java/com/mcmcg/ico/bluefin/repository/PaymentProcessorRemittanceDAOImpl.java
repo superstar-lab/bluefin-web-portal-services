@@ -42,6 +42,7 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 		ArrayList<PaymentProcessorRemittance> list = (ArrayList<PaymentProcessorRemittance>) jdbcTemplate.query(
 				Queries.findPaymentProcessorRemittanceByProcessorTransactionId, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<PaymentProcessorRemittance>(new PaymentProcessorRemittanceRowMapper()));
+		LOGGER.debug("PaymentProcessorRemittanceDAOImpl :: findByProcessorTransactionId : PaymentProcessorRemittance size : "+list.size());
 		paymentProcessorRemittance = DataAccessUtils.singleResult(list);
 
 		if (paymentProcessorRemittance != null) {

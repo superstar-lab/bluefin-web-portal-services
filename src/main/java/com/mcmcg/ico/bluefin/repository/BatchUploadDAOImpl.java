@@ -41,6 +41,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
     @Override
     public BatchUpload saveBasicBatchUpload(BatchUpload batchUpload) {
+    	LOGGER.info("Entering BatchUploadDAOImpl :: saveBasicBatchUpload()");
         KeyHolder holder = new GeneratedKeyHolder();
 
         DateTime utc1 = batchUpload.getProcessStart().withZone(DateTimeZone.UTC);
@@ -68,8 +69,8 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         Long id = holder.getKey().longValue();
         batchUpload.setBatchUploadId(id);
-        LOGGER.info("Created batchUploadId: " + id);
-
+        LOGGER.debug("Created batchUploadId: " + id);
+        LOGGER.info("Exit from BatchUploadDAOImpl :: saveBasicBatchUpload()");
         return batchUpload;
     }
 
@@ -77,16 +78,18 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
     public List<BatchUpload> findAll() {
         List<BatchUpload> batchUploads = new ArrayList<BatchUpload>();
         batchUploads = jdbcTemplate.query(Queries.findAllBatchUploads, new BatchUploadRowMapper());
-        LOGGER.debug("Number of rows: " + batchUploads.size());
-
+        LOGGER.debug("BatchUploadDAOImpl :: findAll() : Number of rows: " + batchUploads.size());
+        
         return batchUploads;
     }
 
     @Override
     public BatchUpload findOne(Long id) {
         try {
-            return jdbcTemplate.queryForObject(Queries.findOneBatchUpload, new Object[] { id },
+        	BatchUpload batchUpload = jdbcTemplate.queryForObject(Queries.findOneBatchUpload, new Object[] { id },
                     new BatchUploadRowMapper());
+        	LOGGER.debug("BatchUploadDAOImpl :: findOne() : BatchUpload found as : " + batchUpload);
+            return batchUpload;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -107,7 +110,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findByDateUploadedAfter,
                 new Object[] { dateBeforeNoofdaysTimestamp }, new BatchUploadRowMapper());
-        LOGGER.debug("Number of rows: " + batchUploads.size());
+        LOGGER.debug("BatchUploadDAOImpl :: findByDateUploadedAfter() : Number of rows: " + batchUploads.size());
         return batchUploads;
     }
 
@@ -121,7 +124,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         List<BatchUpload> batchUploads = jdbcTemplate.query(
                 Queries.findBatchUploadsByDateUploadedAfterOrderByDateUploadedDesc,
                 new Object[] { dateBeforeNoofdays, firstResult, lastResult }, new BatchUploadRowMapper());
-        LOGGER.debug("Number of rows: " + batchUploads.size());
+        LOGGER.debug("BatchUploadDAOImpl :: findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: " + batchUploads.size());
         Page<BatchUpload> batchUploadsPaginated = new PageImpl<BatchUpload>(batchUploads, pageRequest,
                 batchUploadCount);
 
@@ -136,7 +139,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findAllBatchUploadsByOrderByDateUploadedDesc,
                 new Object[] { firstResult, lastResult }, new BatchUploadRowMapper());
-        LOGGER.debug("Number of rows: " + batchUploads.size());
+        LOGGER.debug("BatchUploadDAOImpl :: findAllByOrderByDateUploadedDesc() : Number of rows: " + batchUploads.size());
         Page<BatchUpload> batchUploadsPaginated = new PageImpl<BatchUpload>(batchUploads, pageRequest,
                 batchUploadCount);
 

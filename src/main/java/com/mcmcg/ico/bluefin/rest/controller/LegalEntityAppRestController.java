@@ -50,7 +50,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public LegalEntityApp get(@PathVariable Long id) {
-        LOGGER.info("Getting legal entity by id");
+        LOGGER.debug("Getting legal entity by id "+id);
         return legalEntityAppService.getLegalEntityAppById(id);
     }
 
@@ -90,7 +90,7 @@ public class LegalEntityAppRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Creating new legal entity: {}", legalEntityResource.getLegalEntityAppName());
+        LOGGER.debug("Creating new legal entity: {}", legalEntityResource.getLegalEntityAppName());
         return new ResponseEntity<LegalEntityApp>(
                 legalEntityAppService.createLegalEntity(legalEntityResource, authentication.getName()),
                 HttpStatus.CREATED);
@@ -113,7 +113,7 @@ public class LegalEntityAppRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Updating Legal Entity {}", legalEntityAppToUpdate);
+        LOGGER.debug("Updating Legal Entity {}", legalEntityAppToUpdate);
         return legalEntityAppService.updateLegalEntityApp(id, legalEntityAppToUpdate, authentication.getName());
     }
 
@@ -128,7 +128,7 @@ public class LegalEntityAppRestController {
     public ResponseEntity<String> delete(@PathVariable Long id) {
         LOGGER.info("Deleting Legal Entity {}", id);
         legalEntityAppService.deleteLegalEntityApp(id);
-        LOGGER.info("Legal Entity {} has been deleted.", id);
+        LOGGER.debug("Legal Entity {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }

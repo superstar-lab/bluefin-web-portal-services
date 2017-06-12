@@ -71,6 +71,7 @@ public class ReportRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 
+		LOGGER.debug("transactions service ::: Entered : search "+search);
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
@@ -84,7 +85,7 @@ public class ReportRestController {
 		// Below line found in releases while merging, but was not available in develop branch
 		//response.setHeader("Content-Length", Long.toString(downloadFile.length()));
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -106,7 +107,8 @@ public class ReportRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-
+		LOGGER.debug("payment-processor-remittances service ::: Entered : search "+search);
+		
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
@@ -116,6 +118,7 @@ public class ReportRestController {
 		// For 'Not Reconciled' status, which is not in the database, simply
 		// use: WHERE ReconciliationID != 'Reconciled'
 		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(search,"reconciliationStatusId");
+		LOGGER.debug("payment-processor-remittances service ::: reconciliationStatusId : "+reconciliationStatusId);
 		if (reconciliationStatusId != null) {
 			if (reconciliationStatusId.equals("notReconciled")) {
 				String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
@@ -130,7 +133,7 @@ public class ReportRestController {
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -155,7 +158,7 @@ public class ReportRestController {
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -173,7 +176,7 @@ public class ReportRestController {
 			@RequestParam(value = "batchUploadId", required = true) Long batchUploadId,
 			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
 			throws IOException {
-		LOGGER.info("Getting all batch uploads by id = [{}]", batchUploadId);
+		LOGGER.debug("Getting all batch uploads by id = [{}]", batchUploadId);
 		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
@@ -181,7 +184,7 @@ public class ReportRestController {
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.info("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
 	}

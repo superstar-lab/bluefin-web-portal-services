@@ -3,16 +3,20 @@ package com.mcmcg.ico.bluefin.service.util;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 public class QueryBuilderHelper {
 	
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilderHelper.class);
+	
 	public static StringBuffer buildQuery(Map<String,String> filterMap ,Sort sort){
 		//String query = Queries.findAllUsers;
 		StringBuffer  bf = new StringBuffer( Queries.findAllUsers);
+		LOGGER.debug("QueryBuilderHelper :: buildQuery() : StringBuffer is : "+bf);
 		
 		setLegaEntity(bf,filterMap);
 		setRoles(bf,filterMap);
@@ -26,7 +30,7 @@ public class QueryBuilderHelper {
 	public static String appendLimit(String query,int offset,int pageSize){
 		
 		query = query.concat(" LIMIT "+offset +", "+pageSize);
-		
+		LOGGER.debug("QueryBuilderHelper :: appendLimit() : query is : "+query);
 		return query;
 	}
 	

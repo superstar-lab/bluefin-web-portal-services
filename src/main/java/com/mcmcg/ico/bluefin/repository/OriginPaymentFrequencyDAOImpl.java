@@ -29,7 +29,7 @@ public class OriginPaymentFrequencyDAOImpl implements OriginPaymentFrequencyDAO 
 		List<OriginPaymentFrequency> list = jdbcTemplate.query(Queries.findAllOriginPaymentFrequencies,
 				new OriginPaymentFrequencyRowMapper());
 
-		LOGGER.debug("Number of rows: " + list.size());
+		LOGGER.debug("OriginPaymentFrequencyDAOImpl :: findAll(): Number of rows: " + list.size());
 
 		return list;
 	}

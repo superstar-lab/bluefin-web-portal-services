@@ -65,12 +65,12 @@ public class SessionRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Authenticating user: {}", authenticationRequest.getUsername());
+        LOGGER.debug("Authenticating user: {}", authenticationRequest.getUsername());
         Authentication authentication = sessionService.authenticate(authenticationRequest.getUsername(),
                 authenticationRequest.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        LOGGER.info("Generating token for user: {}", authenticationRequest.getUsername());
+        LOGGER.debug("Generating token for user: {}", authenticationRequest.getUsername());
         AuthenticationResponse response = sessionService.generateToken(authenticationRequest.getUsername());
         return response;
     }
@@ -83,6 +83,7 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> logout(HttpServletRequest request) {
+    	LOGGER.info("Inside logoutUser");
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 
         if (token == null) {
@@ -101,8 +102,9 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse refreshAuthanticationToken(HttpServletRequest request) {
+    	LOGGER.info("Inside refreshAuthanticationToken");
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
-
+        LOGGER.debug("refreshAuthanticationToken token "+token);
         if (token != null) {
             return sessionService.refreshToken(token);
         }
@@ -125,7 +127,7 @@ public class SessionRestController {
         }
 
         final String username = sessionRequestResource.getUsername();
-        LOGGER.info("Password reset request from user: {}", username);
+        LOGGER.debug("Password reset request from user: {}", username);
         sessionService.resetPassword(username);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
@@ -154,7 +156,7 @@ public class SessionRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public TokenResponse registerApplication(@Valid @RequestBody ThirdPartyAppResource thirdparyApp) {
-        LOGGER.info("Registering and Creating session token for API using username-{} & emailId-{}", thirdparyApp.getUsername(),thirdparyApp.getEmail());
+        LOGGER.debug("Registering and Creating session token for API using username-{} & emailId-{}", thirdparyApp.getUsername(),thirdparyApp.getEmail());
 
         return sessionService.registerApplication(thirdparyApp);
     }
@@ -167,7 +169,7 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public TokenResponse generateAPIToken(@PathVariable String username) {
-    		LOGGER.info("Re-Generating/Refreshing API token for user-{}",username);
+    		LOGGER.debug("Re-Generating/Refreshing API token for user-{}",username);
             return sessionService.generateToken(username,TokenType.APPLICATION);
     }
     
@@ -179,7 +181,7 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public TokenResponse generateTransactionToken(@PathVariable String username) {
-    	LOGGER.info("Generated token to SALE/VOID/REFUND transaction using expirty/life set in DB for user-{}", username);
+    	LOGGER.debug("Generated token to SALE/VOID/REFUND transaction using expirty/life set in DB for user-{}", username);
             return sessionService.generateToken(username,TokenType.TRANSACTION);
     }
     
@@ -191,8 +193,9 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Boolean authenticationTransaction(HttpServletRequest request,@ApiIgnore Authentication authentication) {
+    	LOGGER.info("Inside authanticateTransaction ");
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
-
+        LOGGER.debug("authanticateTransaction token "+token);
        /* if (token != null) {
             return sessionService.validateToken(token);
         }*/

@@ -38,7 +38,7 @@ public class ReconciliationStatusRestController {
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ReconciliationStatus get(@PathVariable Long id) {
-		LOGGER.info(String.format("Getting reconciliation status with id = [%s]", id));
+		LOGGER.debug(String.format("Getting reconciliation status with id = [%s]", id));
 		return reconciliationStatusService.getReconciliationStatusById(id);
 	}
 

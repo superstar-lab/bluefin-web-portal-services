@@ -48,7 +48,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public com.mcmcg.ico.bluefin.model.PaymentProcessorRule get(@PathVariable Long id) {
-        LOGGER.info("Getting information with the following id: {}", id);
+        LOGGER.debug("Getting information with the following id: {}", id);
 
         return paymentProcessorRuleService.getPaymentProcessorRule(id);
     }
@@ -99,7 +99,7 @@ public class PaymentProcessorRuleRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Creating new payment processor rule: {}", paymentProcessorRuleResource);
+        LOGGER.debug("Creating new payment processor rule: {}", paymentProcessorRuleResource);
         return new ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(paymentProcessorRuleService.createPaymentProcessorRule(
                 paymentProcessorRuleResource.getPaymentProcessorId().longValue(),
                 paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);
@@ -122,7 +122,7 @@ public class PaymentProcessorRuleRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Updating payment processor rule: {}", paymentProcessorRuleResource);
+        LOGGER.debug("Updating payment processor rule: {}", paymentProcessorRuleResource);
         return paymentProcessorRuleService.updatePaymentProcessorRule(
                 paymentProcessorRuleResource.toPaymentProcessorRule(id),
                 paymentProcessorRuleResource.getPaymentProcessorId().longValue());
@@ -138,9 +138,9 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting payment processor rule {}", id);
+        LOGGER.debug("Deleting payment processor rule {}", id);
         paymentProcessorRuleService.delete(id);
-        LOGGER.info("Payment processor rule {} has been deleted.", id);
+        LOGGER.debug("Payment processor rule {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }

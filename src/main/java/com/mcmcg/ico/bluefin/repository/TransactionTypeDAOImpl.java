@@ -32,7 +32,7 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 		List<TransactionType> list = jdbcTemplate.query(Queries.findAllTransactionTypes,
 				new TransactionTypeRowMapper());
 
-		LOGGER.debug("Number of rows: " + list.size());
+		LOGGER.debug("TransactionTypeDAOImpl :: findAll() : Number of rows: " + list.size());
 
 		return list;
 	}
@@ -44,12 +44,13 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
 				Queries.findTransactionTypeByTransactionId, new Object[] { transactionTypeId },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
+		LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType : " + list.size());
 		transactionType = DataAccessUtils.singleResult(list);
 
 		if (transactionType != null) {
-			LOGGER.debug("Found TransactionType for transactionTypeId: " + transactionTypeId);
+			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : Found TransactionType for transactionTypeId: " + transactionTypeId);
 		} else {
-			LOGGER.debug("TransactionType not found for transactionTypeId: " + transactionTypeId);
+			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType not found for transactionTypeId: " + transactionTypeId);
 		}
 
 		return transactionType;
@@ -62,12 +63,13 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
 				Queries.findTransactionTypeByTransactionType, new Object[] { type },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
+		LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType : " + list.size());
 		transactionType = DataAccessUtils.singleResult(list);
 
 		if (transactionType != null) {
-			LOGGER.debug("Found TransactionType for type: " + type);
+			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : Found TransactionType for type: " + type);
 		} else {
-			LOGGER.debug("TransactionType not found for type: " + type);
+			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType not found for type: " + type);
 		}
 
 		return transactionType;

@@ -59,13 +59,15 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 								paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
 								new PaymentProcessorStatusCodeRowMapper()));
+		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor() : PaymentProcessorStatusCode size : "
+				+list.size());
 		paymentProcessorStatusCodeList = DataAccessUtils.singleResult(list);
 
 		if (paymentProcessorStatusCodeList != null) {
-			LOGGER.debug("Found payment processor statuscode for : "
+			LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor() : Found payment processor statuscode for : "
 					+ paymentProcessorStatusCodeList.getPaymentProcessorStatusCode());
 		} else {
-			LOGGER.debug("Found payment processor statuscode not found for : " + paymentProcessorStatusCode + "/"
+			LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor() : Found payment processor statuscode not found for : " + paymentProcessorStatusCode + "/"
 					+ transactionTypeName + "/" + paymentProcessor.getPaymentProcessorId());
 		}
 
@@ -83,7 +85,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 								new PaymentProcessorStatusCodeRowMapper()));
 
 		if (list != null) {
-			LOGGER.debug("Found payment processor statuscode for : ");
+			LOGGER.info("Found payment processor statuscode for : ");
 		} else {
 			LOGGER.debug("Found payment processor statuscode not found for : " + transactionTypeName + "/"
 					+ paymentProcessor.getPaymentProcessorId());
@@ -105,7 +107,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	@Override
 	public void deletePaymentProcessorStatusCode(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorStatusCodeByID, new Object[] { paymentProcessorId });
-		LOGGER.debug("Deleted payment Processor Status Code by  PaymentProcessorId: " + paymentProcessorId + ", rows affected = " + rows);
+		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: deletePaymentProcessorStatusCode() : Deleted payment Processor Status Code by  PaymentProcessorId: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
 	@Override
@@ -136,7 +138,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 		Long id = holder.getKey().longValue();
 		paymentProcessorStatusCode.setPaymentProcessorStatusCodeId(id);
-		LOGGER.info("Saved Payment Processor Status Code - id: " + id);
+		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: save() : Saved Payment Processor Status Code - id: " + id);
 		return paymentProcessorStatusCode;
 	}
 
@@ -153,7 +155,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 								dateModified,paymentProcessorStatusCode.getLastModifiedBy(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()
 							 });
 		
-		LOGGER.info("Updated Payment Processor Status Code - id: " + paymentProcessorStatusCode.getPaymentProcessorStatusCodeId());
+		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: update() : Updated Payment Processor Status Code - id: " + paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()+" and affected rows are : "+rows);
 		return paymentProcessorStatusCode;
 	}
 }

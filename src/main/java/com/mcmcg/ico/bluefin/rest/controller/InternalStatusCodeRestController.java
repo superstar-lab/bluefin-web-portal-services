@@ -61,7 +61,7 @@ public class InternalStatusCodeRestController {
             @RequestParam(value = "transactionType", required = false, defaultValue = "ALL") String transactionType,
             @RequestParam(value = "extended", required = false, defaultValue = "false") Boolean extended,
             @ApiIgnore Authentication authentication) throws JsonProcessingException {
-    	LOGGER.info("Request to fetch internal status code Transaction Type="+transactionType);
+    	LOGGER.debug("Request to fetch internal status code Transaction Type="+transactionType);
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -97,7 +97,7 @@ public class InternalStatusCodeRestController {
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.info("Creating internal status code");
+        LOGGER.debug("Inside createInternalStatusCodes to Create internal status code for currentLoginUserName = "+currentLoginUserName);
         return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource,currentLoginUserName);
     }
 
@@ -122,7 +122,7 @@ public class InternalStatusCodeRestController {
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.info("Updating internal status code");
+        LOGGER.debug("Inside updateInternalStatusCodes to Update internal status code for currentLoginUserName "+currentLoginUserName);
         return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource,currentLoginUserName);
     }
 
@@ -135,9 +135,9 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Internal Status Code {}", id);
+        LOGGER.debug("Deleting Internal Status Code {}", id);
         internalStatusCodeService.deleteInternalStatusCode(id);
-        LOGGER.info("Internal Status Code {} has been deleted.", id);
+        LOGGER.debug("Internal Status Code {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }
@@ -156,7 +156,7 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public com.mcmcg.ico.bluefin.model.InternalStatusCode get(@PathVariable Long id) {
-        LOGGER.info("Fetching Internal Status Code {}", id);
+        LOGGER.debug("Fetching Internal Status Code {}", id);
         return internalStatusCodeService.getInternalStatusCode(id);
     }
 }

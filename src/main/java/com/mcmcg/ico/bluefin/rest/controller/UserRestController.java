@@ -71,6 +71,7 @@ public class UserRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
+		LOGGER.debug("getUser with username:: service "+username);
 		if (username.equals("me") || username.equals(authentication.getName())) {
 			username = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
@@ -83,7 +84,7 @@ public class UserRestController {
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
 		}
 
-		LOGGER.info("Getting user information: {}", username);
+		LOGGER.debug("Getting user information: {}", username);
 		return userService.getUserInfomation(username.equals("me") ? authentication.getName() : username);
 	}
 
@@ -102,7 +103,9 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 
+		LOGGER.info("getUser :: service");
 		final String userName = authentication.getName();
+		LOGGER.debug("getUser :: service : userName : "+userName);
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			// Verifies if the search parameter has allowed
 			// legal entities for the consultant user
@@ -120,7 +123,7 @@ public class UserRestController {
 		if(searchArray!=null)
 			filterList = Arrays.asList(searchArray);
 		
-		LOGGER.info("Generating report with the following filters: {}", search);
+		LOGGER.debug("Generating report with the following filters: {}", search);
 		return userService.getUsers(filterList, page, size, sort);
 	}
 
@@ -139,6 +142,7 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 
+		LOGGER.debug("createUser :: service : newUser "+newUser);
 		// First checks if all required data is given
 		if (errors.hasErrors()) {
 			String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -153,7 +157,7 @@ public class UserRestController {
 					String.format("User doesn't have access to add by legal entity restriction"));
 		}
 
-		LOGGER.info("Creating new account for user: {}", newUser.getUsername());
+		LOGGER.debug("Creating new account for user: {}", newUser.getUsername());
 		return new ResponseEntity<UserResource>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
 	}
 
@@ -170,6 +174,7 @@ public class UserRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
+		LOGGER.info("updateUserProfile :: service");
 		if (username.equals("me") || username.equals(authentication.getName())) {
 			username = authentication.getName();
 		} else {
@@ -190,7 +195,7 @@ public class UserRestController {
 			throw new CustomBadRequestException(errorDescription);
 		}
 
-		LOGGER.info("Updating account for user: {}", username);
+		LOGGER.debug("Updating account for user: {}", username);
 		return userService.updateUserProfile(username.equals("me") ? authentication.getName() : username, userToUpdate);
 	}
 
@@ -207,13 +212,14 @@ public class UserRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
+		LOGGER.debug("updateUserRoles with username :: service : roles size : "+roles.size());
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated
 		if (!userService.belongsToSameLegalEntity(authentication,
 				username.equals("me") ? authentication.getName() : username)) {
 			throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
 		}
-		LOGGER.info("Updating roles for user: {}", username);
+		LOGGER.debug("Updating roles for user: {}", username);
 
 		return new UserResource(
 				userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles));
@@ -233,6 +239,7 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 
+		LOGGER.info("updateUserLegalEntities :: service : legalEntities size : "+legalEntities.size());
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated and checks if the Legal Entities given are valid
 		// according with the LegalEntities owned
@@ -245,7 +252,7 @@ public class UserRestController {
 			throw new AccessDeniedException("User doesn't have permission to add/remove legal entities to this user.");
 		}
 
-		LOGGER.info("Updating legalEntities for user: {}", username);
+		LOGGER.debug("Updating legalEntities for user: {}", username);
 		return new UserResource(userService
 				.updateUserLegalEntities(username.equals("me") ? authentication.getName() : username, legalEntities));
 	}
@@ -267,6 +274,7 @@ public class UserRestController {
 			throw new CustomBadRequestException(errorDescription);
 		}
 
+		LOGGER.info("updateUserPassword :: service");
 		if (username.equals("me") || username.equals(authentication.getName())) {
 			username = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
@@ -274,6 +282,7 @@ public class UserRestController {
 		}
 
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+		LOGGER.debug("updateUserPassword :: service : token : "+token);
 		if (token != null) {
 			userService.updateUserPassword(username, updatePasswordResource, token);
 			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
@@ -297,7 +306,9 @@ public class UserRestController {
 			throw new AccessDeniedException("User does not have sufficient permissions to perform the operation.");
 		}
 
+		LOGGER.info("updateUserActivation :: service");
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+		LOGGER.debug("updateUserActivation :: service : token : "+token);
 		if (token != null) {
 			userService.userActivation(activationResource);
 			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
@@ -314,8 +325,10 @@ public class UserRestController {
 	 * @return String with the verified search
 	 */
 	private String getVerifiedSearch(String userName, String search) {
+		LOGGER.info("Inside getVerifiedSearch()");
 		// Searches for the legal entities of a user its user name
 		List<LegalEntityApp> legalEntities = userService.getLegalEntitiesByUser(userName);
+		LOGGER.debug("Inside getVerifiedSearch() : legalEntities size : "+legalEntities.size());
 		// Validates if the user has access to the given legal entities,
 		// exception if does not have access
 		return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search);
