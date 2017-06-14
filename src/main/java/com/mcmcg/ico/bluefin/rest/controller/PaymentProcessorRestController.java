@@ -49,7 +49,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public com.mcmcg.ico.bluefin.model.PaymentProcessor get(@PathVariable Long id) {
-        LOGGER.info("Getting information with the following id: {}", id);
+        LOGGER.debug("Getting information with the following id: {}", id);
         return paymentProcessorService.getPaymentProcessorById(id);
     }
 
@@ -75,7 +75,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessorStatusResource getStatus(@PathVariable Long id) {
-        LOGGER.info("Getting Payment Processor status with the following id: {}", id);
+        LOGGER.debug("Getting Payment Processor status with the following id: {}", id);
         return paymentProcessorService.getPaymentProcessorStatusById(id);
     }
 
@@ -97,7 +97,7 @@ public class PaymentProcessorRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Creating new payment processor: {}", paymentProcessorResource.getProcessorName());
+        LOGGER.debug("Creating new payment processor: {}", paymentProcessorResource.getProcessorName());
         return new ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessor>(
                 paymentProcessorService.createPaymentProcessor(paymentProcessorResource), HttpStatus.CREATED);
     }
@@ -118,7 +118,7 @@ public class PaymentProcessorRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        LOGGER.info("Updating Payment Processor {}", paymentProcessorToUpdate);
+        LOGGER.debug("Updating Payment Processor {}", paymentProcessorToUpdate);
         return paymentProcessorService.updatePaymentProcessor(id, paymentProcessorToUpdate);
     }
 
@@ -133,7 +133,7 @@ public class PaymentProcessorRestController {
     public com.mcmcg.ico.bluefin.model.PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
             @Validated @RequestBody Set<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> paymentProcessorMerchants,
             @ApiIgnore Errors errors) {
-        LOGGER.info("Updating payment processors merchants = [{}] from payment processor id = [{}]",
+        LOGGER.debug("Updating payment processors merchants = [{}] from payment processor id = [{}]",
                 paymentProcessorMerchants, id);
 
         if (errors.hasErrors()) {
@@ -154,9 +154,9 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Payment Processor {}", id);
+        LOGGER.debug("Deleting Payment Processor {}", id);
         paymentProcessorService.deletePaymentProcessor(id);
-        LOGGER.info("Payment Processor {} has been deleted.", id);
+        LOGGER.debug("Payment Processor {} has been deleted.", id);
 
         return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
     }

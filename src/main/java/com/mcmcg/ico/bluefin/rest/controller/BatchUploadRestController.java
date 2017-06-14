@@ -54,7 +54,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 404, message = "Not found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public BatchUpload get(@PathVariable Long id) {
-        LOGGER.info("Getting batch upload by id");
+        LOGGER.debug("Getting batch upload by id "+id);
         return batchUploadService.getBatchUploadById(id);
     }
 
@@ -71,7 +71,7 @@ public class BatchUploadRestController {
             @RequestParam(value = "size", required = false, defaultValue = "15") int size,
             @RequestParam(value = "sort", required = false) String sort,
             @RequestParam(value = "noofdays", required = false) Integer noofdays) {
-        LOGGER.info("Getting all batch uploads");
+        LOGGER.debug("Getting all batch uploads size "+size);
         if (noofdays == null) {
             return batchUploadService.getAllBatchUploads(page, size, sort);
         } else {
@@ -89,7 +89,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
-        LOGGER.info("Uploading new ACF file");
+        LOGGER.debug("Uploading new ACF file "+request.getFileMap());
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }

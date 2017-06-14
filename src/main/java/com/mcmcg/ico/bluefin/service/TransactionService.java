@@ -95,6 +95,7 @@ public class TransactionService {
 	private CustomSaleTransactionDAO customSaleTransactionDAO;
 
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
+		LOGGER.info("Entering to TransactionService :: getTransactionInformation()");
 		Transaction result = null;
 
 		switch (transactionType) {
@@ -115,6 +116,7 @@ public class TransactionService {
 			throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
 		}
 
+		LOGGER.debug("Exiting from TransactionService :: getTransactionInformation() : result : "+result);
 		return result;
 	}
 
@@ -140,6 +142,7 @@ public class TransactionService {
 
 		result = (Transaction) paymentProcessorRemittance;
 
+		LOGGER.debug("TransactionService :: getRemittanceSaleResult() : result : "+result);
 		return result;
 	}
 
@@ -157,11 +160,13 @@ public class TransactionService {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
+		LOGGER.debug("TransactionService :: getTransactions() : result : "+result);
 		return result;
 	}
 
 	public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
 		User user = userDAO.findByUsername(username);
+		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : user : "+(user == null ? null : user.getUserId()));
 		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
 		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
 			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
@@ -169,6 +174,7 @@ public class TransactionService {
 
 		}
 
+		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : result list size : "+list.size());
 		return list;
 	}
 
@@ -176,6 +182,7 @@ public class TransactionService {
 		List<SaleTransaction> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
+		LOGGER.debug("TransactionService :: getTransactionsReport() : reportPath : "+reportPath);
 		File file = null;
 		try {
 			result = customSaleTransactionDAO.findTransactionsReport(search);
@@ -206,6 +213,7 @@ public class TransactionService {
 
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
 			Integer count = 1;
+			LOGGER.debug("TransactionService :: getTransactionsReport() : result size : "+result.size());
 			// Write a new transaction object list to the CSV file
 			for (SaleTransaction transaction : result) {
 				List<String> transactionDataRecord = new ArrayList<String>();
@@ -308,6 +316,7 @@ public class TransactionService {
 	public File getRemittanceTransactionsReport(String search, String timeZone,boolean negate) throws IOException {
 		List<RemittanceSale> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
+		LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : reportPath : "+reportPath);
 
 		File file = null;
 		try {
@@ -341,6 +350,7 @@ public class TransactionService {
 			// Create PaymentProcessor hashmap
 			Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessor> paymentProcessorList = paymentProcessorDAO.findAll();
+			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : paymentProcessorList size : "+paymentProcessorList.size());
 			for (com.mcmcg.ico.bluefin.model.PaymentProcessor pp : paymentProcessorList) {
 				paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
 			}
@@ -348,6 +358,7 @@ public class TransactionService {
 			// Create ReconciliationStatus hashmap
 			Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
 			List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusDAO.findAll();
+			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : reconciliationStatusList size : "+reconciliationStatusList.size());
 			for (ReconciliationStatus rs : reconciliationStatusList) {
 				reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
 			}
@@ -359,6 +370,7 @@ public class TransactionService {
 
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
 			Integer count = 1;
+			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : result size : "+result.size());
 			// Write a new transaction object list to the CSV file
 			for (RemittanceSale transaction : result) {
 				List<String> transactionDataRecord = new ArrayList<String>();

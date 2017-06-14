@@ -39,7 +39,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 				Queries.findUserLegalEntityAppByUserId, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserLegalEntityApp>(new UserLegalEntityAppRowMapper()));
 
-		LOGGER.debug("Number of rows: " + list.size());
+		LOGGER.debug("UserLegalEntityAppDAOImpl :: findByUserId() : Number of rows: " + list.size());
 
 		return list;
 	}
@@ -54,10 +54,10 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 	}
 	
 	private void executeQueryToDeleteUserLegalEntity(String deleteQuery,Map<String, Collection<Long>> idsToDelete){
-		LOGGER.debug("Finally deleteing records, idsToDelete="+idsToDelete);
+		LOGGER.debug("UserLegalEntityAppDAOImpl :: findByUserId() : Finally deleteing records, idsToDelete="+idsToDelete);
 		
 		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
-		LOGGER.debug("Number of rows of roles deleted (Using user legal entity  id) ="+(noOfRowsDeleted));
+		LOGGER.debug("UserLegalEntityAppDAOImpl :: findByUserId() : Number of rows of roles deleted (Using user legal entity  id) ="+(noOfRowsDeleted));
 	}
 
 	@Override

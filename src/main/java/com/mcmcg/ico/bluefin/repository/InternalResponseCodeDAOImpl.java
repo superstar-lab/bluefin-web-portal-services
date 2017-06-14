@@ -59,7 +59,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public List<com.mcmcg.ico.bluefin.model.InternalResponseCode> findByTransactionTypeNameOrderByInternalResponseCodeAsc(
 			String transactionTypeName) {
-		LOGGER.info("Fetching Internal Response codes for transaction type="+transactionTypeName);
+		LOGGER.debug("Fetching Internal Response codes for transaction type="+transactionTypeName);
 		List<com.mcmcg.ico.bluefin.model.InternalResponseCode> list ;
 		if ("ALL".equalsIgnoreCase(transactionTypeName)) { 
 			list = sortInternalResponseCode( jdbcTemplate.query( Queries.findAllInternalResponseCode, new InternalResponseCodeRowMapper() ) );
@@ -70,13 +70,14 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 					new Object[] {  transactionTypeName }, new InternalResponseCodeRowMapper()  );
 		}
 		
-		LOGGER.debug("Number of rows: ");
+		LOGGER.debug("InternalResponseCodeDAOImpl :: findByTransactionTypeNameOrderByInternalResponseCodeAsc() : Number of rows: "+list.size());
 		return list;
 	}
 	
 	private List<InternalResponseCode> sortInternalResponseCode(List<InternalResponseCode> fetchedInternalStatusCode_List){
 		if (fetchedInternalStatusCode_List != null && !fetchedInternalStatusCode_List.isEmpty()) {
 			LinkedHashMap<String, InternalResponseCode> result = new LinkedHashMap<String, InternalResponseCode>();
+			LOGGER.debug("InternalResponseCodeDAOImpl :: sortInternalResponseCode() : size of fetchedInternalStatusCode_List : "+fetchedInternalStatusCode_List.size());
 			for(InternalResponseCode internalStatusCode : fetchedInternalStatusCode_List){
 				
 				final String description = internalStatusCode.getInternalResponseCodeDescription();
@@ -128,7 +129,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		LOGGER.debug("Saved tInternalResponseCode - id: " + id);
 
 		if (internalResponseCode.getPaymentProcessorInternalResponseCodes() != null && !internalResponseCode.getPaymentProcessorInternalResponseCodes().isEmpty()) {
-			LOGGER.debug("Number of childs items {}"+internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
+			LOGGER.debug("InternalResponseCodeDAOImpl :: save() : Number of childs items {}"+internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
 			// in this case we need to create child items also.
 			for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()) {
 				paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
@@ -153,7 +154,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		paymentProcessorInternalResponseCodeDAO.deleteByInternalResponseCode(internalResponseCode.getInternalResponseCodeId());
 		int rows = jdbcTemplate.update(Queries.deleteInternalResponseCode, new Object[] { internalResponseCode.getInternalResponseCodeId() });
 
-		LOGGER.info("Deleted InternalResponseCode with InternalResponseCodeid: " + internalResponseCode .getInternalResponseCodeId()+ ", rows affected = " + rows);
+		LOGGER.debug("Deleted InternalResponseCode with InternalResponseCodeid: " + internalResponseCode .getInternalResponseCodeId()+ ", rows affected = " + rows);
 
 		//return rows;
 		
@@ -163,7 +164,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	public List<com.mcmcg.ico.bluefin.model.InternalResponseCode> findAll() {
 		ArrayList<com.mcmcg.ico.bluefin.model.InternalResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.InternalResponseCode>) jdbcTemplate.query(
 				Queries.findAllInternalResponseCode, new InternalResponseCodeRowMapper());
-		LOGGER.debug("Number of rows: ");
+		LOGGER.debug("InternalResponseCodeDAOImpl :: findAll() : Number of rows: "+list.size());
 		return list;
 	}
 	class InternalResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.InternalResponseCode> {
@@ -195,9 +196,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 					new Object[] { 	internalResponseCode.getInternalResponseCode(), internalResponseCode.getInternalResponseCodeDescription(), internalResponseCode.getLastModifiedBy(), 
 							internalResponseCode.getTransactionTypeName(), dateModified, internalResponseCode.getInternalResponseCodeId() });
 
-		LOGGER.info("Updated InternalStatusCode with ID: " + internalResponseCode.getInternalResponseCodeId() + ", rows affected = " + rows);
+		LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Updated InternalStatusCode with ID: " + internalResponseCode.getInternalResponseCodeId() + ", rows affected = " + rows);
 		if (internalResponseCode.getPaymentProcessorInternalResponseCodes() != null && !internalResponseCode.getPaymentProcessorInternalResponseCodes().isEmpty()) {
-			LOGGER.info("Number of childs items to update {}"+internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
+			LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Number of childs items to update {}"+internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
 			// in this case we need to create child items also.
 			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()) {
 				paymentProcessorInternalResponseCode.setInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId());
@@ -225,8 +226,10 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public InternalResponseCode findOneWithChilds(Long internalResponseCodeId) {
 		InternalResponseCode internalStatusCode = findOne(internalResponseCodeId);
+		LOGGER.debug("InternalResponseCodeDAOImpl :: findOneWithChilds() : internalStatusCode  : "+internalStatusCode);
 		if (internalStatusCode != null){
 			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeList = paymentProcessorInternalResponseCodeDAO.paymentProcessorInternalResponseCodeId(internalResponseCodeId);
+			LOGGER.debug("InternalResponseCodeDAOImpl :: findOneWithChilds() : paymentProcessorInternalResponseCodeList size : "+paymentProcessorInternalResponseCodeList.size());
 			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodeList) {
 				PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
 				paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);

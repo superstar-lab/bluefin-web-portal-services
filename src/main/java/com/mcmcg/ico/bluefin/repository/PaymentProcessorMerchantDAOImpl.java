@@ -46,7 +46,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 				Queries.findPaymentProcessorMerchantsById, new Object[] { paymentProcessorId },
 				new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
 
-		LOGGER.debug("Number of rows: " + list.size());
+		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: findPaymentProccessorMerchantByProcessorId : Number of rows: " + list.size());
 		return list;
 	}
 
@@ -54,13 +54,13 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	public void deletPaymentProcessorMerchantByProcID(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchantByProcId, new Object[] {paymentProcessorId});
 
-		LOGGER.debug("Deleted Payment Processor Merchant by Payment Processor Id: " + paymentProcessorId + ", rows affected = " + rows);
+		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletPaymentProcessorMerchantByProcID : Deleted Payment Processor Merchant by Payment Processor Id: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchants, new Object[] { paymentProcessorId });
-		LOGGER.debug("Deleted Payment Processor Merchants for PaymentProcessor Id: " + paymentProcessorId
+		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletePaymentProcessorRules : Deleted Payment Processor Merchants for PaymentProcessor Id: " + paymentProcessorId
 				+ ", rows affected = " + rows);
 	}
 	
@@ -79,7 +79,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 						Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 						DateTime utc2 = paymentProcessorMerchant.getModifiedDate() != null ? paymentProcessorMerchant.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 						Timestamp modifyDate = Timestamp.valueOf(dtf.print(utc2));
-						LOGGER.info("Creating child item - PaymentProcessorMerchant, of PaymentProcessorMerchant Id :" + paymentProcessorMerchant.getPaymentProcessorMechantId());
+						LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletePaymentProcessorRules : Creating child item - PaymentProcessorMerchant, of PaymentProcessorMerchant Id :" + paymentProcessorMerchant.getPaymentProcessorMechantId());
 						ps.setLong(1, paymentProcessorMerchant.getPaymentProcessorId());
 						ps.setShort(2, paymentProcessorMerchant.getTestOrProd());
 						ps.setString(3,paymentProcessorMerchant.getMerchantId() );

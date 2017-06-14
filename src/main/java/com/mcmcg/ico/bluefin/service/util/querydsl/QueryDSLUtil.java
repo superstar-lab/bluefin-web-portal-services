@@ -62,6 +62,7 @@ public class QueryDSLUtil {
 
     public static PageRequest getPageRequest(int page, int size, String sort) {
         List<Order> orderList = getOrderList(sort);
+        LOGGER.debug("QueryDSLUtil :: getPageRequest() : orderList size : "+orderList.size());
         if (orderList.isEmpty()) {
             return new PageRequest(page, size);
         } else {
@@ -86,6 +87,7 @@ public class QueryDSLUtil {
             }
             sortList.add(new Order(sortDirection, matcher.group(1)));
         }
+        LOGGER.debug("QueryDSLUtil :: getOrderList() : sortList size : "+sortList.size());
         return sortList;
     }
 
@@ -110,6 +112,7 @@ public class QueryDSLUtil {
             search = search.replace(filterKey + LEFilterValue,
                     filterKey + generateValidLEFilter(LEFilterValue, userLegalEntities));
         }
+        LOGGER.debug("QueryDSLUtil :: validateByFilter() : search : "+search);
         return search;
     }
 
@@ -127,6 +130,7 @@ public class QueryDSLUtil {
         List<String> userLEIds = userLE.stream().map(current -> current.getLegalEntityAppId())
                 .collect(Collectors.toList()).stream().map(i -> i.toString()).collect(Collectors.toList());
 
+        LOGGER.debug("QueryDSLUtil :: getValidSearchBasedOnLegalEntitiesById() : userLEIds : "+userLEIds.size());
         return validateByFilter(search, userLEIds, LEGAL_ENTITIES_FILTER);
     }
 
@@ -143,6 +147,7 @@ public class QueryDSLUtil {
         List<String> userLENames = userLE.stream().map(current -> current.getLegalEntityAppName())
                 .collect(Collectors.toList());
 
+        LOGGER.debug("QueryDSLUtil :: getValidSearchBasedOnLegalEntities() : userLENames : "+userLENames.size());
         return validateByFilter(search, userLENames, LEGAL_ENTITY_FILTER);
     }
 
@@ -156,12 +161,13 @@ public class QueryDSLUtil {
      */
     private static String generateValidLEFilter(String filterKey, List<String> userLegalEntities) {
         List<String> listFilterValue = getLEListFilterValue(filterKey);
+        LOGGER.debug("QueryDSLUtil :: generateValidLEFilter() : listFilterValue : "+listFilterValue.size());
         if (listFilterValue == null || listFilterValue.isEmpty()) {
             listFilterValue = userLegalEntities;
         } else {
             for (String currentLE : listFilterValue) {
                 if (!userLegalEntities.contains(currentLE)) {
-                    LOGGER.error("User doesn't have access to filter by this legal entity: ,", currentLE);
+                    LOGGER.error("QueryDSLUtil :: generateValidLEFilter() : User doesn't have access to filter by this legal entity: ,", currentLE);
                     throw new AccessDeniedException(
                             "User doesn't have access to filter by this legal entity: " + currentLE);
                 }
@@ -191,7 +197,7 @@ public class QueryDSLUtil {
         }
 
         if (!validSearch) {
-            LOGGER.error("Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
+            LOGGER.error("QueryDSLUtil :: getLEFilterValue() : Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
             throw new CustomBadRequestException(
                     "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
         }
@@ -220,7 +226,7 @@ public class QueryDSLUtil {
         }
 
         if (!validSearch) {
-            LOGGER.error("Unable to parse value of transactionId");
+            LOGGER.error("QueryDSLUtil :: getTransactionIdValue() :  Unable to parse value of transactionId");
             throw new CustomBadRequestException("Unable to parse value of transactionI");
         }
         return result;
@@ -264,11 +270,12 @@ public class QueryDSLUtil {
                         .collect(Collectors.toList());
                 return result;
             } else {
-                LOGGER.error("Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
+                LOGGER.error("QueryDSLUtil :: getLEListFilterValue() : Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
                 throw new CustomBadRequestException(
                         "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
             }
         }
+        LOGGER.error("QueryDSLUtil :: getLEListFilterValue() :  result : "+(result == null ? null : result.size()));
         return result;
 
     }

@@ -93,11 +93,13 @@ public class SessionService {
 	private UserPreferenceDAO userPreferenceDAO;
 
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
+		LOGGER.info("Entering SessionService :: authenticate()");
 		User user = userDAO.findByUsername(username);
 		UserLoginHistory userLoginHistory = new UserLoginHistory();
 		userLoginHistory.setUsername(username);
 		userLoginHistory.setPassword(passwordEncoder.encode(password));
 
+		LOGGER.debug("SessionService :: authenticate() : user is : "+user);
 		if (user == null) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
 			throw new CustomUnauthorizedException("Invalid credentials");
@@ -117,19 +119,23 @@ public class SessionService {
 		}
 
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
+		LOGGER.info("Exit from SessionService :: authenticate()");
 		return new UsernamePasswordAuthenticationToken(username, password);
 	}
 
 	private void saveUserLoginHistory(UserLoginHistory userLoginHistory, Integer messageCode) {
+		LOGGER.debug("Entering SessionService :: saveUserLoginHistory() : userLoginHistory value is "+userLoginHistory);
 		if (userLoginHistory != null) {
 			userLoginHistory.setMessageId(messageCode);
 			userLoginHistoryDAO.saveUserLoginHistory(userLoginHistory);
 		}
-
+		LOGGER.info("Exit from SessionService :: saveUserLoginHistory()");
 	}
 
 	public AuthenticationResponse generateToken(final String username) {
+		LOGGER.info("Entering SessionService :: generateToken()");
 		User user = userService.getUser(username);
+		LOGGER.debug("Entering SessionService :: generateToken() : user is : "+user);
 		final String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
 		user.setLastLogin(new DateTime());
@@ -138,16 +144,18 @@ public class SessionService {
 			userDAO.saveUser(user);
 		}*/
 
-		LOGGER.info("Creating login response for user: {}", username);
+		LOGGER.debug("Creating login response for user: {}", username);
 		return getLoginResponse(user, token);
 	}
 
 	public String generateNewToken(final String username, TokenType type, final String url) {
+		LOGGER.info("Entering SessionService :: generateNewToken()");
 		SecurityUser securityUser = userDetailsService.loadUserByUsername(username);
+		LOGGER.debug("Entering SessionService :: generateNewToken() : securityUser is : "+securityUser);
 		if (securityUser == null) {
 			throw new CustomBadRequestException("Error generating token for user " + username);
 		}
-
+		LOGGER.info("Exit from SessionService :: generateNewToken()");
 		return tokenUtils.generateToken(securityUser, type, url);
 	}
 
@@ -158,10 +166,10 @@ public class SessionService {
 		// Find user by username
 		User user = userService.getUser(username);
 
-		LOGGER.info("Trying to refresh token for user: {}", username);
+		LOGGER.debug("Trying to refresh token for user: {}", username);
 		final String newToken = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
-		LOGGER.info("Creating response for user: {}", username);
+		LOGGER.debug("Creating response for user: {}", username);
 		return getLoginResponse(user, newToken);
 	}
 
@@ -172,7 +180,7 @@ public class SessionService {
 	 * 
 	 */
 	public TokenResponse generateToken(final String username, TokenType tokenType) {
-		LOGGER.info("Generat token for user-{} of type-{}", username,tokenType);
+		LOGGER.debug("Generat token for user-{} of type-{}", username,tokenType);
 		return new TokenResponse(generateNewToken(username, tokenType, null));
 	}
 	
@@ -180,25 +188,30 @@ public class SessionService {
 	public void deleteSession(final String token) {
 		LOGGER.info("Sending token to blacklist");
 		String username = tokenUtils.getUsernameFromToken(token);
+		LOGGER.debug("SessionService :: deleteSession() : username "+username);
 		if (username == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
+		LOGGER.info("Sending token to blacklistExit from SessionService :: deleteSession()");
 		tokenUtils.sendTokenToBlacklist(token, username);
 	}
 
 	public void resetPassword(final String username) {
+		LOGGER.info("Entering SessionService :: resetPassword()");
 		User user = userService.getUser(username);
-
-		LOGGER.info("Reseting password of user: {}", username);
+		LOGGER.debug("SessionService :: resetPassword() : user is : "+user);
+		LOGGER.debug("Reseting password of user: {}", username);
 		final String link = "/api/users/" + username + "/password";
 		final String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
 		String content = "Please use the link below to reset your password: \n\n"
 				+ propertyService.getPropertyValue("RESET_PASSWORD_EMAIL_LINK") + "?token=" + token;
 		// Send email
+		LOGGER.info("Exit SessionService :: resetPassword() : ready to send email");
 		emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT, content);
 	}
 
 	private AuthenticationResponse getLoginResponse(final User user, final String token) {
+		LOGGER.info("Entering SessionService :: getLoginResponse()");
 		AuthenticationResponse response = new AuthenticationResponse();
 
 		response.setToken(token);
@@ -209,9 +222,11 @@ public class SessionService {
 		
 		Set<Role> roleSet = new HashSet<Role>();
 		Set<Permission> permissionSet = new HashSet<Permission>();
+		LOGGER.debug("SessionService :: getLoginResponse() : user roles are :"+userRoleDAO.findByUserId(user.getUserId()).size());
 		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
 			long roleId = userRole.getRoleId();
 			roleSet.add(roleDAO.findByRoleId(roleId));
+			LOGGER.debug("SessionService :: getLoginResponse() : user rolePermission are :"+rolePermissionDAO.findByRoleId(roleId).size());
 			for (RolePermission rolePermission : rolePermissionDAO.findByRoleId(roleId)) {
 				long permissionId = rolePermission.getPermissionId();
 				permissionSet.add(permissionDAO.findByPermissionId(permissionId));
@@ -221,6 +236,7 @@ public class SessionService {
 		response.setPermissions(permissionSet);
 
 		Set<LegalEntityApp> legalEntityAppSet = new HashSet<LegalEntityApp>();
+		LOGGER.debug("SessionService :: getLoginResponse() : user userLegalEntityApp size :"+userLegalEntityAppDAO.findByUserId(user.getUserId()).size());
 		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
 			long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
 			legalEntityAppSet.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
@@ -228,10 +244,12 @@ public class SessionService {
 		response.setLegalEntityApps(legalEntityAppSet);
 		String selectedTimeZone = userPreferenceDAO.getSelectedTimeZone(user.getUserId()); 
 		response.setSelectedTimeZone(selectedTimeZone);
+		LOGGER.debug("Exit from SessionService :: getLoginResponse() : with response : "+response);
 		return response;
 	}
 
 	public TokenResponse registerApplication(ThirdPartyAppResource thirdparyApp) {
+		LOGGER.info("Entering SessionService :: registerApplication()");
 		RegisterUserResource userResource = new RegisterUserResource();
 		userResource.setUsername(thirdparyApp.getUsername());
 		userResource.setFirstName(thirdparyApp.getUsername());
@@ -242,21 +260,26 @@ public class SessionService {
 		rolesToAssign.add(getRoleThirdParty());
 
 		if (!userService.existUsername(thirdparyApp.getUsername())) {
+			LOGGER.info("SessionService :: registerApplication(): user not exist  ready to save");
 			User newUser = userResource.toUser(rolesToAssign, new ArrayList<LegalEntityApp>());
 			newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 			newUser.setIsActive((short) 1);
 			newUser.setStatus("ACTIVE");
 			userDAO.saveUser(newUser);
 		}
+		LOGGER.info("Exit from SessionService :: registerApplication()");
 		return new TokenResponse(generateNewToken(thirdparyApp.getUsername(), TokenType.APPLICATION, null));
 	}
 
 	public Role getRoleThirdParty() {
+		LOGGER.info("Entering SessionService :: getRoleThirdParty()");
 		String applicationRoleName = propertyService.getPropertyValue("APPLICATION_ROLE_NAME");
 		Role roleThirdParty = roleService.getRoleByName(applicationRoleName);
+		LOGGER.debug("SessionService :: getRoleThirdParty() : roleThirdParty is : "+roleThirdParty);
 		if (roleThirdParty == null) {
 			String applicationPermissionName = propertyService.getPropertyValue("APPLICATION_PERMISSION_NAME");
 			Permission permissionThirdParty = permissionDAO.findByPermissionName(applicationPermissionName);
+			LOGGER.debug("SessionService :: getRoleThirdParty() : permissionThirdParty is : "+permissionThirdParty);
 			if (permissionThirdParty == null) {
 				permissionThirdParty = new Permission();
 				permissionThirdParty.setPermissionName(applicationPermissionName);
@@ -275,17 +298,22 @@ public class SessionService {
 			// rolePermission.setRole(roleThirdParty);
 			rolePermissionDAO.saveRolePermission(rolePermission);
 		}
+		LOGGER.info("Exit from SessionService :: getRoleThirdParty()");
 		return roleThirdParty;
 	}
 
 	public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {
+		LOGGER.info("Entering SessionService :: sessionHasPermissionToManageAllLegalEntities()");
 		Boolean hasPermission = false;
+		LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : authentication size is :"+(authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size())));
 		for (GrantedAuthority authority : authentication.getAuthorities()) {
 			hasPermission = authority.getAuthority().equals("ADMINISTRATIVE");
+			LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : hasPermission : "+hasPermission);
 			if (hasPermission) {
 				break;
 			}
 		}
+		LOGGER.info("Exit from SessionService :: sessionHasPermissionToManageAllLegalEntities()");
 		return hasPermission;
 	}
 	
@@ -295,11 +323,12 @@ public class SessionService {
 
 		// Find user by username
 		User user = userDAO.findByUsername(username);
+		LOGGER.debug("Entering SessionService :: validateToken() : user is :"+user);
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} 
 
-		
+		LOGGER.info("Exit from SessionService :: validateToken()");
 		return true;
 	}
 }

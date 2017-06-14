@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +16,19 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 @Service
 @Transactional
 public class TransactionTypeService {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionTypeService.class);
 
 	@Autowired
 	private TransactionTypeDAO transactionTypeDAO;
 
 	public List<TransactionType> getTransactionTypes() {
+		LOGGER.info("TransactionTypeService :: getTransactionTypes()");
 		return transactionTypeDAO.findAll();
 	}
 
 	public TransactionType getTransactionTypeById(Long transactionTypeId) {
 		TransactionType transactionType = transactionTypeDAO.findByTransactionId(transactionTypeId);
+		LOGGER.info("TransactionTypeService :: getTransactionTypeById() : transactionType : "+transactionType);
 		if (transactionType == null) {
 			throw new CustomBadRequestException("Invalid transaction type.");
 		}
@@ -32,6 +37,7 @@ public class TransactionTypeService {
 
 	public TransactionType getTransactionTypeByType(String transactionTypeName) {
 		TransactionType transactionType = transactionTypeDAO.findByTransactionType(transactionTypeName);
+		LOGGER.info("TransactionTypeService :: getTransactionTypeByType() : transactionType : "+transactionType);
 		if (transactionType == null) {
 			throw new CustomBadRequestException("Invalid transaction type.");
 		}

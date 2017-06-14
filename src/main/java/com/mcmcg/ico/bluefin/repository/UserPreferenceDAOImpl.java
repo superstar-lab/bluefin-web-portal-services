@@ -31,6 +31,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	@Override
 	public Long findPreferenceIdByPreferenceKey(String prefKey) {
 		Long preferenceKey = jdbcTemplate.queryForObject(Queries.findPreferenceIdByPreferenceKey, new Object[] { prefKey },  Long.class);
+		LOGGER.debug("UserPreferenceDAOImpl :: findPreferenceIdByPreferenceKey() : preferenceKey : "+preferenceKey);
 		return preferenceKey;
 	}
 
@@ -46,10 +47,10 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 
 	@Override
 	public UserPreference updateUserTimeZonePreference(UserPreference userPrefrence) {
-		LOGGER.debug("Updating User Preference, UserPreferenceId - "+(userPrefrence.getUserPrefeenceID()));
+		LOGGER.debug("UserPreferenceDAOImpl :: updateUserTimeZonePreference() : Updating User Preference, UserPreferenceId - "+(userPrefrence.getUserPrefeenceID()));
 		int rows = jdbcTemplate.update(Queries.updateUserPreference,
 					new Object[] { 	userPrefrence.getPreferenceValue(), userPrefrence.getUserPrefeenceID() });
-		LOGGER.debug("Updated UserPreference, No of Rows Updated " + rows);
+		LOGGER.debug("UserPreferenceDAOImpl :: updateUserTimeZonePreference() : Updated UserPreference, No of Rows Updated " + rows);
 		return userPrefrence;
 	}
 
@@ -70,7 +71,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 		
 		Long id = holder.getKey().longValue();
 		userPrefrence.setUserPrefeenceID(id);
-		LOGGER.info("Saved UserPreference - id: " + id);
+		LOGGER.debug("UserPreferenceDAOImpl :: insertUserTimeZonePreference() : Saved UserPreference - id: " + id);
 		return userPrefrence;
 	}
 
@@ -79,7 +80,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 		try {
 			return jdbcTemplate.queryForObject(Queries.findSelectedTimeZoneByUserId, new Object[] { userId },  String.class);
 		} catch (EmptyResultDataAccessException e) {
-			LOGGER.debug("No time zone saved for userid="+userId);
+			LOGGER.error("UserPreferenceDAOImpl :: getSelectedTimeZone() : No time zone saved for userid="+userId);
 			return null;
 		}
 	}

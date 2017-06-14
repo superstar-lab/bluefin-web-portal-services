@@ -54,10 +54,12 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	@Override
 	public LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId) {
-
+		LegalEntityApp legalEntityApp = null;
 		try {
-			return jdbcTemplate.queryForObject(Queries.findByLegalEntityAppId, new Object[] { legalEntityAppId },
+			legalEntityApp = jdbcTemplate.queryForObject(Queries.findByLegalEntityAppId, new Object[] { legalEntityAppId },
 					new LegalEntityAppRowMapper());
+			LOGGER.debug("LegalEntityAppDAOImpl :: findByLegalEntityAppId() : legalEntityApp: " + legalEntityApp);
+			return legalEntityApp;
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
@@ -69,7 +71,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.findAllLegalEntityApps,
 				new LegalEntityAppRowMapper());
 
-		LOGGER.debug("Number of rows: " + legalEntityApps.size());
+		LOGGER.debug("LegalEntityAppDAOImpl :: findAll() : Number of rows: " + legalEntityApps.size());
 
 		return legalEntityApps;
 	}
@@ -81,7 +83,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.findAllLegalEntityAppsByIds,
 				map, new LegalEntityAppRowMapper());
 
-		LOGGER.debug("Number of rows: " + legalEntityApps.size());
+		LOGGER.debug("LegalEntityAppDAOImpl :: findAll(list) : Number of rows: " + legalEntityApps.size());
 
 		return legalEntityApps;
 	}
@@ -119,7 +121,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 		Long id = holder.getKey().longValue();
 		legalEntityApp.setLegalEntityAppId(id);
-		LOGGER.debug("Created legalEntityAppId: " + id);
+		LOGGER.debug("LegalEntityAppDAOImpl :: saveLegalEntityApp() : Created legalEntityAppId: " + id);
 
 		return legalEntityApp;
 	}
@@ -159,7 +161,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			}
 		}, holder);
 
-		LOGGER.debug("Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
+		LOGGER.debug("LegalEntityAppDAOImpl :: updateLegalEntityApp() : Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
 
 		return legalEntityApp;
 	}

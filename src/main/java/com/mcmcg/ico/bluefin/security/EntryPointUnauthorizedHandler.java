@@ -29,6 +29,7 @@ public class EntryPointUnauthorizedHandler implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             AuthenticationException e) throws IOException, ServletException {
         
+    	LOGGER.info("Entering EntryPointUnauthorizedHandler :: commence()");
         // Load global CORS configuration
         CorsConfiguration ccGlobal = CustomCorsRegistration.getGlobalCorsConfiguration();
         // Adding custom headers
@@ -49,6 +50,7 @@ public class EntryPointUnauthorizedHandler implements AuthenticationEntryPoint {
                 .println("{ \"uniqueErrorId\": \"" + logException(e) + "\",\"timestamp\": \""
                         + Calendar.getInstance().getTimeInMillis() + "\", \"message\": \"" + e.getMessage()
                         + "\", \"exception\": \"" + e.getClass().getName() + "\" }");
+        LOGGER.info("Exit from EntryPointUnauthorizedHandler :: commence()");
     }
 
     private UUID logException(final Exception exception) {
