@@ -29,6 +29,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse httpServletResponse, AccessDeniedException e)
             throws IOException, ServletException {
 
+    	LOGGER.info("Entering CustomAccessDeniedHandler :: handle()");
         // Load global CORS configuration
         CorsConfiguration ccGlobal = CustomCorsRegistration.getGlobalCorsConfiguration();
         // Adding custom headers
@@ -49,6 +50,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 .println("{ \"uniqueErrorId\": \"" + logException(e) + "\",\"timestamp\": \""
                         + Calendar.getInstance().getTimeInMillis() + "\", \"message\": \"" + e.getMessage()
                         + "\", \"exception\": \"" + e.getClass().getName() + "\" }");
+        LOGGER.info("Exit from CustomAccessDeniedHandler :: handle()");
     }
 
     private UUID logException(final Exception exception) {

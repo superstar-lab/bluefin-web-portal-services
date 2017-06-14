@@ -50,6 +50,7 @@ public class InternalResponseCodeService {
 	
 		//transactionTypeDAO.getTransactionTypeByType(transactionType);
 		List<com.mcmcg.ico.bluefin.model.InternalResponseCode> internalResponseCodeList =internalResponseCodeDAO.findByTransactionTypeNameOrderByInternalResponseCodeAsc(transactionType);
+		LOGGER.debug("InternalResponseCodeService :: getInternalResponseCodesByTransactionType() : internalResponseCodeList size is : "+internalResponseCodeList);
 		if(null != internalResponseCodeList && !internalResponseCodeList.isEmpty()){
 			for (com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode : internalResponseCodeList) {
 				internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId()));
@@ -79,7 +80,7 @@ public class InternalResponseCodeService {
 					"Internal response code already exists and is assigned to this transaction type.");
 		}
 
-		LOGGER.info("Creating new internal response code {}", internalResponseCodeResource.getCode());
+		LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new internal response code {}", internalResponseCodeResource.getCode());
 		internalResponseCode = new com.mcmcg.ico.bluefin.model.InternalResponseCode();
 		internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
 		internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
@@ -88,6 +89,9 @@ public class InternalResponseCodeService {
 		internalResponseCode
 				.setPaymentProcessorInternalResponseCodes(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>());
 
+		LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : internalResponseCodeResource size : ", 
+				(internalResponseCodeResource == null ? null : (internalResponseCodeResource.getPaymentProcessorCodes() == null ? null : internalResponseCodeResource
+						.getPaymentProcessorCodes().size())) );
 		if (!(internalResponseCodeResource.getPaymentProcessorCodes() == null
 				|| internalResponseCodeResource.getPaymentProcessorCodes().isEmpty())) {
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>();
@@ -122,13 +126,15 @@ public class InternalResponseCodeService {
 						}
 					}
 				}
-
+				
+				LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
 				if (paymentProcessorResponseCode == null) {
-					LOGGER.info("Creating new payment processor response code {}", resourceProcessorCode.getCode());
+					LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new payment processor response code {}", resourceProcessorCode.getCode());
 					paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
 				} else {
 					Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
 							.getInternalResponseCode();
+					LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
 					for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
 						if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
 								.equals(internalResponseCodeResource.getCode()) && !codeModified) {
@@ -163,14 +169,15 @@ public class InternalResponseCodeService {
 					.addAll(paymentProcessorInternalResponseCodes);
 
 		}
+		LOGGER.info("InternalResponseCodeService :: createInternalResponseCodes() : Ready to save internalResponseCode");
 		return internalResponseCodeDAO.save(internalResponseCode);
 
 	}
 
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode updateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource) {
-		LOGGER.info("Updating InternalResponseCode Record, Requested Data="+(internalResponseCodeResource) + " , Child Items="+ ( internalResponseCodeResource.getPaymentProcessorCodes() != null ? internalResponseCodeResource.getPaymentProcessorCodes().size() : 0 ) );
+		LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : Updating InternalResponseCode Record, Requested Data="+(internalResponseCodeResource) + " , Child Items="+ ( internalResponseCodeResource.getPaymentProcessorCodes() != null ? internalResponseCodeResource.getPaymentProcessorCodes().size() : 0 ) );
 		Long internalResponseCodeIdToModify = internalResponseCodeResource.getInternalCodeId();
-		LOGGER.info("Internal Response CodeId to modify {}"+internalResponseCodeIdToModify);
+		LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : Internal Response CodeId to modify {}"+internalResponseCodeIdToModify);
 		
 		com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode = internalResponseCodeDAO.findOneWithChilds(internalResponseCodeIdToModify);
 		if (internalResponseCode == null) {
@@ -180,10 +187,10 @@ public class InternalResponseCodeService {
 		// Get transactionType if null thrown an exception
 		com.mcmcg.ico.bluefin.model.TransactionType transactionType = transactionTypeDAO.findByTransactionType(internalResponseCodeResource.getTransactionTypeName());
 		if (transactionType == null) {
-			LOGGER.error("Transaction type {} not found",internalResponseCodeResource.getTransactionTypeName());
+			LOGGER.error("InternalResponseCodeService :: updateInternalResponseCode() : Transaction type {} not found",internalResponseCodeResource.getTransactionTypeName());
 			throw new CustomBadRequestException("Transaction type "+internalResponseCodeResource.getTransactionTypeName()+" not exists.");
 		}
-		LOGGER.info("Updating internal response code {}", internalResponseCodeIdToModify);
+		LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : Updating internal response code {}", internalResponseCodeIdToModify);
 
 		// Just in case of modify the code of the Internal Response Code, verify
 		// if the code is already assigned
@@ -203,7 +210,7 @@ public class InternalResponseCodeService {
 
 		Set<Long> paymentProcessorResponseCodeToDelete = new HashSet<Long>();
 		if (internalResponseCodeResource.getPaymentProcessorCodes() != null	&& !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
-			LOGGER.debug("Number of payment processor codes to update="+internalResponseCodeResource.getPaymentProcessorCodes().size());
+			LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : Number of payment processor codes to update="+internalResponseCodeResource.getPaymentProcessorCodes().size());
 			// New payment processor response codes that need to be created or
 			// updated
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> newPaymentProcessorResponseCode = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>();
@@ -217,7 +224,7 @@ public class InternalResponseCodeService {
 
 				com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(resourceProcessorCode.getPaymentProcessorId());
 				if (paymentProcessor == null) {
-					LOGGER.error("Payment processor {} not found",resourceProcessorCode.getPaymentProcessorId());
+					LOGGER.error("InternalResponseCodeService :: updateInternalResponseCode() : Payment processor {} not found",resourceProcessorCode.getPaymentProcessorId());
 					throw new CustomBadRequestException("Payment processor does not exists. Id="+resourceProcessorCode.getPaymentProcessorId());
 				}
 				if (!resourceProcessorCode.getCode().isEmpty() && !resourceProcessorCode.getDescription().isEmpty()) {
@@ -249,9 +256,10 @@ public class InternalResponseCodeService {
 						}
 					}
 
+					LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
 					Set<Long> internalSet = new HashSet<Long>();
 					if (paymentProcessorResponseCode == null) {
-						LOGGER.info("Creating new payment processor response code {}", resourceProcessorCode.getCode());
+						LOGGER.debug("Creating new payment processor response code {}", resourceProcessorCode.getCode());
 						paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
 
 						paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
@@ -264,6 +272,7 @@ public class InternalResponseCodeService {
 					} else {
 						Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
 								.getInternalResponseCode();
+						LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size());
 						if (currentPaymentProcessorInternalResponseCodes != null && !currentPaymentProcessorInternalResponseCodes.isEmpty()) {
 							for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
 								if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
@@ -301,7 +310,7 @@ public class InternalResponseCodeService {
 					newMapOfPaymentProcessorResponseCodes.put(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),paymentProcessorResponseCode);
 				} else {
 					if (resourceProcessorCode.getCode().isEmpty() && resourceProcessorCode.getDescription().isEmpty()) {
-						LOGGER.info("Removing payment processor code");
+						LOGGER.info("InternalResponseCodeService :: updateInternalResponseCode() : Removing payment processor code");
 					} else {
 						throw new CustomBadRequestException(
 								"Unable to save Payment Processor code with code or description empty.");
@@ -327,6 +336,7 @@ public class InternalResponseCodeService {
 				}
 			}
 
+			LOGGER.info("InternalResponseCodeService :: updateInternalResponseCode() : newPaymentProcessorResponseCode size : ", newPaymentProcessorResponseCode.size()); 
 			// Add the new payment processor response codes
 			for (com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode current : newPaymentProcessorResponseCode) {
 				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode();
@@ -355,6 +365,7 @@ public class InternalResponseCodeService {
 		//List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> paymentProcessorResponseCodeToDelete = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>();
 		List<Long > paymentProcessorResponseCodeIds = paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(id);
 		
+		LOGGER.info("InternalResponseCodeService :: deleteInternalResponseCode() : paymentProcessorResponseCodeIds size : ", paymentProcessorResponseCodeIds.size());
 		internalResponseCodeDAO.delete(internalResponseCodeToDelete);
 		if(paymentProcessorResponseCodeIds != null && !paymentProcessorResponseCodeIds.isEmpty()){
 			paymentProcessorInternalResponseCodeDAO.deletePaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);

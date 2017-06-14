@@ -37,10 +37,12 @@ public class ReconciliationStatusService {
 			throw new CustomNotFoundException(String.format("Unable to find reconciliation status with id = [%s]", id));
 		}
 
+		LOGGER.debug("ReconciliationStatusService :: getReconciliationStatusById() : reconciliationStatus : "+reconciliationStatus);
 		return reconciliationStatus;
 	}
 
 	public List<ReconciliationStatus> getReconciliationStatuses() {
+		LOGGER.info("ReconciliationStatusService :: getReconciliationStatuses() ");
 		return reconciliationStatusDAO.findAll();
 	}
 }

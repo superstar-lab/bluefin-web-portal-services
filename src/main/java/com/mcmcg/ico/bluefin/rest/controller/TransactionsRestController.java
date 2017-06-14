@@ -55,7 +55,7 @@ public class TransactionsRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public Transaction get(@PathVariable("transactionId") String transactionId,
 			@RequestParam(value = "type", required = false, defaultValue = "SALE") String type) {
-		LOGGER.info("Getting transaction information by id = [{}] and type = [{}]", transactionId, type);
+		LOGGER.debug("Getting transaction information by id = [{}] and type = [{}]", transactionId, type);
 
 		return transactionService.getTransactionInformation(transactionId,
 				TransactionTypeCode.valueOf(type.toUpperCase()));
@@ -79,15 +79,16 @@ public class TransactionsRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 
+		LOGGER.info("getTransactions :: servive");
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			search = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 		}
 
-		LOGGER.info("Generating Report with the following filters= {}", search);
+		LOGGER.debug("Generating Report with the following filters= {}", search);
 
 //		String expression = QueryUtil.createExpression(search);
-//		LOGGER.info("Expression="+expression + " for search value="+search);
+//		LOGGER.debug("Expression="+expression + " for search value="+search);
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

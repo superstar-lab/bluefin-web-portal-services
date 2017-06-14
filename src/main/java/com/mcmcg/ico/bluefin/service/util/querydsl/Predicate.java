@@ -65,7 +65,7 @@ class Predicate {
             String collectionType = getCollectionType();
             result = getCollectionPredicate(entityPath, collectionType);
         } else {
-            LOGGER.error("Unable to filter by: {}", criteria.getKey());
+            LOGGER.error("Predicate :: getPredicate() : Unable to filter by: {}", criteria.getKey());
             throw new CustomBadRequestException("Unable to filter by: " + criteria.getKey());
         }
         return result;
@@ -88,7 +88,7 @@ class Predicate {
             }
         } catch (NoSuchMethodException | SecurityException e) {
         }
-        throw new CustomBadRequestException("Unable to filter by " + criteria.getKey());
+        throw new CustomBadRequestException("Predicate :: getCollectionType() : Unable to filter by " + criteria.getKey());
     }
 
     private BooleanExpression getCollectionPredicate(PathBuilder<?> entityPath, String collectionType) {
@@ -114,7 +114,7 @@ class Predicate {
             criteriaValue = matcher.group(1);
         }
         if (criteriaValue == null) {
-            LOGGER.error("Unable to parse value of {}, correct format example [1,2,3]", criteria.getKey());
+            LOGGER.error("Predicate :: getListFromCriteria() : Unable to parse value of {}, correct format example [1,2,3]", criteria.getKey());
             throw new CustomBadRequestException(
                     "Unable to parse value of " + criteria.getKey() + ", correct format example [1,2,3]");
         } else if (criteriaValue.isEmpty()) {
@@ -136,7 +136,7 @@ class Predicate {
                     .collect(Collectors.toList());
             return result;
         } else {
-            LOGGER.error("Unable to parse value of {}, correct format example [XXXXX,YYYYYY,ZZZZZ]", criteria.getKey());
+            LOGGER.error("Predicate :: getStringListFromCriteria() : Unable to parse value of {}, correct format example [XXXXX,YYYYYY,ZZZZZ]", criteria.getKey());
             throw new CustomBadRequestException(
                     "Unable to parse value of " + criteria.getKey() + ", correct format example [XXXXX,YYYYYY,ZZZZZ]");
         }
@@ -155,7 +155,7 @@ class Predicate {
             }
         }
 
-        LOGGER.error("Unable to parse date value of {}", criteria.getKey());
+        LOGGER.error("Predicate :: getDatePredicate() : Unable to parse date value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse date value of " + criteria.getKey());
     }
 
@@ -172,7 +172,7 @@ class Predicate {
             }
         }
 
-        LOGGER.error("Unable to parse numeric value of {}", criteria.getKey());
+        LOGGER.error("Predicate :: getNumericPredicate() : Unable to parse numeric value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse numeric value of " + criteria.getKey());
     }
 
@@ -189,7 +189,7 @@ class Predicate {
             }
         }
 
-        LOGGER.error("Unable to parse numeric value of {}", criteria.getKey());
+        LOGGER.error("Predicate :: getLongNumericPredicate() :  Unable to parse numeric value of {}", criteria.getKey());
         throw new CustomBadRequestException("Unable to parse numeric value of " + criteria.getKey());
     }
 
@@ -207,7 +207,7 @@ class Predicate {
                 }
             }
 
-            LOGGER.error("Unable to parse string value of {}", criteria.getKey());
+            LOGGER.error("Predicate :: getStringPredicate() :  Unable to parse string value of {}", criteria.getKey());
         }
         throw new CustomBadRequestException("Unable to parse string value of " + criteria.getKey());
     }
@@ -218,7 +218,7 @@ class Predicate {
             df.setLenient(false);
             return df.parse(date);
         } catch (ParseException e) {
-            LOGGER.error("Unable to parse date value");
+            LOGGER.error("Predicate :: isValidDate() :  Unable to parse date value");
             return null;
         }
     }
