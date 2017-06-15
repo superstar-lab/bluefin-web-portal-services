@@ -47,8 +47,9 @@ public class InternalResponseCode implements Serializable {
         if (paymentProcessorInternalResponseCode == null) {
             this.paymentProcessorInternalResponseCodes = new HashSet<PaymentProcessorInternalResponseCode>();
         }
-
-        paymentProcessorInternalResponseCode.setInternalResponseCode(this);
+        if (paymentProcessorInternalResponseCode != null) {
+        	paymentProcessorInternalResponseCode.setInternalResponseCode(this); 
+        }
         paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
     }
 }

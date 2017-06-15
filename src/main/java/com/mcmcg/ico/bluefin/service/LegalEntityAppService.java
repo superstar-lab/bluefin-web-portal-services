@@ -152,6 +152,8 @@ public class LegalEntityAppService {
 
 		if (result.size() == legalEntityAppsIds.size()) {
 			return result;
+		} else {
+			LOGGER.debug("Legal entities app ids size ="+legalEntityAppsIds+" is not equal to results size="+result.size() +" returned from DB");
 		}
 
 		// Create a detail error

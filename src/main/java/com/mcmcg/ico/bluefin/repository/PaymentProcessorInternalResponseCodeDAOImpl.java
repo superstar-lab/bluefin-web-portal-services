@@ -171,6 +171,8 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 				deleteInternalResponseCodeIds(internalStatusCodeIds);
 				LOGGER.debug("PaymentProcessorInternalResponseCodeDAOImpl :: deletePaymentProcessorInternalResponseCodeForPaymentProcessor() : InternalStatusCodeIds deletion completed");
 			}
+		} else {
+			LOGGER.debug("Payment processor internal response code Ids found zero for payment processor id="+paymentProcessorId);
 		}
 	}
 	

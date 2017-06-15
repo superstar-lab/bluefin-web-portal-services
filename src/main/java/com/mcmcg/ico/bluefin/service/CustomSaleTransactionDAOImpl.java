@@ -211,16 +211,20 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			}
 		});
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : QueryTotal_Count Result=" + countResult);
-
-		String result_FinalQueryToExecute = result.getFinalQueryToExecute();
-		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+(result_FinalQueryToExecute));
-		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Query Parameter Map-placeholder:"+result.getParametersMap());
-		List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
-		if (tr == null) {
-			tr = new ArrayList<SaleTransaction>();
+		Page<SaleTransaction> list = null;
+		if (result != null) {
+			String result_FinalQueryToExecute = result.getFinalQueryToExecute();
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+(result_FinalQueryToExecute));
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Query Parameter Map-placeholder:"+result.getParametersMap());
+			List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
+			if (tr == null) {
+				tr = new ArrayList<SaleTransaction>();
+			}
+			list = new PageImpl<SaleTransaction>(tr,page,countResult); 
+		} else {
+			list = new PageImpl<SaleTransaction>( new ArrayList<SaleTransaction>(),page,countResult);
 		}
-		Page<SaleTransaction> list = new PageImpl<SaleTransaction>(tr,page,countResult);
 		return list;
 	}
 
@@ -235,6 +239,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			queryObj.setPagination(true);
 			queryObj.setPageSize(page.getPageSize());
 			queryObj.setPageNumber(page.getPageNumber());
+		} else {
+			LOGGER.debug("Page object or query object found null");
 		}
 		query = queryObj.getFinalQueryToExecute();
 		queryObj.setPagination(false);
@@ -254,6 +260,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
 		if (tr == null) {
 			tr = new ArrayList<PaymentProcessorRemittance>();
+		} else {
+			LOGGER.debug("Number of records fetched "+tr+" successfully");
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );

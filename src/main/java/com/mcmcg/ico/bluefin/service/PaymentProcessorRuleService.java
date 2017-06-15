@@ -182,10 +182,11 @@ public class PaymentProcessorRuleService {
     @SuppressWarnings("unused")
     private void validatePaymentProcessorRuleForUnknownCardType(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
             final long loadedPaymentProcessorId) {
-        List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
-                .findByCardType(newPaymentProcessorRule.getCardType().name());
-
-        LOGGER.debug("Entering to PaymentProcessorRuleService :: validatePaymentProcessorRuleForUnknownCardType() : paymentProcessorRules : "+paymentProcessorRules.size());
+    	List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = null;
+    	if (newPaymentProcessorRule != null) {
+    		paymentProcessorRules = paymentProcessorRuleDAO.findByCardType(newPaymentProcessorRule.getCardType().name());
+    	}
+        LOGGER.debug("Entering to PaymentProcessorRuleService :: validatePaymentProcessorRuleForUnknownCardType() : paymentProcessorRules : "+ ( paymentProcessorRules != null ? paymentProcessorRules.size() : 0 ));
         /*
          * Its impossible to have more than one payment processor rules with
          * UNKNOWN transaction type

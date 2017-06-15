@@ -62,9 +62,12 @@ public class PaymentProcessor implements Serializable {
         if (paymentProcessorMerchants == null) {
             this.paymentProcessorMerchants = new HashSet<PaymentProcessorMerchant>();
         }
-
-        paymentProcessorMerchant.setPaymentProcessorId(this.paymentProcessorId);
-        paymentProcessorMerchants.add(paymentProcessorMerchant);
+        if (paymentProcessorMerchant != null) {
+        	paymentProcessorMerchant.setPaymentProcessorId(this.paymentProcessorId);
+        }
+        if (paymentProcessorMerchants != null) {
+        	paymentProcessorMerchants.add(paymentProcessorMerchant);
+        }
     }
 
     @JsonIgnore
