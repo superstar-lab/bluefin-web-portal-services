@@ -209,18 +209,21 @@ public class PaymentProcessorService {
 		// User wants to clear payment processor merchants from payment
 		// processor
 		if (paymentProcessorMerchants.isEmpty()) {
-			paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
-			// Deleting PaymentProcessorMerchant from DB for specific payment
-			// processor id.
-			paymentProcessorMerchantDAO
-					.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId());
+			if (paymentProcessorToUpdate != null) {
+				paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
+				// Deleting PaymentProcessorMerchant from DB for specific payment
+				// processor id.
+				paymentProcessorMerchantDAO
+					.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId()); 
+			}
 			return paymentProcessorToUpdate;
 		} else {
-			for (PaymentProcessorMerchant paymentProcessorMerchant : paymentProcessorToUpdate.getPaymentProcessorMerchants()) {
-				PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(paymentProcessorToUpdate.getPaymentProcessorId());
-				paymentProcessorMerchant.setPaymentProcessorId(paymentProcessor.getPaymentProcessorId());
+			if (paymentProcessorToUpdate != null) {
+				for (PaymentProcessorMerchant paymentProcessorMerchant : paymentProcessorToUpdate.getPaymentProcessorMerchants()) {
+					PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(paymentProcessorToUpdate.getPaymentProcessorId());
+					paymentProcessorMerchant.setPaymentProcessorId(paymentProcessor.getPaymentProcessorId());
+				}
 			}
-
 		}
 
 		// New payment processor merchants that need to be created or updated

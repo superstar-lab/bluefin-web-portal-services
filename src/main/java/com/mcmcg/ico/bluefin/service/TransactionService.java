@@ -168,12 +168,12 @@ public class TransactionService {
 		User user = userDAO.findByUsername(username);
 		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : user : "+(user == null ? null : user.getUserId()));
 		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
-		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
-			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
-			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
-
+		if (user != null) {
+			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+				long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+				list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
+			}
 		}
-
 		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : result list size : "+list.size());
 		return list;
 	}

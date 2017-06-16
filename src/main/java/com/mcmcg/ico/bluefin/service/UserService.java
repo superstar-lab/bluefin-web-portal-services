@@ -152,10 +152,11 @@ public class UserService {
 		User user = userDAO.findByUsername(username);
 		LOGGER.debug("UserService :: getLegalEntitiesByUser() : user id : "+(user == null ? null : user.getUserId()));
 		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
-		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
-			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
-			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
-
+		if (user != null) {
+			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+				long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+				list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
+			}
 		}
 		return (user == null || userLegalEntityAppDAO.findByUserId(user.getUserId()).isEmpty())
 				? new ArrayList<LegalEntityApp>() : list;
@@ -449,13 +450,15 @@ public class UserService {
 		Boolean hasPermission = false;
 		LOGGER.debug("UserService :: hasPermissionToManageAllUsers() : authentication : "
 				+(authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size())));
-		for (GrantedAuthority authority : authentication.getAuthorities()) {
-			String userAuthority = authority.getAuthority();
-			if (userAuthority.equals("ADMINISTRATIVE") || userAuthority.equals("MANAGE_ALL_USERS")) {
-				hasPermission = true;
-			}
-			if (hasPermission) {
-				break;
+		if (authentication != null) {
+			for (GrantedAuthority authority : authentication.getAuthorities()) {
+				String userAuthority = authority.getAuthority();
+				if (userAuthority.equals("ADMINISTRATIVE") || userAuthority.equals("MANAGE_ALL_USERS")) {
+					hasPermission = true;
+				}
+				if (hasPermission) {
+					break;
+				}
 			}
 		}
 		LOGGER.debug("UserService :: hasPermissionToManageAllUsers() : hasPermission : "+hasPermission);

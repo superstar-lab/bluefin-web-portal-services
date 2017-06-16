@@ -196,7 +196,7 @@ public class PaymentProcessorRuleService {
                     "Please verify payment processor rule table because there is more than one UNKNOWN transaction type.");
         }
 
-        if (paymentProcessorRules.isEmpty()) {
+        if (paymentProcessorRules != null && paymentProcessorRules.size() == 0) {
             /*
              * Verify when doesn't exist one rule with UNKNOWN. ONLY create is
              * allowed
