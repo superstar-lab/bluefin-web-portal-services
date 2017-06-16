@@ -257,16 +257,20 @@ public class PaymentProcessorService {
 		// Add the new payment processor merchants
 		for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
 			if (!PaymentProcessorMerchantsToKeep.contains(legalEntityId)) {
-				paymentProcessorToUpdate.addPaymentProcessorMerchant(
+				if (paymentProcessorToUpdate != null) {
+					paymentProcessorToUpdate.addPaymentProcessorMerchant(
 						newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant());
+				}
 			}
 		}
-		
-		paymentProcessorMerchantDAO
+		if (paymentProcessorToUpdate != null) {
+			paymentProcessorMerchantDAO
 				.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId());
-		paymentProcessorMerchantDAO
+			paymentProcessorMerchantDAO
 				.createPaymentProcessorMerchants(paymentProcessorToUpdate.getPaymentProcessorMerchants());
-		LOGGER.debug("Exiting from PaymentProcessorService :: updatePaymentProcessorMerchants() ");
+			LOGGER.debug("Exiting from PaymentProcessorService :: updatePaymentProcessorMerchants() ");
+		}
+		
 		return paymentProcessorToUpdate;
 
 	}

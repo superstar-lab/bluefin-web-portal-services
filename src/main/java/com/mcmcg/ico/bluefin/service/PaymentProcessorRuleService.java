@@ -220,12 +220,13 @@ public class PaymentProcessorRuleService {
 	            } 
             }
         }
-
-        // When maximumMonthlyAmount is NOT zero then throw an error
-        if (newPaymentProcessorRule.getMaximumMonthlyAmount().compareTo(BigDecimal.ZERO) != 0
+        if (newPaymentProcessorRule != null) {
+        	// When maximumMonthlyAmount is NOT zero then throw an error
+        	if (newPaymentProcessorRule.getMaximumMonthlyAmount().compareTo(BigDecimal.ZERO) != 0
                 || newPaymentProcessorRule.getNoMaximumMonthlyAmountFlag().equals((short) 0)) {
-            throw new CustomBadRequestException(
+        		throw new CustomBadRequestException(
                     "Unable to create payment processor rule as UNKNOWN because MaximumMonthlyAmount must be zero and NoMaximumMonthlyAmountFlag must be 1.");
+        	} 
         }
         LOGGER.info("Exit from PaymentProcessorRuleService :: validatePaymentProcessorRuleForUnknownCardType()");
     }
