@@ -306,11 +306,13 @@ public class SessionService {
 		LOGGER.info("Entering SessionService :: sessionHasPermissionToManageAllLegalEntities()");
 		Boolean hasPermission = false;
 		LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : authentication size is :"+(authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size())));
-		for (GrantedAuthority authority : authentication.getAuthorities()) {
-			hasPermission = authority.getAuthority().equals("ADMINISTRATIVE");
-			LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : hasPermission : "+hasPermission);
-			if (hasPermission) {
-				break;
+		if (authentication != null) {
+			for (GrantedAuthority authority : authentication.getAuthorities()) {
+				hasPermission = authority.getAuthority().equals("ADMINISTRATIVE");
+				LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : hasPermission : "+hasPermission);
+				if (hasPermission) {
+					break;
+				}
 			}
 		}
 		LOGGER.info("Exit from SessionService :: sessionHasPermissionToManageAllLegalEntities()");
