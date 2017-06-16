@@ -152,10 +152,16 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	public void deletePaymentProcessorInternalResponseCodeForPaymentProcessor(Long paymentProcessorId) {
 		LOGGER.debug("PaymentProcessorInternalResponseCodeDAOImpl :: deletePaymentProcessorInternalResponseCodeForPaymentProcessor() : Delete Payment processr status code for paymentprocessorid="+paymentProcessorId);
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = fetchInternalResponseCodeIdsUsedForPaymentProcessor(paymentProcessorId);
-		LOGGER.debug("deletePaymentProcessorInternalResponseCodeForPaymentProcessor : Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
-		boolean idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCodeFetched = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null ? true : false;
 		
-		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCodeFetched) {
+		
+		
+		
+		LOGGER.debug("deletePaymentProcessorInternalResponseCodeForPaymentProcessor : Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null ? idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() : 0 ) + " for paymentprocessid="+paymentProcessorId );
+		
+		
+		
+		
+		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null && idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() > 0) {
 			Set<Entry<Long,List<Long>>> allEntries = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.entrySet();
 			List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<Long>();
 			List<Long> internalStatusCodeIds = new ArrayList<Long>();
