@@ -115,17 +115,15 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : allEntries size : "+allEntries.size());
 			List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<Long>();
 			List<Long> internalStatusCodeIds = new ArrayList<Long>();
-			if (allEntries != null && allEntries.size() > 0) {
-				for (Entry<Long,List<Long>> entry : allEntries ) {
-					internalStatusCodeIds.add(entry.getKey());
-					paymentProcessorInternalStatusCodeIds.addAll(entry.getValue());
-				}
+			for (Entry<Long,List<Long>> entry : allEntries ) {
+				internalStatusCodeIds.add(entry.getKey());
+				paymentProcessorInternalStatusCodeIds.addAll(entry.getValue());
 			}
-			if (!paymentProcessorInternalStatusCodeIds.isEmpty()) {
+			if (paymentProcessorInternalStatusCodeIds.size() > 0) {
 				deletePaymentProcessorInternalStatusCodeIds(paymentProcessorInternalStatusCodeIds);
 				LOGGER.info("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : PaymentProcessorInternalStatusCodeIds deletion completed");
 			}
-			if (!internalStatusCodeIds.isEmpty()) {
+			if (internalStatusCodeIds.size() > 0) {
 				deleteInternalStatusCodeIds(internalStatusCodeIds);
 				LOGGER.info("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : InternalStatusCodeIds deletion completed");
 			}
