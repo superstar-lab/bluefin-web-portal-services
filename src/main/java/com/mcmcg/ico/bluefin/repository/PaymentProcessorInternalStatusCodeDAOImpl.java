@@ -110,12 +110,12 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : Delete Payment processr status code for paymentprocessorid="+paymentProcessorId);
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = fetchInternalStatusCodeIdsUsedForPaymentProcessor(paymentProcessorId);
 		LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
-		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null && !idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.isEmpty()) {
+		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null || !idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.isEmpty()) {
 			Set<Entry<Long,List<Long>>> allEntries = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.entrySet();
 			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : allEntries size : "+allEntries.size());
 			List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<Long>();
 			List<Long> internalStatusCodeIds = new ArrayList<Long>();
-			if (allEntries != null && !allEntries.isEmpty()) {
+			if (allEntries != null || !allEntries.isEmpty()) {
 				for (Entry<Long,List<Long>> entry : allEntries ) {
 					internalStatusCodeIds.add(entry.getKey());
 					paymentProcessorInternalStatusCodeIds.addAll(entry.getValue());
