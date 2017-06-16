@@ -59,7 +59,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 		List<String> permissions = new ArrayList<String>();
 		List<RolePermission> collection = new ArrayList<RolePermission>();
 		LOGGER.debug("Entering CustomUserDetailsService :: getAuthorities() : with role size : "+(roles != null ? roles.size() : 0));
-		LOGGER.debug("Entering CustomUserDetailsService :: getAuthorities() : with rolePermission collection size : "+(collection != null ? collection.size() : 0));
 		for (UserRole userRole : roles) {
 			long roleId = userRole.getRoleId();
 			collection.addAll(rolePermissionDAO.findByRoleId(roleId));
