@@ -235,7 +235,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : Query Prepared="+query);
 		CustomQuery queryObj = new CustomQuery(query);
-		if ( queryObj != null && page != null ) {
+		if ( page != null ) {
 			queryObj.setPagination(true);
 			queryObj.setPageSize(page.getPageSize());
 			queryObj.setPageNumber(page.getPageNumber());
@@ -264,7 +264,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			LOGGER.debug("Number of records fetched "+tr+" successfully");
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
-		LOGGER.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
+		LOGGER.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Rows Result {}, Data Query Result {}",countResult,tr.size());
 		Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 		return list;
 	}

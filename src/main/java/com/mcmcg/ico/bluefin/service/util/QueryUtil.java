@@ -192,7 +192,7 @@ public class QueryUtil {
 	private static String generateValidLEFilter(String filterKey, List<String> userLegalEntities) {
 		List<String> listFilterValue = getLEListFilterValue(filterKey);
 		LOGGER.debug("QueryUtil :: generateValidLEFilter() : listFilterValue size : "+listFilterValue.size());
-		if (listFilterValue == null || listFilterValue.isEmpty()) {
+		if (listFilterValue == null || listFilterValue.size() == 0) {
 			listFilterValue = userLegalEntities;
 		} else {
 			for (String currentLE : listFilterValue) {

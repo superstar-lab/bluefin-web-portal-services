@@ -216,7 +216,7 @@ public class UserService {
 		}
 
 		// Create a detail error
-		if (result == null || result.isEmpty()) {
+		if (result == null || result.size() == 0) {
 			throw new CustomBadRequestException(
 					"The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
 		}

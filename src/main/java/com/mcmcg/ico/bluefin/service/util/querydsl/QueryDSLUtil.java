@@ -162,7 +162,7 @@ public class QueryDSLUtil {
     private static String generateValidLEFilter(String filterKey, List<String> userLegalEntities) {
         List<String> listFilterValue = getLEListFilterValue(filterKey);
         LOGGER.debug("QueryDSLUtil :: generateValidLEFilter() : listFilterValue : "+listFilterValue.size());
-        if (listFilterValue == null || listFilterValue.isEmpty()) {
+        if (listFilterValue == null || listFilterValue.size() == 0) {
             listFilterValue = userLegalEntities;
         } else {
             for (String currentLE : listFilterValue) {
@@ -275,7 +275,7 @@ public class QueryDSLUtil {
                         "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
             }
         }
-        LOGGER.error("QueryDSLUtil :: getLEListFilterValue() :  result : "+(result == null ? null : result.size()));
+        LOGGER.error("QueryDSLUtil :: getLEListFilterValue() :  result : "+(result != null ? result.size() : 0));
         return result;
 
     }

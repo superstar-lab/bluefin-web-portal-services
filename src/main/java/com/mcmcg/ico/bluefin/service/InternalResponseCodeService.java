@@ -364,10 +364,9 @@ public class InternalResponseCodeService {
 		}
 		//List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> paymentProcessorResponseCodeToDelete = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>();
 		List<Long > paymentProcessorResponseCodeIds = paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(id);
-		
-		LOGGER.info("InternalResponseCodeService :: deleteInternalResponseCode() : paymentProcessorResponseCodeIds size : ", paymentProcessorResponseCodeIds.size());
+		LOGGER.info("InternalResponseCodeService :: deleteInternalResponseCode() : paymentProcessorResponseCodeIds size : ", ( paymentProcessorResponseCodeIds != null ? paymentProcessorResponseCodeIds.size() : 0));
 		internalResponseCodeDAO.delete(internalResponseCodeToDelete);
-		if(paymentProcessorResponseCodeIds != null && !paymentProcessorResponseCodeIds.isEmpty()){
+		if(paymentProcessorResponseCodeIds != null && paymentProcessorResponseCodeIds.size() > 0){
 			paymentProcessorInternalResponseCodeDAO.deletePaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);
 		}
 		

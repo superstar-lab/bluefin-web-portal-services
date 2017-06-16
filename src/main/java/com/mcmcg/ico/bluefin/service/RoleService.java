@@ -98,7 +98,7 @@ public class RoleService {
 		}
 
 		// Create a detail error
-		if (result == null || result.isEmpty()) {
+		if (result == null || result.size() == 0) {
 			throw new CustomBadRequestException("The following roles don't exist.  List = " + rolesIds);
 		}
 

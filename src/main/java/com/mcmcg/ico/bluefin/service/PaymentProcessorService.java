@@ -112,8 +112,10 @@ public class PaymentProcessorService {
 			LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorMerchants size : "+paymentProcessorMerchants.size());
 			processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
 		}
-
-		return result == null ? new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessor>() : result;
+		if (result == null) {
+			result = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessor>();
+		}
+		return result;
 	}
 
 	/**
@@ -234,24 +236,23 @@ public class PaymentProcessorService {
 		// Temporal list of legal entity app ids already updated
 		Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
 	//	Set<Long> PaymentProcessorMerchantsToDelete = new HashSet<Long>();
-
-		// Update information from current payment processor merchants
-		Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate
-				.getPaymentProcessorMerchants().iterator();
-		while (iter.hasNext()) {
-			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant element = iter.next();
-
-			com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
-					.get(element.getLegalEntityAppId());
-			if(ppmr!= null) {
-				element.setMerchantId(ppmr.getMerchantId());
-				element.setTestOrProd(ppmr.getTestOrProd());
-				PaymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
+		if (paymentProcessorToUpdate != null) {
+			// Update information from current payment processor merchants
+			Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate
+					.getPaymentProcessorMerchants().iterator();
+			while (iter.hasNext()) {
+				com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant element = iter.next();
+	
+				com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
+						.get(element.getLegalEntityAppId());
+				if(ppmr!= null) {
+					element.setMerchantId(ppmr.getMerchantId());
+					element.setTestOrProd(ppmr.getTestOrProd());
+					PaymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
+				}
+				
 			}
-			
 		}
-		
-		
 
 		// Add the new payment processor merchants
 		for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
@@ -339,7 +340,7 @@ public class PaymentProcessorService {
 		}
 
 		// Create a detail error
-		if (result == null || result.isEmpty()) {
+		if (result == null || result.size() == 0) {
 			throw new CustomBadRequestException(
 					"The following payment processors don't exist.  List = [" + paymentProcessorIds + "]");
 		}
