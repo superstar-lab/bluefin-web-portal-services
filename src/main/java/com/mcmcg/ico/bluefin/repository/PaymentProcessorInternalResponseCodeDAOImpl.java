@@ -153,11 +153,13 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 		LOGGER.debug("PaymentProcessorInternalResponseCodeDAOImpl :: deletePaymentProcessorInternalResponseCodeForPaymentProcessor() : Delete Payment processr status code for paymentprocessorid="+paymentProcessorId);
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = fetchInternalResponseCodeIdsUsedForPaymentProcessor(paymentProcessorId);
 		LOGGER.debug("deletePaymentProcessorInternalResponseCodeForPaymentProcessor : Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
-		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null || !idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.isEmpty()) {
+		
+		if (idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode != null) {
 			Set<Entry<Long,List<Long>>> allEntries = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.entrySet();
 			List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<Long>();
 			List<Long> internalStatusCodeIds = new ArrayList<Long>();
-			if (allEntries != null && !allEntries.isEmpty()) {
+			
+			if (allEntries != null) {
 				for (Entry<Long,List<Long>> entry : allEntries ) {
 					internalStatusCodeIds.add(entry.getKey());
 					paymentProcessorInternalStatusCodeIds.addAll(entry.getValue());
