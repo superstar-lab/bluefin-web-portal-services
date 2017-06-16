@@ -206,16 +206,18 @@ public class PaymentProcessorRuleService {
                         "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
             }
         } else {
-            /*
-             * Verify when exist one rule with UNKNOWN. ONLY update is allowed
-             * with same id
-             */
-        	com.mcmcg.ico.bluefin.model.PaymentProcessorRule loadedPaymentProcessorRule = paymentProcessorRules.get(0);
-
-            if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || loadedPaymentProcessorRule
-                    .getPaymentProcessorRuleId() != newPaymentProcessorRule.getPaymentProcessorRuleId()) {
-                throw new CustomBadRequestException(
-                        "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
+        	if (paymentProcessorRules != null) {
+	            /*
+	             * Verify when exist one rule with UNKNOWN. ONLY update is allowed
+	             * with same id
+	             */
+	        	com.mcmcg.ico.bluefin.model.PaymentProcessorRule loadedPaymentProcessorRule = paymentProcessorRules.get(0);
+	
+	            if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || loadedPaymentProcessorRule
+	                    .getPaymentProcessorRuleId() != newPaymentProcessorRule.getPaymentProcessorRuleId()) {
+	                throw new CustomBadRequestException(
+	                        "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
+	            } 
             }
         }
 
