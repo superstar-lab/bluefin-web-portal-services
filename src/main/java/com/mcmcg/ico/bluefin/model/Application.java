@@ -11,6 +11,7 @@ public class Application implements Serializable {
 	private String applicationName;
 
 	public Application() {
+		// Default constructor
 	}
 
 	@Override

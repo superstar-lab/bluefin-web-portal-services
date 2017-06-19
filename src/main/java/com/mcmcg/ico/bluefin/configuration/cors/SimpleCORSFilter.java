@@ -24,7 +24,7 @@ public class SimpleCORSFilter implements Filter {
 
     @Autowired
     private PropertyService propertyService;
-
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
@@ -49,9 +49,13 @@ public class SimpleCORSFilter implements Filter {
         chain.doFilter(req, res);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
+    	// No need to provide any implementation
     }
 
+    @Override
     public void destroy() {
+    	// No need to provide any implementation
     }
 }
