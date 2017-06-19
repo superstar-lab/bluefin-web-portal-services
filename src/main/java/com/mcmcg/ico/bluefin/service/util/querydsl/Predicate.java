@@ -87,6 +87,9 @@ class Predicate {
                 }
             }
         } catch (NoSuchMethodException | SecurityException e) {
+        	if (LOGGER.isDebugEnabled()) {
+        		LOGGER.debug("Failed to get collection type");
+        	}
         }
         throw new CustomBadRequestException("Predicate :: getCollectionType() : Unable to filter by " + criteria.getKey());
     }

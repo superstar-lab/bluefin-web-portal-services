@@ -51,6 +51,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 			return jdbcTemplate.queryForObject(Queries.findByInternalResponseCodeAndTransactionTypeName, new Object[] { internalResponseCode,transactionTypeName },
 					new InternalResponseCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found internal response code= {} Transaction Type= {}",internalResponseCode,transactionTypeName);
+        	}
 			return null;
 		}
 	
@@ -94,6 +97,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		try {
 			return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to convert item date");
+        	}
 			return null;
 		}
 	}
@@ -145,6 +151,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 			return jdbcTemplate.queryForObject(Queries.findOneInternalResponseCode, new Object[] { internalResponseCodeId },
 					new InternalResponseCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for internal response code id= {}",internalResponseCodeId);
+        	}
 			return null;
 		}
 	}

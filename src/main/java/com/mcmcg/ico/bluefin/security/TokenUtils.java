@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class TokenUtils {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(TokenUtils.class);
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
@@ -35,6 +37,9 @@ public class TokenUtils {
 			final Claims claims = this.getClaimsFromToken(token);
 			username = claims.getSubject();
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to get claim from token = {}",token);
+        	}
 			return null;
 		}
 		return username;
@@ -46,6 +51,9 @@ public class TokenUtils {
 			final Claims claims = this.getClaimsFromToken(token);
 			created = new Date((Long) claims.get("created"));
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to get date from token = {}",token);
+        	}
 			created = null;
 		}
 		return created;
@@ -57,6 +65,9 @@ public class TokenUtils {
 			final Claims claims = this.getClaimsFromToken(token);
 			type = claims.get("type").toString();
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to get type from token = {}",token);
+        	}
 			type = null;
 		}
 		return type;
@@ -68,6 +79,9 @@ public class TokenUtils {
 			final Claims claims = this.getClaimsFromToken(token);
 			url = claims.get("url").toString();
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to get url from token = {}",token);
+        	}
 			url = null;
 		}
 		return url;
@@ -79,6 +93,9 @@ public class TokenUtils {
 			final Claims claims = this.getClaimsFromToken(token);
 			expiration = claims.getExpiration();
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to get expiration from token = {}",token);
+        	}
 			expiration = null;
 		}
 		return expiration;
@@ -90,6 +107,9 @@ public class TokenUtils {
 			claims = Jwts.parser().setSigningKey(propertyService.getPropertyValue("TOKEN_SECRET_KEY"))
 					.parseClaimsJws(token).getBody();
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to get claims from token = {}",token);
+        	}
 			claims = null;
 		}
 		return claims;

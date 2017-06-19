@@ -123,6 +123,9 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorRuleByID, new Object[] { paymentProcessorRuleId },
 					new PaymentProcessorRuleRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for payment processor rule id = {}",paymentProcessorRuleId);
+        	}
 			return null;
 		}
 	}

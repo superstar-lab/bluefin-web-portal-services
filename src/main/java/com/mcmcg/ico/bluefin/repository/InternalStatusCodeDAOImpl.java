@@ -49,6 +49,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 			return jdbcTemplate.queryForObject(Queries.findByInternalStatusCodeAndTransactionType, new Object[] { internalStatusCode,transactionTypeName },
 					new InternalStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for internal status code = {} , Transaction Type {}",internalStatusCode,transactionTypeName);
+        	}
 			return null;
 		}
 	}
@@ -206,6 +209,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 			return jdbcTemplate.queryForObject(Queries.findInternalStatusCodeById, new Object[] { internalStatusCodeId },
 					new InternalStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for internal status code id = {}",internalStatusCodeId);
+        	}
 			return null;
 		}
 	}

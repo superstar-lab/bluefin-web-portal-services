@@ -88,9 +88,14 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         try {
         	BatchUpload batchUpload = jdbcTemplate.queryForObject(Queries.findOneBatchUpload, new Object[] { id },
                     new BatchUploadRowMapper());
-        	LOGGER.debug("BatchUploadDAOImpl :: findOne() : BatchUpload found as : " + batchUpload);
+        	if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("findOne() : BatchUpload found as : {} ", batchUpload);
+        	}
             return batchUpload;
         } catch (EmptyResultDataAccessException e) {
+        	if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for batch upload id= {}",id);
+        	}
             return null;
         }
     }
@@ -99,6 +104,9 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         try {
             return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
         } catch (Exception e) {
+        	if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to convert item date");
+        	}
             return null;
         }
     }

@@ -41,6 +41,9 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 		return jdbcTemplate.queryForObject(Queries.findPreferenceIdByPreferenceId,
 				new Object[] { userId, preferenceId }, new UserPreferenceRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for user id = {} with preference id = {}",userId,preferenceId);
+        	}
 			return null;
 		}
 	}

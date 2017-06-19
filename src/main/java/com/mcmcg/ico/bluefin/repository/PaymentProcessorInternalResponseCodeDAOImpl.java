@@ -59,6 +59,9 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 		try {
 			return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
 		} catch (Exception e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("Failed to convert item date");
+        	}
 			return null;
 		}
 	}

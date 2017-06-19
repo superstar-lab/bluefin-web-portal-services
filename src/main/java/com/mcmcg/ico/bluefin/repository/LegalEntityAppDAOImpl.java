@@ -48,6 +48,9 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			return jdbcTemplate.queryForObject(Queries.findByLegalEntityAppName, new Object[] { legalEntityAppName },
 					new LegalEntityAppRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for legal entity app = {}",legalEntityAppName);
+        	}
 			return null;
 		}
 	}
@@ -58,9 +61,14 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		try {
 			legalEntityApp = jdbcTemplate.queryForObject(Queries.findByLegalEntityAppId, new Object[] { legalEntityAppId },
 					new LegalEntityAppRowMapper());
-			LOGGER.debug("LegalEntityAppDAOImpl :: findByLegalEntityAppId() : legalEntityApp: " + legalEntityApp);
+			if ( LOGGER.isDebugEnabled() ) {
+				LOGGER.debug("LegalEntityAppDAOImpl :: findByLegalEntityAppId() : legalEntityApp: " + legalEntityApp);
+			}
 			return legalEntityApp;
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for legal entity app id = {}",legalEntityAppId);
+        	}
 			return null;
 		}
 

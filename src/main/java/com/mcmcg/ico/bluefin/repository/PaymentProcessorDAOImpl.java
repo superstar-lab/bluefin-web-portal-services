@@ -40,7 +40,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 @Repository
 public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorDAOImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -57,6 +57,9 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorById, new Object[] { paymentProcessorId },
 					new PaymentProcessorRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for payment processor id = {}",paymentProcessorId);
+        	}
 			return null;
 		}
 	}
@@ -95,6 +98,9 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorByName, new Object[] { processorName },
 					new PaymentProcessorRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for payment processor name = {}",processorName);
+        	}
 			return null;
 		}
 	}

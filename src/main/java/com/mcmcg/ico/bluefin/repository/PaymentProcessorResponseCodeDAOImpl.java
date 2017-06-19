@@ -139,6 +139,9 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 			LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: findOne() : paymentProcessorResponseCode " + paymentProcessorResponseCode);
 			return paymentProcessorResponseCode;
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for payment processor response code id = {}",paymentProcessorCodeId);
+        	}
 			return null;
 		}
 		

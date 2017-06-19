@@ -126,7 +126,9 @@ public class LegalEntityAppService {
 			deleteUserLegalEntityApp(id);
 			legalEntityAppDAO.deleteLegalEntityApp(legalEntityAppToDelete);
 		} catch (DataIntegrityViolationException exp) {
-			LOGGER.debug(exp.getMessage());
+			if ( LOGGER.isDebugEnabled() ) {
+				LOGGER.debug("Failed to delete legal entity app , Exp Message= {}",exp.getMessage());
+			}
 			LOGGER.error("LegalEntityAppService :: deleteLegalEntityApp : Legal Entity= {} with id = {} already in use.",id,legalEntityAppToDelete.getLegalEntityAppName() );
 			throw new CustomNotFoundException("Unable to delete this legal entity. There are active payment processor merchant ids that are mapped to this legal entity.");
 		}

@@ -100,6 +100,9 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorStatusCodeById, new Object[] { paymentProcessorStatusCode },
 					new PaymentProcessorStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for payment processor status code id = {}",paymentProcessorStatusCode);
+        	}
 			return null;
 		}
 	}
