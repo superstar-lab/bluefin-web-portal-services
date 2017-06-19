@@ -276,12 +276,9 @@ public class QueryDSLUtil {
                         "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
             }
         }
-        int resultSize = 0;
-        if (result != null) {
-        	resultSize = result.size();
+        if (LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("getLEListFilterValue() :  result : "+ ( result ) );
         }
-        LOGGER.error("QueryDSLUtil :: getLEListFilterValue() :  result : "+resultSize);
         return result;
-
     }
 }

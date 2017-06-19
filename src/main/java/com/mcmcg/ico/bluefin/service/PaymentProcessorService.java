@@ -94,28 +94,34 @@ public class PaymentProcessorService {
 	 */
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessor> getPaymentProcessors() {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessor> result = paymentProcessorDAO.findAll();
-		LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : PaymentProcessor result size : "+result.size());
-		for (com.mcmcg.ico.bluefin.model.PaymentProcessor processor : result) {
-			boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
-			if (processor.isActive() && !isReadyToBeActivated) {
-				processor.setIsActive((short) 0);
-				isReadyToBeActivated = false;
+		if (result != null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : PaymentProcessor result size : {} ",result.size());
 			}
-			processor.setReadyToBeActivated(isReadyToBeActivated);
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
-					.findPaymentProccessorRulByProcessorId(processor.getPaymentProcessorId());
-			LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorRules size : "+paymentProcessorRules.size());
-			processor.setPaymentProcessorRules(paymentProcessorRules);
-
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
-					.findPaymentProccessorMerchantByProcessorId(processor.getPaymentProcessorId());
-			LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorMerchants size : "+paymentProcessorMerchants.size());
-			processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
+			for (com.mcmcg.ico.bluefin.model.PaymentProcessor processor : result) {
+				boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
+				if (processor.isActive() && !isReadyToBeActivated) {
+					processor.setIsActive((short) 0);
+					isReadyToBeActivated = false;
+				}
+				processor.setReadyToBeActivated(isReadyToBeActivated);
+				List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
+						.findPaymentProccessorRulByProcessorId(processor.getPaymentProcessorId());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorRules size : {}",paymentProcessorRules.size());
+				}
+				processor.setPaymentProcessorRules(paymentProcessorRules);
+	
+				List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
+						.findPaymentProccessorMerchantByProcessorId(processor.getPaymentProcessorId());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorMerchants size : {} ",paymentProcessorMerchants.size());
+				}
+				processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
+			} 
+			return result;
 		}
-		if (result == null) {
-			result = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessor>();
-		}
-		return result;
+		return new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessor>();
 	}
 
 	/**
@@ -339,12 +345,12 @@ public class PaymentProcessorService {
 		LOGGER.info("Entering to PaymentProcessorService :: getPaymentProcessorsByIds() ");
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessor> result = paymentProcessorDAO.findAll(paymentProcessorIds);
 
-		if (result.size() == paymentProcessorIds.size()) {
+		if (result != null && result.size() == paymentProcessorIds.size()) {
 			return result;
 		}
 
 		// Create a detail error
-		if (result == null || result.size() == 0) {
+		if (result == null || result.isEmpty() ) {
 			throw new CustomBadRequestException(
 					"The following payment processors don't exist.  List = [" + paymentProcessorIds + "]");
 		}

@@ -91,14 +91,15 @@ public class RoleService {
 	public List<Role> getRolesByIds(Set<Long> rolesIds) {
 		List<Long> list = new ArrayList<Long>(rolesIds);
 		List<Role> result = roleDAO.findAll(list);
-
-		LOGGER.debug("Exiting from RoleService :: getRolesByIds() : Role result size : "+result.size());
-		if (result.size() == rolesIds.size()) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Exiting from RoleService :: getRolesByIds() : Role result size :{} ",result.size());
+		}
+		if (result != null && result.size() == rolesIds.size()) {
 			return result;
 		}
 
 		// Create a detail error
-		if (result == null || result.size() == 0) {
+		if (result == null || result.isEmpty()) {
 			throw new CustomBadRequestException("The following roles don't exist.  List = " + rolesIds);
 		}
 

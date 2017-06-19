@@ -209,14 +209,15 @@ public class UserService {
 	 */
 	public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
 		List<LegalEntityApp> result = legalEntityAppDAO.findAll(new ArrayList<Long>(legalEntityAppsIds));
-
-		LOGGER.debug("UserService :: getLegalEntityAppsByIds() : LegalEntityApp result size : "+result.size());
-		if (result.size() == legalEntityAppsIds.size()) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("UserService :: getLegalEntityAppsByIds() : LegalEntityApp result size : {}",result.size());
+		}
+		if (result != null && result.size() == legalEntityAppsIds.size()) {
 			return result;
 		}
 
 		// Create a detail error
-		if (result == null || result.size() == 0) {
+		if (result == null || result.isEmpty()) {
 			throw new CustomBadRequestException(
 					"The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
 		}
