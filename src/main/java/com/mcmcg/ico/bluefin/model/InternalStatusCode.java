@@ -117,7 +117,7 @@ public class InternalStatusCode implements Serializable {
 	
 	public List<PaymentProcessorInternalStatusCode> getPaymentProcessorInternalStatusCodes() {
 		if (paymentProcessorInternalStatusCodes == null) {
-			paymentProcessorInternalStatusCodes = new ArrayList<PaymentProcessorInternalStatusCode>();
+			paymentProcessorInternalStatusCodes = new ArrayList<>();
 		}
 		return paymentProcessorInternalStatusCodes;
 	}

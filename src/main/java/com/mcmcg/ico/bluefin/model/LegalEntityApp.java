@@ -28,6 +28,7 @@ public class LegalEntityApp implements Serializable {
 	private Short isActive = 1;
 
 	public LegalEntityApp() {
+		// Default constructor
 	}
 
 	public LegalEntityApp(long legalEntityAppId) {

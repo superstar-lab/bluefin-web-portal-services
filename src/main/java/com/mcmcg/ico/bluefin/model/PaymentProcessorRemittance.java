@@ -17,12 +17,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 public class PaymentProcessorRemittance implements Serializable, Transaction {
-
-	
-
 	private static final long serialVersionUID = -7696931237337114459L;
 
 	public PaymentProcessorRemittance() {
+		// Default constructor
 	}
 
 	public PaymentProcessorRemittance(Long paymentProcessorRemittanceId, DateTime dateCreated,
@@ -474,7 +472,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	public void setTransactionAmount(BigDecimal transactionAmount) {
 		this.transactionAmount = transactionAmount;
 	}
-
+	@Override
 	public String getTransactionType() {
 		return transactionType;
 	}
@@ -582,7 +580,6 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	@JsonProperty("remittance.applicationTransactionId")
     @Override
 	public String getApplicationTransactionId() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

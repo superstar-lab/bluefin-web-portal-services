@@ -7,9 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
@@ -28,14 +26,6 @@ public class PaymentProcessorMerchant implements Serializable {
     private Long legalEntityAppId;
     
     private Long paymentProcessorId;
-
-  /*  @JsonProperty(value = "legalEntityAppId")
-    @JsonIdentityReference(alwaysAsId = true)
-    private LegalEntityApp legalEntityApp;*/
-
- /*   @JsonProperty(value = "paymentProcessorId")
-    @JsonIdentityReference(alwaysAsId = true)
-    private PaymentProcessor paymentProcessor;*/
 
     @JsonIgnore
     private String lastModifiedBy;

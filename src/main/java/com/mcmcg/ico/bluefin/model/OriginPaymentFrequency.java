@@ -22,6 +22,7 @@ public class OriginPaymentFrequency implements Serializable {
 	private String modifiedBy;
 
 	public OriginPaymentFrequency() {
+		// Default constructor
 	}
 
 	@Override

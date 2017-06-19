@@ -52,6 +52,7 @@ public class PaymentProcessor implements Serializable {
     private boolean readyToBeActivated;
 
     public PaymentProcessor() {
+    	// Default constructor
     }
 
     public PaymentProcessor(Long value) {
@@ -60,7 +61,7 @@ public class PaymentProcessor implements Serializable {
 
     public void addPaymentProcessorMerchant(PaymentProcessorMerchant paymentProcessorMerchant) {
         if (paymentProcessorMerchants == null) {
-            this.paymentProcessorMerchants = new HashSet<PaymentProcessorMerchant>();
+            this.paymentProcessorMerchants = new HashSet<>();
         }
         if (paymentProcessorMerchant != null) {
         	paymentProcessorMerchant.setPaymentProcessorId(this.paymentProcessorId);
