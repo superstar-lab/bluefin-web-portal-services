@@ -153,8 +153,7 @@ public class UserRestController {
 		// Checks if the Legal Entities given are valid according with the
 		// LegalEntities owned
 		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, newUser.getLegalEntityApps())) {
-			throw new AccessDeniedException(
-					String.format("User doesn't have access to add by legal entity restriction"));
+			throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
 		}
 
 		LOGGER.debug("Creating new account for user: {}", newUser.getUsername());
