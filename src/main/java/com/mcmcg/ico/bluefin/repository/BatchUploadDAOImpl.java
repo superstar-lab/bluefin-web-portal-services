@@ -94,7 +94,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
             return batchUpload;
         } catch (EmptyResultDataAccessException e) {
         	if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for batch upload id= {}",id);
+        		LOGGER.debug("No record found for batch upload id= {}",id,e);
         	}
             return null;
         }
@@ -105,7 +105,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
             return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
         } catch (Exception e) {
         	if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to convert item date");
+        		LOGGER.debug("Failed to convert item date",e);
         	}
             return null;
         }

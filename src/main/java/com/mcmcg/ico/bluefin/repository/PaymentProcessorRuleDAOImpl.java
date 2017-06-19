@@ -124,7 +124,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 					new PaymentProcessorRuleRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for payment processor rule id = {}",paymentProcessorRuleId);
+        		LOGGER.debug("No record found for payment processor rule id = {}",paymentProcessorRuleId,e);
         	}
 			return null;
 		}

@@ -49,7 +49,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 					new LegalEntityAppRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for legal entity app = {}",legalEntityAppName);
+        		LOGGER.debug("No record found for legal entity app = {}",legalEntityAppName,e);
         	}
 			return null;
 		}
@@ -67,7 +67,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			return legalEntityApp;
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for legal entity app id = {}",legalEntityAppId);
+        		LOGGER.debug("No record found for legal entity app id = {}",legalEntityAppId,e);
         	}
 			return null;
 		}

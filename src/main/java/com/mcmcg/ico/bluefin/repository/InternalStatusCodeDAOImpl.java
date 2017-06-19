@@ -50,7 +50,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 					new InternalStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for internal status code = {} , Transaction Type {}",internalStatusCode,transactionTypeName);
+        		LOGGER.debug("No record found for internal status code = {} , Transaction Type {}",internalStatusCode,transactionTypeName,e);
         	}
 			return null;
 		}
@@ -210,7 +210,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 					new InternalStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for internal status code id = {}",internalStatusCodeId);
+        		LOGGER.debug("No record found for internal status code id = {}",internalStatusCodeId,e);
         	}
 			return null;
 		}

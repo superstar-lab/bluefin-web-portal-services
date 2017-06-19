@@ -58,7 +58,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 					new PaymentProcessorRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for payment processor id = {}",paymentProcessorId);
+        		LOGGER.debug("No record found for payment processor id = {}",paymentProcessorId,e);
         	}
 			return null;
 		}
@@ -99,7 +99,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 					new PaymentProcessorRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for payment processor name = {}",processorName);
+        		LOGGER.debug("No record found for payment processor name = {}",processorName,e);
         	}
 			return null;
 		}

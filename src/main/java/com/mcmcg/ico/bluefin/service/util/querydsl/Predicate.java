@@ -88,7 +88,7 @@ class Predicate {
             }
         } catch (NoSuchMethodException | SecurityException e) {
         	if (LOGGER.isDebugEnabled()) {
-        		LOGGER.debug("Failed to get collection type");
+        		LOGGER.debug("Failed to get collection type ",e);
         	}
         }
         throw new CustomBadRequestException("Predicate :: getCollectionType() : Unable to filter by " + criteria.getKey());

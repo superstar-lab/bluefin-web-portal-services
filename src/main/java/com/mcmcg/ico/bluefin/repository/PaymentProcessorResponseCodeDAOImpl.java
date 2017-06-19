@@ -140,7 +140,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 			return paymentProcessorResponseCode;
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for payment processor response code id = {}",paymentProcessorCodeId);
+        		LOGGER.debug("No record found for payment processor response code id = {}",paymentProcessorCodeId,e);
         	}
 			return null;
 		}

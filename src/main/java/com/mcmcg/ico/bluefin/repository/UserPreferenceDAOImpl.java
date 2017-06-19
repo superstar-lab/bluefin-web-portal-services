@@ -42,7 +42,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 				new Object[] { userId, preferenceId }, new UserPreferenceRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for user id = {} with preference id = {}",userId,preferenceId);
+        		LOGGER.debug("No record found for user id = {} with preference id = {}",userId,preferenceId,e);
         	}
 			return null;
 		}
@@ -83,7 +83,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 		try {
 			return jdbcTemplate.queryForObject(Queries.findSelectedTimeZoneByUserId, new Object[] { userId },  String.class);
 		} catch (EmptyResultDataAccessException e) {
-			LOGGER.error("UserPreferenceDAOImpl :: getSelectedTimeZone() : No time zone saved for userid="+userId);
+			LOGGER.error("UserPreferenceDAOImpl :: getSelectedTimeZone() : No time zone saved for userid="+userId,e);
 			return null;
 		}
 	}

@@ -105,7 +105,7 @@ public class BatchUploadRestController {
             bytes = file.getBytes();
             lines = countLines(bytes);
         } catch (IOException e1) {
-            throw new CustomBadRequestException("Unable to stream file: " + file.getOriginalFilename());
+            throw new CustomBadRequestException("Unable to stream file: " + file.getOriginalFilename(),e1);
         }
         LOGGER.info("Encoding file content to send it as stream");
         String stream = new String(Base64.encodeBase64(bytes));

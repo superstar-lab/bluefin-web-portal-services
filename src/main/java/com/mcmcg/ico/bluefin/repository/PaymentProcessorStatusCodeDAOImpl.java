@@ -101,7 +101,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 					new PaymentProcessorStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("No record found for payment processor status code id = {}",paymentProcessorStatusCode);
+        		LOGGER.debug("No record found for payment processor status code id = {}",paymentProcessorStatusCode,e);
         	}
 			return null;
 		}

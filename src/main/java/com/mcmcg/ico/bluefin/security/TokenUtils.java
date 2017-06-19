@@ -38,7 +38,7 @@ public class TokenUtils {
 			username = claims.getSubject();
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get claim from token = {}",token);
+        		LOGGER.debug("Failed to get claim from token = {}",token,e);
         	}
 			return null;
 		}
@@ -52,7 +52,7 @@ public class TokenUtils {
 			created = new Date((Long) claims.get("created"));
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get date from token = {}",token);
+        		LOGGER.debug("Failed to get date from token = {}",token,e);
         	}
 			created = null;
 		}
@@ -66,7 +66,7 @@ public class TokenUtils {
 			type = claims.get("type").toString();
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get type from token = {}",token);
+        		LOGGER.debug("Failed to get type from token = {}",token,e);
         	}
 			type = null;
 		}
@@ -80,7 +80,7 @@ public class TokenUtils {
 			url = claims.get("url").toString();
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get url from token = {}",token);
+        		LOGGER.debug("Failed to get url from token = {}",token,e);
         	}
 			url = null;
 		}
@@ -94,7 +94,7 @@ public class TokenUtils {
 			expiration = claims.getExpiration();
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get expiration from token = {}",token);
+        		LOGGER.debug("Failed to get expiration from token = {}",token,e);
         	}
 			expiration = null;
 		}
@@ -108,7 +108,7 @@ public class TokenUtils {
 					.parseClaimsJws(token).getBody();
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get claims from token = {}",token);
+        		LOGGER.debug("Failed to get claims from token = {}",token,e);
         	}
 			claims = null;
 		}
@@ -182,6 +182,9 @@ public class TokenUtils {
 			claims.put("created", this.generateCurrentDate());
 			refreshedToken = this.generateToken(claims);
 		} catch (Exception e) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Failed to refresh token {}",token,e);
+			}
 			refreshedToken = null;
 		}
 		return refreshedToken;
