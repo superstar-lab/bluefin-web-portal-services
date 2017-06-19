@@ -50,7 +50,6 @@ public class InternalStatusCodeService {
 	private TransactionTypeDAO transactionTypeDAO;
 
 	public List<com.mcmcg.ico.bluefin.model.InternalStatusCode> getInternalStatusCodesByTransactionType(final String transactionType) {
-		//TODO - Dheeraj will verify.
 		/*if ("ALL".equals(transactionType)) {
 			
 		}
@@ -59,15 +58,17 @@ public class InternalStatusCodeService {
 			throw new CustomBadRequestException("Transaction type not exists.");
 		}*/
 		List<com.mcmcg.ico.bluefin.model.InternalStatusCode> internalStatusCodeList = internalStatusCodeDAO.findByTransactionTypeNameOrderByInternalStatusCodeAsc(transactionType);
-		LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : internalStatusCodeList size : "+internalStatusCodeList.size());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : internalStatusCodeList size : {}",internalStatusCodeList.size());
+		}
 		if (internalStatusCodeList != null) {
 			for(com.mcmcg.ico.bluefin.model.InternalStatusCode internalStatusCode : internalStatusCodeList){
 				Long internalStatusCodeId = internalStatusCode.getInternalStatusCodeId();
 				List<PaymentProcessorInternalStatusCode> list = paymentProcessorInternalStatusCodeDAO.findAllForInternalStatusCodeId(internalStatusCodeId);
-				
-				LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : PaymentProcessorInternalStatusCode size : "+list.size());
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : PaymentProcessorInternalStatusCode size : {} ",list.size());
+				}
 				for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : list) {
-					//TODO - Dheeraj will verify this.
 					InternalStatusCode internalStatusCode1 = internalStatusCodeDAO.findOne(paymentProcessorInternalStatusCode.getInternalStatusCodeId());
 					paymentProcessorInternalStatusCode.setInternalStatusCode(internalStatusCode1);
 					PaymentProcessorStatusCode paymentProcessorStatusCode = paymentProcessorStatusCodeDAO.findOne(paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
@@ -367,7 +368,9 @@ public class InternalStatusCodeService {
 		}
 		// need to find all payment processor status code ids which used by payment processor internal status code of requested internalStatusCodeId to delete
 		List<Long> paymentProcessorStatusCodeIds = paymentProcessorInternalStatusCodeDAO.findPaymentProcessorStatusCodeIdsForInternalStatusCodeId(internalStatusCodeId);
-		LOGGER.debug("nternalStatusCodeService :: deleteInternalStatusCode() : paymentProcessorStatusCodeIds size : "+paymentProcessorStatusCodeIds.size());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("deleteInternalStatusCode() : paymentProcessorStatusCodeIds size : {}",paymentProcessorStatusCodeIds.size());
+		}
 		// First delete internal status code and payment processor internal status code
 		internalStatusCodeDAO.delete(internalStatusCodeId);
 		// Second delete all payment processor status code which were in used by deleted internal status code
@@ -379,10 +382,14 @@ public class InternalStatusCodeService {
 
 	public com.mcmcg.ico.bluefin.model.InternalStatusCode getInternalStatusCode(Long internalStatusCodeId) {
 		com.mcmcg.ico.bluefin.model.InternalStatusCode internalStatusCode = internalStatusCodeDAO.findOne(internalStatusCodeId);
-		LOGGER.debug("nternalStatusCodeService :: getInternalStatusCode() : internalStatusCode : "+internalStatusCode);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("getInternalStatusCode() : internalStatusCode : {} ",internalStatusCode);
+		}
 		if (internalStatusCode != null) {
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> list = paymentProcessorInternalStatusCodeDAO.findAllForInternalStatusCodeId(internalStatusCodeId);
-			LOGGER.debug("nternalStatusCodeService :: getInternalStatusCode() : PaymentProcessorInternalStatusCode size : "+list.size());
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("getInternalStatusCode() : PaymentProcessorInternalStatusCode size : ",list.size());
+			}
 			if (list != null) {
 				internalStatusCode.setPaymentProcessorInternalStatusCodes(list);
 			}

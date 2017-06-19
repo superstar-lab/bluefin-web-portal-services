@@ -150,14 +150,16 @@ public class LegalEntityAppService {
 	public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
 		List<LegalEntityApp> result = legalEntityAppDAO.findAll(new ArrayList<Long>(legalEntityAppsIds));
 
-		if (result.size() == legalEntityAppsIds.size()) {
+		if (result != null && result.size() == legalEntityAppsIds.size()) {
 			return result;
 		} else {
-			LOGGER.debug("Legal entities app ids size ="+legalEntityAppsIds+" is not equal to results size="+result.size() +" returned from DB");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Legal entities app ids size ="+legalEntityAppsIds+" is not equal to results size="+result.size() +" returned from DB");
+			}
 		}
 
 		// Create a detail error
-		if (result == null || result.size() == 0) {
+		if (result == null || result.isEmpty()) {
 			throw new CustomBadRequestException(
 					"The following legal entity apps don't exist.  List = " + legalEntityAppsIds);
 		}
