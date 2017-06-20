@@ -37,7 +37,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
-	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -114,7 +114,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveLegalEntityApp,
 						Statement.RETURN_GENERATED_KEYS);
@@ -151,11 +151,11 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		// Convert this string to Timestamp, which is supported by
 		// PreparedStatement.
 		DateTime utc2 = new DateTime(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
-		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
+		DateTimeFormatter dateModifiedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		Timestamp dateModified = Timestamp.valueOf(dateModifiedDateFormat.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.updateLegalEntityApp,
 						Statement.RETURN_GENERATED_KEYS);
@@ -185,7 +185,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				com.mcmcg.ico.bluefin.model.UserLegalEntityApp userLegalEntity = userLegalEntities.get(i);
 				DateTime utc1 = userLegalEntity.getDateCreated() != null ? userLegalEntity.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+				Timestamp dateCreated = Timestamp.valueOf(dateCreatedDateFormat.print(utc1));
 				LOGGER.info("Creating child item for , UserLegalEntityApp ");
 				if (userLegalEntity.getUser() != null) {
 					ps.setLong(1, userLegalEntity.getUser().getUserId());
@@ -208,7 +208,7 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 
 	@Override
 	public LegalEntityApp mapRow(ResultSet rs, int row) throws SQLException {
-		Timestamp ts =null;
+		Timestamp ts;
 		LegalEntityApp legalEntityApp = new LegalEntityApp();
 		legalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
 		legalEntityApp.setLegalEntityAppName(rs.getString("LegalEntityAppName"));

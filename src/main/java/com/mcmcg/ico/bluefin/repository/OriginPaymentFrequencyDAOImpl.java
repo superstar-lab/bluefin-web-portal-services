@@ -43,7 +43,7 @@ class OriginPaymentFrequencyRowMapper implements RowMapper<OriginPaymentFrequenc
 		originPaymentFrequency.setOriginPaymentFrequencyId(rs.getLong("OriginPaymentFrequencyID"));
 		originPaymentFrequency.setOrigin(rs.getString("Origin"));
 		originPaymentFrequency.setPaymentFrequency(rs.getString("PaymentFrequency"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if(rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			originPaymentFrequency.setDateCreated(new DateTime(ts));

@@ -87,7 +87,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveInternalStatusCode, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, internalStatusCode.getInternalStatusCode());
@@ -180,10 +180,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 
 		@Override
 		public int compare(InternalStatusCode internalStatusCode_Obj1, InternalStatusCode internalStatusCode_Obj2) {
-			if (internalStatusCode_Obj1 != null && internalStatusCode_Obj2 != null) {
-				if (internalStatusCode_Obj1.getInternalStatusCodeId() != null && internalStatusCode_Obj2.getInternalStatusCodeId() != null) {
-					return internalStatusCode_Obj1.getInternalStatusCodeId().compareTo(internalStatusCode_Obj2.getInternalStatusCodeId());
-				}
+			if (internalStatusCode_Obj1 != null && internalStatusCode_Obj2 != null && internalStatusCode_Obj1.getInternalStatusCodeId() != null 
+					&& internalStatusCode_Obj2.getInternalStatusCodeId() != null) {
+				return internalStatusCode_Obj1.getInternalStatusCodeId().compareTo(internalStatusCode_Obj2.getInternalStatusCodeId()); 
 			}
 			return -1;
 		}
@@ -200,9 +199,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 				}
 				
 			}
-			return new ArrayList<InternalStatusCode>(result.values());
+			return new ArrayList<>(result.values());
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	@Override

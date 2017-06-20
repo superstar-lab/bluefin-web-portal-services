@@ -117,7 +117,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessors,
 						Statement.RETURN_GENERATED_KEYS);
@@ -135,15 +135,6 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		Long id = holder.getKey().longValue();
 		paymentProcessor.setPaymentProcessorId(id);
 		LOGGER.debug("PaymentProcessorDAOImpl :: save() : Saved Payment Processor - id: " + id);
-		
-		/*if(paymentProcessor.getPaymentProcessorRules() != null && !paymentProcessor.getPaymentProcessorRules().isEmpty()) {
-			LOGGER.debug("Number of PaymentprocessorRules childs items {}"+ paymentProcessor.getPaymentProcessorRules().size());
-			for (com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule : paymentProcessor.getPaymentProcessorRules()) {
-				paymentProcessorRule.setPaymentProcessor(paymentProcessor);
-			}
-			paymentProcessorRulesDAO.createPaymentProcessorRules(paymentProcessor.getPaymentProcessorRules());
-		}
-*/
 		return paymentProcessor;
 	}
 
