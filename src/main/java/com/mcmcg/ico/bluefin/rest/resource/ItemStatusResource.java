@@ -17,6 +17,7 @@ public class ItemStatusResource {
     private Boolean completed;
 
     public ItemStatusResource() {
+    	// Default Constructor
     }
 
     public ItemStatusResource(Integer id, String task, Boolean completed) {

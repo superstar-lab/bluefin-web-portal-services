@@ -87,8 +87,6 @@ public class TransactionsRestController {
 
 		LOGGER.debug("Generating Report with the following filters= {}", search);
 
-//		String expression = QueryUtil.createExpression(search);
-//		LOGGER.debug("Expression="+expression + " for search value="+search);
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

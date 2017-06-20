@@ -91,7 +91,7 @@ public class LegalEntityAppRestController {
         }
 
         LOGGER.debug("Creating new legal entity: {}", legalEntityResource.getLegalEntityAppName());
-        return new ResponseEntity<LegalEntityApp>(
+        return new ResponseEntity<>(
                 legalEntityAppService.createLegalEntity(legalEntityResource, authentication.getName()),
                 HttpStatus.CREATED);
     }
@@ -130,6 +130,6 @@ public class LegalEntityAppRestController {
         legalEntityAppService.deleteLegalEntityApp(id);
         LOGGER.debug("Legal Entity {} has been deleted.", id);
 
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
 }

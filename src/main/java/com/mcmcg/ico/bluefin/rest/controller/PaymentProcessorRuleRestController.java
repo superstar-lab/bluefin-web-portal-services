@@ -100,7 +100,7 @@ public class PaymentProcessorRuleRestController {
         }
 
         LOGGER.debug("Creating new payment processor rule: {}", paymentProcessorRuleResource);
-        return new ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(paymentProcessorRuleService.createPaymentProcessorRule(
+        return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRule(
                 paymentProcessorRuleResource.getPaymentProcessorId().longValue(),
                 paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);
     }
@@ -142,6 +142,6 @@ public class PaymentProcessorRuleRestController {
         paymentProcessorRuleService.delete(id);
         LOGGER.debug("Payment processor rule {} has been deleted.", id);
 
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
 }

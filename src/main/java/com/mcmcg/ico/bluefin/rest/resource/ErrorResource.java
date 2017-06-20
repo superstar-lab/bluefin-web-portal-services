@@ -86,7 +86,7 @@ public class ErrorResource implements Serializable {
      */
     public static ResponseEntity<Object> buildErrorResource(HttpStatus httpStatus, UUID uniqueId, Exception exception,
             boolean hasDevelopmentProfileHeader) {
-        return new ResponseEntity<Object>(
+        return new ResponseEntity<>(
                 ErrorResource.buildErrorResource(uniqueId, exception, hasDevelopmentProfileHeader), new HttpHeaders(),
                 httpStatus);
     }

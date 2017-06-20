@@ -122,6 +122,6 @@ public class InternalResponseCodeRestController {
         internalResponseCodeService.deleteInternalResponseCode(id);
         LOGGER.debug("Internal Response Code {} has been deleted.", id);
 
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
 }

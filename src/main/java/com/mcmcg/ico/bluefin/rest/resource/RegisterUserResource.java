@@ -58,18 +58,6 @@ public class RegisterUserResource implements Serializable {
 		for (LegalEntityApp legalEntityApp : legalEntityApps) {
 			user.addLegalEntityApp(legalEntityApp);
 		}
-		
-		// Correct this when fixing code for User.
-		// New User will not contain Role and Legal Entity App.
-		// Create a new object to contain everything?
-		// Roles
-		// for (Role role : roles) {
-		// user.addRole(role);
-		// }
-		// Legal Entity Apps
-		// for (LegalEntityApp legalEntityApp : legalEntityApps) {
-		// user.addLegalEntityApp(legalEntityApp);
-		// }
 
 		return user;
 	}

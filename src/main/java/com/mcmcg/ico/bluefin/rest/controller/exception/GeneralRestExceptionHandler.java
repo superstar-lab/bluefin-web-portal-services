@@ -23,7 +23,7 @@ import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 @ControllerAdvice
 public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeneralRestExceptionHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GeneralRestExceptionHandler.class);
     private static final String DEVELOPMENT_PROFILE = "development";
     private static final String CUSTOM_HEADER_PROFILE = "profile";
 
@@ -84,8 +84,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
 
     private UUID logException(final Exception exception) {
         final UUID uniqueErrorId = UUID.randomUUID();
-        LOGGER.error("[id={}] Error on rest call", uniqueErrorId, exception);
-
+        LOG.error("[id={}] Error on rest call", uniqueErrorId, exception);
         return uniqueErrorId;
     }
 

@@ -98,7 +98,7 @@ public class PaymentProcessorRestController {
         }
 
         LOGGER.debug("Creating new payment processor: {}", paymentProcessorResource.getProcessorName());
-        return new ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessor>(
+        return new ResponseEntity<>(
                 paymentProcessorService.createPaymentProcessor(paymentProcessorResource), HttpStatus.CREATED);
     }
 
@@ -158,6 +158,6 @@ public class PaymentProcessorRestController {
         paymentProcessorService.deletePaymentProcessor(id);
         LOGGER.debug("Payment Processor {} has been deleted.", id);
 
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
 }

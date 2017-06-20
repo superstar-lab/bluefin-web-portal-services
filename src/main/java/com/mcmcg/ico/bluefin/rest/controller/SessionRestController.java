@@ -91,7 +91,7 @@ public class SessionRestController {
         }
 
         sessionService.deleteSession(token);
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
 
     @ApiOperation(value = "refreshAuthanticationToken", nickname = "refreshAuthanticationToken")
@@ -130,23 +130,9 @@ public class SessionRestController {
         LOGGER.debug("Password reset request from user: {}", username);
         sessionService.resetPassword(username);
 
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
-
-/*    @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/consumer/{username}")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Success"),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public BasicTokenResponse registerApplication(@PathVariable String username,@PathVariable Optional<String> emailId,@PathVariable Optional<String> type) {
-        LOGGER.info("Genereting session token for username, emailId and Type: {} {} {}", username,emailId,type);
-
-        return sessionService.registerApplication(username);
-    }*/
-  
+    
     @ApiOperation(value = "Register API consumer", nickname = "registerAPIConsumer")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/api-consumer")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -196,9 +182,6 @@ public class SessionRestController {
     	LOGGER.info("Inside authanticateTransaction ");
         final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
         LOGGER.debug("authanticateTransaction token "+token);
-       /* if (token != null) {
-            return sessionService.validateToken(token);
-        }*/
         if(authentication != null && authentication.isAuthenticated() ){
         	// do nothing, that means filter has already validated token and move forward
         	return true;

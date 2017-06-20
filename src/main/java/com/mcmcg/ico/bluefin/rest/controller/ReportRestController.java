@@ -83,11 +83,10 @@ public class ReportRestController {
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
 		
 		// Below line found in releases while merging, but was not available in develop branch
-		//response.setHeader("Content-Length", Long.toString(downloadFile.length()));
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
-		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 
 	@ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
@@ -119,12 +118,10 @@ public class ReportRestController {
 		// use: WHERE ReconciliationID != 'Reconciled'
 		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(search,"reconciliationStatusId");
 		LOGGER.debug("payment-processor-remittances service ::: reconciliationStatusId : "+reconciliationStatusId);
-		if (reconciliationStatusId != null) {
-			if (reconciliationStatusId.equals("notReconciled")) {
-				String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
-				search = search.replaceAll("notReconciled", id);
-				negate = true;
-			}
+		if ("notReconciled".equals(reconciliationStatusId)) {
+			String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
+			search = search.replaceAll("notReconciled", id);
+			negate = true;
 		}
 		
 		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone,negate);
@@ -135,7 +132,7 @@ public class ReportRestController {
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
-		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 
 	@ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
@@ -160,7 +157,7 @@ public class ReportRestController {
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
-		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 
 	@ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
@@ -186,6 +183,6 @@ public class ReportRestController {
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
 		downloadFile.delete();
-		return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 }

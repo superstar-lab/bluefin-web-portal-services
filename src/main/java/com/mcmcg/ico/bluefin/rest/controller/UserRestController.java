@@ -72,7 +72,7 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 		LOGGER.debug("getUser with username:: service "+username);
-		if (username.equals("me") || username.equals(authentication.getName())) {
+		if ("me".equals(username) || username.equals(authentication.getName())) {
 			username = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
@@ -85,7 +85,7 @@ public class UserRestController {
 		}
 
 		LOGGER.debug("Getting user information: {}", username);
-		return userService.getUserInfomation(username.equals("me") ? authentication.getName() : username);
+		return userService.getUserInfomation("me".equals(username) ? authentication.getName() : username);
 	}
 
 	@ApiOperation(value = "getUsers", nickname = "getUsers")
@@ -113,12 +113,10 @@ public class UserRestController {
 		}
 
 		int anyOtherParamsIndex = search.indexOf("&");
-		if (anyOtherParamsIndex != -1) {
-			if (anyOtherParamsIndex < search.length()) {
-				search = search.substring(0, anyOtherParamsIndex);
-			}
+		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
+			search = search.substring(0, anyOtherParamsIndex);
 		}
-		String[] searchArray = (search!= null && StringUtils.isNotBlank(search)?search.split("\\$\\$"):null);
+		String[] searchArray = search!= null && StringUtils.isNotBlank(search)?search.split("\\$\\$"):null;
 		List<String>  filterList=  null;
 		if(searchArray!=null)
 			filterList = Arrays.asList(searchArray);
@@ -157,7 +155,7 @@ public class UserRestController {
 		}
 
 		LOGGER.debug("Creating new account for user: {}", newUser.getUsername());
-		return new ResponseEntity<UserResource>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
+		return new ResponseEntity<>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
 	}
 
 	@ApiOperation(value = "updateUserProfile", nickname = "updateUserProfile")
@@ -174,7 +172,7 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 		LOGGER.info("updateUserProfile :: service");
-		if (username.equals("me") || username.equals(authentication.getName())) {
+		if ("me".equals(username) || username.equals(authentication.getName())) {
 			username = authentication.getName();
 		} else {
 			if (!userService.hasPermissionToManageAllUsers(authentication)) {
@@ -195,7 +193,7 @@ public class UserRestController {
 		}
 
 		LOGGER.debug("Updating account for user: {}", username);
-		return userService.updateUserProfile(username.equals("me") ? authentication.getName() : username, userToUpdate);
+		return userService.updateUserProfile("me".equals(username) ? authentication.getName() : username, userToUpdate);
 	}
 
 	@ApiOperation(value = "updateUserRoles", nickname = "updateUserRoles")
@@ -215,13 +213,13 @@ public class UserRestController {
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated
 		if (!userService.belongsToSameLegalEntity(authentication,
-				username.equals("me") ? authentication.getName() : username)) {
+				"me".equals(username) ? authentication.getName() : username)) {
 			throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
 		}
 		LOGGER.debug("Updating roles for user: {}", username);
 
 		return new UserResource(
-				userService.updateUserRoles(username.equals("me") ? authentication.getName() : username, roles));
+				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles));
 	}
 
 	@ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
@@ -247,13 +245,13 @@ public class UserRestController {
 		}
 
 		if (!userService.belongsToSameLegalEntity(authentication,
-				username.equals("me") ? authentication.getName() : username)) {
+				"me".equals(username) ? authentication.getName() : username)) {
 			throw new AccessDeniedException("User doesn't have permission to add/remove legal entities to this user.");
 		}
 
 		LOGGER.debug("Updating legalEntities for user: {}", username);
 		return new UserResource(userService
-				.updateUserLegalEntities(username.equals("me") ? authentication.getName() : username, legalEntities));
+				.updateUserLegalEntities("me".equals(username) ? authentication.getName() : username, legalEntities));
 	}
 
 	@ApiOperation(value = "updateUserPassword", nickname = "updateUserPassword")
@@ -274,7 +272,7 @@ public class UserRestController {
 		}
 
 		LOGGER.info("updateUserPassword :: service");
-		if (username.equals("me") || username.equals(authentication.getName())) {
+		if ("me".equals(username) || username.equals(authentication.getName())) {
 			username = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
@@ -310,7 +308,7 @@ public class UserRestController {
 		LOGGER.debug("updateUserActivation :: service : token : "+token);
 		if (token != null) {
 			userService.userActivation(activationResource);
-			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
 		throw new CustomBadRequestException("An authorization token is required to request this resource");

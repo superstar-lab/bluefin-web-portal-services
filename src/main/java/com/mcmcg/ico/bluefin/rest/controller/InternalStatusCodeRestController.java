@@ -139,7 +139,7 @@ public class InternalStatusCodeRestController {
         internalStatusCodeService.deleteInternalStatusCode(id);
         LOGGER.debug("Internal Status Code {} has been deleted.", id);
 
-        return new ResponseEntity<String>("{}", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
     
     /**
