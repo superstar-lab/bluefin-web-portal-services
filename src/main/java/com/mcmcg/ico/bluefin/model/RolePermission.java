@@ -28,6 +28,7 @@ public class RolePermission implements Serializable {
 	private String modifiedBy;
 
 	public RolePermission() {
+		// Default Constructor
 	}
 
 	@Override

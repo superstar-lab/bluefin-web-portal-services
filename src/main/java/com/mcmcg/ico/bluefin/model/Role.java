@@ -28,6 +28,7 @@ public class Role implements Serializable {
 	private String modifiedBy;
 
 	public Role() {
+		// Default Constructor
 	}
 
 	@Override

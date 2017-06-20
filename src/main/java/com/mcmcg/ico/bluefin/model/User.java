@@ -42,7 +42,6 @@ public class User implements Serializable {
 	private String status;
 	
 	private String selectedTimeZone;
-	//private String preferenceKey;
 	
 	@JsonIgnore
 	private Collection<UserRole> roles;
@@ -67,6 +66,7 @@ public class User implements Serializable {
 	}
 
 	public User() {
+		// Default Constructor
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class User implements Serializable {
 
 	public void addRole(Role role) {
 		if (roles == null) {
-			roles = new ArrayList<UserRole>();
+			roles = new ArrayList<>();
 		}
 
 		UserRole userRole = new UserRole();
@@ -214,7 +214,7 @@ public class User implements Serializable {
 
 	public void addLegalEntityApp(LegalEntityApp legalEntityApp) {
 		if (legalEntities == null) {
-			legalEntities = new ArrayList<UserLegalEntityApp>();
+			legalEntities = new ArrayList<>();
 		}
 
 		UserLegalEntityApp userLE = new UserLegalEntityApp();

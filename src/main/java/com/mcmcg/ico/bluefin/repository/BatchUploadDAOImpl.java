@@ -51,7 +51,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         Timestamp dateUploaded = Timestamp.valueOf(dtf.print(utc2));
 
         jdbcTemplate.update(new PreparedStatementCreator() {
-
+        	@Override
             public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
                 PreparedStatement ps = connection.prepareStatement(Queries.saveBasicBatchUpload,
                         Statement.RETURN_GENERATED_KEYS);
@@ -76,10 +76,10 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
     @Override
     public List<BatchUpload> findAll() {
-        List<BatchUpload> batchUploads = new ArrayList<BatchUpload>();
-        batchUploads = jdbcTemplate.query(Queries.findAllBatchUploads, new BatchUploadRowMapper());
-        LOGGER.debug("BatchUploadDAOImpl :: findAll() : Number of rows: " + batchUploads.size());
-        
+        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findAllBatchUploads, new BatchUploadRowMapper());
+        if (LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("findAll() : Number of rows: {}",( batchUploads != null ? batchUploads.size() : 0 ) );
+        }
         return batchUploads;
     }
 
@@ -132,8 +132,10 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         List<BatchUpload> batchUploads = jdbcTemplate.query(
                 Queries.findBatchUploadsByDateUploadedAfterOrderByDateUploadedDesc,
                 new Object[] { dateBeforeNoofdays, firstResult, lastResult }, new BatchUploadRowMapper());
-        LOGGER.debug("BatchUploadDAOImpl :: findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: " + batchUploads.size());
-        Page<BatchUpload> batchUploadsPaginated = new PageImpl<BatchUpload>(batchUploads, pageRequest,
+        if (LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: {}" , ( batchUploads != null ? batchUploads.size() : 0 ));
+        }
+        Page<BatchUpload> batchUploadsPaginated = new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);
 
         return batchUploadsPaginated;
@@ -147,8 +149,10 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findAllBatchUploadsByOrderByDateUploadedDesc,
                 new Object[] { firstResult, lastResult }, new BatchUploadRowMapper());
-        LOGGER.debug("BatchUploadDAOImpl :: findAllByOrderByDateUploadedDesc() : Number of rows: " + batchUploads.size());
-        Page<BatchUpload> batchUploadsPaginated = new PageImpl<BatchUpload>(batchUploads, pageRequest,
+        if (LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("BatchUploadDAOImpl :: findAllByOrderByDateUploadedDesc() : Number of rows: {}" + ( batchUploads != null ? batchUploads.size() : 0 ));
+        }
+        Page<BatchUpload> batchUploadsPaginated = new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);
 
         return batchUploadsPaginated;

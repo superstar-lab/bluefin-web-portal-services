@@ -19,6 +19,7 @@ public class SecurityTokenBlacklist implements Serializable {
 	private DateTime dateCreated = new DateTime();
 
 	public SecurityTokenBlacklist() {
+		// Default Constructor
 	}
 
 	@Override

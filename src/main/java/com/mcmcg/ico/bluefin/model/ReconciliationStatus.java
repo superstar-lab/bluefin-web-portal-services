@@ -28,6 +28,7 @@ public class ReconciliationStatus implements Serializable {
 	private String modifiedBy;
 
 	public ReconciliationStatus() {
+		// Default Constructor
 	}
 
 	@Override

@@ -48,6 +48,7 @@ public class RefundTransaction implements Serializable, Transaction {
 	private Long etlRunId;
 
 	public RefundTransaction() {
+		// Default Constructor
 	}
 
 	@Override
@@ -108,7 +109,7 @@ public class RefundTransaction implements Serializable, Transaction {
 	public void setRefundAmount(BigDecimal refundAmount) {
 		this.refundAmount = refundAmount;
 	}
-
+	@Override
 	public String getMerchantId() {
 		return merchantId;
 	}
@@ -117,6 +118,7 @@ public class RefundTransaction implements Serializable, Transaction {
 		this.merchantId = merchantId;
 	}
 
+	@Override
 	public String getProcessorTransactionId() {
 		return processorTransactionId;
 	}
@@ -124,7 +126,7 @@ public class RefundTransaction implements Serializable, Transaction {
 	public void setProcessorTransactionId(String processorTransactionId) {
 		this.processorTransactionId = processorTransactionId;
 	}
-
+	@Override
 	public DateTime getTransactionDateTime() {
 		return transactionDateTime;
 	}
@@ -132,7 +134,7 @@ public class RefundTransaction implements Serializable, Transaction {
 	public void setTransactionDateTime(DateTime transactionDateTime) {
 		this.transactionDateTime = transactionDateTime;
 	}
-
+	@Override
 	public String getApplicationTransactionId() {
 		return applicationTransactionId;
 	}

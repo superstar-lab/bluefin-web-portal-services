@@ -504,7 +504,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	public void setApplication(String application) {
 		this.application = application;
 	}
-
+	@Override
 	public String getProcessorTransactionId() {
 		return processorTransactionId;
 	}
@@ -512,7 +512,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	public void setProcessorTransactionId(String processorTransactionId) {
 		this.processorTransactionId = processorTransactionId;
 	}
-
+	@Override
 	public String getMerchantId() {
 		return merchantId;
 	}

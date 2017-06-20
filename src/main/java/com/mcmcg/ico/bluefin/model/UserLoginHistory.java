@@ -13,7 +13,7 @@ public class UserLoginHistory implements Serializable {
 
 	private static final long serialVersionUID = -2022911364184731333L;
 
-	public static enum MessageCode {
+	public enum MessageCode {
 		SUCCESS(1), ERROR_USER_NOT_FOUND(2), ERROR_PASSWORD_NOT_FOUND(3), ERROR_USER_NOT_ACTIVE(4);
 
 		private final Integer messageCode;
@@ -41,6 +41,7 @@ public class UserLoginHistory implements Serializable {
 	private String password;
 
 	public UserLoginHistory() {
+		// Default Constructor
 	}
 
 	@Override

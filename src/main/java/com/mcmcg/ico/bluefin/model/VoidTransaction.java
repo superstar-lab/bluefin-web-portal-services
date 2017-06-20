@@ -41,6 +41,7 @@ public class VoidTransaction implements Serializable, Transaction {
 	private DateTime dateCreated = new DateTime();
 
 	public VoidTransaction() {
+		// Default Constructor
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class VoidTransaction implements Serializable, Transaction {
 	public void setProcessor(String processor) {
 		this.processor = processor;
 	}
-
+	@Override
 	public String getMerchantId() {
 		return merchantId;
 	}
@@ -101,7 +102,7 @@ public class VoidTransaction implements Serializable, Transaction {
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
-
+	@Override
 	public String getProcessorTransactionId() {
 		return processorTransactionId;
 	}
@@ -109,7 +110,7 @@ public class VoidTransaction implements Serializable, Transaction {
 	public void setProcessorTransactionId(String processorTransactionId) {
 		this.processorTransactionId = processorTransactionId;
 	}
-
+	@Override
 	public DateTime getTransactionDateTime() {
 		return transactionDateTime;
 	}
@@ -117,7 +118,7 @@ public class VoidTransaction implements Serializable, Transaction {
 	public void setTransactionDateTime(DateTime transactionDateTime) {
 		this.transactionDateTime = transactionDateTime;
 	}
-
+	@Override
 	public String getApplicationTransactionId() {
 		return applicationTransactionId;
 	}

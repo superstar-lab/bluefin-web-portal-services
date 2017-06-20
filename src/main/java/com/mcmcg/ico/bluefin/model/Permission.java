@@ -28,6 +28,7 @@ public class Permission implements Serializable {
 	private String modifiedBy;
 
 	public Permission() {
+		// Default Constructor
 	}
 
 	@Override

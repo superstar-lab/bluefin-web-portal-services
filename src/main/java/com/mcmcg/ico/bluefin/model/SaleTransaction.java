@@ -211,6 +211,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	private String paymentFrequency;
 	
 	public SaleTransaction() {
+		// Default Constructor
 	}
 
 	public SaleTransaction(Long saleTransactionId, String firstName, String lastName, String processUser,
@@ -340,7 +341,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	public void setProcessUser(String processUser) {
 		this.processUser = processUser;
 	}
-
+	@Override
 	public String getTransactionType() {
 		return transactionType;
 	}
@@ -460,7 +461,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	public void setAccountId(String accountId) {
 		this.accountId = accountId;
 	}
-
+	@Override
 	public String getApplicationTransactionId() {
 		return applicationTransactionId;
 	}
@@ -468,7 +469,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	public void setApplicationTransactionId(String applicationTransactionId) {
 		this.applicationTransactionId = applicationTransactionId;
 	}
-
+	@Override
 	public String getMerchantId() {
 		return merchantId;
 	}
@@ -500,7 +501,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	public void setOrigin(String origin) {
 		this.origin = origin;
 	}
-
+	@Override
 	public String getProcessorTransactionId() {
 		return processorTransactionId;
 	}
@@ -508,7 +509,7 @@ public class SaleTransaction implements Serializable, Transaction {
 	public void setProcessorTransactionId(String processorTransactionId) {
 		this.processorTransactionId = processorTransactionId;
 	}
-
+	@Override
 	public DateTime getTransactionDateTime() {
 		return transactionDateTime;
 	}

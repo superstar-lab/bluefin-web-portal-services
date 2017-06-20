@@ -13,7 +13,7 @@ public class TransactionType implements Serializable {
 
 	private static final long serialVersionUID = -1192867359830305926L;
 
-	public static enum TransactionTypeCode {
+	public enum TransactionTypeCode {
 		SALE("SALE"), VOID("VOID"), REFUND("REFUND"), REMITTANCE("REMITTANCE"), TOKENIZE("TOKENIZE");
 
 		private final String type;
@@ -41,6 +41,7 @@ public class TransactionType implements Serializable {
 	private String modifiedBy;
 
 	public TransactionType() {
+		// Default Constructor
 	}
 
 	@Override

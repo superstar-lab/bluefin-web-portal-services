@@ -25,6 +25,7 @@ public class Property implements Serializable {
 	private String modifiedBy;
 
 	public Property() {
+		// Default Constructor
 	}
 
 	@Override

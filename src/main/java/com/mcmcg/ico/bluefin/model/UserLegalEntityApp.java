@@ -30,6 +30,7 @@ public class UserLegalEntityApp implements Serializable {
 	private User user;
 
 	public UserLegalEntityApp() {
+		// Default Constructor
 	}
 
 	@Override

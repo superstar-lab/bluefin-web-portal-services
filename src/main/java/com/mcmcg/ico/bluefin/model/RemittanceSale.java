@@ -6,6 +6,7 @@ public class RemittanceSale {
 	private SaleTransaction saleTransaction;
 
 	public RemittanceSale() {
+		// Default Constructor
 	}
 
 	public PaymentProcessorRemittance getPaymentProcessorRemittance() {

@@ -34,6 +34,7 @@ public class UserRole implements Serializable {
     private User user;
 
 	public UserRole() {
+		// Default Constructor
 	}
 
 	@Override
