@@ -190,7 +190,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	
 	private List<InternalStatusCode> sortInternalStatusCode(List<InternalStatusCode> fetchedInternalStatusCode_List){
 		if (fetchedInternalStatusCode_List != null && !fetchedInternalStatusCode_List.isEmpty()) {
-			LinkedHashMap<String, InternalStatusCode> result = new LinkedHashMap<String, InternalStatusCode>();
+			LinkedHashMap<String, InternalStatusCode> result = new LinkedHashMap<>();
 			for(InternalStatusCode internalStatusCode : fetchedInternalStatusCode_List){
 				
 				final String description = internalStatusCode.getInternalStatusCodeDescription();

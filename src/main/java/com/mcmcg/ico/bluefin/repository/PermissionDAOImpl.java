@@ -37,7 +37,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 	@Override
 	public Permission findByPermissionId(long permissionId) {
-		Permission permission = null;
+		Permission permission;
 
 		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.findPermissionByPermissionId,
 				new Object[] { permissionId }, new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
@@ -55,8 +55,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 	@Override
 	public Permission findByPermissionName(String permissionName) {
-		Permission permission = null;
-
+		Permission permission;
 		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.findPermissionByPermissionName,
 				new Object[] { permissionName },
 				new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
@@ -90,7 +89,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.savePermission,
 						Statement.RETURN_GENERATED_KEYS);
@@ -119,7 +118,7 @@ class PermissionRowMapper implements RowMapper<Permission> {
 		permission.setPermissionId(rs.getLong("PermissionID"));
 		permission.setPermissionName(rs.getString("PermissionName"));
 		permission.setDescription(rs.getString("Description"));
-		Timestamp ts =  null;
+		Timestamp ts;
 		if(rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			permission.setDateCreated(new DateTime(ts));

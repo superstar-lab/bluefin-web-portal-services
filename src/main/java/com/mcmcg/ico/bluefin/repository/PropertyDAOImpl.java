@@ -28,8 +28,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 
 	@Override
 	public Property findByName(String name) {
-		Property property = null;
-
+		Property property;
 		ArrayList<Property> list = (ArrayList<Property>) jdbcTemplate.query(Queries.findPropertyByName,
 				new Object[] { name }, new RowMapperResultSetExtractor<Property>(new PropertyRowMapper()));
 		LOGGER.debug("PropertyDAOImpl :: findByName() : Property size : "+list.size());
@@ -63,7 +62,7 @@ class PropertyRowMapper implements RowMapper<Property> {
 		property.setApplicationPropertyValue(rs.getString("ApplicationPropertyValue"));
 		property.setDataType(rs.getString("DataType"));
 		property.setDescription(rs.getString("Description"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if (rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			property.setDateCreated(new DateTime(ts));

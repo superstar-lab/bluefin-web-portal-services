@@ -29,13 +29,11 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 
 	@Override
 	public RefundTransaction findByApplicationTransactionId(String transactionId) {
-		RefundTransaction refundTransaction = null;
-
 		ArrayList<RefundTransaction> list = (ArrayList<RefundTransaction>) jdbcTemplate.query(
 				Queries.findRefundTransactionByApplicationTransactionId, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<RefundTransaction>(new RefundTransactionRowMapper()));
 		LOGGER.debug("RefundTransactionDAOImpl :: findByApplicationTransactionId : RefundTransaction size : "+list.size());
-		refundTransaction = DataAccessUtils.singleResult(list);
+		RefundTransaction refundTransaction = DataAccessUtils.singleResult(list);
 
 		if (refundTransaction != null) {
 			LOGGER.debug("RefundTransactionDAOImpl :: findByApplicationTransactionId : Found RefundTransaction for transactionId: " + transactionId);
@@ -78,7 +76,7 @@ class RefundTransactionRowMapper implements RowMapper<RefundTransaction> {
 		refundTransaction.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
 		refundTransaction
 				.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if (rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			refundTransaction.setDateCreated(new DateTime(ts));

@@ -40,6 +40,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Override
 	public List<PaymentProcessorInternalStatusCode> findAllForInternalStatusCodeId(Long internalStatusCodeId){
 		List<PaymentProcessorInternalStatusCode> list = jdbcTemplate.query( Queries.findAllPaymentProcessorInternalStatusCodeForInternalStatusCodeId, new Object[] {internalStatusCodeId},
 				new PaymentProcessorInternalStatusCodeRowMapper());
@@ -145,8 +146,8 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		jdbcTemplate.query(query, new Object[]{paymentProcessId}, new ResultSetExtractor<Map<Long,List<Long>>>(){
 			@Override
 			public Map<Long,List<Long>> extractData(ResultSet rs) throws SQLException,DataAccessException {
-				Long internalStatusCodeId = null;
-				Long paymentProcessorInternalStatusId = null;
+				Long internalStatusCodeId;
+				Long paymentProcessorInternalStatusId;
 				while(rs.next()){
 					internalStatusCodeId = rs.getLong("InternalStatusCodeId");
 					paymentProcessorInternalStatusId = rs.getLong("PaymentProcessorInternalStatusCodeID");
@@ -193,7 +194,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: executeQueryToDeleteRecords() : Number of rows deleted= {}",(noOfRowsDeleted));
+			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: executeQueryToDeleteRecords() : Number of rows deleted= {}",noOfRowsDeleted);
 		}
 	}
 	

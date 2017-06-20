@@ -61,12 +61,10 @@ public class RoleDAOImpl implements RoleDAO {
 
 	@Override
 	public Role findByRoleId(long roleId) {
-		Role role = null;
-
 		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.findRoleByRoleId, new Object[] { roleId },
 				new RowMapperResultSetExtractor<Role>(new RoleRowMapper()));
 		LOGGER.debug("RoleDAOImpl :: findByRoleId() : Role size : "+list.size());
-		role = DataAccessUtils.singleResult(list);
+		Role role = DataAccessUtils.singleResult(list);
 
 		if (role != null) {
 			LOGGER.debug("RoleDAOImpl :: findByRoleId() :Found Role for roleId: " + roleId);
@@ -79,12 +77,10 @@ public class RoleDAOImpl implements RoleDAO {
 
 	@Override
 	public Role findByRoleName(String roleName) {
-		Role role = null;
-
 		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.findRoleByRoleName,
 				new Object[] { roleName }, new RowMapperResultSetExtractor<Role>(new RoleRowMapper()));
 		LOGGER.debug("RoleDAOImpl :: findByRoleName() : Role size : "+list.size());
-		role = DataAccessUtils.singleResult(list);
+		Role role = DataAccessUtils.singleResult(list);
 
 		if (role != null) {
 			LOGGER.debug("RoleDAOImpl :: findByRoleName() : Found Role for roleName: " + roleName);
@@ -113,7 +109,7 @@ public class RoleDAOImpl implements RoleDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveRole, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, role.getRoleName()); // RoleName
@@ -142,7 +138,7 @@ class RoleRowMapper implements RowMapper<Role> {
 		role.setRoleId(rs.getLong("RoleID"));
 		role.setRoleName(rs.getString("RoleName"));
 		role.setDescription(rs.getString("Description"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if (rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			role.setDateCreated(new DateTime(ts));

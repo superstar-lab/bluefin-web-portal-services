@@ -37,7 +37,7 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 
 	@Override
 	public PaymentProcessorRemittance findByProcessorTransactionId(String transactionId) {
-		PaymentProcessorRemittance paymentProcessorRemittance = null;
+		PaymentProcessorRemittance paymentProcessorRemittance;
 
 		ArrayList<PaymentProcessorRemittance> list = (ArrayList<PaymentProcessorRemittance>) jdbcTemplate.query(
 				Queries.findPaymentProcessorRemittanceByProcessorTransactionId, new Object[] { transactionId },
@@ -62,7 +62,7 @@ class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorR
 	public PaymentProcessorRemittance mapRow(ResultSet rs, int row) throws SQLException {
 		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
 		paymentProcessorRemittance.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if (rs.getString("DateCreated") != null){
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			paymentProcessorRemittance.setDateCreated(new DateTime(ts));
@@ -97,7 +97,7 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 	@Override
 	public List<RemittanceSale> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-		ArrayList<RemittanceSale> list = new ArrayList<RemittanceSale>();
+		ArrayList<RemittanceSale> list = new ArrayList<>();
 
 		while (rs.next()) {
 
@@ -105,7 +105,7 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 
 			PaymentProcessorRemittance ppr = new PaymentProcessorRemittance();
 			ppr.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
-			Timestamp ts = null;
+			Timestamp ts;
 			if (rs.getString("DateCreated") != null){
 				ts = Timestamp.valueOf(rs.getString("DateCreated"));
 				ppr.setDateCreated(new DateTime(ts));

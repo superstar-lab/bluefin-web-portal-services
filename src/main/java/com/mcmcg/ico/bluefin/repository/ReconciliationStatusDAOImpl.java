@@ -37,12 +37,10 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 
 	@Override
 	public ReconciliationStatus findByReconciliationStatusId(long reconciliationStatusId) {
-		ReconciliationStatus reconciliationStatus = null;
-
 		ArrayList<ReconciliationStatus> list = (ArrayList<ReconciliationStatus>) jdbcTemplate.query(
 				Queries.findReconciliationStatusByReconciliationStatusId, new Object[] { reconciliationStatusId },
 				new RowMapperResultSetExtractor<ReconciliationStatus>(new ReconciliationStatusRowMapper()));
-		reconciliationStatus = DataAccessUtils.singleResult(list);
+		ReconciliationStatus reconciliationStatus = DataAccessUtils.singleResult(list);
 
 		if (reconciliationStatus != null) {
 			LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatusId() : Found ReconciliationStatus for reconciliationStatusId: " + reconciliationStatusId);
@@ -55,13 +53,11 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 
 	@Override
 	public ReconciliationStatus findByReconciliationStatus(String status) {
-		ReconciliationStatus reconciliationStatus = null;
-
 		ArrayList<ReconciliationStatus> list = (ArrayList<ReconciliationStatus>) jdbcTemplate.query(
 				Queries.findReconciliationStatusByReconciliationStatus, new Object[] { status },
 				new RowMapperResultSetExtractor<ReconciliationStatus>(new ReconciliationStatusRowMapper()));
 		LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatus() : ReconciliationStatus size : "+list.size());
-		reconciliationStatus = DataAccessUtils.singleResult(list);
+		ReconciliationStatus reconciliationStatus = DataAccessUtils.singleResult(list);
 
 		if (reconciliationStatus != null) {
 			LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatus() : Found ReconciliationStatus for reconciliationStatus: " + status);
@@ -81,7 +77,7 @@ class ReconciliationStatusRowMapper implements RowMapper<ReconciliationStatus> {
 		reconciliationStatus.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
 		reconciliationStatus.setReconciliationStatus(rs.getString("ReconciliationStatus"));
 		reconciliationStatus.setDescription(rs.getString("Description"));
-		Timestamp ts =null;
+		Timestamp ts;
 		if (rs.getString("DateCreated") != null) {
 
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));

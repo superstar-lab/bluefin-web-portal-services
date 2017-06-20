@@ -50,9 +50,8 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	@Override
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
 			String paymentProcessorStatusCode, String transactionTypeName, PaymentProcessor paymentProcessor) {
-
-		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCodeList = null;
-
+		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCodeList;
+		
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
 				.query(Queries.findPaymentProcessorStatusCodeByCodeId,
 						new Object[] { transactionTypeName, paymentProcessorStatusCode,
@@ -125,6 +124,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorStatusCode,
 						Statement.RETURN_GENERATED_KEYS);

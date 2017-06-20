@@ -43,7 +43,6 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorRuleDAOImpl.class);
-	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -83,10 +82,10 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 		DateTime utc1 = paymentProcessorRule.getCreatedDate() != null ? paymentProcessorRule.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
-		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+		DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		Timestamp dateCreated = Timestamp.valueOf(dateCreatedDateFormat.print(utc1));
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorRule,
 						Statement.RETURN_GENERATED_KEYS);
@@ -105,15 +104,6 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 		Long id = holder.getKey().longValue();
 		paymentProcessorRule.setPaymentProcessorRuleId(id);
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: save() : Saved Payment Processor - id: " + id);
-		
-		/*if(paymentProcessor.getPaymentProcessorRules() != null && !paymentProcessor.getPaymentProcessorRules().isEmpty()) {
-			LOGGER.debug("Number of PaymentprocessorRules childs items {}"+ paymentProcessor.getPaymentProcessorRules().size());
-			for (com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule : paymentProcessor.getPaymentProcessorRules()) {
-				paymentProcessorRule.setPaymentProcessor(paymentProcessor);
-			}
-			paymentProcessorRulesDAO.createPaymentProcessorRules(paymentProcessor.getPaymentProcessorRules());
-		}
-*/
 		return paymentProcessorRule;
 	}
 
