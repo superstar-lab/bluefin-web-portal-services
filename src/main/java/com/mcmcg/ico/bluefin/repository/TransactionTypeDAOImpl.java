@@ -39,13 +39,11 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 
 	@Override
 	public TransactionType findByTransactionId(long transactionTypeId) {
-		TransactionType transactionType = null;
-
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
 				Queries.findTransactionTypeByTransactionId, new Object[] { transactionTypeId },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
 		LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType : " + list.size());
-		transactionType = DataAccessUtils.singleResult(list);
+		TransactionType transactionType = DataAccessUtils.singleResult(list);
 
 		if (transactionType != null) {
 			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : Found TransactionType for transactionTypeId: " + transactionTypeId);
@@ -58,13 +56,11 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 
 	@Override
 	public TransactionType findByTransactionType(String type) {
-		TransactionType transactionType = null;
-
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
 				Queries.findTransactionTypeByTransactionType, new Object[] { type },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
 		LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType : " + list.size());
-		transactionType = DataAccessUtils.singleResult(list);
+		TransactionType transactionType = DataAccessUtils.singleResult(list);
 
 		if (transactionType != null) {
 			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : Found TransactionType for type: " + type);
@@ -85,7 +81,7 @@ class TransactionTypeRowMapper implements RowMapper<TransactionType> {
 		transactionType.setTransactionTypeId(rs.getLong("TransactionTypeID"));
 		transactionType.setTransactionTypeName(rs.getString("TransactionType"));
 		transactionType.setDescription(rs.getString("Description"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if(rs.getString("DateCreated") != null) {
 			 ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			transactionType.setDateCreated(new DateTime(ts));

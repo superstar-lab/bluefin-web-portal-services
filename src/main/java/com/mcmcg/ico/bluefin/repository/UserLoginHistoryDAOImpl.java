@@ -46,20 +46,18 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp loginDateTime = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
-
-		//INSERT INTO User_Login_History (UserID, LoginDateTime, DateCreated, MessageID, UserName, UserPassword) VALUES (?, ?, ?, ?, ?, ?)
 		
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUserLoginHistory,
 						Statement.RETURN_GENERATED_KEYS);
-				ps.setLong(1, (userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0"))); // UserID
-				ps.setTimestamp(2, loginDateTime); // LoginDateTime
-				ps.setTimestamp(3, dateCreated); // DateCreated
-				ps.setInt(4, userLoginHistory.getMessageId()); // MessageID
-				ps.setString(5, userLoginHistory.getUsername()); // UserName
-				ps.setString(6, userLoginHistory.getPassword()); // UserPassword
+				ps.setLong(1, (userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0")));
+				ps.setTimestamp(2, loginDateTime);
+				ps.setTimestamp(3, dateCreated);
+				ps.setInt(4, userLoginHistory.getMessageId());
+				ps.setString(5, userLoginHistory.getUsername());
+				ps.setString(6, userLoginHistory.getPassword());
 				return ps;
 			}
 		}, holder);

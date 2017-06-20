@@ -61,7 +61,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	public UserPreference insertUserTimeZonePreference(UserPreference userPrefrence) {
 		KeyHolder holder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUserPreference,
 						Statement.RETURN_GENERATED_KEYS);

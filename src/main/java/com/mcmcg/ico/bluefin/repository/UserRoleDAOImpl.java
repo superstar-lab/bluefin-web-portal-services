@@ -68,7 +68,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	@Override
 	public void deleteUserRoleById(Set<Long> rolesToRemove) {
 		if(!rolesToRemove.isEmpty()) {
-			Map<String, Set<Long>> valuesToDelete = new HashMap<String,Set<Long>>();
+			Map<String, Set<Long>> valuesToDelete = new HashMap<>();
 			valuesToDelete.put("userRoleIds", rolesToRemove);
 			executeQueryToDeleteUserRoles(Queries.deleteUserRoles,valuesToDelete);
 		}
@@ -100,7 +100,7 @@ class UserRoleRowMapper implements RowMapper<UserRole> {
 		userRole.setUserRoleId(rs.getLong("UserRoleID"));
 		userRole.setUserId(rs.getLong("UserID"));
 		userRole.setRoleId(rs.getLong("RoleID"));
-		Timestamp ts = null;
+		Timestamp ts;
 
 		if (rs.getString("DateCreated") != null) {
 

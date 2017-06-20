@@ -47,7 +47,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 	@Override
 	public void deleteUserLegalEntityAppById(Collection<Long> legalEntityAppsToRemove) {
 		if(!legalEntityAppsToRemove.isEmpty()) {
-			Map<String, Collection<Long>> valuesToDelete = new HashMap<String,Collection<Long>>();
+			Map<String, Collection<Long>> valuesToDelete = new HashMap<>();
 			valuesToDelete.put("userLegalEntityAppIds", legalEntityAppsToRemove);
 			executeQueryToDeleteUserLegalEntity(Queries.deleteUserLegalEntities,valuesToDelete);
 		}
@@ -74,7 +74,7 @@ class UserLegalEntityAppRowMapper implements RowMapper<UserLegalEntityApp> {
 		userLegalEntityApp.setUserLegalEntityAppId(rs.getLong("UserLegalEntityAppID"));
 		userLegalEntityApp.setUserId(rs.getLong("UserID"));
 		userLegalEntityApp.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
-		Timestamp ts = null;
+		Timestamp ts;
 		
 		if (rs.getString("DateCreated") != null) {
 

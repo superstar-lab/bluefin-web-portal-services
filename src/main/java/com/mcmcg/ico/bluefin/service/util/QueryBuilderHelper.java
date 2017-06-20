@@ -13,9 +13,9 @@ public class QueryBuilderHelper {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilderHelper.class);
 	
-	public static StringBuffer buildQuery(Map<String,String> filterMap ,Sort sort){
+	public static StringBuilder buildQuery(Map<String,String> filterMap ,Sort sort){
 		//String query = Queries.findAllUsers;
-		StringBuffer  bf = new StringBuffer( Queries.findAllUsers);
+		StringBuilder  bf = new StringBuilder( Queries.findAllUsers);
 		LOGGER.debug("QueryBuilderHelper :: buildQuery() : StringBuffer is : "+bf);
 		
 		setLegaEntity(bf,filterMap);
@@ -35,21 +35,21 @@ public class QueryBuilderHelper {
 	}
 	
 	 
-	private static void setLegaEntity(StringBuffer  bf,Map<String,String> filterMap){
+	private static void setLegaEntity(StringBuilder  bf,Map<String,String> filterMap){
 		 if(filterMap.containsKey("legalEntities"))
 			 bf.append(" join User_LegalEntityApp  ule on ul.UserID=ule.UserID ");
 	}
-	private static void setRoles(StringBuffer  bf,Map<String,String> filterMap){
+	private static void setRoles(StringBuilder  bf,Map<String,String> filterMap){
 		 if(filterMap.containsKey("roles"))
 			 bf.append(" join User_Role ur on ul.UserID=ur.UserID ");
 	}
-	private static void setWhere(StringBuffer  bf,Map<String,String> filterMap){
+	private static void setWhere(StringBuilder  bf,Map<String,String> filterMap){
 		if(filterMap.size()>0)
 			bf.append(" Where ");
 	}
 	
 	private static String clauseAppender(Map<String,String> filterMap){
-		StringBuffer bf2 = new StringBuffer();
+		StringBuilder bf2 = new StringBuilder();
 		if(filterMap.containsKey("legalEntities"))
 			bf2.append(" AND ule.LegalEntityAppID=:legalEntities");
 		if(filterMap.containsKey("roles"))
@@ -69,7 +69,7 @@ public class QueryBuilderHelper {
 		return bf2.toString();
 	}
 	
-	private static void placeOderBy(StringBuffer  bf,Sort sort){
+	private static void placeOderBy(StringBuilder  bf,Sort sort){
 		String sortString =  sort.toString();
 			if(StringUtils.isNotEmpty(sortString)){
 				String[] str1 = sortString.split(":");

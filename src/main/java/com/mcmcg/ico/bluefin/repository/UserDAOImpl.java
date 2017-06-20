@@ -74,7 +74,7 @@ public class UserDAOImpl implements UserDAO {
 	
 	@Override
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap ) {
-		StringBuffer queryBuffer = QueryBuilderHelper.buildQuery(filterMap,pageRequest.getSort());
+		StringBuilder queryBuffer = QueryBuilderHelper.buildQuery(filterMap,pageRequest.getSort());
 		
 		int pageNumber = pageRequest.getPageNumber();
 		int pageSize = pageRequest.getPageSize();
@@ -91,21 +91,18 @@ public class UserDAOImpl implements UserDAO {
 		int countResult = namedJDBCTemplate.queryForObject(queryForTotalCount,filterMap, Integer.class);
 		LOGGER.debug("UserDAOImpl :: findAllWithDynamicFilter() : Search result count:"+countResult);
 		
-		List<User> onePage = new ArrayList<User>();
-		onePage =searchResultlist;
-		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
+		List<User> onePage = searchResultlist;
+		Page<User> pageList = new PageImpl<>(onePage, pageRequest, countResult);
 
 		return pageList;
 	}
 	
 	@Override
 	public User findByUserId(long userId) {
-		User user = null;
-
 		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.findUserByUserId, new Object[] { userId },
 				new RowMapperResultSetExtractor<User>(new UserRowMapper()));
 		LOGGER.debug("UserDAOImpl :: findByUserId() : Number of User: " + list.size());
-		user = DataAccessUtils.singleResult(list);
+		User user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
 			LOGGER.debug("UserDAOImpl :: findByUserId() : Found User for userId: " + userId);
@@ -118,12 +115,10 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public User findByUsername(String username) {
-		User user = null;
-
 		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.findUserByUsername,
 				new Object[] { username }, new RowMapperResultSetExtractor<User>(new UserRowMapper()));
 		LOGGER.debug("UserDAOImpl :: findByUsername() : Number of User: " + list.size());
-		user = DataAccessUtils.singleResult(list);
+		User user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
 			LOGGER.debug("UserDAOImpl :: findByUsername() : Found User for username: " + username);
@@ -149,14 +144,14 @@ public class UserDAOImpl implements UserDAO {
 		DateTime utc2 = user.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc3 = user.getDateUpdated().withZone(DateTimeZone.UTC);
 		DateTime utc4 = user.getDateModified().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUser, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, user.getUsername()); // UserName
@@ -233,9 +228,7 @@ public class UserDAOImpl implements UserDAO {
 
 		LOGGER.debug("UserDAOImpl :: updateUser() : Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
 		
-		//saveRoles(user.getRoles());
 		createUserRoles(user);
-		//TODO create LEs
 		createLegalEntityApp(user);
 		return rows;
 	}
@@ -250,7 +243,7 @@ public class UserDAOImpl implements UserDAO {
 		int pageNumber = pageRequest.getPageNumber();
 		int pageSize = pageRequest.getPageSize();
 
-		List<User> onePage = new ArrayList<User>();
+		List<User> onePage = new ArrayList<>();
 		int index = pageSize * pageNumber;
 		int increment = pageSize;
 		// Check upper bound to avoid IndexOutOfBoundsException
@@ -262,7 +255,7 @@ public class UserDAOImpl implements UserDAO {
 			onePage.add(list.get(i));
 		}
 
-		Page<User> pageList = new PageImpl<User>(onePage, pageRequest, countResult);
+		Page<User> pageList = new PageImpl<>(onePage, pageRequest, countResult);
 
 		return pageList;
 	}
@@ -278,7 +271,7 @@ class UserRowMapper implements RowMapper<User> {
 		user.setFirstName(rs.getString("FirstName"));
 		user.setLastName(rs.getString("LastName"));
 		user.setIsActive(rs.getShort("IsActive"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if (rs.getString("LastLogin") != null) {
 			ts = Timestamp.valueOf(rs.getString("LastLogin"));
 			user.setLastLogin(new DateTime(ts));

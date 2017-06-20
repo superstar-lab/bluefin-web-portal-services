@@ -26,8 +26,6 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-//	@Autowired
-//	private CustomSaleTransactionDAO customSaleTransactionDAO;
 	
 	@Override
 	public List<SaleTransaction> findAll() {
@@ -41,13 +39,11 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public SaleTransaction findByApplicationTransactionId(String transactionId) {
-		SaleTransaction saleTransaction = null;
-
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				Queries.findSaleTransactionByApplicationTransactionId, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 		LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Number of rows: " + list.size());
-		saleTransaction = DataAccessUtils.singleResult(list);
+		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
 
 		if (saleTransaction != null) {
 			LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Found SaleTransaction for transactionId: " + transactionId);
@@ -60,13 +56,11 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	@Override
 	public SaleTransaction findByProcessorTransactionId(String transactionId) {
-		SaleTransaction saleTransaction = null;
-
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				Queries.findSaleTransactionByProcessorTransactionId, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());
-		saleTransaction = DataAccessUtils.singleResult(list);
+		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
 
 		if (saleTransaction != null) {
 			LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Found SaleTransaction for transactionId: " + transactionId);
@@ -119,12 +113,11 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setApplication(rs.getString("Application"));
 		saleTransaction.setOrigin(rs.getString("Origin"));
 		saleTransaction.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
-		Timestamp ts = null;
+		Timestamp ts;
 		if(rs.getString("TransactionDateTime") != null) {
 			ts = Timestamp.valueOf(rs.getString("TransactionDateTime"));
 			saleTransaction.setTransactionDateTime(new DateTime(ts));
 		}
-//		saleTransaction.setTransactionDateTime(new DateTime(rs.getTimestamp("TransactionDateTime")));
 		saleTransaction.setTestMode(rs.getShort("TestMode"));
 		saleTransaction.setApprovalCode(rs.getString("ApprovalCode"));
 		saleTransaction.setTokenized(rs.getShort("Tokenized"));

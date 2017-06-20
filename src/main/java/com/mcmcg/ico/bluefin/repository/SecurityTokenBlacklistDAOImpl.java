@@ -37,13 +37,11 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 
 	@Override
 	public SecurityTokenBlacklist findByTokenId(long tokenId) {
-		SecurityTokenBlacklist securityTokenBlacklist = null;
-
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.findSecurityTokenBlacklistByTokenId, new Object[] { tokenId },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByTokenId() : SecurityTokenBlacklist size : "+list.size());
-		securityTokenBlacklist = DataAccessUtils.singleResult(list);
+		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
 			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByTokenId() : Found SecurityTokenBlacklist for tokenId: " + tokenId);
@@ -56,13 +54,11 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 
 	@Override
 	public SecurityTokenBlacklist findByToken(String token) {
-		SecurityTokenBlacklist securityTokenBlacklist = null;
-
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.findSecurityTokenBlacklistByToken, new Object[] { token },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByToken() : SecurityTokenBlacklist size : "+list.size());
-		securityTokenBlacklist = DataAccessUtils.singleResult(list);
+		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
 			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByToken() : Found SecurityTokenBlacklist for token: " + token);
@@ -75,13 +71,11 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 
 	@Override
 	public SecurityTokenBlacklist findByUserIdAndToken(long userId, String token) {
-		SecurityTokenBlacklist securityTokenBlacklist = null;
-
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.findSecurityTokenBlacklistByUserIdAndToken, new Object[] { userId, token },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndToken() : SecurityTokenBlacklist size : "+list.size());
-		securityTokenBlacklist = DataAccessUtils.singleResult(list);
+		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
 			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndToken() : Found SecurityTokenBlacklist for userId/token: " + userId + "/" + token);
@@ -94,13 +88,11 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 
 	@Override
 	public SecurityTokenBlacklist findByUserIdAndType(long userId, String type) {
-		SecurityTokenBlacklist securityTokenBlacklist = null;
-
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.findSecurityTokenBlacklistByUserIdAndType, new Object[] { userId, type },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndType() : SecurityTokenBlacklist size : "+list.size());
-		securityTokenBlacklist = DataAccessUtils.singleResult(list);
+		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
 			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndType() : Found SecurityTokenBlacklist for userId/type: " + userId + "/" + type);
@@ -127,7 +119,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveSecurityTokenBlacklist,
 						Statement.RETURN_GENERATED_KEYS);
