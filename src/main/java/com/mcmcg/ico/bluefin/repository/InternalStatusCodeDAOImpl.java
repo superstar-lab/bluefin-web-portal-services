@@ -59,7 +59,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	@Override
 	public List<InternalStatusCode> findByTransactionTypeNameOrderByInternalStatusCodeAsc(String transactionTypeName) {
 		LOGGER.debug("InternalStatusCodeDAOImpl :: findByTransactionTypeNameOrderByInternalStatusCodeAsc() : Fetching Internal status codes for transaction type="+transactionTypeName);
-		List<InternalStatusCode> fetchedInternalStatusCodeByTransactionType_List = null;
+		List<InternalStatusCode> fetchedInternalStatusCodeByTransactionType_List;
 		if ("ALL".equalsIgnoreCase(transactionTypeName)) { 
 			fetchedInternalStatusCodeByTransactionType_List = sortInternalStatusCode( jdbcTemplate.query( Queries.findAllInternalStatusCode, new InternalStatusCodeRowMapper() ) );
 		} else {
@@ -68,7 +68,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		}
 		
 		int fetchedInternalStatusCodeByTransactionType_List_Size = fetchedInternalStatusCodeByTransactionType_List != null ? fetchedInternalStatusCodeByTransactionType_List.size() : 0;
-		LOGGER.debug("Total number of internal status code size ="+fetchedInternalStatusCodeByTransactionType_List_Size+" for transaction type="+transactionTypeName);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Total number of internal status code size = {} for transaction type=",fetchedInternalStatusCodeByTransactionType_List_Size,transactionTypeName);
+		}
 		return fetchedInternalStatusCodeByTransactionType_List;
 	}
 

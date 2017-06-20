@@ -79,8 +79,10 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	
 	private List<InternalResponseCode> sortInternalResponseCode(List<InternalResponseCode> fetchedInternalStatusCode_List){
 		if (fetchedInternalStatusCode_List != null && !fetchedInternalStatusCode_List.isEmpty()) {
-			LinkedHashMap<String, InternalResponseCode> result = new LinkedHashMap<String, InternalResponseCode>();
-			LOGGER.debug("InternalResponseCodeDAOImpl :: sortInternalResponseCode() : size of fetchedInternalStatusCode_List : "+fetchedInternalStatusCode_List.size());
+			LinkedHashMap<String, InternalResponseCode> result = new LinkedHashMap<>();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("InternalResponseCodeDAOImpl :: sortInternalResponseCode() : size of fetchedInternalStatusCode_List : {} ",fetchedInternalStatusCode_List.size());
+			}
 			for(InternalResponseCode internalStatusCode : fetchedInternalStatusCode_List){
 				
 				final String description = internalStatusCode.getInternalResponseCodeDescription();
@@ -89,9 +91,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 				}
 				
 			}
-			return new ArrayList<InternalResponseCode>(result.values());
+			return new ArrayList<>(result.values());
 		}
-		return null;
+		return new ArrayList<>();
 	}
 	public static DateTime getItemDate(String date, String pattern) {
 		try {
@@ -115,7 +117,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(new PreparedStatementCreator() {
-
+			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveInternalResponseCode,
 						Statement.RETURN_GENERATED_KEYS);
@@ -162,11 +164,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	public void delete(com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode) {
 		paymentProcessorInternalResponseCodeDAO.deleteByInternalResponseCode(internalResponseCode.getInternalResponseCodeId());
 		int rows = jdbcTemplate.update(Queries.deleteInternalResponseCode, new Object[] { internalResponseCode.getInternalResponseCodeId() });
-
-		LOGGER.debug("Deleted InternalResponseCode with InternalResponseCodeid: " + internalResponseCode .getInternalResponseCodeId()+ ", rows affected = " + rows);
-
-		//return rows;
-		
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Deleted InternalResponseCode with InternalResponseCodeid: {} , rows affected = {} ", internalResponseCode .getInternalResponseCodeId(), rows);
+		}
 	}
 
 	@Override
@@ -214,7 +214,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 				paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
 				
 			}
-			paymentProcessorInternalResponseCodeDAO.delete(internalResponseCode.getInternalResponseCodeId().longValue());
+			paymentProcessorInternalResponseCodeDAO.delete(internalResponseCode.getInternalResponseCodeId());
 			LOGGER.info("Old Child Items deleted successfully");
 			for (Iterator<PaymentProcessorInternalResponseCode> iterator = internalResponseCode.getPaymentProcessorInternalResponseCodes().iterator(); iterator.hasNext();) {
 				PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = iterator.next();
