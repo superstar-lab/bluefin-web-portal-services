@@ -105,11 +105,11 @@ public class SessionService {
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 		userLoginHistory.setUserId(user.getUserId());
-		if (user.getStatus().equals("NEW")) {
+		if ("NEW".equals(user.getStatus())) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account is not activated yet.");
 		}
-		if (user.getStatus().equals("INACTIVE")) {
+		if ("INACTIVE".equals(user.getStatus())) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account was deactivated.");
 		}
@@ -139,11 +139,6 @@ public class SessionService {
 		final String token = generateNewToken(username, TokenType.AUTHENTICATION, null);
 
 		user.setLastLogin(new DateTime());
-		// Commented below lines , why these logic is written by someone----Reduntant code and not valid/reachable
-		/*if (userDAO.findByUsername(username) == null) {
-			userDAO.saveUser(user);
-		}*/
-
 		LOGGER.debug("Creating login response for user: {}", username);
 		return getLoginResponse(user, token);
 	}
@@ -220,8 +215,8 @@ public class SessionService {
 		response.setUsername(user.getUsername());
 		response.setEmail(user.getEmail());
 		
-		Set<Role> roleSet = new HashSet<Role>();
-		Set<Permission> permissionSet = new HashSet<Permission>();
+		Set<Role> roleSet = new HashSet<>();
+		Set<Permission> permissionSet = new HashSet<>();
 		LOGGER.debug("SessionService :: getLoginResponse() : user roles are :"+userRoleDAO.findByUserId(user.getUserId()).size());
 		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
 			long roleId = userRole.getRoleId();
@@ -235,7 +230,7 @@ public class SessionService {
 		response.setRoles(roleSet);
 		response.setPermissions(permissionSet);
 
-		Set<LegalEntityApp> legalEntityAppSet = new HashSet<LegalEntityApp>();
+		Set<LegalEntityApp> legalEntityAppSet = new HashSet<>();
 		LOGGER.debug("SessionService :: getLoginResponse() : user userLegalEntityApp size :"+userLegalEntityAppDAO.findByUserId(user.getUserId()).size());
 		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
 			long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
@@ -256,7 +251,7 @@ public class SessionService {
 		userResource.setLastName(thirdparyApp.getUsername());
 		userResource.setEmail(thirdparyApp.getEmail());
 		
-		Collection<Role> rolesToAssign = new ArrayList<Role>();
+		Collection<Role> rolesToAssign = new ArrayList<>();
 		rolesToAssign.add(getRoleThirdParty());
 
 		if (!userService.existUsername(thirdparyApp.getUsername())) {
@@ -294,8 +289,6 @@ public class SessionService {
 			roleThirdParty = roleDAO.findByRoleId(roleId);
 
 			RolePermission rolePermission = new RolePermission();
-			// rolePermission.setPermission(permissionThirdParty);
-			// rolePermission.setRole(roleThirdParty);
 			rolePermissionDAO.saveRolePermission(rolePermission);
 		}
 		LOGGER.info("Exit from SessionService :: getRoleThirdParty()");
@@ -308,7 +301,7 @@ public class SessionService {
 		LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : authentication size is :"+(authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size())));
 		if (authentication != null) {
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
-				hasPermission = authority.getAuthority().equals("ADMINISTRATIVE");
+				hasPermission = "ADMINISTRATIVE".equals(authority.getAuthority());
 				LOGGER.debug("SessionService :: sessionHasPermissionToManageAllLegalEntities() : hasPermission : "+hasPermission);
 				if (hasPermission) {
 					break;

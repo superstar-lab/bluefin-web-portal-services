@@ -56,8 +56,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	private List<String> getPermissions(Collection<UserRole> roles) {
 		LOGGER.info("Entering CustomUserDetailsService :: getAuthorities()");
-		List<String> permissions = new ArrayList<String>();
-		List<RolePermission> collection = new ArrayList<RolePermission>();
+		List<String> permissions = new ArrayList<>();
+		List<RolePermission> collection = new ArrayList<>();
 		LOGGER.debug("Entering CustomUserDetailsService :: getAuthorities() : with role size : "+(roles != null ? roles.size() : 0));
 		for (UserRole userRole : roles) {
 			long roleId = userRole.getRoleId();
@@ -73,7 +73,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	private List<GrantedAuthority> getGrantedAuthorities(List<String> permissions) {
 		LOGGER.info("Entering CustomUserDetailsService :: getGrantedAuthorities()");
-		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		List<GrantedAuthority> authorities = new ArrayList<>();
 		LOGGER.debug("Entering CustomUserDetailsService :: getGrantedAuthorities() with permission size : "+(permissions == null ? null :permissions.size()));
 		for (String permission : permissions) {
 			authorities.add(new SimpleGrantedAuthority(permission));

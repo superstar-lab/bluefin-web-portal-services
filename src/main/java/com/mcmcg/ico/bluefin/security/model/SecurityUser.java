@@ -56,7 +56,7 @@ public class SecurityUser implements UserDetails {
 
 	@Override
 	public boolean isAccountNonLocked() {
-        return !user.getStatus().equals("INACTIVE");
+        return !"INACTIVE".equals(user.getStatus());
 	}
 
 	@Override
@@ -66,6 +66,6 @@ public class SecurityUser implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return user.getStatus().equals("ACTIVE");
+		return "ACTIVE".equals(user.getStatus());
 	}
 }

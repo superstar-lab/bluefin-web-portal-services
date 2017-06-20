@@ -22,6 +22,7 @@ public class AuthenticationResponse implements Serializable {
 	private String email;
 	
 	public AuthenticationResponse() {
+		// Default Constructor
 	}
 
 	public String getToken() {

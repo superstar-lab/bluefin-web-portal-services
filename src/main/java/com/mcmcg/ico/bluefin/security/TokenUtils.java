@@ -148,11 +148,11 @@ public class TokenUtils {
 	}
 
 	private Boolean isCreatedBeforeLastPasswordReset(Date created, Date lastPasswordReset) {
-		return (lastPasswordReset != null && created.before(lastPasswordReset));
+		return lastPasswordReset != null && created.before(lastPasswordReset);
 	}
 
 	public String generateToken(UserDetails userDetails, TokenType type, String url) {
-		Map<String, Object> claims = new HashMap<String, Object>();
+		Map<String, Object> claims = new HashMap<>();
 		claims.put("sub", userDetails.getUsername());
 		claims.put("created", this.generateCurrentDate());
 		claims.put("type", type.name());

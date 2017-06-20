@@ -37,9 +37,9 @@ public class SecurityUserFactory {
 
 	public static Collection<? extends GrantedAuthority> getRoles(Collection<UserRole> roles) {
 		LOGGER.info("Entering SecurityUserFactory :: getRoles()");
-		List<SimpleGrantedAuthority> result = new ArrayList<SimpleGrantedAuthority>();
+		List<SimpleGrantedAuthority> result = new ArrayList<>();
 		if (roles == null) {
-			return null;
+			return new ArrayList<>();
 		} else {
 			LOGGER.debug("SecurityUserFactory :: getRoles() - user roles is not null with size : "+roles.size());
 			for (UserRole userRole : roles) {

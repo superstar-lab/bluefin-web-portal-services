@@ -48,6 +48,7 @@ public class UserResource implements Serializable {
 	private String status;
 
 	public UserResource() {
+		// Default Constructor
 	}
 
 	public UserResource(User user) {
@@ -57,7 +58,7 @@ public class UserResource implements Serializable {
 		this.status = user.getStatus();
 		this.email = user.getEmail();
 		this.selectedTimeZone = user.getSelectedTimeZone();
-		roles = new HashSet<Role>();
+		roles = new HashSet<>();
 		if(user.getRoles() != null) {
 			for (UserRole role : user.getRoles()) {
 				Role roleObj = new Role();
@@ -65,7 +66,7 @@ public class UserResource implements Serializable {
 				this.roles.add(roleObj);
 			}
 		}
-		legalEntityApps = new HashSet<LegalEntityApp>();
+		legalEntityApps = new HashSet<>();
 		if (user.getLegalEntities() != null) {
 			for (UserLegalEntityApp legalEntity : user.getLegalEntities()) {
 				LegalEntityApp userLegal = new LegalEntityApp();
@@ -73,15 +74,6 @@ public class UserResource implements Serializable {
 				this.legalEntityApps.add(userLegal);
 			}
 		}
-		/*for (UserLegalEntityApp legalEntityApp : user.getLegalEntities()) {
-			this.legalEntityApps.add(legalEntityApp.get);
-		}*/
-		// Correct this when fixing code for User.
-		// New User will not contain Role and Legal Entity App.
-		// Create a new object to contain everything?
-		// this.legalEntityApps = new
-		// HashSet<LegalEntityApp>(user.getLegalEntityApps());
-		// this.roles = new HashSet<Role>(user.getRoleNames());
 	}
 
 	public User toUser(Set<UserRole> roles, Set<UserLegalEntityApp> entities) {

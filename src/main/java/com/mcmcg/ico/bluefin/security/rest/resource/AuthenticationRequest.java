@@ -11,7 +11,8 @@ public class AuthenticationRequest {
     private String username;
     @NotEmpty(message = "password must not be empty")
     private String password;
-
+    
+    @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this);
     }

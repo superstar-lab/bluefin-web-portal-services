@@ -130,8 +130,8 @@ public class BatchUploadService {
 	}
 
 	public File getBatchUploadsReport(Integer noofdays, String timeZone) throws IOException {
-		List<BatchUpload> result = null;
-		File file = null;
+		List<BatchUpload> result;
+		File file;
 		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 		LOGGER.debug("BatchUploadService :: getBatchUploadsReport() : reportPath : "+reportPath);
 
@@ -172,7 +172,7 @@ public class BatchUploadService {
 			LOGGER.debug("BatchUploadService :: getBatchUploadsReport() : BatchUpload result size : "+result.size());
 			// Write a new transaction object list to the CSV file
 			for (BatchUpload batchUpload : result) {
-				List<String> batchUploadDataRecord = new ArrayList<String>();
+				List<String> batchUploadDataRecord = new ArrayList<>();
 				batchUploadDataRecord
 						.add(batchUpload.getBatchUploadId() == null ? " " : batchUpload.getBatchUploadId().toString());
 				batchUploadDataRecord.add(batchUpload.getFileName());
@@ -189,7 +189,7 @@ public class BatchUploadService {
 					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
 					batchUploadDataRecord.add(fmt.print(dateTimeUser));
 				}
-				batchUploadDataRecord.add(batchUpload.getBatchApplication().toString());
+				batchUploadDataRecord.add(batchUpload.getBatchApplication());
 				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactions()));
 				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactionsProcessed()));
 				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfApprovedTransactions()));
@@ -233,8 +233,8 @@ public class BatchUploadService {
 	}
 
 	public File getBatchUploadTransactionsReport(Long batchUploadId, String timeZone) throws IOException {
-		List<SaleTransaction> result = null;
-		File file = null;
+		List<SaleTransaction> result;
+		File file;
 		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 		LOGGER.debug("BatchUploadService :: getBatchUploadTransactionsReport() : reportPath : "+reportPath);
 
@@ -273,7 +273,7 @@ public class BatchUploadService {
 			LOGGER.debug("BatchUploadService :: getBatchUploadTransactionsReport() : SaleTransaction size : "+result.size());
 			// Write a new transaction object list to the CSV file
 			for (SaleTransaction saleTransaction : result) {
-				List<String> saleTransactionDataRecord = new ArrayList<String>();
+				List<String> saleTransactionDataRecord = new ArrayList<>();
 
 				// Batch Upload Date/Time (user's local time)
 				// The time zone (for example, "America/Costa_Rica" or
