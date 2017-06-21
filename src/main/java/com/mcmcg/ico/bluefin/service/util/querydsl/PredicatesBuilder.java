@@ -9,7 +9,7 @@ class PredicatesBuilder {
     private List<SearchCriteria> params;
 
     public PredicatesBuilder() {
-        params = new ArrayList<SearchCriteria>();
+        params = new ArrayList<>();
     }
 
     public PredicatesBuilder with(String key, String operation, Object value) {
@@ -18,11 +18,11 @@ class PredicatesBuilder {
     }
 
     public BooleanExpression build(Class<?> entity) {
-        if (params.size() == 0) {
+        if (params.isEmpty()) {
             return null;
         }
 
-        List<BooleanExpression> predicates = new ArrayList<BooleanExpression>();
+        List<BooleanExpression> predicates = new ArrayList<>();
         Predicate predicate;
         for (SearchCriteria param : params) {
             predicate = new Predicate(param);

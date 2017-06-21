@@ -103,7 +103,7 @@ public class InternalStatusCodeService {
 		
 		if ( internalStatusCodeResource.getPaymentProcessorCodes() != null && !internalStatusCodeResource.getPaymentProcessorCodes().isEmpty()) {
 			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Number of payment processor internal status codes="+internalStatusCodeResource.getPaymentProcessorCodes().size());
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode>();
+			List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes = new ArrayList<>();
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalStatusCodeResource.getPaymentProcessorCodes()) {
 				LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Payment processor internal status code="+resourceProcessorCode);
 				// validate if payment processor is exists or not
@@ -222,7 +222,7 @@ public class InternalStatusCodeService {
 		internalStatusCode.setInternalStatusCategory(internalStatusCodeResource.getInternalStatusCategory());
 		internalStatusCode.setInternalStatusCategoryAbbr(internalStatusCodeResource.getInternalStatusCategoryAbbr());
 		
-		Set<Long> paymentProcessorStatusCodeToDelete = new HashSet<Long>();
+		Set<Long> paymentProcessorStatusCodeToDelete = new HashSet<>();
 		if (internalStatusCodeResource.getPaymentProcessorCodes() != null && !internalStatusCodeResource.getPaymentProcessorCodes().isEmpty()) {
 			LOGGER.debug("InternalStatusCodeService :: updateInternalStatusCode() : Number of payment processor codes to update="+internalStatusCodeResource.getPaymentProcessorCodes().size());
 			// New payment processor Status codes that need to be created or

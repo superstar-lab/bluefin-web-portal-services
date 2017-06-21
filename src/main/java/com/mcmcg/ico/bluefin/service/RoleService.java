@@ -56,7 +56,7 @@ public class RoleService {
 		if (user == null) {
 			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
 					authentication.getName());
-			return new ArrayList<Role>(0);
+			return new ArrayList<>(0);
 		}
 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
@@ -69,7 +69,7 @@ public class RoleService {
 		}
 
 		// Roles that belongs to a user
-		List<Role> list = new ArrayList<Role>();
+		List<Role> list = new ArrayList<>();
 		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
 			long roleId = userRole.getRoleId();
 			list.add(roleDAO.findByRoleId(roleId));
@@ -89,7 +89,7 @@ public class RoleService {
 	 *             when at least one id does not exist
 	 */
 	public List<Role> getRolesByIds(Set<Long> rolesIds) {
-		List<Long> list = new ArrayList<Long>(rolesIds);
+		List<Long> list = new ArrayList<>(rolesIds);
 		List<Role> result = roleDAO.findAll(list);
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Exiting from RoleService :: getRolesByIds() : Role result size :{} ",result.size());

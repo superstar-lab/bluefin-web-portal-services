@@ -96,7 +96,7 @@ public class TransactionService {
 
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
 		LOGGER.info("Entering to TransactionService :: getTransactionInformation()");
-		Transaction result = null;
+		Transaction result;
 
 		switch (transactionType) {
 		case VOID:
@@ -121,7 +121,7 @@ public class TransactionService {
 	}
 
 	public Transaction getRemittanceSaleResult(String transactionId) {
-		Transaction result = null;
+		Transaction result;
 
 		PaymentProcessorRemittance ppr = paymentProcessorRemittanceDAO.findByProcessorTransactionId(transactionId);
 		if (ppr == null) {
@@ -167,7 +167,7 @@ public class TransactionService {
 	public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
 		User user = userDAO.findByUsername(username);
 		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : user : "+(user == null ? null : user.getUserId()));
-		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		List<LegalEntityApp> list = new ArrayList<>();
 		if (user != null) {
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
 				long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
@@ -183,7 +183,7 @@ public class TransactionService {
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		LOGGER.debug("TransactionService :: getTransactionsReport() : reportPath : "+reportPath);
-		File file = null;
+		File file;
 		try {
 			result = customSaleTransactionDAO.findTransactionsReport(search);
 		} catch (ParseException e) {
@@ -216,9 +216,8 @@ public class TransactionService {
 			LOGGER.debug("TransactionService :: getTransactionsReport() : result size : "+result.size());
 			// Write a new transaction object list to the CSV file
 			for (SaleTransaction transaction : result) {
-				List<String> transactionDataRecord = new ArrayList<String>();
+				List<String> transactionDataRecord = new ArrayList<>();
 				transactionDataRecord.add(count.toString());
-				// Removed field: SaleTransactionId();
 				transactionDataRecord.add(transaction.getFirstName());
 				transactionDataRecord.add(transaction.getLastName());
 				transactionDataRecord.add(transaction.getProcessUser());
@@ -229,7 +228,6 @@ public class TransactionService {
 				transactionDataRecord.add(transaction.getState());
 				transactionDataRecord.add(transaction.getPostalCode());
 				transactionDataRecord.add(transaction.getCountry());
-				// Removed field: CardNumberFirst6Char());
 				transactionDataRecord.add(transaction.getCardNumberLast4Char());
 				transactionDataRecord.add(transaction.getCardType());
 				transactionDataRecord.add(transaction.getToken());
@@ -242,7 +240,6 @@ public class TransactionService {
 				transactionDataRecord.add(transaction.getProcessor());
 				transactionDataRecord.add(transaction.getApplication());
 				transactionDataRecord.add(transaction.getOrigin());
-				// transactionDataRecord.add(transaction.getPaymentFrequency());
 				transactionDataRecord.add(PaymentFrequency.getPaymentFrequency(transaction.getOrigin()).toString());
 				transactionDataRecord.add(transaction.getProcessorTransactionId());
 				// Transaction Date/Time (user's local time)
@@ -318,13 +315,12 @@ public class TransactionService {
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 		LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : reportPath : "+reportPath);
 
-		File file = null;
+		File file;
 		try {
 			/**
 			 * Commenting below mehtod to call from reittance dao, due to having some conflicts between display data logic result on UI and report generation
 			 * Now having same dao logic will eliminate those descrepencies
 			 */
-			//result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactionsReport(search);
 			result= customSaleTransactionDAO.findRemittanceSaleRefundTransactionsReport(search, negate);
 			
 		} catch (ParseException e) {
@@ -348,7 +344,7 @@ public class TransactionService {
 				CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
 
 			// Create PaymentProcessor hashmap
-			Map<Long, String> paymentProcessorMap = new HashMap<Long, String>();
+			Map<Long, String> paymentProcessorMap = new HashMap<>();
 			List<com.mcmcg.ico.bluefin.model.PaymentProcessor> paymentProcessorList = paymentProcessorDAO.findAll();
 			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : paymentProcessorList size : "+paymentProcessorList.size());
 			for (com.mcmcg.ico.bluefin.model.PaymentProcessor pp : paymentProcessorList) {
@@ -356,7 +352,7 @@ public class TransactionService {
 			}
 
 			// Create ReconciliationStatus hashmap
-			Map<Long, String> reconciliationStatusMap = new HashMap<Long, String>();
+			Map<Long, String> reconciliationStatusMap = new HashMap<>();
 			List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusDAO.findAll();
 			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : reconciliationStatusList size : "+reconciliationStatusList.size());
 			for (ReconciliationStatus rs : reconciliationStatusList) {
@@ -373,7 +369,7 @@ public class TransactionService {
 			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : result size : "+result.size());
 			// Write a new transaction object list to the CSV file
 			for (RemittanceSale transaction : result) {
-				List<String> transactionDataRecord = new ArrayList<String>();
+				List<String> transactionDataRecord = new ArrayList<>();
 				transactionDataRecord.add(count.toString());
 
 				// Sale information section
@@ -389,7 +385,7 @@ public class TransactionService {
 				transactionDataRecord.add(processorName);
 
 				// Status
-				String status = null;
+				String status;
 				Long reconciliationStatusId = transaction.getSaleTransaction().getReconciliationStatusId();
 				if (reconciliationStatusId != null) {
 					status = reconciliationStatusMap.get(reconciliationStatusId);

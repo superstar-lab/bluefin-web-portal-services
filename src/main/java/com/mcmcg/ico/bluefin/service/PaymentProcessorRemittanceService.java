@@ -71,7 +71,7 @@ public class PaymentProcessorRemittanceService {
 
 	public Transaction getRemittanceSaleResult(String transactionId) {
 		LOGGER.info("Entering to PaymentProcessorRemittanceService :: getRemittanceSaleResult()");
-		Transaction result = null;
+		Transaction result;
 
 		PaymentProcessorRemittance ppr = paymentProcessorRemittanceDAO.findByProcessorTransactionId(transactionId);
 		if (ppr == null) {
@@ -114,7 +114,6 @@ public class PaymentProcessorRemittanceService {
 			/**
 			 * Commented below call, as one dao was calling another dao, removed extra layer of calling, all logic is placed in customSaleDaoimple
 			 */
-			//result = paymentProcessorRemittanceDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
 			result = customSaleTransactionDAO.findRemittanceSaleRefundTransactions(search, paging, negate);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(

@@ -30,7 +30,7 @@ public class PaymentProcessorCodeService {
 	private TransactionTypeService transactionTypeService;
 
 	public List<ItemStatusCodeResource> hasResponseCodesAssociated(com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor) {
-		List<ItemStatusCodeResource> result = new ArrayList<ItemStatusCodeResource>();
+		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
 		LOGGER.debug("PaymentProcessorCodeService :: hasResponseCodesAssociated() : transactionTypes size : "+transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
@@ -56,7 +56,7 @@ public class PaymentProcessorCodeService {
 	}
 
 	public List<ItemStatusCodeResource> hasStatusCodesAssociated(com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor) {
-		List<ItemStatusCodeResource> result = new ArrayList<ItemStatusCodeResource>();
+		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
 		LOGGER.debug("PaymentProcessorCodeService :: hasStatusCodesAssociated() : transactionTypes : "+transactionTypes.size());
 		for (TransactionType type : transactionTypes) {

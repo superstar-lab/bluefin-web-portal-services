@@ -51,7 +51,7 @@ public class PaymentProcessorRuleService {
     				loadedPaymentProcessor.getPaymentProcessorId()));
     	}
 
-    	validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
+    	validatePaymentProcessorRule(paymentProcessorRule);
 
     	paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
     	paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
@@ -81,7 +81,7 @@ public class PaymentProcessorRuleService {
         // Verify if processor exists
     	com.mcmcg.ico.bluefin.model.PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
     	LOGGER.debug("PaymentProcessorRuleService :: updatePaymentProcessorRule() : loadedPaymentProcessor : "+loadedPaymentProcessor);
-       validatePaymentProcessorRule(paymentProcessorRule, loadedPaymentProcessor.getPaymentProcessorId());
+       validatePaymentProcessorRule(paymentProcessorRule);
 
         // Update fields
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
@@ -142,7 +142,7 @@ public class PaymentProcessorRuleService {
     			.findByPaymentProcessor(loadedPaymentProcessor.getPaymentProcessorId());
 
     	LOGGER.debug("PaymentProcessorRuleService :: getPaymentProcessorRulesByPaymentProcessorId() : paymentProcessorRules : "+paymentProcessorRules);
-    	return paymentProcessorRules == null ? new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(0) : paymentProcessorRules;
+    	return paymentProcessorRules == null ? new ArrayList<>(0) : paymentProcessorRules;
     }
 
     /**
@@ -173,66 +173,12 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorId,
      *            payment processor id
      */
-    private void validatePaymentProcessorRule(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
-            final long paymentProcessorId) {
+    private void validatePaymentProcessorRule(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule) {
     	LOGGER.info("Entering to PaymentProcessorRuleService :: validatePaymentProcessorRule() : ");
-        validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule, paymentProcessorId);
+        validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule);
     }
 
-    @SuppressWarnings("unused")
-    private void validatePaymentProcessorRuleForUnknownCardType(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
-            final long loadedPaymentProcessorId) {
-    	List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = null;
-    	if (newPaymentProcessorRule != null) {
-    		paymentProcessorRules = paymentProcessorRuleDAO.findByCardType(newPaymentProcessorRule.getCardType().name());
-    	}
-        LOGGER.debug("Entering to PaymentProcessorRuleService :: validatePaymentProcessorRuleForUnknownCardType() : paymentProcessorRules : "+ ( paymentProcessorRules != null ? paymentProcessorRules.size() : 0 ));
-        /*
-         * Its impossible to have more than one payment processor rules with
-         * UNKNOWN transaction type
-         */
-        if (paymentProcessorRules != null && paymentProcessorRules.size() > 1) {
-            throw new CustomBadRequestException(
-                    "Please verify payment processor rule table because there is more than one UNKNOWN transaction type.");
-        }
-
-        if (paymentProcessorRules != null && paymentProcessorRules.size() == 0) {
-            /*
-             * Verify when doesn't exist one rule with UNKNOWN. ONLY create is
-             * allowed
-             */
-            if (newPaymentProcessorRule.getPaymentProcessorRuleId() != null) {
-                throw new CustomBadRequestException(
-                        "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
-            }
-        } else {
-        	if (paymentProcessorRules != null) {
-	            /*
-	             * Verify when exist one rule with UNKNOWN. ONLY update is allowed
-	             * with same id
-	             */
-	        	com.mcmcg.ico.bluefin.model.PaymentProcessorRule loadedPaymentProcessorRule = paymentProcessorRules.get(0);
-	
-	            if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || loadedPaymentProcessorRule
-	                    .getPaymentProcessorRuleId() != newPaymentProcessorRule.getPaymentProcessorRuleId()) {
-	                throw new CustomBadRequestException(
-	                        "Unable to create more than one payment processor rule with UNKNOWN transaction type.");
-	            } 
-            }
-        }
-        if (newPaymentProcessorRule != null) {
-        	// When maximumMonthlyAmount is NOT zero then throw an error
-        	if (newPaymentProcessorRule.getMaximumMonthlyAmount().compareTo(BigDecimal.ZERO) != 0
-                || newPaymentProcessorRule.getNoMaximumMonthlyAmountFlag().equals((short) 0)) {
-        		throw new CustomBadRequestException(
-                    "Unable to create payment processor rule as UNKNOWN because MaximumMonthlyAmount must be zero and NoMaximumMonthlyAmountFlag must be 1.");
-        	} 
-        }
-        LOGGER.info("Exit from PaymentProcessorRuleService :: validatePaymentProcessorRuleForUnknownCardType()");
-    }
-
-    private void validatePaymentProcessorRuleForCreditDebitCardType(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule,
-            final long loadedPaymentProcessorId) {
+    private void validatePaymentProcessorRuleForCreditDebitCardType(com.mcmcg.ico.bluefin.model.PaymentProcessorRule newPaymentProcessorRule) {
         List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
                 .findByCardType(newPaymentProcessorRule.getCardType().name());
 

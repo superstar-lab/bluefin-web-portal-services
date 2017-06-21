@@ -40,6 +40,7 @@ class Predicate {
     private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public Predicate() {
+    	// Default Constructor
     }
 
     public Predicate(SearchCriteria criteria) {
@@ -52,7 +53,7 @@ class Predicate {
         @SuppressWarnings({ "rawtypes", "unchecked" })
         PathBuilder<?> entityPath = new PathBuilder(entity, entityQName);
         Class<?> keyInstance = BeanUtils.findPropertyType(criteria.getKey(), entityPath.getType());
-        BooleanExpression result = null;
+        BooleanExpression result;
         if (keyInstance == Date.class || keyInstance == DateTime.class) {
             result = getDatePredicate(entityPath);
         } else if (keyInstance == BigDecimal.class) {
@@ -63,7 +64,7 @@ class Predicate {
             result = getStringPredicate(entityPath);
         } else if (keyInstance == Collection.class) {
             String collectionType = getCollectionType();
-            result = getCollectionPredicate(entityPath, collectionType);
+            result = getCollectionPredicate(collectionType);
         } else {
             LOGGER.error("Predicate :: getPredicate() : Unable to filter by: {}", criteria.getKey());
             throw new CustomBadRequestException("Unable to filter by: " + criteria.getKey());
@@ -94,22 +95,11 @@ class Predicate {
         throw new CustomBadRequestException("Predicate :: getCollectionType() : Unable to filter by " + criteria.getKey());
     }
 
-    private BooleanExpression getCollectionPredicate(PathBuilder<?> entityPath, String collectionType) {
-        List<Long> criteriaValue = getListFromCriteria();
-        /*if (collectionType.equals(UserRole.class.getTypeName())) {
-            CollectionPath<UserRole, QUserRole> userRolePath = entityPath.getCollection(criteria.getKey(),
-                    UserRole.class, QUserRole.class);
-            return userRolePath.any().role.roleId.in(criteriaValue);
-        } else if (collectionType.equals(UserLegalEntityApp.class.getTypeName())) {
-            CollectionPath<UserLegalEntityApp, QUserLegalEntityApp> userLegalEntityPath = entityPath
-                    .getCollection(criteria.getKey(), UserLegalEntityApp.class, QUserLegalEntity.class);
-            return userLegalEntityPath.any().legalEntityApp.legalEntityAppId.in(criteriaValue);
-        }*/
+    private BooleanExpression getCollectionPredicate(String collectionType) {
+        getListFromCriteria();
         return null;
-        /*LOGGER.error("Unable to parse value of {}", criteria.getKey());
-        throw new CustomBadRequestException("Unable to parse value of " + criteria.getKey());*/
     }
-
+    
     private List<Long> getListFromCriteria() {
         Matcher matcher = Pattern.compile("\\[(.*?)\\]").matcher(criteria.getValue().toString());
         String criteriaValue = null;
@@ -135,9 +125,8 @@ class Predicate {
             criteriaValue = matcher.group(1);
         }
         if (criteriaValue != null) {
-            List<String> result = Arrays.asList(criteriaValue.split(",")).stream().map(String::trim)
+            return Arrays.asList(criteriaValue.split(",")).stream().map(String::trim)
                     .collect(Collectors.toList());
-            return result;
         } else {
             LOGGER.error("Predicate :: getStringListFromCriteria() : Unable to parse value of {}, correct format example [XXXXX,YYYYYY,ZZZZZ]", criteria.getKey());
             throw new CustomBadRequestException(
@@ -149,11 +138,11 @@ class Predicate {
         Date date = isValidDate(criteria.getValue().toString());
         if (date != null) {
             DatePath<Date> path = entityPath.getDate(criteria.getKey(), Date.class);
-            if (criteria.getOperation().equalsIgnoreCase(":")) {
+            if (":".equalsIgnoreCase(criteria.getOperation())) {
                 return path.eq(date);
-            } else if (criteria.getOperation().equalsIgnoreCase(">")) {
+            } else if (">".equalsIgnoreCase(criteria.getOperation())) {
                 return path.goe(date);
-            } else if (criteria.getOperation().equalsIgnoreCase("<")) {
+            } else if ("<".equalsIgnoreCase(criteria.getOperation())) {
                 return path.loe(date);
             }
         }
@@ -166,11 +155,11 @@ class Predicate {
         if (NumberUtils.isNumber(criteria.getValue().toString())) {
             NumberPath<BigDecimal> path = entityPath.getNumber(criteria.getKey(), BigDecimal.class);
             BigDecimal value = new BigDecimal(criteria.getValue().toString());
-            if (criteria.getOperation().equalsIgnoreCase(":")) {
+            if (":".equalsIgnoreCase(criteria.getOperation())) {
                 return path.eq(value);
-            } else if (criteria.getOperation().equalsIgnoreCase(">")) {
+            } else if (">".equalsIgnoreCase(criteria.getOperation())) {
                 return path.goe(value);
-            } else if (criteria.getOperation().equalsIgnoreCase("<")) {
+            } else if ("<".equalsIgnoreCase(criteria.getOperation())) {
                 return path.loe(value);
             }
         }
@@ -183,11 +172,11 @@ class Predicate {
         if (NumberUtils.isNumber(criteria.getValue().toString())) {
             NumberPath<Long> path = entityPath.getNumber(criteria.getKey(), Long.class);
             Long value = new Long(criteria.getValue().toString());
-            if (criteria.getOperation().equalsIgnoreCase(":")) {
+            if (":".equalsIgnoreCase(criteria.getOperation())) {
                 return path.eq(value);
-            } else if (criteria.getOperation().equalsIgnoreCase(">")) {
+            } else if (">".equalsIgnoreCase(criteria.getOperation())) {
                 return path.goe(value);
-            } else if (criteria.getOperation().equalsIgnoreCase("<")) {
+            } else if ("<".equalsIgnoreCase(criteria.getOperation())) {
                 return path.loe(value);
             }
         }
@@ -202,8 +191,8 @@ class Predicate {
             List<String> values = getStringListFromCriteria();
             return path.in(values);
         } else {
-            if (criteria.getOperation().equalsIgnoreCase(":")) {
-                if (criteria.getKey().equals("status")) {
+            if (":".equalsIgnoreCase(criteria.getOperation())) {
+                if ("status".equals(criteria.getKey())) {
                     return path.eq(criteria.getValue().toString());
                 } else {
                     return path.containsIgnoreCase(criteria.getValue().toString());

@@ -23,7 +23,7 @@ public class HttpsUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpsUtil.class);
 
     public static String sendPostRequest(String requestUrl, String payload) {
-        StringBuffer jsonString = new StringBuffer();
+        StringBuilder jsonString = new StringBuilder();
         try {
             URL url = new URL(requestUrl);
             LOGGER.debug("HttpsUtil :: sendPostRequest() : url is : "+url);
@@ -56,15 +56,17 @@ public class HttpsUtil {
 
     private static SSLSocketFactory createTrustAllSslSocketFactory(final String pProtocol) throws Exception {
         TrustManager[] byPassTrustManagers = new TrustManager[] { new X509TrustManager() {
-
+        	@Override
             public X509Certificate[] getAcceptedIssuers() {
                 return new X509Certificate[0];
             }
-
+        	@Override
             public void checkClientTrusted(X509Certificate[] chain, String authType) {
+        		// Overridden method
             }
-
+        	@Override
             public void checkServerTrusted(X509Certificate[] chain, String authType) {
+        		// Overridden method
             }
         }, };
         SSLContext sslContext = SSLContext.getInstance(pProtocol);

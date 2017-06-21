@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -118,12 +119,12 @@ public class UserService {
 
 	public Iterable<User> getUsers(List<String> search, Integer page, Integer size, String sort) {
 		LOGGER.info("Entering to UserService :: getUser(list) ");
-		Map<String,String> filterMap = new HashMap<String,String>(7);
-		if(search != null && !search.isEmpty() && search.size()>0) {
+		Map<String,String> filterMap = new HashMap<>(7);
+		if(search != null && !search.isEmpty()) {
 			for(String searchParam:search){
 				
 				String[] str1 = searchParam.split(":");
-				if (str1[0].equalsIgnoreCase("legalEntities") || str1[0].equalsIgnoreCase("roles") ) {
+				if ("legalEntities".equalsIgnoreCase(str1[0]) || "roles".equalsIgnoreCase(str1[0]) ) {
 					str1[1] = str1[1].replace("[", "");
 					str1[1] = str1[1].replace("]", "");
 					filterMap.put(str1[0], str1[1]);
@@ -151,7 +152,7 @@ public class UserService {
 	public List<LegalEntityApp> getLegalEntitiesByUser(final String username) {
 		User user = userDAO.findByUsername(username);
 		LOGGER.debug("UserService :: getLegalEntitiesByUser() : user id : "+(user == null ? null : user.getUserId()));
-		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		List<LegalEntityApp> list = new ArrayList<>();
 		if (user != null) {
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
 				long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
@@ -159,7 +160,7 @@ public class UserService {
 			}
 		}
 		return (user == null || userLegalEntityAppDAO.findByUserId(user.getUserId()).isEmpty())
-				? new ArrayList<LegalEntityApp>() : list;
+				? new ArrayList<>() : list;
 	}
 
 	public UserResource registerNewUserAccount(RegisterUserResource userResource) {
@@ -256,10 +257,10 @@ public class UserService {
 		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
-		user.setRoles(Collections.EMPTY_LIST);
-		user.setLegalEntities(Collections.EMPTY_LIST);
+		user.setRoles(Collections.emptyList());
+		user.setLegalEntities(Collections.emptyList());
 		updaUserPrefernce(user);
-		long userId = userDAO.updateUser(user, modifiedBy);
+		userDAO.updateUser(user, modifiedBy);
 		return new UserResource(user);
 	}
 
@@ -277,7 +278,7 @@ public class UserService {
 			userPreferenceDAO.updateUserTimeZonePreference(userPreference);
 		}else{
 			UserPreference UserPreferenceToInsert = createUserPreference(preferenceId, user.getUserId(), user.getSelectedTimeZone());
-			UserPreferenceToInsert = userPreferenceDAO.insertUserTimeZonePreference(UserPreferenceToInsert);
+			userPreferenceDAO.insertUserTimeZonePreference(UserPreferenceToInsert);
 		}
 	}
 
@@ -313,10 +314,9 @@ public class UserService {
 
 		LOGGER.debug("UserService :: updateUserRoles() : newMapOfRoles size : "+newMapOfRoles.size());
 		// Temporal list of roles that we need to keep in the user role list
-		Set<Long> rolesToKeep = new HashSet<Long>();
-		Set<Long> rolesToRemove = new HashSet<Long>();
+		Set<Long> rolesToKeep = new HashSet<>();
+		Set<Long> rolesToRemove = new HashSet<>();
 		// Update current role list from user
-		//Iterator<UserRole> iter = userRoleDAO.findByUserId(userToUpdate.getUserId()).iterator();
 		Iterator<UserRole> iter = userToUpdate.getRoles().iterator();
 		while (iter.hasNext()) {
 			UserRole element = iter.next();
@@ -333,9 +333,9 @@ public class UserService {
 
 		// Correct this when fixing code for User.
 		// Add new roles to the user but ignoring the existing ones
-		for (Long roleId : newMapOfRoles.keySet()) {
-			if (!rolesToKeep.contains(roleId)) {
-				userToUpdate.addRole(newMapOfRoles.get(roleId));
+		for (Entry<Long,Role> roleEntry : newMapOfRoles.entrySet()) {
+			if (!rolesToKeep.contains(roleEntry.getKey())) {
+				userToUpdate.addRole(roleEntry.getValue());
 			} 
 		}
 
@@ -344,7 +344,7 @@ public class UserService {
 		removeRolesFromUser(rolesToRemove);
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
-		userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
+		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("UserService :: updateUserRoles() : ready to update user : ");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
@@ -454,7 +454,7 @@ public class UserService {
 		if (authentication != null) {
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
 				String userAuthority = authority.getAuthority();
-				if (userAuthority.equals("ADMINISTRATIVE") || userAuthority.equals("MANAGE_ALL_USERS")) {
+				if ("ADMINISTRATIVE".equals(userAuthority) || "MANAGE_ALL_USERS".equals(userAuthority)) {
 					hasPermission = true;
 				}
 				if (hasPermission) {
@@ -496,7 +496,7 @@ public class UserService {
 				.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
 		LOGGER.debug("UserService :: belongsToSameLegalEntity() : userLegalEntities size : "+userLegalEntities.size());
 		// Get Legal Entities from user that will be updated
-		List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+		List<LegalEntityApp> list = new ArrayList<>();
 		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(userToUpdate.getUserId())) {
 			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
 			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
@@ -521,7 +521,7 @@ public class UserService {
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
 			final String token) {
 
-		username = (username.equals("me") ? tokenUtils.getUsernameFromToken(token) : username);
+		username = ("me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username);
 		LOGGER.debug("UserService :: updateUserPassword() : username : "+username);
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("UserService :: updateUserPassword() : tokenType : "+tokenType);
@@ -547,8 +547,8 @@ public class UserService {
 		String modifiedBy = null;
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
-		userToUpdate.setRoles(Collections.EMPTY_LIST);
-		userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
+		userToUpdate.setRoles(Collections.emptyList());
+		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("UserService :: updateUserPassword() : ready to update user : ");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		LOGGER.info("UserService :: updateUserPassword() : ready to find user by id: ");
@@ -558,7 +558,7 @@ public class UserService {
 	public void userActivation(ActivationResource activationResource) {
 		Boolean activate = activationResource.isActivate();
 		LOGGER.debug("UserService :: userActivation() : activate "+activate);
-		List<String> notFoundUsernames = new ArrayList<String>();
+		List<String> notFoundUsernames = new ArrayList<>();
 
 		LOGGER.debug("UserService :: userActivation() : activationResource size : "+(activationResource.getUsernames() == null ? null : activationResource.getUsernames().size()));
 		for (String username : activationResource.getUsernames()) {
@@ -585,7 +585,7 @@ public class UserService {
 		LOGGER.debug("UserService :: activateAccount() : username "+username);
 		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
 			userToUpdate.setStatus(status);
-			if (status.equals("NEW")) {
+			if ("NEW".equals(status)) {
 				userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 				// Send email
@@ -604,14 +604,13 @@ public class UserService {
 			String modifiedBy = null;
 			//TODO
 			// Why we need to update roles and LE while activating/deactivating user, so make Roles/LE list as empty.[Matloob]
-			userToUpdate.setRoles(Collections.EMPTY_LIST);
-			userToUpdate.setLegalEntities(Collections.EMPTY_LIST);
+			userToUpdate.setRoles(Collections.emptyList());
+			userToUpdate.setLegalEntities(Collections.emptyList());
 			
 			LOGGER.info("UserService :: activateAccount() : ready to update user ");
 			long userId = userDAO.updateUser(userToUpdate, modifiedBy);
 			LOGGER.debug("UserService :: activateAccount() : userId "+userId);
 			//TOOD.................Why are you calling below operation again, I have commented this [Matloob]
-			//userToUpdate = userDAO.findByUserId(userToUpdate.getUserId());
 		}
 	}
 

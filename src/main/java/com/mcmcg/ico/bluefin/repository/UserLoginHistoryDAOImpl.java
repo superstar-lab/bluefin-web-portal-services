@@ -52,7 +52,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUserLoginHistory,
 						Statement.RETURN_GENERATED_KEYS);
-				ps.setLong(1, (userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0")));
+				ps.setLong(1, userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0"));
 				ps.setTimestamp(2, loginDateTime);
 				ps.setTimestamp(3, dateCreated);
 				ps.setInt(4, userLoginHistory.getMessageId());

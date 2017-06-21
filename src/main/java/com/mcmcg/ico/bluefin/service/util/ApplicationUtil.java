@@ -1,6 +1,10 @@
 package com.mcmcg.ico.bluefin.service.util;
 
 public class ApplicationUtil {
+	
+	private ApplicationUtil(){
+		// Default Constructor 
+	}
 	/**
 	 * Get the value of parameter in search string.
 	 * 

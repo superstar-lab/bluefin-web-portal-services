@@ -21,6 +21,9 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 
 public class QueryUtil {
+	private QueryUtil(){
+		// Default Constructor
+	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryUtil.class);
 
@@ -52,14 +55,12 @@ public class QueryUtil {
 			Pattern pattern = Pattern.compile(SEARCH_REGEX);
 			Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
 			while (matcher.find()) {
-				if (matcher.group(2).equals(":")) {
+				if (":".equals(matcher.group(2)) && "transactionId".equals(matcher.group(1))) {
 					// Sale, void and refund transactions have both
 					// ApplicationTransactionID and ProcessorTransactionID.
 					// If transactionId is passed then allow both.
-					if (matcher.group(1).equals("transactionId")) {
-						sb.append("(ApplicationTransactionID = '" + matcher.group(3) + "' OR ProcessorTransactionID = '"
+					sb.append("(ApplicationTransactionID = '" + matcher.group(3) + "' OR ProcessorTransactionID = '"
 								+ matcher.group(3) + "')");
-					}
 				}
 			}
 		}
@@ -69,19 +70,19 @@ public class QueryUtil {
 
 	public static Map<String, String> convertSearchToMap(String search) {
 
-		Map<String, String> parameterMap = new HashMap<String, String>();
+		Map<String, String> parameterMap = new HashMap<>();
 
 		if (search != null) {
 			Pattern pattern = Pattern.compile(SEARCH_REGEX);
 			Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
 			while (matcher.find()) {
-				if (matcher.group(2).equals(":")) {
+				if (":".equals(matcher.group(2))) {
 					parameterMap.put(matcher.group(1), matcher.group(3));
 				}
-				if (matcher.group(2).equals(">")) {
+				if (">".equals(matcher.group(2))) {
 					parameterMap.put(matcher.group(1) + "Start", matcher.group(3));
 				}
-				if (matcher.group(2).equals("<")) {
+				if ("<".equals(matcher.group(2))) {
 					parameterMap.put(matcher.group(1) + "End", matcher.group(3));
 				}
 			}
@@ -104,7 +105,7 @@ public class QueryUtil {
 	private static List<Order> getOrderList(String sort) {
 		Pattern pattern = Pattern.compile(SORT_REGEX);
 		Matcher matcher = pattern.matcher(sort + ",");
-		List<Order> sortList = new ArrayList<Order>();
+		List<Order> sortList = new ArrayList<>();
 		while (matcher.find()) {
 			Sort.Direction sortDirection = null;
 			switch (matcher.group(3)) {
@@ -114,6 +115,8 @@ public class QueryUtil {
 			case "desc":
 				sortDirection = Sort.Direction.DESC;
 				break;
+			default :	
+				sortDirection = Sort.Direction.ASC;
 			}
 			sortList.add(new Order(sortDirection, matcher.group(1)));
 		}
@@ -221,7 +224,7 @@ public class QueryUtil {
 		Pattern pattern = Pattern.compile(SEARCH_REGEX_LE);
 		Matcher matcher = pattern.matcher(search + ",");
 		while (matcher.find()) {
-			if (filter.contains(matcher.group(1).toString())) {
+			if (filter.contains(matcher.group(1))) {
 				result = matcher.group(3);
 				validSearch = true;
 			}
@@ -250,7 +253,7 @@ public class QueryUtil {
 		Pattern pattern = Pattern.compile(SEARCH_REGEX);
 		Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
 		while (matcher.find()) {
-			if (filter.contains(matcher.group(1).toString())) {
+			if (filter.contains(matcher.group(1))) {
 				result = matcher.group(3);
 				validSearch = true;
 			}
@@ -264,17 +267,6 @@ public class QueryUtil {
 	}
 
 	/**
-	 * Generate the filter by processorTransactionId or processorTransactionId
-	 * 
-	 * @param search
-	 * @param value
-	 * @return Boolean Expression with the filter
-	 */
-	public static String getTransactionIdFilter(String search, String value) {
-		return null;
-	}
-
-	/**
 	 * Creates a list that with the LE that are given in the search criteria. It
 	 * takes the search criteria and pulls out the parameter with the LE and
 	 * split it into a list to be analyzed with the own legal entities of the
@@ -285,7 +277,7 @@ public class QueryUtil {
 	 */
 	private static List<String> getLEListFilterValue(String value) {
 		List<String> result = null;
-		if (!StringUtils.isBlank(value) && !value.equals("[]")) {
+		if (!StringUtils.isBlank(value) && !"[]".equals(value)) {
 			Matcher matcher = Pattern.compile(ANY_LIST_REGEX).matcher(value);
 			String criteriaValue = null;
 			while (matcher.find()) {

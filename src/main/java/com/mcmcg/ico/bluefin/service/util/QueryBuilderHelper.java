@@ -11,10 +11,13 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 public class QueryBuilderHelper {
 	
+	private QueryBuilderHelper(){
+		// Default constructor
+	}
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilderHelper.class);
 	
 	public static StringBuilder buildQuery(Map<String,String> filterMap ,Sort sort){
-		//String query = Queries.findAllUsers;
 		StringBuilder  bf = new StringBuilder( Queries.findAllUsers);
 		LOGGER.debug("QueryBuilderHelper :: buildQuery() : StringBuffer is : "+bf);
 		
@@ -29,9 +32,9 @@ public class QueryBuilderHelper {
 
 	public static String appendLimit(String query,int offset,int pageSize){
 		
-		query = query.concat(" LIMIT "+offset +", "+pageSize);
-		LOGGER.debug("QueryBuilderHelper :: appendLimit() : query is : "+query);
-		return query;
+		String queryVal = query.concat(" LIMIT "+offset +", "+pageSize);
+		LOGGER.debug("QueryBuilderHelper :: appendLimit() : query is : "+queryVal);
+		return queryVal;
 	}
 	
 	 

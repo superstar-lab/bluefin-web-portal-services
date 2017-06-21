@@ -99,7 +99,7 @@ public class InternalResponseCodeService {
 
 				com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(resourceProcessorCode.getPaymentProcessorId());
 
-				com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = null;
+				com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode;
 				Boolean codeModified = Boolean.FALSE;
 				if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
 					paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
@@ -207,7 +207,7 @@ public class InternalResponseCodeService {
 		internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 		internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
-		Set<Long> paymentProcessorResponseCodeToDelete = new HashSet<Long>();
+		Set<Long> paymentProcessorResponseCodeToDelete = new HashSet<>();
 		if (internalResponseCodeResource.getPaymentProcessorCodes() != null	&& !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
 			LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : Number of payment processor codes to update="+internalResponseCodeResource.getPaymentProcessorCodes().size());
 			// New payment processor response codes that need to be created or

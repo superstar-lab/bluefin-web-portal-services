@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -121,7 +122,7 @@ public class PaymentProcessorService {
 			} 
 			return result;
 		}
-		return new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessor>();
+		return new ArrayList<>();
 	}
 
 	/**
@@ -240,8 +241,7 @@ public class PaymentProcessorService {
 						com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
 
 		// Temporal list of legal entity app ids already updated
-		Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<Long>();
-	//	Set<Long> PaymentProcessorMerchantsToDelete = new HashSet<Long>();
+		Set<Long> PaymentProcessorMerchantsToKeep = new HashSet<>();
 		if (paymentProcessorToUpdate != null) {
 			// Update information from current payment processor merchants
 			Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> iter = paymentProcessorToUpdate
@@ -261,12 +261,9 @@ public class PaymentProcessorService {
 		}
 
 		// Add the new payment processor merchants
-		for (Long legalEntityId : newMapOfPaymentProcessorMerchants.keySet()) {
-			if (!PaymentProcessorMerchantsToKeep.contains(legalEntityId)) {
-				if (paymentProcessorToUpdate != null) {
-					paymentProcessorToUpdate.addPaymentProcessorMerchant(
-						newMapOfPaymentProcessorMerchants.get(legalEntityId).toPaymentProcessorMerchant());
-				}
+		for (Entry<Long, com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> legalEntityEntry : newMapOfPaymentProcessorMerchants.entrySet()) {
+			if (paymentProcessorToUpdate != null && !PaymentProcessorMerchantsToKeep.contains(legalEntityEntry.getKey())) {
+					paymentProcessorToUpdate.addPaymentProcessorMerchant(legalEntityEntry.getValue().toPaymentProcessorMerchant());
 			}
 		}
 		if (paymentProcessorToUpdate != null) {

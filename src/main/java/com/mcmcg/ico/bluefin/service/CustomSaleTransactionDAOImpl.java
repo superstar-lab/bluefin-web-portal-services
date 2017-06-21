@@ -216,10 +216,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		Page<SaleTransaction> list;
 		if (result != null) {
 			String result_FinalQueryToExecute = result.getFinalQueryToExecute();
-			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+(result_FinalQueryToExecute));
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+result_FinalQueryToExecute);
 			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Query Parameter Map-placeholder:"+result.getParametersMap());
 			List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
 			if (tr == null) {
 				tr = new ArrayList<>();
 			}
@@ -363,10 +363,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
 				// For payment processor remittance, remittanceCreationDate is
 				// not a filter, for these prefixes.
-				if ("MAINSALE".equals(prefix) || "SALEINNERVOID".equals(prefix) || "SALEINNERREFUND".equals(prefix)) {
-					if ("remittanceCreationDate".equalsIgnoreCase(attribute)) {
-						continue;
-					}
+				if ( ( "MAINSALE".equals(prefix) || "SALEINNERVOID".equals(prefix) || "SALEINNERREFUND".equals(prefix) ) && ("remittanceCreationDate".equalsIgnoreCase(attribute)) ) {
+					continue;
 				}
 
 				// Special scenarios, be careful when you change this
@@ -1397,7 +1395,7 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 	@Override
 	public List<RemittanceSale> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-		ArrayList<RemittanceSale> list = new ArrayList<RemittanceSale>();
+		ArrayList<RemittanceSale> list = new ArrayList<>();
 
 		while (rs.next()) {
 

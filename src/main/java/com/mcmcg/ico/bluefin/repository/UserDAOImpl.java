@@ -144,7 +144,6 @@ public class UserDAOImpl implements UserDAO {
 		DateTime utc2 = user.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc3 = user.getDateUpdated().withZone(DateTimeZone.UTC);
 		DateTime utc4 = user.getDateModified().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));

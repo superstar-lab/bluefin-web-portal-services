@@ -282,7 +282,7 @@ public class UserRestController {
 		LOGGER.debug("updateUserPassword :: service : token : "+token);
 		if (token != null) {
 			userService.updateUserPassword(username, updatePasswordResource, token);
-			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
 		throw new CustomBadRequestException("An authorization token is required to request this resource");
