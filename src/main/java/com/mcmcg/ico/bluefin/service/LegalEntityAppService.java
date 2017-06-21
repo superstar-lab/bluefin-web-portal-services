@@ -50,13 +50,13 @@ public class LegalEntityAppService {
 		if (user == null) {
 			LOGGER.warn("LegalEntityAppService :: getLegalEntities : User not found, then we need to return an empty list.  Details: username = [{}]",
 					authentication.getName());
-			return new ArrayList<LegalEntityApp>();
+			return new ArrayList<>();
 		}
 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			return legalEntityAppDAO.findAll();
 		} else {
-			List<LegalEntityApp> list = new ArrayList<LegalEntityApp>();
+			List<LegalEntityApp> list = new ArrayList<>();
 
 			LOGGER.info("LegalEntityAppService :: getLegalEntities : ready to iteration userLegalEntityApp ");
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
@@ -156,7 +156,7 @@ public class LegalEntityAppService {
 			return result;
 		} else {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Legal entities app ids size ="+legalEntityAppsIds+" is not equal to results size="+ ( ( result != null ? result.size() : 0 ) ) +" returned from DB");
+				LOGGER.debug("Legal entities app ids size = {} is not equal to results size= {} returned from DB",legalEntityAppsIds,result != null ? result.size() : 0);
 			}
 		}
 

@@ -50,13 +50,6 @@ public class InternalStatusCodeService {
 	private TransactionTypeDAO transactionTypeDAO;
 
 	public List<com.mcmcg.ico.bluefin.model.InternalStatusCode> getInternalStatusCodesByTransactionType(final String transactionType) {
-		/*if ("ALL".equals(transactionType)) {
-			
-		}
-		TransactionType transactionTypeObj = transactionTypeDAO.findByTransactionType(transactionType);
-		if (transactionTypeObj == null) {
-			throw new CustomBadRequestException("Transaction type not exists.");
-		}*/
 		List<com.mcmcg.ico.bluefin.model.InternalStatusCode> internalStatusCodeList = internalStatusCodeDAO.findByTransactionTypeNameOrderByInternalStatusCodeAsc(transactionType);
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : internalStatusCodeList size : {}",internalStatusCodeList.size());
@@ -119,8 +112,8 @@ public class InternalStatusCodeService {
 					LOGGER.error("InternalStatusCodeService :: createInternalStatusCodes() : Payment processor {} not found",resourceProcessorCode.getPaymentProcessorId());
 					throw new CustomBadRequestException("Payment processor does not exists. Id="+resourceProcessorCode.getPaymentProcessorId());
 				}
-				com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCode = null;
-				Boolean codeModified = false;
+				com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCode;
+				Boolean codeModified = Boolean.FALSE;
 				if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
 					paymentProcessorStatusCode = paymentProcessorStatusCodeDAO
 							.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -149,7 +142,7 @@ public class InternalStatusCodeService {
 				} else {
 					Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
 							.getInternalStatusCode();
-					LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : PaymentProcessorInternalStatusCode size : ", currentPaymentProcessorInternalStatusCodes.size());
+					LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : PaymentProcessorInternalStatusCode size : {} ", currentPaymentProcessorInternalStatusCodes.size());
 					if ( currentPaymentProcessorInternalStatusCodes != null && !currentPaymentProcessorInternalStatusCodes.isEmpty()) {
 						for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
 							if (!currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode()
@@ -234,11 +227,11 @@ public class InternalStatusCodeService {
 			LOGGER.debug("InternalStatusCodeService :: updateInternalStatusCode() : Number of payment processor codes to update="+internalStatusCodeResource.getPaymentProcessorCodes().size());
 			// New payment processor Status codes that need to be created or
 			// updated
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> newPaymentProcessorStatusCode = new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>();
+			List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> newPaymentProcessorStatusCode = new ArrayList<>();
 
 			// New payment processor Status codes that need to be created or
 			// updated
-			Map<Long, com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> newMapOfPaymentProcessorStatusCodes = new HashMap<Long, com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>();
+			Map<Long, com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> newMapOfPaymentProcessorStatusCodes = new HashMap<>();
 
 			LOGGER.debug("InternalStatusCodeService :: updateInternalStatusCode() : internalStatusCodeResource size : "
 					+(internalStatusCodeResource == null ? null : (internalStatusCodeResource.getPaymentProcessorCodes() == null ? null : internalStatusCodeResource.getPaymentProcessorCodes().size())));
@@ -275,7 +268,7 @@ public class InternalStatusCodeService {
 					}
 
 					LOGGER.debug("InternalStatusCodeService :: updateInternalStatusCode() : paymentProcessorStatusCode value : "+paymentProcessorStatusCode);
-					Set<Long> internalSet = new HashSet<Long>();
+					Set<Long> internalSet = new HashSet<>();
 					if (paymentProcessorStatusCode == null) {
 						LOGGER.debug("InternalStatusCodeService :: updateInternalStatusCode() : Creating new payment processor Status code {}", resourceProcessorCode.getCode());
 						paymentProcessorStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode();

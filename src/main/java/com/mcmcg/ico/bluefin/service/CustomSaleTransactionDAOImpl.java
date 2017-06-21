@@ -62,7 +62,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
-	private HashMap<String, String> predicatesHashMapping = new HashMap<String, String>();
+	private HashMap<String, String> predicatesHashMapping = new HashMap<>();
 	
 	@Autowired
 	private ReconciliationStatusDAO reconciliationStatusDAO;
@@ -119,7 +119,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: Executing findTransactionsReport , Search Value {}",search);
-		HashMap<String, String> dynamicParametersMap = new HashMap<String, String> ();
+		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,dynamicParametersMap);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransactionsReport() : Dynamic Query {}", query);
 		
@@ -141,7 +141,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		try {
 			return Integer.parseInt(valueToConvert); 
 		} catch (NumberFormatException nfe) {
-			
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Failed to parse value {}",valueToConvert);
+			}
 		}
 		return -1;
 	}
@@ -181,14 +183,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException {
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: Executing findTransaction, Search  Value {} , page{} ",search,page); 
-		HashMap<String, String> dynamicParametersMap = new HashMap<String, String> ();
+		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,dynamicParametersMap);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : Query="+(query));
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
 		CustomQuery result = queriesMap.get("result");
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
-		int pageNumber = ( page != null ? page.getPageNumber() : 0 );
-		int pageSize = ( page != null ? page.getPageSize() : 0 );
+		int pageNumber = page != null ? page.getPageNumber() : 0;
+		int pageSize = page != null ? page.getPageSize() : 0;
 		if ( result != null ) {
 			result.setPagination(true);
 			result.setPageSize(pageSize);
@@ -211,7 +213,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			}
 		});
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : QueryTotal_Count Result=" + countResult);
-		Page<SaleTransaction> list = null;
+		Page<SaleTransaction> list;
 		if (result != null) {
 			String result_FinalQueryToExecute = result.getFinalQueryToExecute();
 			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+(result_FinalQueryToExecute));
@@ -219,11 +221,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult,( tr != null ? tr.size() :0 ) );
 			if (tr == null) {
-				tr = new ArrayList<SaleTransaction>();
+				tr = new ArrayList<>();
 			}
-			list = new PageImpl<SaleTransaction>(tr,page,countResult); 
+			list = new PageImpl(tr,page,countResult); 
 		} else {
-			list = new PageImpl<SaleTransaction>( new ArrayList<SaleTransaction>(),page,countResult);
+			list = new PageImpl( new ArrayList<>(),page,countResult);
 		}
 		return list;
 	}
@@ -259,13 +261,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		@SuppressWarnings("unchecked")
 		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
 		if (tr == null) {
-			tr = new ArrayList<PaymentProcessorRemittance>();
+			tr = new ArrayList<>();
 		} else {
 			LOGGER.debug("Number of records fetched "+tr+" successfully");
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Rows Result {}, Data Query Result {}",countResult,tr.size());
-		Page<PaymentProcessorRemittance> list = new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
+		Page<PaymentProcessorRemittance> list = new PageImpl(tr, page, countResult);
 		return list;
 	}
 	
@@ -355,35 +357,35 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				String attributeParam = attribute + "Param1";
 				String predicate = getPropertyPredicate(attribute);
 
-				if (!prefix.equalsIgnoreCase("MAINSALE") && skipFilter(attribute, prefix)) {
+				if (!"MAINSALE".equalsIgnoreCase(prefix) && skipFilter(attribute, prefix)) {
 					continue;
 				}
 
 				// For payment processor remittance, remittanceCreationDate is
 				// not a filter, for these prefixes.
-				if (prefix.equals("MAINSALE") || prefix.equals("SALEINNERVOID") || prefix.equals("SALEINNERREFUND")) {
-					if (attribute.equalsIgnoreCase("remittanceCreationDate")) {
+				if ("MAINSALE".equals(prefix) || "SALEINNERVOID".equals(prefix) || "SALEINNERREFUND".equals(prefix)) {
+					if ("remittanceCreationDate".equalsIgnoreCase(attribute)) {
 						continue;
 					}
 				}
 
 				// Special scenarios, be careful when you change this
-				if (attribute.equalsIgnoreCase("processUser")
-						&& (prefix.equalsIgnoreCase("REFUND") || prefix.equalsIgnoreCase("VOID"))) {
+				if ("processUser".equalsIgnoreCase(attribute)
+						&& ("REFUND".equalsIgnoreCase(prefix) || "VOID".equalsIgnoreCase(prefix))) {
 					// Special case for pUser in VOID and REFUND tables
 					predicate = getPropertyPredicate("pUser");
 					attributeParam = "pUserParam1";
-				} else if (attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("amount")
-						|| attribute.equalsIgnoreCase("remittanceCreationDate")) {
+				} else if ("transactionDateTime".equalsIgnoreCase(attribute) || "amount".equalsIgnoreCase(attribute)
+						|| "remittanceCreationDate".equalsIgnoreCase(attribute)) {
 					// Specific cases for transactionDateTime, amount
 					predicate = predicate.replace(":atributeOperator", getOperation(operator));
 					if (dynamicParametersMap.containsKey(attribute + "Param1")) {
 						attributeParam = attribute + "Param2";
 						predicate = predicate.replace(attribute + "Param1", attributeParam);
 					}
-				} else if (attribute.equalsIgnoreCase("paymentProcessorId")) {
-					if (prefix.equals("MAINSALE") || prefix.equals("REFUND") || prefix.equals("VOID")
-							|| prefix.equals("SALEINNERVOID") || prefix.equals("SALEINNERREFUND")) {
+				} else if ("paymentProcessorId".equalsIgnoreCase(attribute)) {
+					if ("MAINSALE".equals(prefix) || "REFUND".equals(prefix) || "VOID".equals(prefix)
+							|| "SALEINNERVOID".equals(prefix) || "SALEINNERREFUND".equals(prefix)) {
 						// Processor name, not ID, is used in sale, refund, and
 						// void tables.
 						attributeParam = attributeParam.replaceAll("paymentProcessorId", "processorName");
@@ -392,12 +394,12 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 						predicate = predicate.replace("PaymentProcessorID", "Processor");
 						predicate = predicate.replace(attribute, "processorName");
 					}
-				} else if (attribute.equalsIgnoreCase("paymentFrequency")) {
+				} else if ("paymentFrequency".equalsIgnoreCase(attribute)) {
 					// Specific case for paymentFrequency, when paymentFrequency
 					// is NOT 'Recurring' then we need to search by all the
 					// values except 'Recurring'
 					value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
-				} else if (prefix.equals("ppr") && attribute.equalsIgnoreCase("processorName")) {
+				} else if ("ppr".equals(prefix) && "processorName".equalsIgnoreCase(attribute)) {
 					PaymentProcessor paymentProcessor = paymentProcessorDAO.getPaymentProcessorByProcessorName(value);
 					Long paymentProcessorId = ( paymentProcessor != null ? paymentProcessor.getPaymentProcessorId() : null );
 					value = String.valueOf(paymentProcessorId);
@@ -440,7 +442,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		
 		private String queryAsString;
-		private Map<String,Object> parametersMap = new HashMap<String,Object>();
+		private Map<String,Object> parametersMap = new HashMap<>();
 		private Sort sort;
 		private int pageNumber;
 		private int pageSize;
@@ -487,38 +489,36 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			this.sort = sort;
 		}
 		
-	}
-	
-	/**
-	 * Creates the sort value according with the sort object given
-	 * 
-	 * @param sort
-	 * @return String with the sort for the query
-	 */
-	private String addSort(Sort sort) {
-		if (sort == null) {
-			return StringUtils.EMPTY;
-		}
-		StringBuilder result = new StringBuilder(" ORDER BY ");
-		Iterator<Order> list = sort.iterator();
-		Order order = null;
-		while (list.hasNext()) {
-			order = list.next();
-			String predicate = getPropertyPredicate(order.getProperty());
-			result.append(predicate.substring(predicate.indexOf(":prefix.") + 8, predicate.indexOf(" ")));
-			result.append(" ");
-			result.append(order.getDirection().toString());
-			if (list.hasNext()) {
-				result.append(", ");
-			} else {
-				result.append(" ");
+		/**
+		 * Creates the sort value according with the sort object given
+		 * 
+		 * @param sort
+		 * @return String with the sort for the query
+		 */
+		private String addSort(Sort sort) {
+			if (sort == null) {
+				return StringUtils.EMPTY;
 			}
+			StringBuilder result = new StringBuilder(" ORDER BY ");
+			Iterator<Order> list = sort.iterator();
+			while (list.hasNext()) {
+				Order order = list.next();
+				String predicate = getPropertyPredicate(order.getProperty());
+				result.append(predicate.substring(predicate.indexOf(":prefix.") + 8, predicate.indexOf(" ")));
+				result.append(" ");
+				result.append(order.getDirection().toString());
+				if (list.hasNext()) {
+					result.append(", ");
+				} else {
+					result.append(" ");
+				}
+			}
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: addSort() : result : "+result.toString());
+			return result.toString();
 		}
-		LOGGER.debug("CustomSaleTransactionDAOImpl :: addSort() : result : "+result.toString());
-		return result.toString();
 	}
 	
-	public Map<String, CustomQuery> createQueries(String query, PageRequest page,HashMap<String, String> dynamicParametersMap) throws ParseException {
+	public Map<String, CustomQuery> createQueries(String query, PageRequest page,Map<String, String> dynamicParametersMap) throws ParseException {
 		CustomQuery queryTotal_CustomQuery = new CustomQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
 		CustomQuery result_CustomQuery = new CustomQuery(query);
 		result_CustomQuery.setSort(page != null ? page.getSort() : null);
@@ -549,7 +549,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			}
 		}
 		dynamicParametersMap.clear();
-		Map<String, CustomQuery> queriesMap = new HashMap<String, CustomQuery>();
+		Map<String, CustomQuery> queriesMap = new HashMap<>();
 		
 		queriesMap.put("result", result_CustomQuery);
 		queriesMap.put("queryTotal", queryTotal_CustomQuery);
@@ -575,11 +575,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @return string with the operation
 	 */
 	private String getOperation(String operator) {
-		if (operator.equalsIgnoreCase(">")) {
+		if (">".equalsIgnoreCase(operator)) {
 			return GOE;
 		}
 
-		if (operator.equalsIgnoreCase("<")) {
+		if ("<".equalsIgnoreCase(operator)) {
 			return LOE;
 		}
 
@@ -589,33 +589,34 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	public boolean skipFilter(String attribute, String prefix) {
 		// For payment processor remittance, processorName is a filter,
 		// so this should not be skipped.
-		if ((prefix.equals("st") && attribute.equalsIgnoreCase("processorName"))
-				|| (prefix.equals("ppr") && attribute.equalsIgnoreCase("processorName"))) {
+		if (("st".equals(prefix) && "processorName".equalsIgnoreCase(attribute))
+				|| ("ppr".equals(prefix) && "processorName".equalsIgnoreCase(attribute))) {
 			return false;
 		}
 		// For payment processor remittance, legalEntity and batchUploadId are
 		// not a filters.
-		if (prefix.equals("ppr")) {
-			if (attribute.equalsIgnoreCase("legalEntity") || attribute.equalsIgnoreCase("batchUploadId")) {
-				return true;
-			}
-		}
-		if (attribute.equalsIgnoreCase("transactionType")) {
+		if ("ppr".equals(prefix) && "legalEntity".equalsIgnoreCase(attribute)) {
 			return true;
 		}
-		if (prefix.equals("REFUND") || prefix.equals("VOID")) {
-			if (attribute.equalsIgnoreCase("accountNumber") || attribute.equalsIgnoreCase("amount")
-					|| attribute.equalsIgnoreCase("cardType") || attribute.equalsIgnoreCase("legalEntity")
-					|| attribute.equalsIgnoreCase("firstName") || attribute.equalsIgnoreCase("lastName")
-					|| attribute.equalsIgnoreCase("accountPeriod") || attribute.equalsIgnoreCase("desk")
-					|| attribute.equalsIgnoreCase("invoiceNumber") || attribute.equalsIgnoreCase("paymentFrequency")
-					|| attribute.equalsIgnoreCase("reconciliationStatusId")
-					|| attribute.equalsIgnoreCase("remittanceCreationDate")
-					|| attribute.equalsIgnoreCase("batchUploadId")) {
+		if ("ppr".equals(prefix) && "batchUploadId".equalsIgnoreCase(attribute)) {
+			return true;
+		}
+		if ("transactionType".equalsIgnoreCase(attribute)) {
+			return true;
+		}
+		if ("REFUND".equals(prefix) || "VOID".equals(prefix)) {
+			if ("accountNumber".equalsIgnoreCase(attribute) || "amount".equalsIgnoreCase(attribute)
+					|| "cardType".equalsIgnoreCase(attribute) || "legalEntity".equalsIgnoreCase(attribute)
+					|| "firstName".equalsIgnoreCase(attribute) || "lastName".equalsIgnoreCase(attribute)
+					|| "accountPeriod".equalsIgnoreCase(attribute) || "desk".equalsIgnoreCase(attribute)
+					|| "invoiceNumber".equalsIgnoreCase(attribute) || "paymentFrequency".equalsIgnoreCase(attribute)
+					|| "reconciliationStatusId".equalsIgnoreCase(attribute)
+					|| "remittanceCreationDate".equalsIgnoreCase(attribute)
+					|| "batchUploadId".equalsIgnoreCase(attribute)) {
 				return true;
 			}
-		} else if (attribute.equalsIgnoreCase("transactionId") || attribute.equalsIgnoreCase("internalStatusCode")
-				|| attribute.equalsIgnoreCase("transactionDateTime") || attribute.equalsIgnoreCase("processorName")) {
+		} else if ("transactionId".equalsIgnoreCase(attribute) || "internalStatusCode".equalsIgnoreCase(attribute)
+				|| "transactionDateTime".equalsIgnoreCase(attribute) || "processorName".equalsIgnoreCase(attribute)) {
 			// This are special cases where we don't need to apply this filters
 			// for the inner sale tables, because we will never get the sale
 			// transaction
@@ -845,9 +846,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			
 			record.setProcessor_Name(rs.getString("Processor_Name"));
 			record.setReconciliationStatus_ID(rs.getString("ReconciliationStatus_ID"));
-			
-			/*RemittanceSale obj = new RemittanceSale();
-			obj.setPaymentProcessorRemittance(record);*/
 			return record;
 		} 
 	}
@@ -864,7 +862,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setApplicationTransactionId(rs.getString("ApplicationTransactionID"));
 			record.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
 			record.setMerchantId(rs.getString("MerchantID"));
-			Timestamp ts = null;
+			Timestamp ts;
 			if (rs.getString("TransactionDateTime") != null) {
 				ts = Timestamp.valueOf(rs.getString("TransactionDateTime"));
 				record.setTransactionDateTime(new DateTime(ts));
@@ -1035,10 +1033,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		String[] merchantIdArray = null;
 		String reconciliationStatusId = null;
 		int anyOtherParamsIndex = search.indexOf("&");
-		if (anyOtherParamsIndex != -1) {
-			if (anyOtherParamsIndex < search.length()) {
-				search = search.substring(0, anyOtherParamsIndex);
-			}
+		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
+			search = search.substring(0, anyOtherParamsIndex);
 		}
 		String[] searchArray = search.split("\\$\\$");
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: getNativeQueryForRemittanceSaleRefund() : Search Array Values="+ ( Arrays.asList(searchArray) )+" and size of searchArray"+searchArray.length);
@@ -1127,7 +1123,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 	
 		
-		StringBuffer afterWhereClauseSB= new StringBuffer();
+		StringBuilder afterWhereClauseSB= new StringBuilder();
 		if (processorName != null) {
 			afterWhereClauseSB.append(" AND  ReconDate.Processor_Name = '" + processorName + "' ");
 		}
@@ -1409,7 +1405,7 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 
 			PaymentProcessorRemittance ppr = new PaymentProcessorRemittance();
 			ppr.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
-			Timestamp ts = null;
+			Timestamp ts;
 			if (rs.getString("DateCreated") != null){
 				ts = Timestamp.valueOf(rs.getString("DateCreated"));
 				ppr.setDateCreated(new DateTime(ts));
