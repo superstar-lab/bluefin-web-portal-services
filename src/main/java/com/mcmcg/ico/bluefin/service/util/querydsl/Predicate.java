@@ -111,7 +111,7 @@ class Predicate {
             throw new CustomBadRequestException(
                     "Unable to parse value of " + criteria.getKey() + ", correct format example [1,2,3]");
         } else if (criteriaValue.isEmpty()) {
-            return new ArrayList<Long>();
+            return new ArrayList<>();
         } else {
             return Arrays.asList(criteriaValue.split(",")).stream().map(String::trim).mapToLong(Long::parseLong).boxed()
                     .collect(Collectors.toList());

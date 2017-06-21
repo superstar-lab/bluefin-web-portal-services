@@ -298,11 +298,14 @@ public class SaleTransaction implements Serializable, Transaction {
 			return false;
 		}
 		SaleTransaction saleTransaction = (SaleTransaction) o;
-		return saleTransactionId == saleTransaction.saleTransactionId
-				&& Objects.equals(firstName, saleTransaction.firstName)
-				&& Objects.equals(lastName, saleTransaction.lastName)
-				&& Objects.equals(processUser, saleTransaction.processUser)
+		boolean idEq = saleTransactionId == saleTransaction.saleTransactionId;
+		boolean firstAndLastNmEq = Objects.equals(firstName, saleTransaction.firstName)
+				&& Objects.equals(lastName, saleTransaction.lastName);
+		boolean processUserAndTranTypeEq = Objects.equals(processUser, saleTransaction.processUser)
 				&& Objects.equals(transactionType, saleTransaction.transactionType);
+		return idEq
+				&& firstAndLastNmEq
+				&& processUserAndTranTypeEq;
 	}
 
 	@Override

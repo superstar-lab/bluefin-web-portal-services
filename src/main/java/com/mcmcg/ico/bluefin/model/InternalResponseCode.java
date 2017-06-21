@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.Data;
@@ -21,8 +22,8 @@ public class InternalResponseCode implements Serializable {
     private static final long serialVersionUID = 6473941024724065216L;
 
     private Long internalResponseCodeId;
-
-    private String internalResponseCode;
+    @JsonProperty("internalResponseCode")
+    private String internalResponseCodeValue;
 
     private String internalResponseCodeDescription;
 

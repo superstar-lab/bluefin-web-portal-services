@@ -195,7 +195,6 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setLong(2, userLegalEntity.getLegalEntityAppId());
 				ps.setTimestamp(3, dateCreated);
 			}
-
 			@Override
 			public int getBatchSize() {
 				return userLegalEntities.size();

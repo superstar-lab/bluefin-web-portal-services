@@ -121,7 +121,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveInternalResponseCode,
 						Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1, internalResponseCode.getInternalResponseCode()); // PermissionName
+				ps.setString(1, internalResponseCode.getInternalResponseCodeValue()); // PermissionName
 				ps.setString(2, internalResponseCode.getInternalResponseCodeDescription()); // Description
 				ps.setString(3, internalResponseCode.getLastModifiedBy()); // DateCreated
 				ps.setTimestamp(4, dateModified); // DateModified
@@ -182,7 +182,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		public com.mcmcg.ico.bluefin.model.InternalResponseCode mapRow(ResultSet rs, int row) throws SQLException {
 			com.mcmcg.ico.bluefin.model.InternalResponseCode  internalResponseCode = new com.mcmcg.ico.bluefin.model.InternalResponseCode();
 			internalResponseCode.setCreatedDate(getItemDate(rs.getString("DateCreated"), "YYYY-MM-dd HH:mm:ss.SSS"));
-			internalResponseCode.setInternalResponseCode(rs.getString("InternalResponseCode"));
+			internalResponseCode.setInternalResponseCodeValue(rs.getString("InternalResponseCode"));
 			internalResponseCode.setInternalResponseCodeDescription(rs.getString("InternalResponseCodeDescription"));
 			internalResponseCode.setInternalResponseCodeId(rs.getLong("InternalResponseCodeID"));
 			internalResponseCode.setLastModifiedBy(rs.getString("ModifiedBy"));
@@ -202,7 +202,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
 		int rows = jdbcTemplate.update(Queries.updateInternalResponseCode,
-					new Object[] { 	internalResponseCode.getInternalResponseCode(), internalResponseCode.getInternalResponseCodeDescription(), internalResponseCode.getLastModifiedBy(), 
+					new Object[] { 	internalResponseCode.getInternalResponseCodeValue(), internalResponseCode.getInternalResponseCodeDescription(), internalResponseCode.getLastModifiedBy(), 
 							internalResponseCode.getTransactionTypeName(), dateModified, internalResponseCode.getInternalResponseCodeId() });
 
 		LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Updated InternalStatusCode with ID: " + internalResponseCode.getInternalResponseCodeId() + ", rows affected = " + rows);

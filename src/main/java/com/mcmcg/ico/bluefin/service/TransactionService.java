@@ -356,7 +356,7 @@ public class TransactionService {
 			List<ReconciliationStatus> reconciliationStatusList = reconciliationStatusDAO.findAll();
 			LOGGER.debug("TransactionService :: getRemittanceTransactionsReport() : reconciliationStatusList size : "+reconciliationStatusList.size());
 			for (ReconciliationStatus rs : reconciliationStatusList) {
-				reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatus());
+				reconciliationStatusMap.put(rs.getReconciliationStatusId(), rs.getReconciliationStatusValue());
 			}
 
 			// initialize CSVPrinter object

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mcmcg.ico.bluefin.model.Application;
 
+@FunctionalInterface
 public interface ApplicationDAO {
 	List<Application> findAll();
 }

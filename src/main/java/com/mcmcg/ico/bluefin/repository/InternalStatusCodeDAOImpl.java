@@ -90,7 +90,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 			@Override
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(Queries.saveInternalStatusCode, Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1, internalStatusCode.getInternalStatusCode());
+				ps.setString(1, internalStatusCode.getInternalStatusCodeValue());
 				ps.setString(2, internalStatusCode.getInternalStatusCodeDescription());
 				ps.setString(3, internalStatusCode.getLastModifiedBy());
 				ps.setString(4, internalStatusCode.getInternalStatusCategoryAbbr());
@@ -127,7 +127,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 		
 		int rows = jdbcTemplate.update(Queries.updateInternalStatusCode,
-					new Object[] { 	internalStatusCode.getInternalStatusCode(), internalStatusCode.getInternalStatusCodeDescription(), internalStatusCode.getLastModifiedBy(), 
+					new Object[] { 	internalStatusCode.getInternalStatusCodeValue(), internalStatusCode.getInternalStatusCodeDescription(), internalStatusCode.getLastModifiedBy(), 
 									internalStatusCode.getInternalStatusCategoryAbbr(), internalStatusCode.getInternalStatusCategory(), internalStatusCode.getTransactionTypeName(),
 									dateModified, internalStatusCode.getInternalStatusCodeId()
 								 });

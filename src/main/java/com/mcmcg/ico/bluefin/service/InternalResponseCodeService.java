@@ -81,7 +81,7 @@ public class InternalResponseCodeService {
 
 		LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new internal response code {}", internalResponseCodeResource.getCode());
 		internalResponseCode = new com.mcmcg.ico.bluefin.model.InternalResponseCode();
-		internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
+		internalResponseCode.setInternalResponseCodeValue(internalResponseCodeResource.getCode());
 		internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 		internalResponseCode.setLastModifiedBy(userName);
 		internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
@@ -114,7 +114,7 @@ public class InternalResponseCodeService {
 						throw new CustomNotFoundException(
 								"Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
 					} else if (!resourceProcessorCode.getCode()
-							.equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
+							.equals(paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue())) {
 						codeModified = true;
 						if (paymentProcessorResponseCodeDAO
 								.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -144,7 +144,7 @@ public class InternalResponseCodeService {
 				}
 
 				paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-				paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
+				paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
 				paymentProcessorResponseCode
 						.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
 				paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
@@ -193,7 +193,7 @@ public class InternalResponseCodeService {
 
 		// Just in case of modify the code of the Internal Response Code, verify
 		// if the code is already assigned
-		if (!internalResponseCodeResource.getCode().equals(internalResponseCode.getInternalResponseCode())) {
+		if (!internalResponseCodeResource.getCode().equals(internalResponseCode.getInternalResponseCodeValue())) {
 			com.mcmcg.ico.bluefin.model.InternalResponseCode existingInternalResponseCode = internalResponseCodeDAO
 					.findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(),
 							transactionType.getTransactionTypeName());
@@ -203,7 +203,7 @@ public class InternalResponseCodeService {
 			}
 		}
 
-		internalResponseCode.setInternalResponseCode(internalResponseCodeResource.getCode());
+		internalResponseCode.setInternalResponseCodeValue(internalResponseCodeResource.getCode());
 		internalResponseCode.setInternalResponseCodeDescription(internalResponseCodeResource.getDescription());
 		internalResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
@@ -243,7 +243,7 @@ public class InternalResponseCodeService {
 							throw new CustomNotFoundException(
 									"Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
 						} else if (!resourceProcessorCode.getCode()
-								.equals(paymentProcessorResponseCode.getPaymentProcessorResponseCode())) {
+								.equals(paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue())) {
 							codeModified = true;
 							if (paymentProcessorResponseCodeDAO
 									.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -262,7 +262,7 @@ public class InternalResponseCodeService {
 						paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
 
 						paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-						paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
+						paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
 						paymentProcessorResponseCode
 								.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
 						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());
@@ -275,7 +275,7 @@ public class InternalResponseCodeService {
 						if (currentPaymentProcessorInternalResponseCodes != null && !currentPaymentProcessorInternalResponseCodes.isEmpty()) {
 							for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
 								if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
-										.getPaymentProcessorResponseCode().equals(resourceProcessorCode.getCode())
+										.getPaymentProcessorResponseCodeValue().equals(resourceProcessorCode.getCode())
 										&& !codeModified) {
 									throw new CustomBadRequestException(
 											"This Payment Processor is already related to another Internal Response Code.");
@@ -289,7 +289,7 @@ public class InternalResponseCodeService {
 							}
 						}
 						paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-						paymentProcessorResponseCode.setPaymentProcessorResponseCode(resourceProcessorCode.getCode());
+						paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
 						paymentProcessorResponseCode
 								.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
 						paymentProcessorResponseCode.setTransactionTypeName(transactionType.getTransactionTypeName());

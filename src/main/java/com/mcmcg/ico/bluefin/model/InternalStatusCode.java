@@ -19,7 +19,7 @@ public class InternalStatusCode implements Serializable {
 	// Associated Column : InternalStatusCodeID , PK column , Auto Generated.
 	private Long internalStatusCodeId;
 	// Associated Column : InternalStatusCode
-	private String internalStatusCode;
+	private String internalStatusCodeValue;
 	// Associated Column : InternalStatusCodeDescription
 	private String internalStatusCodeDescription;
 	// Associated Column : ModifiedBy
@@ -50,13 +50,13 @@ public class InternalStatusCode implements Serializable {
 	public void setInternalStatusCodeId(Long internalStatusCodeId) {
 		this.internalStatusCodeId = internalStatusCodeId;
 	}
-	public String getInternalStatusCode() {
+	public String getInternalStatusCodeValue() {
 	
-		return internalStatusCode;
+		return internalStatusCodeValue;
 	}
 	
 	public void setInternalStatusCode(String internalStatusCode) {
-		this.internalStatusCode = internalStatusCode;
+		this.internalStatusCodeValue = internalStatusCode;
 	}
 	
 	public String getInternalStatusCodeDescription() {
@@ -129,7 +129,7 @@ public class InternalStatusCode implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "Id="+this.internalStatusCodeId + " , Code="+this.internalStatusCode + " , Desc="+this.internalStatusCodeDescription+
+		return "Id="+this.internalStatusCodeId + " , Code="+this.internalStatusCodeValue + " , Desc="+this.internalStatusCodeDescription+
 				" , Category="+this.internalStatusCategory + " , category_abbr="+this.internalStatusCategoryAbbr +
 				" , No Of Childs="+this.getPaymentProcessorInternalStatusCodes().size();
 	}

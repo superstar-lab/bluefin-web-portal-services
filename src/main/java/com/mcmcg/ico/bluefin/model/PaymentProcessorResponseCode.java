@@ -15,15 +15,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-/*@EqualsAndHashCode(exclude = { "internalResponseCode" })
-@ToString(exclude = { "internalResponseCode" })*/
 public class PaymentProcessorResponseCode implements Serializable {
 
     private static final long serialVersionUID = -4612223418828597035L;
 
     private Long paymentProcessorResponseCodeId;
-
-    private String paymentProcessorResponseCode;
+    @JsonProperty("paymentProcessorResponseCode")
+    private String paymentProcessorResponseCodeValue;
 
     private String paymentProcessorResponseCodeDescription;
 

@@ -19,7 +19,9 @@ import org.slf4j.LoggerFactory;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 
 public class HttpsUtil {
-
+	private HttpsUtil(){
+		// default constructor
+	}
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpsUtil.class);
 
     public static String sendPostRequest(String requestUrl, String payload) {

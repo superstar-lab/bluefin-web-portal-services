@@ -280,7 +280,7 @@ public class SessionService {
 				permissionThirdParty.setPermissionName(applicationPermissionName);
 				permissionThirdParty.setDescription(StringUtils.capitalize(applicationPermissionName));
 				long permissionId = permissionDAO.savePermission(permissionThirdParty);
-				permissionThirdParty = permissionDAO.findByPermissionId(permissionId);
+				permissionDAO.findByPermissionId(permissionId);
 			}
 			roleThirdParty = new Role();
 			roleThirdParty.setRoleName(applicationRoleName);

@@ -61,7 +61,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 
 		if (paymentProcessorStatusCodeList != null) {
 			LOGGER.debug("Found payment processor statuscode for : "
-					+ paymentProcessorStatusCodeList.getPaymentProcessorResponseCode());
+					+ paymentProcessorStatusCodeList.getPaymentProcessorResponseCodeValue());
 		} else {
 			LOGGER.debug("Found payment processor statuscode not found for : " + paymentProcessorResponseCode + "/"
 					+ transactionTypeName + "/" + paymentProcessor.getPaymentProcessorId());
@@ -114,7 +114,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorResponseCode,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorResponseCode.getPaymentProcessor().getPaymentProcessorId()); // ProcessorName
-				ps.setString(2, paymentProcessorResponseCode.getPaymentProcessorResponseCode()); // DateCreated
+				ps.setString(2, paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue()); // DateCreated
 				ps.setString(3, paymentProcessorResponseCode.getTransactionTypeName()); // DateModified
 				ps.setString(4, paymentProcessorResponseCode.getPaymentProcessorResponseCodeDescription()); // ModifiedBy
 				ps.setTimestamp(5, dateCreated);
@@ -154,7 +154,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
 
 		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorResponseCode,
-				new Object[] { 	paymentProcessorResponseCode.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorResponseCode.getPaymentProcessorResponseCode(), 
+				new Object[] { 	paymentProcessorResponseCode.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue(), 
 								paymentProcessorResponseCode.getTransactionTypeName(), paymentProcessorResponseCode.getPaymentProcessorResponseCodeDescription(),
 								dateModified,paymentProcessorResponseCode.getLastModifiedBy(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeId()
 							 });
@@ -172,7 +172,7 @@ class PaymentProcessorResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.b
 		Timestamp ts;
 		com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeId(rs.getLong("PaymentProcessorResponseCodeID"));
-		paymentProcessorResponseCode.setPaymentProcessorResponseCode(rs.getString("PaymentProcessorResponseCode"));
+		paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(rs.getString("PaymentProcessorResponseCode"));
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeDescription(rs.getString("PaymentProcessorResponseCodeDescription"));
 		paymentProcessorResponseCode.setTransactionTypeName(rs.getString("TransactionType"));
 		PaymentProcessor paymentProcessor = new PaymentProcessor();

@@ -205,7 +205,7 @@ public class InternalStatusCodeService {
 
 		// Just in case of modify the code of the Internal Status Code, verify
 		// if the code is already assigned
-		if (!internalStatusCodeResource.getCode().equals(internalStatusCode.getInternalStatusCode())) {
+		if (!internalStatusCodeResource.getCode().equals(internalStatusCode.getInternalStatusCodeValue())) {
 			com.mcmcg.ico.bluefin.model.InternalStatusCode existingInternalStatusCode = internalStatusCodeDAO
 					.findByInternalStatusCodeAndTransactionTypeName(internalStatusCodeResource.getCode(),
 							transactionType.getTransactionTypeName());

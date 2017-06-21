@@ -10,6 +10,7 @@ class SearchCriteria {
     private Object value;
 
     public SearchCriteria() {
+    	// Default Constructor
     }
 
     public SearchCriteria(String key, String operation, Object value) {

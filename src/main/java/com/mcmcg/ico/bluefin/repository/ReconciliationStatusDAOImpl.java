@@ -75,7 +75,7 @@ class ReconciliationStatusRowMapper implements RowMapper<ReconciliationStatus> {
 	public ReconciliationStatus mapRow(ResultSet rs, int row) throws SQLException {
 		ReconciliationStatus reconciliationStatus = new ReconciliationStatus();
 		reconciliationStatus.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
-		reconciliationStatus.setReconciliationStatus(rs.getString("ReconciliationStatus"));
+		reconciliationStatus.setReconciliationStatusValue(rs.getString("ReconciliationStatus"));
 		reconciliationStatus.setDescription(rs.getString("Description"));
 		Timestamp ts;
 		if (rs.getString("DateCreated") != null) {

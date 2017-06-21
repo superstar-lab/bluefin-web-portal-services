@@ -379,8 +379,8 @@ public class UserService {
 		LOGGER.debug("UserService :: updateUserLegalEntities() : newMapOfLegalEntityApps size : "+newMapOfLegalEntityApps.size());
 		// Temporal list of legal entity apps that we need to keep in the user
 		// legal entity app list
-		Set<Long> legalEntityAppsToKeep = new HashSet<Long>();
-		Set<Long> legalEntityAppsToRemove = new HashSet<Long>();
+		Set<Long> legalEntityAppsToKeep = new HashSet<>();
+		Set<Long> legalEntityAppsToRemove = new HashSet<>();
 		// Update current role list from user
 		Iterator<UserLegalEntityApp> iter = userToUpdate.getLegalEntities().iterator();
 		while (iter.hasNext()) {
@@ -397,9 +397,9 @@ public class UserService {
 		}
 
 		// Add new roles to the user but ignoring the existing ones
-		for (Long legalEntityAppId : newMapOfLegalEntityApps.keySet()) {
-			if (!legalEntityAppsToKeep.contains(legalEntityAppId)) {
-				userToUpdate.addLegalEntityApp(newMapOfLegalEntityApps.get(legalEntityAppId));
+		for (Entry<Long,LegalEntityApp> legalEntityApp : newMapOfLegalEntityApps.entrySet()) {
+			if (!legalEntityAppsToKeep.contains(legalEntityApp.getKey())) {
+				userToUpdate.addLegalEntityApp(legalEntityApp.getValue());
 			}
 		}
 		userToUpdate.setDateUpdated(new DateTime());
@@ -407,7 +407,7 @@ public class UserService {
 		removeLegalEntityFromUser(legalEntityAppsToRemove);
 		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
-		userToUpdate.setRoles(Collections.EMPTY_LIST);
+		userToUpdate.setRoles(Collections.emptyList());
 		LOGGER.debug("UserService :: updateUserLegalEntities() : ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
@@ -521,7 +521,7 @@ public class UserService {
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
 			final String token) {
 
-		username = ("me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username);
+		username = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
 		LOGGER.debug("UserService :: updateUserPassword() : username : "+username);
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("UserService :: updateUserPassword() : tokenType : "+tokenType);
@@ -567,7 +567,7 @@ public class UserService {
 				throw new CustomBadRequestException("An authorization token is required to request this resource");
 			}
 
-			String status = (activate ? "NEW" : "INACTIVE");
+			String status = activate ? "NEW" : "INACTIVE";
 			User user = userDAO.findByUsername(username);
 			if (user == null) {
 				notFoundUsernames.add(username);

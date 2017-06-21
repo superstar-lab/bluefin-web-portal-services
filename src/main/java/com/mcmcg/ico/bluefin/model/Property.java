@@ -36,10 +36,11 @@ public class Property implements Serializable {
 			return false;
 		}
 		Property property = (Property) o;
-		return applicationPropertyId == property.applicationPropertyId
-				&& Objects.equals(applicationPropertyName, property.applicationPropertyName)
-				&& Objects.equals(applicationPropertyValue, property.applicationPropertyValue)
-				&& Objects.equals(dataType, property.dataType) && Objects.equals(description, property.description);
+		boolean idEq = applicationPropertyId == property.applicationPropertyId;
+		boolean nameAndValueEq = Objects.equals(applicationPropertyName, property.applicationPropertyName)
+				&& Objects.equals(applicationPropertyValue, property.applicationPropertyValue);
+		boolean dataTypeAndDescEq = Objects.equals(dataType, property.dataType) && Objects.equals(description, property.description);
+		return idEq	&& nameAndValueEq && dataTypeAndDescEq;
 	}
 
 	@Override

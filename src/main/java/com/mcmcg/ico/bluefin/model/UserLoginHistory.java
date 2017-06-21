@@ -16,14 +16,14 @@ public class UserLoginHistory implements Serializable {
 	public enum MessageCode {
 		SUCCESS(1), ERROR_USER_NOT_FOUND(2), ERROR_PASSWORD_NOT_FOUND(3), ERROR_USER_NOT_ACTIVE(4);
 
-		private final Integer messageCode;
+		private final Integer messageCodeVal;
 
 		private MessageCode(Integer messageCode) {
-			this.messageCode = messageCode;
+			this.messageCodeVal = messageCode;
 		}
 
 		public Integer getValue() {
-			return this.messageCode;
+			return this.messageCodeVal;
 		}
 	}
 
@@ -52,8 +52,10 @@ public class UserLoginHistory implements Serializable {
 			return false;
 		}
 		UserLoginHistory userLoginHistory = (UserLoginHistory) o;
-		return userLoginHistoryId == userLoginHistory.userLoginHistoryId && userId == userLoginHistory.userId
-				&& messageId == userLoginHistory.messageId && Objects.equals(username, userLoginHistory.username)
+		boolean loginHistIdAndUserIdEq = userLoginHistoryId == userLoginHistory.userLoginHistoryId && userId == userLoginHistory.userId;
+		boolean msgIdAndUserNmEq = messageId == userLoginHistory.messageId && Objects.equals(username, userLoginHistory.username);
+		return loginHistIdAndUserIdEq
+				&& msgIdAndUserNmEq
 				&& Objects.equals(password, userLoginHistory.password);
 	}
 

@@ -388,7 +388,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 						// void tables.
 						attributeParam = attributeParam.replaceAll("paymentProcessorId", "processorName");
 						PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(value));
-						value = ( paymentProcessor != null ? paymentProcessor.getProcessorName() : null);
+						value = paymentProcessor != null ? paymentProcessor.getProcessorName() : null;
 						predicate = predicate.replace("PaymentProcessorID", "Processor");
 						predicate = predicate.replace(attribute, "processorName");
 					}
@@ -399,7 +399,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
 				} else if ("ppr".equals(prefix) && "processorName".equalsIgnoreCase(attribute)) {
 					PaymentProcessor paymentProcessor = paymentProcessorDAO.getPaymentProcessorByProcessorName(value);
-					Long paymentProcessorId = ( paymentProcessor != null ? paymentProcessor.getPaymentProcessorId() : null );
+					Long paymentProcessorId = paymentProcessor != null ? paymentProcessor.getPaymentProcessorId() : null;
 					value = String.valueOf(paymentProcessorId);
 				}
 

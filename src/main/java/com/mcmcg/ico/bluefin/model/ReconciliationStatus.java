@@ -8,13 +8,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReconciliationStatus implements Serializable {
 
 	private static final long serialVersionUID = 4957286211246187153L;
 
 	private Long reconciliationStatusId;
-	private String reconciliationStatus;
+	@JsonProperty("reconciliationStatus")
+	private String reconciliationStatusValue;
 	private String description;
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -40,13 +42,13 @@ public class ReconciliationStatus implements Serializable {
 		}
 		ReconciliationStatus reconciliationStatus = (ReconciliationStatus) o;
 		return reconciliationStatusId == reconciliationStatus.reconciliationStatusId
-				&& Objects.equals(reconciliationStatus, reconciliationStatus.reconciliationStatus)
+				&& Objects.equals(reconciliationStatus, reconciliationStatus.reconciliationStatusValue)
 				&& Objects.equals(description, reconciliationStatus.description);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(reconciliationStatusId, reconciliationStatus, description);
+		return Objects.hash(reconciliationStatusId, reconciliationStatusValue, description);
 	}
 
 	public Long getReconciliationStatusId() {
@@ -57,12 +59,12 @@ public class ReconciliationStatus implements Serializable {
 		this.reconciliationStatusId = reconciliationStatusId;
 	}
 
-	public String getReconciliationStatus() {
-		return reconciliationStatus;
+	public String getReconciliationStatusValue() {
+		return reconciliationStatusValue;
 	}
 
-	public void setReconciliationStatus(String reconciliationStatus) {
-		this.reconciliationStatus = reconciliationStatus;
+	public void setReconciliationStatusValue(String reconciliationStatus) {
+		this.reconciliationStatusValue = reconciliationStatus;
 	}
 
 	public String getDescription() {

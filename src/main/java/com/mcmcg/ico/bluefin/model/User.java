@@ -77,10 +77,20 @@ public class User implements Serializable {
 			return false;
 		}
 		User user = (User) o;
-		return userId == user.userId && Objects.equals(username, user.username)
-				&& Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName)
-				&& isActive == user.isActive && Objects.equals(email, user.email)
-				&& Objects.equals(password, user.password) && Objects.equals(status, user.status) &&  Objects.equals(selectedTimeZone, user.selectedTimeZone);
+		boolean userIdAndUserNameEq = userId == user.userId && Objects.equals(username, user.username);
+		if (userIdAndUserNameEq) {
+			boolean firstAndLastNameEq = Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName);
+			if (firstAndLastNameEq) {
+				boolean statusAndPwdEq = Objects.equals(password, user.password) && Objects.equals(status, user.status);
+				if (statusAndPwdEq) {
+					boolean emailAndSelTimeZoneEq = Objects.equals(email, user.email) &&  Objects.equals(selectedTimeZone, user.selectedTimeZone);
+					if (emailAndSelTimeZoneEq) {
+						return isActive == user.isActive;
+					}
+				}
+			}
+		}
+		return false; 
 	}
 
 	@Override
