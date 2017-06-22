@@ -70,17 +70,17 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	}
 
 	private void insertBatch(final List<PaymentProcessorMerchant> paymentProcessorMerchants){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorMarchent, new InsertBatchPreparedStatement(paymentProcessorMerchants));
+		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorMarchent, new PaymentProcessorInsertBatchPreparedStatement(paymentProcessorMerchants));
 	}
 
 }
 
-class InsertBatchPreparedStatement implements BatchPreparedStatementSetter {
+class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedStatementSetter {
 	
 	private final List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
 	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 	
-	public InsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> _paymentProcessorMerchants){
+	public PaymentProcessorInsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> _paymentProcessorMerchants){
 		paymentProcessorMerchants = _paymentProcessorMerchants;
 	}
 	@Override

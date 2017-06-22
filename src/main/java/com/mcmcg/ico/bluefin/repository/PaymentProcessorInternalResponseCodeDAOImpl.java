@@ -66,7 +66,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	}
 	
 	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalResponseCode, new InsertBatchPreparedStatement(paymentProcessorInternalResponseCodes));
+		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalResponseCode, new PaymentProcessorInternalResponseCodeInsertBatch(paymentProcessorInternalResponseCodes));
 	}
 	
 	@Override
@@ -208,10 +208,10 @@ class PaymentProcessorInternalResponseCodeRowMapper implements RowMapper<Payment
 
 }
 
-class InsertBatchPreparedStatement implements BatchPreparedStatementSetter {
+class PaymentProcessorInternalResponseCodeInsertBatch implements BatchPreparedStatementSetter {
 	final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
 	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
-	public InsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> _paymentProcessorInternalResponseCodes){
+	public PaymentProcessorInternalResponseCodeInsertBatch(List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> _paymentProcessorInternalResponseCodes){
 		this.paymentProcessorInternalResponseCodes = _paymentProcessorInternalResponseCodes;
 	}
 	@Override
