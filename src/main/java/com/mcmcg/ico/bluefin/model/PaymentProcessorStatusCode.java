@@ -20,8 +20,8 @@ public class PaymentProcessorStatusCode implements Serializable {
     private static final long serialVersionUID = -4612223418828597035L;
 
     private Long paymentProcessorStatusCodeId;
-
-    private String paymentProcessorStatusCode;
+    @JsonProperty("paymentProcessorStatusCode")
+    private String paymentProcessorStatusCodeValue;
 
     private String paymentProcessorStatusCodeDescription;
 

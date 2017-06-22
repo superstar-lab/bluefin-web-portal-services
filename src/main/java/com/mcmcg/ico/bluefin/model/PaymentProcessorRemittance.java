@@ -23,35 +23,6 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		// Default constructor
 	}
 
-	public PaymentProcessorRemittance(Long paymentProcessorRemittanceId, DateTime dateCreated,
-			Long reconciliationStatusId, DateTime reconciliationDate, String paymentMethod,
-			BigDecimal transactionAmount, String transactionType, DateTime transactionTime, String accountId,
-			String application, String processorTransactionId, String merchantId, String transactionSource,
-			String firstName, String lastName, DateTime remittanceCreationDate, Long paymentProcessorId,
-			String reProcessStatus, Long etlRunId, String saleAccountNumber, BigDecimal saleAmount) {
-		this.paymentProcessorRemittanceId = paymentProcessorRemittanceId;
-		this.dateCreated = dateCreated;
-		this.reconciliationStatusId = reconciliationStatusId;
-		this.reconciliationDate = reconciliationDate;
-		this.paymentMethod = paymentMethod;
-		this.transactionAmount = transactionAmount;
-		this.transactionType = transactionType;
-		this.transactionTime = transactionTime;
-		this.accountId = accountId;
-		this.application = application;
-		this.processorTransactionId = processorTransactionId;
-		this.merchantId = merchantId;
-		this.transactionSource = transactionSource;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.remittanceCreationDate = remittanceCreationDate;
-		this.paymentProcessorId = paymentProcessorId;
-		this.reProcessStatus = reProcessStatus;
-		this.etlRunId = etlRunId;
-		this.saleAccountNumber = saleAccountNumber;
-		this.saleAmount = saleAmount;
-	}
-
 	@JsonProperty("remittance.paymentProcessorRemittanceId")
 	private Long paymentProcessorRemittanceId;
 	
@@ -412,11 +383,16 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 			return false;
 		}
 		PaymentProcessorRemittance paymentProcessorRemittance = (PaymentProcessorRemittance) o;
-		return paymentProcessorRemittanceId == paymentProcessorRemittance.paymentProcessorRemittanceId
-				&& reconciliationStatusId == paymentProcessorRemittance.reconciliationStatusId
-				&& Objects.equals(paymentMethod, paymentProcessorRemittance.paymentMethod)
+		boolean idEq = paymentProcessorRemittanceId == paymentProcessorRemittance.paymentProcessorRemittanceId;
+		if (idEq) {
+			boolean recStatusIdEq = reconciliationStatusId == paymentProcessorRemittance.reconciliationStatusId;
+			if (recStatusIdEq) {
+				return Objects.equals(paymentMethod, paymentProcessorRemittance.paymentMethod)
 				&& Objects.equals(processorTransactionId, paymentProcessorRemittance.processorTransactionId)
 				&& paymentProcessorId == paymentProcessorRemittance.paymentProcessorId;
+			}
+		}
+		return false;
 	}
 
 	@Override

@@ -83,10 +83,8 @@ public class User implements Serializable {
 			if (firstAndLastNameEq) {
 				boolean statusAndPwdEq = Objects.equals(password, user.password) && Objects.equals(status, user.status);
 				if (statusAndPwdEq) {
-					boolean emailAndSelTimeZoneEq = Objects.equals(email, user.email) &&  Objects.equals(selectedTimeZone, user.selectedTimeZone);
-					if (emailAndSelTimeZoneEq) {
-						return isActive == user.isActive;
-					}
+					return Objects.equals(email, user.email) 
+							&&  Objects.equals(selectedTimeZone, user.selectedTimeZone) && isActive == user.isActive;
 				}
 			}
 		}

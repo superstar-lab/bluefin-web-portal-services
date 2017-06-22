@@ -124,7 +124,7 @@ public class InternalStatusCodeService {
 					paymentProcessorStatusCode = paymentProcessorStatusCodeDAO.findOne(paymentProcessorCodeId);
 					if (paymentProcessorStatusCode == null) {
 						throw new CustomNotFoundException("Payment Processor Status Code does not exist: " + paymentProcessorCodeId);
-					} else if (!paymentProcessorStatusCode.getPaymentProcessorStatusCode().equals(resourceProcessorCode.getCode())) {
+					} else if (!paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue().equals(resourceProcessorCode.getCode())) {
 						codeModified = true;
 						if (paymentProcessorStatusCodeDAO
 								.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -155,7 +155,7 @@ public class InternalStatusCodeService {
 				}
 
 				paymentProcessorStatusCode.setPaymentProcessor(paymentProcessor);
-				paymentProcessorStatusCode.setPaymentProcessorStatusCode(resourceProcessorCode.getCode());
+				paymentProcessorStatusCode.setPaymentProcessorStatusCodeValue(resourceProcessorCode.getCode());
 				paymentProcessorStatusCode.setPaymentProcessorStatusCodeDescription(resourceProcessorCode.getDescription());
 				paymentProcessorStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
@@ -257,7 +257,7 @@ public class InternalStatusCodeService {
 						if (paymentProcessorStatusCode == null) {
 							throw new CustomNotFoundException(
 									"Payment Processor Status Code does not exist: " + paymentProcessorCodeId);
-						} else if (!paymentProcessorStatusCode.getPaymentProcessorStatusCode().equals(resourceProcessorCode.getCode())) {
+						} else if (!paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue().equals(resourceProcessorCode.getCode())) {
 							codeModified = true;
 							if (paymentProcessorStatusCodeDAO.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
 											resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
@@ -273,7 +273,7 @@ public class InternalStatusCodeService {
 						LOGGER.debug("InternalStatusCodeService :: updateInternalStatusCode() : Creating new payment processor Status code {}", resourceProcessorCode.getCode());
 						paymentProcessorStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode();
 						paymentProcessorStatusCode.setPaymentProcessor(paymentProcessor);
-						paymentProcessorStatusCode.setPaymentProcessorStatusCode(resourceProcessorCode.getCode());
+						paymentProcessorStatusCode.setPaymentProcessorStatusCodeValue(resourceProcessorCode.getCode());
 						paymentProcessorStatusCode.setPaymentProcessorStatusCodeDescription(resourceProcessorCode.getDescription());
 						paymentProcessorStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 
@@ -286,7 +286,7 @@ public class InternalStatusCodeService {
 						if (currentPaymentProcessorInternalStatusCodes != null && !currentPaymentProcessorInternalStatusCodes.isEmpty()) {
 							for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
 								if (!currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode()
-									.getPaymentProcessorStatusCode().equals(resourceProcessorCode.getCode())
+									.getPaymentProcessorStatusCodeValue().equals(resourceProcessorCode.getCode())
 									&& !codeModified) {
 									throw new CustomBadRequestException(
 										"This Payment Processor is already related to another Internal Status Code.");
@@ -300,7 +300,7 @@ public class InternalStatusCodeService {
 							}
 						}
 						paymentProcessorStatusCode.setPaymentProcessor(paymentProcessor);
-						paymentProcessorStatusCode.setPaymentProcessorStatusCode(resourceProcessorCode.getCode());
+						paymentProcessorStatusCode.setPaymentProcessorStatusCodeValue(resourceProcessorCode.getCode());
 						paymentProcessorStatusCode.setPaymentProcessorStatusCodeDescription(resourceProcessorCode.getDescription());
 						paymentProcessorStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 						

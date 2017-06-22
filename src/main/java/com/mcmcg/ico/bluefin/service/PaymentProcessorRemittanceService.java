@@ -82,13 +82,28 @@ public class PaymentProcessorRemittanceService {
 			st = new SaleTransaction();
 		}
 
-		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance(
-				ppr.getPaymentProcessorRemittanceId(), ppr.getDateCreated(), ppr.getReconciliationStatusId(),
-				ppr.getReconciliationDate(), ppr.getPaymentMethod(), ppr.getTransactionAmount(),
-				ppr.getTransactionType(), ppr.getTransactionTime(), ppr.getAccountId(), ppr.getApplication(),
-				ppr.getProcessorTransactionId(), ppr.getMerchantId(), ppr.getTransactionSource(), ppr.getFirstName(),
-				ppr.getLastName(), ppr.getRemittanceCreationDate(), ppr.getPaymentProcessorId(), null, null, 
-				ppr.getSaleAccountNumber(), ppr.getSaleAmount());
+		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
+		paymentProcessorRemittance.setPaymentProcessorRemittanceId(ppr.getPaymentProcessorRemittanceId());
+		paymentProcessorRemittance.setDateCreated(ppr.getDateCreated());
+		paymentProcessorRemittance.setReconciliationStatusId(ppr.getReconciliationStatusId());
+		paymentProcessorRemittance.setReconciliationDate(ppr.getReconciliationDate()); 
+		paymentProcessorRemittance.setPaymentMethod(ppr.getPaymentMethod());
+		paymentProcessorRemittance.setTransactionAmount(ppr.getTransactionAmount());
+		paymentProcessorRemittance.setTransactionType(ppr.getTransactionType()); 
+		paymentProcessorRemittance.setTransactionTime(ppr.getTransactionTime()); 
+		paymentProcessorRemittance.setAccountId(ppr.getAccountId()); 
+		paymentProcessorRemittance.setApplication(ppr.getApplication());
+		paymentProcessorRemittance.setProcessorTransactionId(ppr.getProcessorTransactionId()); 
+		paymentProcessorRemittance.setMerchantId(ppr.getMerchantId()); 
+		paymentProcessorRemittance.setTransactionSource(ppr.getTransactionSource()); 
+		paymentProcessorRemittance.setFirstName(ppr.getFirstName());
+		paymentProcessorRemittance.setLastName(ppr.getLastName()); 
+		paymentProcessorRemittance.setRemittanceCreationDate(ppr.getRemittanceCreationDate()); 
+		paymentProcessorRemittance.setPaymentProcessorId(ppr.getPaymentProcessorId()); 
+		paymentProcessorRemittance.setReProcessStatus(null); 
+		paymentProcessorRemittance.setEtlRunId(null); 
+		paymentProcessorRemittance.setSaleAccountNumber(ppr.getSaleAccountNumber()); 
+		paymentProcessorRemittance.setSaleAmount(ppr.getSaleAmount());
 
 		result = (Transaction) paymentProcessorRemittance;
 

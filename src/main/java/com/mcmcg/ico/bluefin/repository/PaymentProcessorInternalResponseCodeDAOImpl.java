@@ -1,18 +1,16 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -22,15 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
@@ -39,8 +33,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
 public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProcessorInternalResponseCodeDAO {
-	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorInternalResponseCodeDAOImpl.class);
-	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorInternalResponseCodeDAOImpl.class);
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -55,7 +48,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	}
 	
 	
-	public static DateTime getItemDate(String date, String pattern) {
+	public DateTime getItemDate(String date, String pattern) {
 		try {
 			return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
 		} catch (Exception e) {
@@ -73,33 +66,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	}
 	
 	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalResponseCode, new BatchPreparedStatementSetter() {
-			
-			@Override
-			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = paymentProcessorInternalResponseCodes.get(i);
-				DateTime utc1 = paymentProcessorInternalResponseCode.getCreatedDate() != null ? paymentProcessorInternalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-				LOGGER.debug("PaymentProcessorInternalResponseCodeDAOImpl :: insertBatch() : Creating child item , InternalResponseCodeId="+(paymentProcessorInternalResponseCode.getPaymentProcessorInternalResponseCodeId()));
-				if (paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode() != null && paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId()!= null) {
-					ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
-				} else {
-					ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCodeId());
-				}
-				if (paymentProcessorInternalResponseCode.getInternalResponseCode() != null && paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId()!= null) {
-					ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
-				} else {
-					ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCodeId());
-				}
-				ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
-				ps.setTimestamp(3, dateCreated);
-			}
-
-			@Override
-			public int getBatchSize() {
-				return paymentProcessorInternalResponseCodes.size();
-			}
-		  });
+		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalResponseCode, new InsertBatchPreparedStatement(paymentProcessorInternalResponseCodes));
 	}
 	
 	@Override
@@ -128,7 +95,6 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", ids);
 		executeQueryToDeleteRecords(Queries.deletePaymentProcessorResponseCodeIds,valuesToDelete);
-		
 	}
 	
 	private void executeQueryToDeleteRecords(String deleteQuery,Map<String, List<Long>> idsToDelete){
@@ -239,4 +205,36 @@ class PaymentProcessorInternalResponseCodeRowMapper implements RowMapper<Payment
 		
 		return paymentProcessor;
 	}
+
+}
+
+class InsertBatchPreparedStatement implements BatchPreparedStatementSetter {
+	final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
+	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	public InsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> _paymentProcessorInternalResponseCodes){
+		this.paymentProcessorInternalResponseCodes = _paymentProcessorInternalResponseCodes;
+	}
+	@Override
+	public void setValues(PreparedStatement ps, int i) throws SQLException {
+		com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = paymentProcessorInternalResponseCodes.get(i);
+		DateTime utc1 = paymentProcessorInternalResponseCode.getCreatedDate() != null ? paymentProcessorInternalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+		if (paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode() != null && paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId()!= null) {
+			ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
+		} else {
+			ps.setLong(1, paymentProcessorInternalResponseCode.getPaymentProcessorResponseCodeId());
+		}
+		if (paymentProcessorInternalResponseCode.getInternalResponseCode() != null && paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId()!= null) {
+			ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
+		} else {
+			ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCodeId());
+		}
+		ps.setLong(2, paymentProcessorInternalResponseCode.getInternalResponseCode().getInternalResponseCodeId());
+		ps.setTimestamp(3, dateCreated);
+	}
+
+	@Override
+	public int getBatchSize() {
+		return paymentProcessorInternalResponseCodes.size();
+	} 
 } 
