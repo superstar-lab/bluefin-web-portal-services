@@ -172,7 +172,7 @@ public class TokenUtils {
 
 	public Boolean canTokenBeRefreshed(String token, Date lastPasswordReset) {
 		final Date created = this.getCreatedDateFromToken(token);
-		return (!(this.isCreatedBeforeLastPasswordReset(created, lastPasswordReset)) && (!this.isTokenExpired(token)));
+		return !this.isCreatedBeforeLastPasswordReset(created, lastPasswordReset) && !this.isTokenExpired(token);
 	}
 
 	public String refreshToken(String token) {
@@ -192,8 +192,8 @@ public class TokenUtils {
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = this.getUsernameFromToken(token);
-		return (username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
-				&& !isTokenInBlacklist(token, username));
+		return username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
+				&& !isTokenInBlacklist(token, username);
 	}
 
 	public SecurityTokenBlacklist sendTokenToBlacklist(String token, String username) {

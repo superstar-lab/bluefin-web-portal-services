@@ -64,7 +64,6 @@ public class ReportRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ResponseEntity<String> getTransactionsReport(@RequestParam(value = "search", required = true) String search,
-			@RequestParam(value = "sort", required = false) String sort,
 			@RequestParam(value = "timeZone", required = true) String timeZone,
 			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
 		if (authentication == null) {
@@ -72,12 +71,15 @@ public class ReportRestController {
 		}
 
 		LOGGER.debug("transactions service ::: Entered : search "+search);
+		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+			searchValue = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		} else {
+			searchValue = search;
 		}
 
-		File downloadFile = transactionService.getTransactionsReport(search, timeZone);
+		File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType("application/octet-stream");
 		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());

@@ -80,18 +80,21 @@ public class TransactionsRestController {
 		}
 
 		LOGGER.info("getTransactions :: servive");
+		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-			search = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+			searchValue = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		} else {
+			searchValue = search;
 		}
 
-		LOGGER.debug("Generating Report with the following filters= {}", search);
+		LOGGER.debug("Generating Report with the following filters= {}", searchValue);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(search, QueryUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(searchValue, QueryUtil.getPageRequest(page, size, sort)));
 	}
 }

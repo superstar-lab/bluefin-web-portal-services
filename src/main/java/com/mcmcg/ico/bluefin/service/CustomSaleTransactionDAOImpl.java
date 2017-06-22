@@ -1031,10 +1031,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		String[] merchantIdArray = null;
 		String reconciliationStatusId = null;
 		int anyOtherParamsIndex = search.indexOf("&");
+		String searchValue;
 		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
-			search = search.substring(0, anyOtherParamsIndex);
+			searchValue = search.substring(0, anyOtherParamsIndex);
+		} else {
+			searchValue = search;
 		}
-		String[] searchArray = search.split("\\$\\$");
+		String[] searchArray = searchValue.split("\\$\\$");
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: getNativeQueryForRemittanceSaleRefund() : Search Array Values="+ ( Arrays.asList(searchArray) )+" and size of searchArray"+searchArray.length);
 		for (String parameter : searchArray) {
 			if (parameter.startsWith("remittanceCreationDate>")) {

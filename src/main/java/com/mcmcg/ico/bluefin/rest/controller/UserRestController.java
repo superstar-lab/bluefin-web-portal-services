@@ -72,20 +72,23 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 		LOGGER.debug("getUser with username:: service "+username);
+		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
-			username = authentication.getName();
+			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
 		}
-
+		if (usernameValue != null && usernameValue.isEmpty()) {
+			usernameValue = username;
+		}
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be requested
-		if (!userService.belongsToSameLegalEntity(authentication, username)) {
+		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
 		}
 
-		LOGGER.debug("Getting user information: {}", username);
-		return userService.getUserInfomation("me".equals(username) ? authentication.getName() : username);
+		LOGGER.debug("Getting user information: {}", usernameValue);
+		return userService.getUserInfomation("me".equals(usernameValue) ? authentication.getName() : usernameValue);
 	}
 
 	@ApiOperation(value = "getUsers", nickname = "getUsers")
@@ -106,22 +109,25 @@ public class UserRestController {
 		LOGGER.info("getUser :: service");
 		final String userName = authentication.getName();
 		LOGGER.debug("getUser :: service : userName : "+userName);
+		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			// Verifies if the search parameter has allowed
 			// legal entities for the consultant user
-			search = getVerifiedSearch(userName, search);
+			searchValue = getVerifiedSearch(userName, search);
+		} else {
+			searchValue = search;
 		}
 
-		int anyOtherParamsIndex = search.indexOf("&");
-		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
-			search = search.substring(0, anyOtherParamsIndex);
+		int anyOtherParamsIndex = searchValue.indexOf("&");
+		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < searchValue.length()) {
+			searchValue = searchValue.substring(0, anyOtherParamsIndex);
 		}
-		String[] searchArray = search!= null && StringUtils.isNotBlank(search)?search.split("\\$\\$"):null;
+		String[] searchArray = searchValue!= null && StringUtils.isNotBlank(searchValue)?searchValue.split("\\$\\$"):null;
 		List<String>  filterList=  null;
 		if(searchArray!=null)
 			filterList = Arrays.asList(searchArray);
 		
-		LOGGER.debug("Generating report with the following filters: {}", search);
+		LOGGER.debug("Generating report with the following filters: {}", searchValue);
 		return userService.getUsers(filterList, page, size, sort);
 	}
 
@@ -172,17 +178,20 @@ public class UserRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 		LOGGER.info("updateUserProfile :: service");
+		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
-			username = authentication.getName();
+			usernameValue = authentication.getName();
 		} else {
 			if (!userService.hasPermissionToManageAllUsers(authentication)) {
 				throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
 			}
 		}
-
+		if (usernameValue != null && usernameValue.isEmpty()) {
+			usernameValue = username;
+		}	
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated
-		if (!userService.belongsToSameLegalEntity(authentication, username)) {
+		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
 			throw new AccessDeniedException("User doesn't have permission to get information from other users");
 		}
 
@@ -192,8 +201,8 @@ public class UserRestController {
 			throw new CustomBadRequestException(errorDescription);
 		}
 
-		LOGGER.debug("Updating account for user: {}", username);
-		return userService.updateUserProfile("me".equals(username) ? authentication.getName() : username, userToUpdate);
+		LOGGER.debug("Updating account for user: {}", usernameValue);
+		return userService.updateUserProfile("me".equals(usernameValue) ? authentication.getName() : usernameValue, userToUpdate);
 	}
 
 	@ApiOperation(value = "updateUserRoles", nickname = "updateUserRoles")
