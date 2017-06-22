@@ -281,16 +281,19 @@ public class UserRestController {
 		}
 
 		LOGGER.info("updateUserPassword :: service");
+		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
-			username = authentication.getName();
+			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
 		}
-
+		if(usernameValue != null && usernameValue.isEmpty()) {
+			usernameValue = username;
+		}
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("updateUserPassword :: service : token : "+token);
 		if (token != null) {
-			userService.updateUserPassword(username, updatePasswordResource, token);
+			userService.updateUserPassword(usernameValue, updatePasswordResource, token);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 

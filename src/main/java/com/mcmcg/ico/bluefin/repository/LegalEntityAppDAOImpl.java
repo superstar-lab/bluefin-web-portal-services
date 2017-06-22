@@ -113,9 +113,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveLegalEntityApp,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
@@ -124,7 +122,6 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setString(4, legalEntityApp.getModifiedBy()); // ModifiedBy
 				ps.setShort(5, legalEntityApp.getIsActive()); // IsActive
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();
@@ -154,19 +151,15 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		DateTimeFormatter dateModifiedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp dateModified = Timestamp.valueOf(dateModifiedDateFormat.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.updateLegalEntityApp,
 						Statement.RETURN_GENERATED_KEYS);
-//UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?,IsActive = ?, DatedModified = ?, ModifiedBy = ? WHERE LegalEntityAppID = ?				
 				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
 				ps.setShort(2, legalEntityApp.getIsActive()); // IsActive
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, modifiedBy); // ModifiedBy
 				ps.setLong(5, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
 				return ps;
-			}
 		}, holder);
 
 		LOGGER.debug("LegalEntityAppDAOImpl :: updateLegalEntityApp() : Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());

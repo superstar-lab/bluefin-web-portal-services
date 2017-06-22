@@ -920,11 +920,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	private PaymentProcessorRemittance fetchPaymentProcessorRemittanceCustomMappingResult_Single(String query){
-		PaymentProcessorRemittance obj = jdbcTemplate.query(query,new ResultSetExtractor<PaymentProcessorRemittance>(){
-
-			@Override
-			public PaymentProcessorRemittance extractData(ResultSet rs) throws SQLException, DataAccessException {
-				PaymentProcessorRemittance record = null;
+		PaymentProcessorRemittance obj = jdbcTemplate.query(query,rs->{
+				PaymentProcessorRemittance record=null;
 				while (rs.next()) {
 					record = new PaymentProcessorRemittance();
 					record.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
@@ -1008,7 +1005,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					break;
 				}
 				return record;
-			}}
+			}
 		);
 		return obj;
 	}

@@ -123,9 +123,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorStatusCode,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId()); // ProcessorName
@@ -136,7 +134,6 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 				ps.setTimestamp(6, dateModified);
 				ps.setString(7, paymentProcessorStatusCode.getLastModifiedBy());
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

@@ -108,9 +108,7 @@ public class RoleDAOImpl implements RoleDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveRole, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, role.getRoleName()); // RoleName
 				ps.setString(2, role.getDescription()); // Description
@@ -118,7 +116,6 @@ public class RoleDAOImpl implements RoleDAO {
 				ps.setTimestamp(4, dateModified); // DateModified
 				ps.setString(5, role.getModifiedBy()); // ModifiedBy
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

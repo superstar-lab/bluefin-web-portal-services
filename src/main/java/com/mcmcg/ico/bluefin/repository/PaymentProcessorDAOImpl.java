@@ -44,13 +44,9 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
 	@Autowired
 	private PaymentProcessorMerchantDAO paymentProcessorMerchantDAO;
-
-	/* (non-Javadoc)
-	 * @see com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO#findByPaymentProcessorId(java.lang.Long)
-	 */
+	
 	@Override
 	public PaymentProcessor findByPaymentProcessorId(Long paymentProcessorId) {
 		try {
@@ -116,9 +112,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessors,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, paymentProcessor.getProcessorName()); // ProcessorName
@@ -129,7 +123,6 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 				ps.setTime(6, paymentProcessor.getRemitTransactionOpenTime());
 				ps.setTime(7, paymentProcessor.getRemitTransactionCloseTime());
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

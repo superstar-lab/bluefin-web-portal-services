@@ -159,9 +159,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 			" select PaymentProcessorResponseCodeID from PaymentProcessorResponseCode_Lookup " +
 			" where PaymentProcessorID = ? ) ";
 		Map<Long,List<Long>> idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode = new HashMap<>();
-		jdbcTemplate.query(query, new Object[]{paymentProcessId}, new ResultSetExtractor<Map<Long,List<Long>>>(){
-			@Override
-			public Map<Long,List<Long>> extractData(ResultSet rs) throws SQLException,DataAccessException {
+		jdbcTemplate.query(query, new Object[]{paymentProcessId}, rs->{
 				Long internalStatusCodeId;
 				Long paymentProcessorInternalStatusId;
 				while(rs.next()){
@@ -175,7 +173,6 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 					paymentProcessorInternalStatusCodeIds.add(paymentProcessorInternalStatusId);
 				}
 				return idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode;
-			}
 		});
 		return idsOfInternalResponseCodeAndPaymentProcessorInternalStatusCode;
 	}

@@ -60,16 +60,13 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	@Override
 	public UserPreference insertUserTimeZonePreference(UserPreference userPrefrence) {
 		KeyHolder holder = new GeneratedKeyHolder();
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUserPreference,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, userPrefrence.getPreferenceKeyID()); // PreferenceKeyID
 				ps.setString(2, userPrefrence.getPreferenceValue()); //PreferenceValue
 				ps.setLong(3, userPrefrence.getUserID()); //UserID
 				return ps;
-			}
 		}, holder);
 		
 		Long id = holder.getKey().longValue();

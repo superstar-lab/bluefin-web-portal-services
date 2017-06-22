@@ -47,9 +47,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		Timestamp loginDateTime = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUserLoginHistory,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0"));
@@ -59,7 +57,6 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 				ps.setString(5, userLoginHistory.getUsername());
 				ps.setString(6, userLoginHistory.getPassword());
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

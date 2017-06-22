@@ -64,9 +64,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveRolePermission,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, rolePermission.getRoleId()); // RoleID
@@ -75,7 +73,6 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 				ps.setTimestamp(4, dateModified); // DateModified
 				ps.setString(5, rolePermission.getModifiedBy()); // ModifiedBy
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

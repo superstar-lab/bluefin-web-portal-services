@@ -86,21 +86,17 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement(Queries.saveInternalStatusCode, Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1, internalStatusCode.getInternalStatusCodeValue());
-				ps.setString(2, internalStatusCode.getInternalStatusCodeDescription());
-				ps.setString(3, internalStatusCode.getLastModifiedBy());
-				ps.setString(4, internalStatusCode.getInternalStatusCategoryAbbr());
-				ps.setString(5, internalStatusCode.getInternalStatusCategory());
-				ps.setString(6, internalStatusCode.getTransactionTypeName());
-				ps.setTimestamp(7, dateCreated);
-				ps.setTimestamp(8, dateModified);
-				
-				return ps;
-			}
+		jdbcTemplate.update(connection->{
+			PreparedStatement ps = connection.prepareStatement(Queries.saveInternalStatusCode, Statement.RETURN_GENERATED_KEYS);
+			ps.setString(1, internalStatusCode.getInternalStatusCodeValue());
+			ps.setString(2, internalStatusCode.getInternalStatusCodeDescription());
+			ps.setString(3, internalStatusCode.getLastModifiedBy());
+			ps.setString(4, internalStatusCode.getInternalStatusCategoryAbbr());
+			ps.setString(5, internalStatusCode.getInternalStatusCategory());
+			ps.setString(6, internalStatusCode.getTransactionTypeName());
+			ps.setTimestamp(7, dateCreated);
+			ps.setTimestamp(8, dateModified);
+			return ps;
 		}, holder);
 
 		Long id = holder.getKey().longValue();

@@ -149,9 +149,7 @@ public class UserDAOImpl implements UserDAO {
 		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveUser, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, user.getUsername()); // UserName
 				ps.setString(2, user.getFirstName()); // FirstName
@@ -166,7 +164,6 @@ public class UserDAOImpl implements UserDAO {
 				ps.setString(11, user.getModifiedBy()); // ModifiedBy
 				ps.setString(12, user.getStatus()); // Status
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

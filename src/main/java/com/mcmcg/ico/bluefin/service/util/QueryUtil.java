@@ -107,7 +107,7 @@ public class QueryUtil {
 		Matcher matcher = pattern.matcher(sort + ",");
 		List<Order> sortList = new ArrayList<>();
 		while (matcher.find()) {
-			Sort.Direction sortDirection = null;
+			Sort.Direction sortDirection;
 			switch (matcher.group(3)) {
 			case "asc":
 				sortDirection = Sort.Direction.ASC;

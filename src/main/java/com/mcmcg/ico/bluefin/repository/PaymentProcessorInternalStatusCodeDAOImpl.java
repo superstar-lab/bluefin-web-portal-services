@@ -143,9 +143,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		}
 		String query = Queries.fetchInternalStatusCodeUsedForPaymentProcessor;
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = new HashMap<>();
-		jdbcTemplate.query(query, new Object[]{paymentProcessId}, new ResultSetExtractor<Map<Long,List<Long>>>(){
-			@Override
-			public Map<Long,List<Long>> extractData(ResultSet rs) throws SQLException,DataAccessException {
+		jdbcTemplate.query(query, new Object[]{paymentProcessId}, rs->{
 				Long internalStatusCodeId;
 				Long paymentProcessorInternalStatusId;
 				while(rs.next()){
@@ -159,7 +157,6 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 					paymentProcessorInternalStatusCodeIds.add(paymentProcessorInternalStatusId);
 				}
 				return idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode;
-			}
 		});
 		if(LOGGER.isDebugEnabled())
 			LOGGER.debug(String.format("PaymentProcessorInternalStatusCodeDAOImpl :: fetchInternalStatusCodeIdsUsedForPaymentProcessor() : idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode size : %s",idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size()));

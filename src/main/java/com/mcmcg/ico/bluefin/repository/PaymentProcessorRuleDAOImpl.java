@@ -84,9 +84,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 		
 		DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp dateCreated = Timestamp.valueOf(dateCreatedDateFormat.print(utc1));
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorRule,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorRule.getPaymentProcessor().getPaymentProcessorId()); // PaymentProcessorID
@@ -98,7 +96,6 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 				ps.setTimestamp(7, dateCreated);
 				ps.setString(8, paymentProcessorRule.getLastModifiedBy());
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();

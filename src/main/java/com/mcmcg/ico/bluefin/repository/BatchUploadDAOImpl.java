@@ -50,9 +50,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         Timestamp processStart = Timestamp.valueOf(dtf.print(utc1));
         Timestamp dateUploaded = Timestamp.valueOf(dtf.print(utc2));
 
-        jdbcTemplate.update(new PreparedStatementCreator() {
-        	@Override
-            public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+        jdbcTemplate.update(connection->{
                 PreparedStatement ps = connection.prepareStatement(Queries.saveBasicBatchUpload,
                         Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, batchUpload.getBatchApplication());
@@ -62,10 +60,9 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
                 ps.setString(5, batchUpload.getUpLoadedBy());
                 ps.setTimestamp(6, processStart);
                 ps.setInt(7, batchUpload.getNumberOfTransactions());
-
                 return ps;
             }
-        }, holder);
+        , holder);
 
         Long id = holder.getKey().longValue();
         batchUpload.setBatchUploadId(id);

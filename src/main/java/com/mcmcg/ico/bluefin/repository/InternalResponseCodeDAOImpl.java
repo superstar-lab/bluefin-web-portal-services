@@ -116,22 +116,18 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-				PreparedStatement ps = connection.prepareStatement(Queries.saveInternalResponseCode,
+		jdbcTemplate.update(connection->{
+			PreparedStatement ps = connection.prepareStatement(Queries.saveInternalResponseCode,
 						Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1, internalResponseCode.getInternalResponseCodeValue()); // PermissionName
-				ps.setString(2, internalResponseCode.getInternalResponseCodeDescription()); // Description
-				ps.setString(3, internalResponseCode.getLastModifiedBy()); // DateCreated
-				ps.setTimestamp(4, dateModified); // DateModified
-				
-				ps.setString(5, internalResponseCode.getTransactionTypeName()); // ModifiedBy
-				ps.setTimestamp(6, dateCreated);
-				return ps;
-			}
+			ps.setString(1, internalResponseCode.getInternalResponseCodeValue()); // PermissionName
+			ps.setString(2, internalResponseCode.getInternalResponseCodeDescription()); // Description
+			ps.setString(3, internalResponseCode.getLastModifiedBy()); // DateCreated
+			ps.setTimestamp(4, dateModified); // DateModified
+			ps.setString(5, internalResponseCode.getTransactionTypeName()); // ModifiedBy
+			ps.setTimestamp(6, dateCreated);
+			return ps;
 		}, holder);
-
+		
 		Long id = holder.getKey().longValue();
 		internalResponseCode.setInternalResponseCodeId(id);
 		LOGGER.debug("Saved tInternalResponseCode - id: " + id);

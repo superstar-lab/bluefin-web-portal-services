@@ -118,9 +118,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc));
 
-		jdbcTemplate.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		jdbcTemplate.update(connection->{
 				PreparedStatement ps = connection.prepareStatement(Queries.saveSecurityTokenBlacklist,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, securityTokenBlacklist.getToken()); // Token
@@ -128,7 +126,6 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 				ps.setLong(3, securityTokenBlacklist.getUserId()); // UserId
 				ps.setTimestamp(4, dateCreated); // DateCreated
 				return ps;
-			}
 		}, holder);
 
 		Long id = holder.getKey().longValue();
