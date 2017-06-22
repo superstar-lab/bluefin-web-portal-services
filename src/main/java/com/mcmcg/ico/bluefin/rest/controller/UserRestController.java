@@ -138,9 +138,7 @@ public class UserRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ResponseEntity<UserResource> create(@Valid @RequestBody RegisterUserResource newUser,
 			@ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
-		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
-		}
+		validateAuthentication(authentication);
 
 		LOGGER.debug("createUser :: service : newUser "+newUser);
 		// First checks if all required data is given
@@ -152,9 +150,7 @@ public class UserRestController {
 
 		// Checks if the Legal Entities given are valid according with the
 		// LegalEntities owned
-		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, newUser.getLegalEntityApps())) {
-			throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
-		}
+		hasUserPrivilegesOverLegalEntities(authentication,newUser.getLegalEntityApps());
 
 		LOGGER.debug("Creating new account for user: {}", newUser.getUsername());
 		return new ResponseEntity<>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
@@ -270,11 +266,7 @@ public class UserRestController {
 	public ResponseEntity<String> updateUserPassword(@PathVariable String username,
 			@Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
 			HttpServletRequest request, @ApiIgnore Authentication authentication) {
-		if (errors.hasErrors()) {
-			final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-					.collect(Collectors.joining("<br /> "));
-			throw new CustomBadRequestException(errorDescription);
-		}
+		validateErrors(errors);
 
 		LOGGER.info("updateUserPassword :: service");
 		String usernameValue="";
@@ -348,6 +340,20 @@ public class UserRestController {
 	private void validateUserLegalEntity(Authentication authentication,String usernameValue){
 		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
+		}
+	}
+	
+	private void hasUserPrivilegesOverLegalEntities(Authentication authentication,Set<Long> legalEntityApps){ 
+		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, legalEntityApps)) {
+			throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
+		}
+	}
+	
+	private void validateErrors(Errors errors){
+		if (errors.hasErrors()) {
+			final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+					.collect(Collectors.joining("<br /> "));
+			throw new CustomBadRequestException(errorDescription);
 		}
 	}
 }
