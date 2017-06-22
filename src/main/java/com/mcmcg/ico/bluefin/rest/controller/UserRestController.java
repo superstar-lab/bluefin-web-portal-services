@@ -166,9 +166,8 @@ public class UserRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
 			@Valid @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
-		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
-		}
+		validateAuthentication(authentication);
+		
 		LOGGER.info("updateUserProfile :: service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
@@ -183,15 +182,8 @@ public class UserRestController {
 		}	
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated
-		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
-			throw new AccessDeniedException("User doesn't have permission to get information from other users");
-		}
-
-		if (errors.hasErrors()) {
-			String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-					.collect(Collectors.joining("<br /> "));
-			throw new CustomBadRequestException(errorDescription);
-		}
+		validateUserLegalEntity(authentication, usernameValue);
+		validateErrors(errors);
 
 		LOGGER.debug("Updating account for user: {}", usernameValue);
 		return userService.updateUserProfile("me".equals(usernameValue) ? authentication.getName() : usernameValue, userToUpdate);
