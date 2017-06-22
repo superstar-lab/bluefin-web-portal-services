@@ -110,7 +110,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public PaymentProcessorRule findOne(long paymentProcessorRuleId) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorRuleByID, new Object[] { paymentProcessorRuleId },
+			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorRuleBy_ID, new Object[] { paymentProcessorRuleId },
 					new PaymentProcessorRuleRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {

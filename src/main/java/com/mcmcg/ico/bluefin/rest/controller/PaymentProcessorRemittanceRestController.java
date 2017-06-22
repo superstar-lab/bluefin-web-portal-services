@@ -75,10 +75,13 @@ public class PaymentProcessorRemittanceRestController {
 		// For 'Not Reconciled' status, which is not in the database, simply
 		// use: WHERE ReconciliationID != 'Reconciled'
 		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(search,"reconciliationStatusId");
+		String searchValue;
 		if ("notReconciled".equals(reconciliationStatusId)) {
 			String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
-			search = search.replaceAll("notReconciled", id);
+			searchValue = search.replaceAll("notReconciled", id);
 			negate = true;
+		} else {
+			searchValue = search;
 		}
 		
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -86,7 +89,7 @@ public class PaymentProcessorRemittanceRestController {
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
 		String json = objectMapper.writerWithView(Views.Summary.class)
-				.writeValueAsString(paymentProcessorRemittanceService.getRemittanceSaleRefundVoidTransactions(search,
+				.writeValueAsString(paymentProcessorRemittanceService.getRemittanceSaleRefundVoidTransactions(searchValue,
 						QueryDSLUtil.getPageRequest(page, size, sort), negate));
 
 		LOGGER.info("Exit from getPaymentProcessorRemittances");

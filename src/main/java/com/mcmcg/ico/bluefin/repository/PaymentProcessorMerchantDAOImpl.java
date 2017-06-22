@@ -35,7 +35,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchantDAO {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorMerchantDAOImpl.class);
-	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -64,37 +64,43 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 				+ ", rows affected = " + rows);
 	}
 	
-		@Override
-			public void createPaymentProcessorMerchants(Collection<PaymentProcessorMerchant> paymentProcessorMerchants) {
-				insertBatch(new ArrayList<PaymentProcessorMerchant>(paymentProcessorMerchants) );
-			}
+	@Override
+	public void createPaymentProcessorMerchants(Collection<PaymentProcessorMerchant> paymentProcessorMerchants) {
+		insertBatch(new ArrayList<PaymentProcessorMerchant>(paymentProcessorMerchants) );
+	}
 
-			private void insertBatch(final List<PaymentProcessorMerchant> paymentProcessorMerchants){
-				jdbcTemplate.batchUpdate(Queries.savePaymentProcessorMarchent, new BatchPreparedStatementSetter() {
-					
-					@Override
-					public void setValues(PreparedStatement ps, int i) throws SQLException {
-						com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant = paymentProcessorMerchants.get(i);
-						DateTime utc1 = paymentProcessorMerchant.getCreatedDate() != null ? paymentProcessorMerchant.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-						Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-						DateTime utc2 = paymentProcessorMerchant.getModifiedDate() != null ? paymentProcessorMerchant.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-						Timestamp modifyDate = Timestamp.valueOf(dtf.print(utc2));
-						LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletePaymentProcessorRules : Creating child item - PaymentProcessorMerchant, of PaymentProcessorMerchant Id :" + paymentProcessorMerchant.getPaymentProcessorMechantId());
-						ps.setLong(1, paymentProcessorMerchant.getPaymentProcessorId());
-						ps.setShort(2, paymentProcessorMerchant.getTestOrProd());
-						ps.setString(3,paymentProcessorMerchant.getMerchantId() );
-						ps.setTimestamp(4, dateCreated);
-						ps.setTimestamp(5, modifyDate);
-						ps.setLong(6, paymentProcessorMerchant.getLegalEntityAppId());
-					}
+	private void insertBatch(final List<PaymentProcessorMerchant> paymentProcessorMerchants){
+		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorMarchent, new InsertBatchPreparedStatement(paymentProcessorMerchants));
+	}
 
-					@Override
-					public int getBatchSize() {
-						return paymentProcessorMerchants.size();
-					}
-				  });
-			}
+}
 
+class InsertBatchPreparedStatement implements BatchPreparedStatementSetter {
+	
+	private final List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
+	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	
+	public InsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> _paymentProcessorMerchants){
+		paymentProcessorMerchants = _paymentProcessorMerchants;
+	}
+	@Override
+	public void setValues(PreparedStatement ps, int i) throws SQLException {
+		com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant = paymentProcessorMerchants.get(i);
+		DateTime utc1 = paymentProcessorMerchant.getCreatedDate() != null ? paymentProcessorMerchant.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
+		DateTime utc2 = paymentProcessorMerchant.getModifiedDate() != null ? paymentProcessorMerchant.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		Timestamp modifyDate = Timestamp.valueOf(dtf.print(utc2));
+		ps.setLong(1, paymentProcessorMerchant.getPaymentProcessorId());
+		ps.setShort(2, paymentProcessorMerchant.getTestOrProd());
+		ps.setString(3,paymentProcessorMerchant.getMerchantId() );
+		ps.setTimestamp(4, dateCreated);
+		ps.setTimestamp(5, modifyDate);
+		ps.setLong(6, paymentProcessorMerchant.getLegalEntityAppId());
+	}
+	@Override
+	public int getBatchSize() {
+		return paymentProcessorMerchants.size();
+	}
 }
 
 class PaymentProcessorMerchantRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> {
