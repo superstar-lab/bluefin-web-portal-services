@@ -200,9 +200,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Query to execute:"+queryTotal_FinalQueryToExecute);
 		// Set the paging for the created select
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
-		Integer countResult = namedJDBCTemplate.query(queryTotal_FinalQueryToExecute, queryTotal.getParametersMap(), new ResultSetExtractor<Integer>() {
-			@Override
-			public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
+		Integer countResult = namedJDBCTemplate.query(queryTotal_FinalQueryToExecute, queryTotal.getParametersMap(), rs->{
 				Integer finalCount = null;
 				while (rs.next()) {
 					finalCount = rs.getInt(1);
@@ -210,7 +208,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					break;
 				}
 				return finalCount;
-			}
 		});
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : QueryTotal_Count Result=" + countResult);
 		Page<SaleTransaction> list;

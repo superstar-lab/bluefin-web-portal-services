@@ -68,9 +68,7 @@ public class UserRestController {
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource get(@PathVariable String username, @ApiIgnore Authentication authentication) {
-		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
-		}
+		validateAuthentication(authentication);
 		LOGGER.debug("getUser with username:: service "+username);
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
@@ -83,9 +81,7 @@ public class UserRestController {
 		}
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be requested
-		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
-			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
-		}
+		validateUserLegalEntity(authentication,usernameValue);
 
 		LOGGER.debug("Getting user information: {}", usernameValue);
 		return userService.getUserInfomation("me".equals(usernameValue) ? authentication.getName() : usernameValue);
@@ -342,5 +338,16 @@ public class UserRestController {
 		// exception if does not have access
 		return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search);
 	}
-
+	
+	private void validateAuthentication(Authentication authentication){
+		if (authentication == null) {
+			throw new AccessDeniedException("An authorization token is required to request this resource");
+		}
+	}
+	
+	private void validateUserLegalEntity(Authentication authentication,String usernameValue){
+		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
+			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
+		}
+	}
 }
