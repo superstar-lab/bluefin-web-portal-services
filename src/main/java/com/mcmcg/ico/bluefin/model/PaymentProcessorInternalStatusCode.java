@@ -10,31 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 //Table : PaymentProcessor_InternalStatusCode
 public class PaymentProcessorInternalStatusCode implements Serializable{
-
-	public PaymentProcessorStatusCode getPaymentProcessorStatusCode() {
-		return paymentProcessorStatusCode;
-	}
-
-	public void setPaymentProcessorStatusCode(PaymentProcessorStatusCode paymentProcessorStatusCode) {
-		this.paymentProcessorStatusCode = paymentProcessorStatusCode;
-	}
-
-	public Long getInternalStatusCodeId() {
-		return internalStatusCodeId;
-	}
-
-	public void setInternalStatusCodeId(Long internalStatusCodeId) {
-		this.internalStatusCodeId = internalStatusCodeId;
-	}
-
-	public Long getPaymentProcessorStatusCodeId() {
-		return paymentProcessorStatusCodeId;
-	}
-
-	public void setPaymentProcessorStatusCodeId(Long paymentProcessorStatusCodeId) {
-		this.paymentProcessorStatusCodeId = paymentProcessorStatusCodeId;
-	}
-
 	private static final long serialVersionUID = 743031245411398765L;
 
 	// Column : PaymentProcessorInternalStatusCodeID
@@ -95,5 +70,29 @@ public class PaymentProcessorInternalStatusCode implements Serializable{
 	public String toString() {
 		return "Id="+this.paymentProcessorInternalStatusCodeId+" , PaymentProcessorStatusCodeId= "+this.paymentProcessorStatusCodeId +
 				", InternalStatusCodeId= " + this.internalStatusCodeId;
+	}
+	
+	public PaymentProcessorStatusCode getPaymentProcessorStatusCode() {
+		return paymentProcessorStatusCode;
+	}
+
+	public void setPaymentProcessorStatusCode(PaymentProcessorStatusCode paymentProcessorStatusCode) {
+		this.paymentProcessorStatusCode = paymentProcessorStatusCode;
+	}
+
+	public Long getInternalStatusCodeId() {
+		return internalStatusCodeId;
+	}
+
+	public void setInternalStatusCodeId(Long internalStatusCodeId) {
+		this.internalStatusCodeId = internalStatusCodeId;
+	}
+
+	public Long getPaymentProcessorStatusCodeId() {
+		return paymentProcessorStatusCodeId;
+	}
+
+	public void setPaymentProcessorStatusCodeId(Long paymentProcessorStatusCodeId) {
+		this.paymentProcessorStatusCodeId = paymentProcessorStatusCodeId;
 	}
 }
