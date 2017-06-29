@@ -19,10 +19,6 @@ import com.mcmcg.ico.bluefin.rest.resource.Views;
 public class PaymentProcessorRemittance implements Serializable, Transaction {
 	private static final long serialVersionUID = -7696931237337114459L;
 
-	public PaymentProcessorRemittance() {
-		// Default constructor
-	}
-
 	@JsonProperty("remittance.paymentProcessorRemittanceId")
 	private Long paymentProcessorRemittanceId;
 	
@@ -365,15 +361,19 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsRefunded;
 
+    private String saleProcessor;
+	private String saleAccountId;
+	private BigDecimal saleChargeAmount;
+	
+    public PaymentProcessorRemittance() {
+		// Default constructor
+	}
+    
     @JsonProperty("sale.paymentFrequency")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     public String getSalePaymentFrequency() {
         return PaymentFrequency.getPaymentFrequency(saleOrigin).toString();
     }
-
-	private String saleProcessor;
-	private String saleAccountId;
-	private BigDecimal saleChargeAmount;
 	
 	@Override
 	public boolean equals(Object o) {
@@ -568,7 +568,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	@Transient
     @JsonProperty("ReconDate.Processor_Name")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String Processor_Name;
+    private String reProcessorName;
 
     @Transient
     @JsonProperty("ReconDate.MID")
@@ -578,7 +578,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @Transient
     @JsonProperty("ReconDate.ReconciliationStatus_ID")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String ReconciliationStatus_ID;
+    private String reReconciliationStatusId;
 	// setter and getters added by dheeraj
 	public DateTime getCreatedDate() {
 		return createdDate;
@@ -1052,12 +1052,12 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.saleBatchUploadId = saleBatchUploadId;
 	}
 
-	public String getProcessor_Name() {
-		return Processor_Name;
+	public String getReProcessorName() {
+		return reProcessorName;
 	}
 
-	public void setProcessor_Name(String processor_Name) {
-		Processor_Name = processor_Name;
+	public void setReProcessorName(String processor_Name) {
+		this.reProcessorName = processor_Name;
 	}
 
 	public String getMID() {
@@ -1068,12 +1068,12 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		MID = mID;
 	}
 
-	public String getReconciliationStatus_ID() {
-		return ReconciliationStatus_ID;
+	public String getReReconciliationStatusId() {
+		return reReconciliationStatusId;
 	}
 
-	public void setReconciliationStatus_ID(String reconciliationStatus_ID) {
-		ReconciliationStatus_ID = reconciliationStatus_ID;
+	public void setReReconciliationStatusId(String reconciliationStatus_ID) {
+		reReconciliationStatusId = reconciliationStatus_ID;
 	}
 
 	public String getSaleProcessor() {

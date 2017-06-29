@@ -836,8 +836,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setSaleIsRefunded(rs.getInt("SaleIsRefunded"));
 			record.setMerchantId(rs.getString("MID"));
 			
-			record.setProcessor_Name(rs.getString("Processor_Name"));
-			record.setReconciliationStatus_ID(rs.getString("ReconciliationStatus_ID"));
+			record.setReProcessorName(rs.getString("Processor_Name"));
+			record.setReReconciliationStatusId(rs.getString("ReconciliationStatus_ID"));
 			return record;
 		} 
 	}
@@ -994,8 +994,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					record.setSaleIsVoided(rs.getInt("SaleIsVoided"));
 					record.setSaleIsRefunded(rs.getInt("SaleIsRefunded"));
 					record.setMerchantId(rs.getString("MID"));
-					record.setProcessor_Name(rs.getString("Processor_Name"));
-					record.setReconciliationStatus_ID(rs.getString("ReconciliationStatus_ID"));
+					record.setReProcessorName(rs.getString("Processor_Name"));
+					record.setReReconciliationStatusId(rs.getString("ReconciliationStatus_ID"));
 					break;
 				}
 				return record;
