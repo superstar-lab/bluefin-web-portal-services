@@ -13,6 +13,15 @@ public class BluefinWebPortalConstants {
 	public static final String DATECREATED = "DateCreated";
 	public static final String TRANSACTIONTIME = "TransactionTime";
 	public static final String REMITTANCECREATIONDATE = "RemittanceCreationDate";
+	public static final String APPOCTSTREAM = "application/octet-stream";
+	public static final String CONTENTDISPOSITION = "Content-Disposition";
+	public static final String ATTACHMENTFILENAME = "attachment; filename=";
+	public static final String TOKENHEADER = "TOKEN_HEADER";
+	public static final String AUTHTOKENREQUIRERESOURCEMSG = "An authorization token is required to request this resource";
+	public static final String USERINSUFFICIENTPERMISSIONMSG= "User does not have sufficient permissions for this profile.";
+	public static final String CREATED = "created";
+	public static final String PROCESSORNAME = "processorName";
+	public static final String TRANSACTIONDATETIME = "transactionDateTime";
 	
 	private BluefinWebPortalConstants(){
 		

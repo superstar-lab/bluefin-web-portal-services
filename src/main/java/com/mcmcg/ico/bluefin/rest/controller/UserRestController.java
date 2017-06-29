@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -74,7 +75,7 @@ public class UserRestController {
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
-			throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
+			throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 		}
 		if (usernameValue != null && usernameValue.isEmpty()) {
 			usernameValue = username;
@@ -99,7 +100,7 @@ public class UserRestController {
 			@RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
 			@ApiIgnore Authentication authentication) {
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 
 		LOGGER.info("getUser :: service");
@@ -174,7 +175,7 @@ public class UserRestController {
 			usernameValue = authentication.getName();
 		} else {
 			if (!userService.hasPermissionToManageAllUsers(authentication)) {
-				throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
+				throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 			}
 		}
 		if (usernameValue != null && usernameValue.isEmpty()) {
@@ -200,7 +201,7 @@ public class UserRestController {
 	public UserResource updateUserRoles(@PathVariable String username, @RequestBody Set<Long> roles,
 			@ApiIgnore Authentication authentication) {
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 		LOGGER.debug("updateUserRoles with username :: service : roles size : "+roles.size());
 		// Checks if the Legal Entities of the consultant user are in the user
@@ -226,7 +227,7 @@ public class UserRestController {
 	public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody Set<Long> legalEntities,
 			@ApiIgnore Authentication authentication) {
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 
 		LOGGER.info("updateUserLegalEntities :: service : legalEntities size : "+legalEntities.size());
@@ -265,7 +266,7 @@ public class UserRestController {
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
-			throw new AccessDeniedException("User does not have sufficient permissions for this profile.");
+			throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 		}
 		if(usernameValue != null && usernameValue.isEmpty()) {
 			usernameValue = username;
@@ -277,7 +278,7 @@ public class UserRestController {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
-		throw new CustomBadRequestException("An authorization token is required to request this resource");
+		throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 	}
 
 	@ApiOperation(value = "updateUserActivation", nickname = "updateUserActivation")
@@ -303,7 +304,7 @@ public class UserRestController {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
-		throw new CustomBadRequestException("An authorization token is required to request this resource");
+		throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 	}
 
 	/**
@@ -325,7 +326,7 @@ public class UserRestController {
 	
 	private void validateAuthentication(Authentication authentication){
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 	}
 	

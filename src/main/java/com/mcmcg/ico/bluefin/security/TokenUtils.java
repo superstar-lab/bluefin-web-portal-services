@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.SecurityTokenBlacklist;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.repository.SecurityTokenBlacklistDAO;
@@ -49,7 +50,7 @@ public class TokenUtils {
 		Date created;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			created = new Date((Long) claims.get("created"));
+			created = new Date((Long) claims.get(BluefinWebPortalConstants.CREATED));
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get date from token = {}",token,e);
@@ -154,7 +155,7 @@ public class TokenUtils {
 	public String generateToken(UserDetails userDetails, TokenType type, String url) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("sub", userDetails.getUsername());
-		claims.put("created", this.generateCurrentDate());
+		claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
 		claims.put("type", type.name());
 		claims.put("url", url);
 		return this.generateToken(claims);
@@ -179,7 +180,7 @@ public class TokenUtils {
 		String refreshedToken;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			claims.put("created", this.generateCurrentDate());
+			claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
 			refreshedToken = this.generateToken(claims);
 		} catch (Exception e) {
 			if (LOGGER.isDebugEnabled()) {

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
@@ -44,7 +45,8 @@ import springfox.documentation.annotations.ApiIgnore;
 public class ReportRestController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReportRestController.class);
-
+	private static final String DELETETEMPFILE = "Deleting temp file: {}";
+	
 	@Autowired
 	private TransactionService transactionService;
 	@Autowired
@@ -81,12 +83,12 @@ public class ReportRestController {
 
 		File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 		
 		// Below line found in releases while merging, but was not available in develop branch
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -128,11 +130,11 @@ public class ReportRestController {
 		
 		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone,negate);
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -153,11 +155,11 @@ public class ReportRestController {
 		File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
 
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -179,11 +181,11 @@ public class ReportRestController {
 		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
