@@ -26,7 +26,6 @@ import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
 import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.rest.resource.TokenResponse;
-import com.mcmcg.ico.bluefin.rest.resource.TransactionTokenRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;

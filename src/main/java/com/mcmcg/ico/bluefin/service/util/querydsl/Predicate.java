@@ -23,11 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
 import com.mcmcg.ico.bluefin.model.User;
-import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
-import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mysema.query.types.expr.BooleanExpression;
-import com.mysema.query.types.path.CollectionPath;
 import com.mysema.query.types.path.DatePath;
 import com.mysema.query.types.path.NumberPath;
 import com.mysema.query.types.path.PathBuilder;

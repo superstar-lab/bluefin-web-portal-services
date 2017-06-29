@@ -1,12 +1,10 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -22,7 +20,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -132,10 +129,8 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: {}" , batchUploads != null ? batchUploads.size() : 0);
         }
-        Page<BatchUpload> batchUploadsPaginated = new PageImpl(batchUploads, pageRequest,
+        return new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);
-
-        return batchUploadsPaginated;
     }
 
     @Override
@@ -149,10 +144,8 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("BatchUploadDAOImpl :: findAllByOrderByDateUploadedDesc() : Number of rows: {}" + ( batchUploads != null ? batchUploads.size() : 0 ));
         }
-        Page<BatchUpload> batchUploadsPaginated = new PageImpl(batchUploads, pageRequest,
+        return new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);
-
-        return batchUploadsPaginated;
     }
 
     class BatchUploadRowMapper implements RowMapper<BatchUpload> {

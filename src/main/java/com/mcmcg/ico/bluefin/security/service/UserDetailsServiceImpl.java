@@ -8,9 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.User;
-import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
-import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.model.SecurityUserFactory;
 

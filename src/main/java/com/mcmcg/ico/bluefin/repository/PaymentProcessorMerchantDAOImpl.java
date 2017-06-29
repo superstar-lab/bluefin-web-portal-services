@@ -80,8 +80,8 @@ class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedState
 	private final List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
 	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
 	
-	public PaymentProcessorInsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> _paymentProcessorMerchants){
-		paymentProcessorMerchants = _paymentProcessorMerchants;
+	public PaymentProcessorInsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants){
+		this.paymentProcessorMerchants = paymentProcessorMerchants;
 	}
 	@Override
 	public void setValues(PreparedStatement ps, int i) throws SQLException {

@@ -17,8 +17,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 
 @Data
-/*@EqualsAndHashCode(exclude = { "paymentProcessorMerchants", "paymentProcessorRules" })
-@ToString(exclude = { "paymentProcessorMerchants", "paymentProcessorRules" })*/
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorId")
 public class PaymentProcessor implements Serializable {
     private static final long serialVersionUID = 655003466748410661L;

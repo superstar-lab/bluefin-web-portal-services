@@ -3,8 +3,6 @@ package com.mcmcg.ico.bluefin.repository;
 import java.util.Collection;
 import java.util.List;
 
-import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
-
 public interface PaymentProcessorInternalResponseCodeDAO {
 
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeId(long internalResponseCodeId);

@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -59,19 +57,19 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	@Override
 	public List<InternalStatusCode> findByTransactionTypeNameOrderByInternalStatusCodeAsc(String transactionTypeName) {
 		LOGGER.debug("InternalStatusCodeDAOImpl :: findByTransactionTypeNameOrderByInternalStatusCodeAsc() : Fetching Internal status codes for transaction type="+transactionTypeName);
-		List<InternalStatusCode> fetchedInternalStatusCodeByTransactionType_List;
+		List<InternalStatusCode> fetchedInternalStatusCodeByTransactionTypeList;
 		if ("ALL".equalsIgnoreCase(transactionTypeName)) { 
-			fetchedInternalStatusCodeByTransactionType_List = sortInternalStatusCode( jdbcTemplate.query( Queries.findAllInternalStatusCode, new InternalStatusCodeRowMapper() ) );
+			fetchedInternalStatusCodeByTransactionTypeList = sortInternalStatusCode( jdbcTemplate.query( Queries.findAllInternalStatusCode, new InternalStatusCodeRowMapper() ) );
 		} else {
-			fetchedInternalStatusCodeByTransactionType_List = jdbcTemplate.query( Queries.findAllInternalStatusCodeByTransactionType, new Object[] {transactionTypeName },
+			fetchedInternalStatusCodeByTransactionTypeList = jdbcTemplate.query( Queries.findAllInternalStatusCodeByTransactionType, new Object[] {transactionTypeName },
 					new InternalStatusCodeRowMapper());
 		}
 		
-		int fetchedInternalStatusCodeByTransactionType_List_Size = fetchedInternalStatusCodeByTransactionType_List != null ? fetchedInternalStatusCodeByTransactionType_List.size() : 0;
+		int fetchedInternalStatusCodeByTransactionTypeListSize = fetchedInternalStatusCodeByTransactionTypeList != null ? fetchedInternalStatusCodeByTransactionTypeList.size() : 0;
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Total number of internal status code size = {} for transaction type=",fetchedInternalStatusCodeByTransactionType_List_Size,transactionTypeName);
+			LOGGER.debug("Total number of internal status code size = {} for transaction type=",fetchedInternalStatusCodeByTransactionTypeListSize,transactionTypeName);
 		}
-		return fetchedInternalStatusCodeByTransactionType_List;
+		return fetchedInternalStatusCodeByTransactionTypeList;
 	}
 
 	@Override
@@ -175,20 +173,19 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	class InternalStatusCodeComparator implements Comparator<InternalStatusCode> {
 
 		@Override
-		public int compare(InternalStatusCode internalStatusCode_Obj1, InternalStatusCode internalStatusCode_Obj2) {
-			if (internalStatusCode_Obj1 != null && internalStatusCode_Obj2 != null && internalStatusCode_Obj1.getInternalStatusCodeId() != null 
-					&& internalStatusCode_Obj2.getInternalStatusCodeId() != null) {
-				return internalStatusCode_Obj1.getInternalStatusCodeId().compareTo(internalStatusCode_Obj2.getInternalStatusCodeId()); 
+		public int compare(InternalStatusCode internalStatusCodeObj1, InternalStatusCode internalStatusCodeObj2) {
+			if (internalStatusCodeObj1 != null && internalStatusCodeObj2 != null && internalStatusCodeObj1.getInternalStatusCodeId() != null 
+					&& internalStatusCodeObj2.getInternalStatusCodeId() != null) {
+				return internalStatusCodeObj1.getInternalStatusCodeId().compareTo(internalStatusCodeObj2.getInternalStatusCodeId()); 
 			}
 			return -1;
 		}
 	}
 	
-	private List<InternalStatusCode> sortInternalStatusCode(List<InternalStatusCode> fetchedInternalStatusCode_List){
-		if (fetchedInternalStatusCode_List != null && !fetchedInternalStatusCode_List.isEmpty()) {
+	private List<InternalStatusCode> sortInternalStatusCode(List<InternalStatusCode> fetchedInternalStatusCodeList){
+		if (fetchedInternalStatusCodeList != null && !fetchedInternalStatusCodeList.isEmpty()) {
 			LinkedHashMap<String, InternalStatusCode> result = new LinkedHashMap<>();
-			for(InternalStatusCode internalStatusCode : fetchedInternalStatusCode_List){
-				
+			for(InternalStatusCode internalStatusCode : fetchedInternalStatusCodeList){
 				final String description = internalStatusCode.getInternalStatusCodeDescription();
 				if (result.get(description) == null) {
 					result.put(description, internalStatusCode);

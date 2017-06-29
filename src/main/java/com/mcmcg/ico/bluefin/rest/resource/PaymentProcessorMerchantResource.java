@@ -6,7 +6,6 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 
 import lombok.Data;

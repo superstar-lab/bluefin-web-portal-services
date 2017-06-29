@@ -19,10 +19,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -85,9 +83,8 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	
 	@Override
 	public List<Long> findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(Long internalResponseCode) {
-		List<Long> paymentProcessors = jdbcTemplate.queryForList(Queries.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode, new Object[]{internalResponseCode},
+		return jdbcTemplate.queryForList(Queries.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode, new Object[]{internalResponseCode},
 				Long.class);
-		return paymentProcessors;
 	}
 	
 	@Override
@@ -208,8 +205,8 @@ class PaymentProcessorInternalResponseCodeRowMapper implements RowMapper<Payment
 class PaymentProcessorInternalResponseCodeInsertBatch implements BatchPreparedStatementSetter {
 	final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
 	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
-	public PaymentProcessorInternalResponseCodeInsertBatch(List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> _paymentProcessorInternalResponseCodes){
-		this.paymentProcessorInternalResponseCodes = _paymentProcessorInternalResponseCodes;
+	public PaymentProcessorInternalResponseCodeInsertBatch(List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
+		this.paymentProcessorInternalResponseCodes = paymentProcessorInternalResponseCodes;
 	}
 	@Override
 	public void setValues(PreparedStatement ps, int i) throws SQLException {

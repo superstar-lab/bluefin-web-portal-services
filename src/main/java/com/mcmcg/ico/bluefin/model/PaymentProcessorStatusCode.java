@@ -13,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-/*@EqualsAndHashCode(exclude = { "internalStatusCode" })
-@ToString(exclude = { "internalStatusCode" })*/
 public class PaymentProcessorStatusCode implements Serializable {
 
     private static final long serialVersionUID = -4612223418828597035L;

@@ -49,6 +49,10 @@ public class User implements Serializable {
 	@JsonIgnore
 	private Collection<UserLegalEntityApp> legalEntities;
 
+	public User() {
+		// Default Constructor
+	}
+	
 	public Collection<UserRole> getRoles() {
 		return roles;
 	}
@@ -63,10 +67,6 @@ public class User implements Serializable {
 
 	public void setLegalEntities(Collection<UserLegalEntityApp> legalEntities) {
 		this.legalEntities = legalEntities;
-	}
-
-	public User() {
-		// Default Constructor
 	}
 
 	@Override

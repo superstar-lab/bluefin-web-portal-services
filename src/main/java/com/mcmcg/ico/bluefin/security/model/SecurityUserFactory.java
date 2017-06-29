@@ -15,7 +15,6 @@ import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
-import com.mcmcg.ico.bluefin.security.CustomAccessDeniedHandler;
 
 @Component
 public class SecurityUserFactory {

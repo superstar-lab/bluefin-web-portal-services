@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -68,7 +66,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 			list = sortInternalResponseCode( jdbcTemplate.query( Queries.findAllInternalResponseCode, new InternalResponseCodeRowMapper() ) );
 			
 		}else{
-			list= (ArrayList<com.mcmcg.ico.bluefin.model.InternalResponseCode>) jdbcTemplate.query(
+			list= jdbcTemplate.query(
 					Queries.findAllInternalResponseCodeByTransactionType,
 					new Object[] {  transactionTypeName }, new InternalResponseCodeRowMapper()  );
 		}

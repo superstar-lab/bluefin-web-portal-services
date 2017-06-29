@@ -3,7 +3,6 @@
  */
 package com.mcmcg.ico.bluefin.repository;
 
-import java.util.Collection;
 import java.util.List;
 
 /**

@@ -35,7 +35,6 @@ import com.mcmcg.ico.bluefin.model.UserPreferenceEnum;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
-import com.mcmcg.ico.bluefin.repository.UserDAOImpl;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;

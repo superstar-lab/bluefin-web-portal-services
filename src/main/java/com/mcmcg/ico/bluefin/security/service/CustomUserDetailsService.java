@@ -24,7 +24,6 @@ import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
-import com.mcmcg.ico.bluefin.security.model.SecurityUserFactory;
 
 @Service("userDetailsService")
 @Transactional

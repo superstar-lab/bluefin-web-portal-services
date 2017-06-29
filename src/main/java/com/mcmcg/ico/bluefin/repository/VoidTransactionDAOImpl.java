@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
