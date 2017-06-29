@@ -25,14 +25,6 @@ import lombok.Data;
 public class PaymentProcessorRule implements Serializable {
     private static final long serialVersionUID = 255255719776828551L;
 
-    @PreUpdate
-    @PrePersist
-    public void beforePersist() {
-        if (hasNoLimit()) {
-            this.maximumMonthlyAmount = BigDecimal.ZERO;
-        }
-    }
-
     private Long paymentProcessorRuleId;
 
     @JsonProperty(value = "paymentProcessorId")
@@ -71,4 +63,12 @@ public class PaymentProcessorRule implements Serializable {
 				+ ", noMaximumMonthlyAmountFlag=" + noMaximumMonthlyAmountFlag + ", priority=" + priority
 				+ ", monthToDateCumulativeAmount=" + monthToDateCumulativeAmount + "]";
 	}
+	
+	@PreUpdate
+    @PrePersist
+    public void beforePersist() {
+        if (hasNoLimit()) {
+            this.maximumMonthlyAmount = BigDecimal.ZERO;
+        }
+    }
 }
