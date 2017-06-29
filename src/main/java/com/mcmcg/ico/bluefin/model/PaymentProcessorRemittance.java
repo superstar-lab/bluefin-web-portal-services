@@ -19,10 +19,6 @@ import com.mcmcg.ico.bluefin.rest.resource.Views;
 public class PaymentProcessorRemittance implements Serializable, Transaction {
 	private static final long serialVersionUID = -7696931237337114459L;
 
-	public PaymentProcessorRemittance() {
-		// Default constructor
-	}
-
 	@JsonProperty("remittance.paymentProcessorRemittanceId")
 	private Long paymentProcessorRemittanceId;
 	
@@ -365,15 +361,35 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsRefunded;
 
-    @JsonProperty("sale.paymentFrequency")
+	private String saleProcessor;
+	private String saleAccountId;
+	private BigDecimal saleChargeAmount;
+	
+
+	@Transient
+    @JsonProperty("ReconDate.Processor_Name")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String Processor_Name;
+
+    @Transient
+    @JsonProperty("ReconDate.MID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String MID;
+
+    @Transient
+    @JsonProperty("ReconDate.ReconciliationStatus_ID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String ReconciliationStatus_ID;
+
+	public PaymentProcessorRemittance() {
+		// Default constructor
+	}
+	
+	@JsonProperty("sale.paymentFrequency")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     public String getSalePaymentFrequency() {
         return PaymentFrequency.getPaymentFrequency(saleOrigin).toString();
     }
-
-	private String saleProcessor;
-	private String saleAccountId;
-	private BigDecimal saleChargeAmount;
 	
 	@Override
 	public boolean equals(Object o) {
@@ -565,22 +581,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
         return transactionTime;
     }
 
-	@Transient
-    @JsonProperty("ReconDate.Processor_Name")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String Processor_Name;
-
-    @Transient
-    @JsonProperty("ReconDate.MID")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String MID;
-
-    @Transient
-    @JsonProperty("ReconDate.ReconciliationStatus_ID")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String ReconciliationStatus_ID;
-	// setter and getters added by dheeraj
-	public DateTime getCreatedDate() {
+    public DateTime getCreatedDate() {
 		return createdDate;
 	}
 
