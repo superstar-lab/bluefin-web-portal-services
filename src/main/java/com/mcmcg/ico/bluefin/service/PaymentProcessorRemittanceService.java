@@ -104,7 +104,7 @@ public class PaymentProcessorRemittanceService {
 		paymentProcessorRemittance.setSaleAccountNumber(ppr.getSaleAccountNumber()); 
 		paymentProcessorRemittance.setSaleAmount(ppr.getSaleAmount());
 
-		result = (Transaction) paymentProcessorRemittance;
+		result = paymentProcessorRemittance;
 
 		LOGGER.info("Exit from PaymentProcessorRemittanceService :: getRemittanceSaleResult()");
 		return result;

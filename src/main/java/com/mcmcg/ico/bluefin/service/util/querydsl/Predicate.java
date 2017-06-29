@@ -34,7 +34,7 @@ class Predicate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Predicate.class);
     private SearchCriteria criteria;
-    private final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private final static String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public Predicate() {
     	// Default Constructor
@@ -203,7 +203,7 @@ class Predicate {
 
     private static Date isValidDate(String date) {
         try {
-            DateFormat df = new SimpleDateFormat(DATE_FORMAT);
+            DateFormat df = new SimpleDateFormat(DATEFORMAT);
             df.setLenient(false);
             return df.parse(date);
         } catch (ParseException e) {

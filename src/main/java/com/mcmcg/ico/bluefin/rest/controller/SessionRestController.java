@@ -70,8 +70,7 @@ public class SessionRestController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         LOGGER.debug("Generating token for user: {}", authenticationRequest.getUsername());
-        AuthenticationResponse response = sessionService.generateToken(authenticationRequest.getUsername());
-        return response;
+        return sessionService.generateToken(authenticationRequest.getUsername());
     }
 
     @ApiOperation(value = "logoutUser", nickname = "logoutUser")

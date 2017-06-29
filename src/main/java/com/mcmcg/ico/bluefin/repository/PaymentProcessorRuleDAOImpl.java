@@ -59,7 +59,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorRules, new Object[] { paymentProcessorId });
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: deletePaymentProcessorRules() : Deleted Payment Processor Rules for PaymentProcessor Id: " + paymentProcessorId
-				+ ", rows affected = " + rows);
+				+ " rows affected: " + rows);
 	}
 
 	@Override

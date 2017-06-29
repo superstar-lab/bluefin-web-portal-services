@@ -100,10 +100,10 @@ public class TransactionService {
 
 		switch (transactionType) {
 		case VOID:
-			result = (Transaction) voidTransactionDAO.findByApplicationTransactionId(transactionId);
+			result = voidTransactionDAO.findByApplicationTransactionId(transactionId);
 			break;
 		case REFUND:
-			result = (Transaction) refundTransactionDAO.findByApplicationTransactionId(transactionId);
+			result = refundTransactionDAO.findByApplicationTransactionId(transactionId);
 			break;
 		case REMITTANCE:
 			result = getRemittanceSaleResult(transactionId);
@@ -155,7 +155,7 @@ public class TransactionService {
 		paymentProcessorRemittance.setSaleAccountNumber(ppr.getSaleAccountNumber()); 
 		paymentProcessorRemittance.setSaleAmount(ppr.getSaleAmount());
 
-		result = (Transaction) paymentProcessorRemittance;
+		result = paymentProcessorRemittance;
 
 		LOGGER.debug("TransactionService :: getRemittanceSaleResult() : result : "+result);
 		return result;

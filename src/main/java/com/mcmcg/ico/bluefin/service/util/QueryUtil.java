@@ -21,10 +21,6 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 
 public class QueryUtil {
-	private QueryUtil(){
-		// Default Constructor
-	}
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryUtil.class);
 
 	public static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
@@ -48,6 +44,10 @@ public class QueryUtil {
 	private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
 	private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
+	private QueryUtil(){
+		// Default Constructor
+	}
+	
 	public static String createExpression(String search) {
 		StringBuilder sb = new StringBuilder();
 
@@ -141,9 +141,9 @@ public class QueryUtil {
 			}
 			search = search + filterKey + userLegalEntities;
 		} else {
-			String LEFilterValue = getLEFilterValue(search, filterKey);
-			search = search.replace(filterKey + LEFilterValue,
-					filterKey + generateValidLEFilter(LEFilterValue, userLegalEntities));
+			String leFilterValue = getLEFilterValue(search, filterKey);
+			search = search.replace(filterKey + leFilterValue,
+					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
 		}
 		LOGGER.debug("QueryUtil :: validateByFilter() : search : "+search);
 		return search;

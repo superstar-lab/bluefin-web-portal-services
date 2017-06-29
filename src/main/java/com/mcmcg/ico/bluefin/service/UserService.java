@@ -276,8 +276,8 @@ public class UserService {
 			userPreference.setPreferenceValue(user.getSelectedTimeZone());
 			userPreferenceDAO.updateUserTimeZonePreference(userPreference);
 		}else{
-			UserPreference UserPreferenceToInsert = createUserPreference(preferenceId, user.getUserId(), user.getSelectedTimeZone());
-			userPreferenceDAO.insertUserTimeZonePreference(UserPreferenceToInsert);
+			UserPreference userPreferenceToInsert = createUserPreference(preferenceId, user.getUserId(), user.getSelectedTimeZone());
+			userPreferenceDAO.insertUserTimeZonePreference(userPreferenceToInsert);
 		}
 	}
 

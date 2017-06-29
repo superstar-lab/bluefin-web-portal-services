@@ -196,11 +196,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			result.setPageSize(pageSize);
 			result.setPageNumber(pageNumber);
 		}
-		String queryTotal_FinalQueryToExecute = queryTotal.getFinalQueryToExecute();
-		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Query to execute:"+queryTotal_FinalQueryToExecute);
+		String queryTotalFinalQueryToExecute = queryTotal.getFinalQueryToExecute();
+		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Query to execute:"+queryTotalFinalQueryToExecute);
 		// Set the paging for the created select
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
-		Integer countResult = namedJDBCTemplate.query(queryTotal_FinalQueryToExecute, queryTotal.getParametersMap(), rs->{
+		Integer countResult = namedJDBCTemplate.query(queryTotalFinalQueryToExecute, queryTotal.getParametersMap(), rs->{
 				Integer finalCount = null;
 				while (rs.next()) {
 					finalCount = rs.getInt(1);
@@ -212,10 +212,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : QueryTotal_Count Result=" + countResult);
 		Page<SaleTransaction> list;
 		if (result != null) {
-			String result_FinalQueryToExecute = result.getFinalQueryToExecute();
-			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+result_FinalQueryToExecute);
+			String resultFinalQueryToExecute = result.getFinalQueryToExecute();
+			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+resultFinalQueryToExecute);
 			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Query Parameter Map-placeholder:"+result.getParametersMap());
-			List<SaleTransaction> tr = namedJDBCTemplate.query(result_FinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
+			List<SaleTransaction> tr = namedJDBCTemplate.query(resultFinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 			LOGGER.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
 			if (tr == null) {
 				tr = new ArrayList<>();
@@ -264,8 +264,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Rows Result {}, Data Query Result {}",countResult,tr.size());
-		Page<PaymentProcessorRemittance> list = new PageImpl(tr, page, countResult);
-		return list;
+		return new PageImpl(tr, page, countResult);
 	}
 	
 	private String getQueryByCriteria(String search,HashMap<String, String> dynamicParametersMap) {
@@ -411,9 +410,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	private List<String> getOriginFromPaymentFrequency(String paymentFrequency) {
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: getOriginFromPaymentFrequency() : Fetching Origins PaymentFrequency{} ",paymentFrequency);
-		@SuppressWarnings("unchecked")
-		List<String> origins =jdbcTemplate.queryForList("SELECT Origin FROM OriginPaymentFrequency_Lookup where PaymentFrequency = lower('"	+ paymentFrequency + "')",String.class);
-		return origins;
+		return jdbcTemplate.queryForList("SELECT Origin FROM OriginPaymentFrequency_Lookup where PaymentFrequency = lower('"	+ paymentFrequency + "')",String.class);
 	}
 	
 	private class CustomQuery {
@@ -514,15 +511,15 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	public Map<String, CustomQuery> createQueries(String query, PageRequest page,Map<String, String> dynamicParametersMap) throws ParseException {
-		CustomQuery queryTotal_CustomQuery = new CustomQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
-		CustomQuery result_CustomQuery = new CustomQuery(query);
-		result_CustomQuery.setSort(page != null ? page.getSort() : null);
+		CustomQuery queryTotalCustomQuery = new CustomQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
+		CustomQuery resultCustomQuery = new CustomQuery(query);
+		resultCustomQuery.setSort(page != null ? page.getSort() : null);
 		LOGGER.debug("CustomSaleTransactionDAOImpl :: createQueries() : Dynamic Parameters {}", dynamicParametersMap);
 		// Sets all parameters to the Query result
 		for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
 			if (entry.getKey().contains("amountParam")) {
-				result_CustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
-				queryTotal_CustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+				resultCustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+				queryTotalCustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
 			} else if (entry.getKey().contains("transactionDateTimeParam")
 					|| (entry.getKey().contains("remittanceCreationDate"))) {
 				if (!validFormatDate(entry.getValue())) {
@@ -530,24 +527,24 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 							"Unable to process find transaction, due an error with date formatting");
 				}
 				// Special case for the dates
-				result_CustomQuery.setParameter(entry.getKey(), entry.getValue());
-				queryTotal_CustomQuery.setParameter(entry.getKey(), entry.getValue());
+				resultCustomQuery.setParameter(entry.getKey(), entry.getValue());
+				queryTotalCustomQuery.setParameter(entry.getKey(), entry.getValue());
 			} else if (entry.getKey().contains("legalEntityParam")
 					|| entry.getKey().contains("paymentFrequencyParam")) {
 				// Special case for legal entity
 				String value = entry.getValue().replace("[", "").replace("]", "").replace(" ", "");
-				result_CustomQuery.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
-				queryTotal_CustomQuery.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
+				resultCustomQuery.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
+				queryTotalCustomQuery.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
 			} else {
-				result_CustomQuery.setParameter(entry.getKey(), entry.getValue());
-				queryTotal_CustomQuery.setParameter(entry.getKey(), entry.getValue());
+				resultCustomQuery.setParameter(entry.getKey(), entry.getValue());
+				queryTotalCustomQuery.setParameter(entry.getKey(), entry.getValue());
 			}
 		}
 		dynamicParametersMap.clear();
 		Map<String, CustomQuery> queriesMap = new HashMap<>();
 		
-		queriesMap.put("result", result_CustomQuery);
-		queriesMap.put("queryTotal", queryTotal_CustomQuery);
+		queriesMap.put("result", resultCustomQuery);
+		queriesMap.put("queryTotal", queryTotalCustomQuery);
 		return queriesMap;
 	}
 	
@@ -739,10 +736,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @return type of transaction
 	 */
 	private String getTransactionType(String search) {
-		final String TRANSACTION_TYPE = "(transactionType)(:|<|>)([\\w]+)";
+		final String TRANSACTIONTYPE = "(transactionType)(:|<|>)([\\w]+)";
 
 		String transactionType = "ALL";
-		Pattern pattern = Pattern.compile(TRANSACTION_TYPE);
+		Pattern pattern = Pattern.compile(TRANSACTIONTYPE);
 		Matcher matcher = pattern.matcher(search + QueryDSLUtil.SEARCH_DELIMITER_CHAR);
 		while (matcher.find()) {
 			transactionType = matcher.group(3);

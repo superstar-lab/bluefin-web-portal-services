@@ -23,10 +23,6 @@ import com.mysema.query.types.path.PathBuilder;
 import com.mysema.query.types.path.StringPath;
 
 public class QueryDSLUtil {
-	
-	private QueryDSLUtil() {
-		// default constructor
-	}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryDSLUtil.class);
 
@@ -40,17 +36,18 @@ public class QueryDSLUtil {
     public static final String WORD_LIST_REGEX = "\\[" + WORD_REGEX + "(,\\s*" + WORD_REGEX + ")*\\]";
     public static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
     public static final String NUMBERS_AND_WORDS_REGEX = WORD_REGEX + "|" + DECIMAL_NUMBER_REGEX;
-
     public static final String SEARCH_DELIMITER_CHAR = "$$";
     public static final String SEARCH_DELIMITER_CHAR_REGEX = "\\$\\$";
     public static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
             + EMAIL_PATTERN + "|" + INTEGER_LIST_REGEX + "|" + WORD_LIST_REGEX + ")" + SEARCH_DELIMITER_CHAR_REGEX;
-
     public static final String SEARCH_REGEX_LE = "(\\w+?)(:|<|>)" + "(" + ANY_LIST_REGEX + ")";
-
     private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
     private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
+    private QueryDSLUtil() {
+		// default constructor
+	}
+    
     public static BooleanExpression createExpression(String search, Class<?> entity) {
         PredicatesBuilder builder = new PredicatesBuilder();
 
@@ -114,9 +111,9 @@ public class QueryDSLUtil {
             }
             search = search + filterKey + userLegalEntities;
         } else {
-            String LEFilterValue = getLEFilterValue(search, filterKey);
-            search = search.replace(filterKey + LEFilterValue,
-                    filterKey + generateValidLEFilter(LEFilterValue, userLegalEntities));
+            String leFilterValue = getLEFilterValue(search, filterKey);
+            search = search.replace(filterKey + leFilterValue,
+                    filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
         }
         LOGGER.debug("QueryDSLUtil :: validateByFilter() : search : "+search);
         return search;

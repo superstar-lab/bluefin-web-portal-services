@@ -87,10 +87,7 @@ public class UserDAOImpl implements UserDAO {
 		int countResult = namedJDBCTemplate.queryForObject(queryForTotalCount,filterMap, Integer.class);
 		LOGGER.debug("UserDAOImpl :: findAllWithDynamicFilter() : Search result count:"+countResult);
 		
-		List<User> onePage = searchResultlist;
-		Page<User> pageList = new PageImpl<>(onePage, pageRequest, countResult);
-
-		return pageList;
+		return new PageImpl<>(searchResultlist, pageRequest, countResult);
 	}
 	
 	@Override
@@ -247,9 +244,7 @@ public class UserDAOImpl implements UserDAO {
 			onePage.add(list.get(i));
 		}
 
-		Page<User> pageList = new PageImpl<>(onePage, pageRequest, countResult);
-
-		return pageList;
+		return new PageImpl<>(onePage, pageRequest, countResult);
 	}
 }
 

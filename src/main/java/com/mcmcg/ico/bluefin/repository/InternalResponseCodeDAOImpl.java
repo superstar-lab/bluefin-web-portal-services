@@ -75,13 +75,13 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		return list;
 	}
 	
-	private List<InternalResponseCode> sortInternalResponseCode(List<InternalResponseCode> fetchedInternalStatusCode_List){
-		if (fetchedInternalStatusCode_List != null && !fetchedInternalStatusCode_List.isEmpty()) {
+	private List<InternalResponseCode> sortInternalResponseCode(List<InternalResponseCode> fetchedInternalStatusCodeList){
+		if (fetchedInternalStatusCodeList != null && !fetchedInternalStatusCodeList.isEmpty()) {
 			LinkedHashMap<String, InternalResponseCode> result = new LinkedHashMap<>();
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("InternalResponseCodeDAOImpl :: sortInternalResponseCode() : size of fetchedInternalStatusCode_List : {} ",fetchedInternalStatusCode_List.size());
+				LOGGER.debug("InternalResponseCodeDAOImpl :: sortInternalResponseCode() : size of fetchedInternalStatusCode_List : {} ",fetchedInternalStatusCodeList.size());
 			}
-			for(InternalResponseCode internalStatusCode : fetchedInternalStatusCode_List){
+			for(InternalResponseCode internalStatusCode : fetchedInternalStatusCodeList){
 				
 				final String description = internalStatusCode.getInternalResponseCodeDescription();
 				if (result.get(description) == null) {

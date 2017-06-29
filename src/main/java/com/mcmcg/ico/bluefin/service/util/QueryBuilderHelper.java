@@ -10,12 +10,10 @@ import org.springframework.data.domain.Sort;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 public class QueryBuilderHelper {
-	
+	private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilderHelper.class);
 	private QueryBuilderHelper(){
 		// Default constructor
 	}
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilderHelper.class);
 	
 	public static StringBuilder buildQuery(Map<String,String> filterMap ,Sort sort){
 		StringBuilder  bf = new StringBuilder( Queries.findAllUsers);
