@@ -369,17 +369,17 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	@Transient
     @JsonProperty("ReconDate.Processor_Name")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String Processor_Name;
+    private String reconProcessorName;
 
     @Transient
     @JsonProperty("ReconDate.MID")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String MID;
+    private String mid;
 
     @Transient
     @JsonProperty("ReconDate.ReconciliationStatus_ID")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String ReconciliationStatus_ID;
+    private String reconReconciliationStatusId;
 
 	public PaymentProcessorRemittance() {
 		// Default constructor
@@ -1053,28 +1053,28 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.saleBatchUploadId = saleBatchUploadId;
 	}
 
-	public String getProcessor_Name() {
-		return Processor_Name;
+	public String getReconProcessorName() {
+		return reconProcessorName;
 	}
 
-	public void setProcessor_Name(String processor_Name) {
-		Processor_Name = processor_Name;
+	public void setRecondProcessorName(String processorName) {
+		this.reconProcessorName = processorName;
 	}
 
-	public String getMID() {
-		return MID;
+	public String getMid() {
+		return mid;
 	}
 
-	public void setMID(String mID) {
-		MID = mID;
+	public void setMid(String mID) {
+		mid = mID;
 	}
 
-	public String getReconciliationStatus_ID() {
-		return ReconciliationStatus_ID;
+	public String getReconReconciliationStatusId() {
+		return reconReconciliationStatusId;
 	}
 
-	public void setReconciliationStatus_ID(String reconciliationStatus_ID) {
-		ReconciliationStatus_ID = reconciliationStatus_ID;
+	public void setReconReconciliationStatusId(String reconciliationStatusID) {
+		reconReconciliationStatusId = reconciliationStatusID;
 	}
 
 	public String getSaleProcessor() {
