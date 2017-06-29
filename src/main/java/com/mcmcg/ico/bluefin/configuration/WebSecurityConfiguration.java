@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.security.AuthenticationTokenFilter;
 import com.mcmcg.ico.bluefin.security.CustomAccessDeniedHandler;
 import com.mcmcg.ico.bluefin.security.EntryPointUnauthorizedHandler;
@@ -115,120 +116,120 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.hasAnyAuthority("SEARCH_REPORTING")
 				.antMatchers(HttpMethod.GET, reportsApiBaseURL + "/batch-uploads",
 						reportsApiBaseURL + "/batch-uploads/")
-				.hasAnyAuthority("BATCH_REPORTING")
+				.hasAnyAuthority(BluefinWebPortalConstants.BATCHREPORTING)
 				.antMatchers(HttpMethod.GET, reportsApiBaseURL + "/batch-upload-transactions",
 						reportsApiBaseURL + "/batch-upload-transactions/")
-				.hasAnyAuthority("BATCH_REPORTING")
+				.hasAnyAuthority(BluefinWebPortalConstants.BATCHREPORTING)
 
 				// Session
 				.antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/",
 						sessionApiBaseURL + "/recovery/password", sessionApiBaseURL + "/recovery/password/")
 				.permitAll()
-				.antMatchers(HttpMethod.POST, sessionApiBaseURL + "/consumer/{username}",
-						sessionApiBaseURL + "/consumer/{username}/")
-				.hasAuthority("ADMINISTRATIVE").antMatchers(HttpMethod.PUT, sessionApiBaseURL, sessionApiBaseURL + "/")
+				.antMatchers(HttpMethod.POST, sessionApiBaseURL + "/consumer/{"+BluefinWebPortalConstants.USERNAME+"}",
+						sessionApiBaseURL + "/consumer/{"+BluefinWebPortalConstants.USERNAME+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE).antMatchers(HttpMethod.PUT, sessionApiBaseURL, sessionApiBaseURL + "/")
 				.authenticated().antMatchers(HttpMethod.DELETE, sessionApiBaseURL, sessionApiBaseURL + "/")
 				.authenticated()
 
 				// Users
 				.antMatchers(HttpMethod.GET, usersApiBaseURL, usersApiBaseURL + "/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_ALL_USERS")
-				.antMatchers(HttpMethod.GET, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/")
-				.hasAnyAuthority("MANAGE_CURRENT_USER", "ADMINISTRATIVE", "MANAGE_ALL_USERS")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
+				.antMatchers(HttpMethod.GET, usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}", usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/")
+				.hasAnyAuthority("MANAGE_CURRENT_USER", BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
 				.antMatchers(HttpMethod.POST, usersApiBaseURL, usersApiBaseURL + "/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_ALL_USERS")
-				.antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/",
-						usersApiBaseURL + "/{username}/password", usersApiBaseURL + "/{username}/password/")
-				.hasAnyAuthority("MANAGE_CURRENT_USER", "ADMINISTRATIVE", "MANAGE_ALL_USERS")
-				.antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{username}/legal-entities",
-						usersApiBaseURL + "/{username}/legal-entities/", usersApiBaseURL + "/{username}/roles",
-						usersApiBaseURL + "/{username}/roles/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_ALL_USERS")
-				.antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{username}", usersApiBaseURL + "/{username}/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_ALL_USERS")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
+				.antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}", usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/",
+						usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/password", usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/password/")
+				.hasAnyAuthority("MANAGE_CURRENT_USER", BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
+				.antMatchers(HttpMethod.PUT, usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/legal-entities",
+						usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/legal-entities/", usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/roles",
+						usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/roles/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
+				.antMatchers(HttpMethod.DELETE, usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}", usersApiBaseURL + "/{"+BluefinWebPortalConstants.USERNAME+"}/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
 
 				// Legal entities
 				.antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/",
-						legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/")
+						legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.authenticated().antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{id}", legalEntitiesApiBaseURL + "/{id}/")
-				.hasAuthority("ADMINISTRATIVE")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 
 				// Reconciliation Status
 				.antMatchers(HttpMethod.GET, reconciliationStatusApiBaseURL, reconciliationStatusApiBaseURL + "/",
-						reconciliationStatusApiBaseURL + "/{id}", reconciliationStatusApiBaseURL + "/{id}/")
+						reconciliationStatusApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", reconciliationStatusApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.authenticated()
 
 				// Payment Processors
 				.antMatchers(HttpMethod.GET, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/",
-						paymentProcessorApiBaseURL + "/{id}", paymentProcessorApiBaseURL + "/{id}/")
+						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.authenticated()
 				.antMatchers(HttpMethod.POST, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.PUT, paymentProcessorApiBaseURL + "/{id}",
-						paymentProcessorApiBaseURL + "/{id}/",
-						paymentProcessorApiBaseURL + "/{id}/payment-processor-merchants",
-						paymentProcessorApiBaseURL + "/{id}/payment-processor-merchants/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.DELETE, paymentProcessorApiBaseURL + "/{id}",
-						paymentProcessorApiBaseURL + "/{id}/")
-				.hasAuthority("ADMINISTRATIVE")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.PUT, paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/",
+						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/payment-processor-merchants",
+						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/payment-processor-merchants/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.DELETE, paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 
 				// Payment Processor Rules
 				.antMatchers(HttpMethod.GET, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/",
-						paymentProcessorRulesApiBaseURL + "/{id}", paymentProcessorRulesApiBaseURL + "/{id}/",
+						paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/",
 						paymentProcessorRulesApiBaseURL + "/transaction-types",
 						paymentProcessorRulesApiBaseURL + "/transaction-types/")
-				.hasAuthority("ADMINISTRATIVE")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 				.antMatchers(HttpMethod.POST, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.PUT, paymentProcessorRulesApiBaseURL + "/{id}",
-						paymentProcessorRulesApiBaseURL + "/{id}/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{id}",
-						paymentProcessorRulesApiBaseURL + "/{id}/")
-				.hasAuthority("ADMINISTRATIVE")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.PUT, paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 
 				// Payment Processor Remittance
 				.antMatchers(HttpMethod.GET, paymentProcessorRemittanceApiBaseURL,
-						paymentProcessorRemittanceApiBaseURL + "/", paymentProcessorRemittanceApiBaseURL + "/{id}",
-						paymentProcessorRemittanceApiBaseURL + "/{id}/")
+						paymentProcessorRemittanceApiBaseURL + "/", paymentProcessorRemittanceApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						paymentProcessorRemittanceApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.hasAuthority("SEARCH_RECONCILIATION")
 
 				// Roles
 				.antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
-				.antMatchers(HttpMethod.GET, rolesApiBaseURL + "/{id}", rolesApiBaseURL + "/{id}/").authenticated()
+				.antMatchers(HttpMethod.GET, rolesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", rolesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/").authenticated()
 
 				// Internal Response Codes
 				.antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
 				.antMatchers(HttpMethod.POST, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
 				.antMatchers(HttpMethod.PUT, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
-				.antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{id}",
-						internalResponseCodesApiBaseURL + "/{id}/")
-				.hasAnyAuthority("ADMINISTRATIVE", "MANAGE_RESPONSE_CODES")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
+				.antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						internalResponseCodesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
 
 				// Internal Status Codes
 				.antMatchers(HttpMethod.GET, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/")
 				.authenticated()
 				.antMatchers(HttpMethod.POST, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/")
-				.hasAuthority("ADMINISTRATIVE")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 				.antMatchers(HttpMethod.PUT, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/")
-				.hasAuthority("ADMINISTRATIVE")
-				.antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{id}",
-						internalStatusCodesApiBaseURL + "/{id}/")
-				.hasAuthority("ADMINISTRATIVE")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.DELETE, internalStatusCodesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
+						internalStatusCodesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 
 				// Batch Uploads
 				.antMatchers(HttpMethod.GET, batchUploadApiBaseURL, batchUploadApiBaseURL + "/")
 				.hasAuthority("BATCH_UPLOAD")
-				.antMatchers(HttpMethod.GET, batchUploadApiBaseURL + "/{id}", batchUploadApiBaseURL + "/{id}/")
-				.hasAuthority("BATCH_REPORTING")
+				.antMatchers(HttpMethod.GET, batchUploadApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", batchUploadApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAuthority(BluefinWebPortalConstants.BATCHREPORTING)
 
 				.and().authorizeRequests().anyRequest().authenticated();
 		// @formatter:on

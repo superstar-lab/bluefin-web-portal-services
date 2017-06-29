@@ -31,7 +31,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 @Repository
 public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcessorInternalStatusCodeDAO {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorInternalStatusCodeDAOImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(PaymentProcessorInternalStatusCodeDAOImpl.class);
 	private final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
 	@Autowired
@@ -41,8 +41,8 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	public List<PaymentProcessorInternalStatusCode> findAllForInternalStatusCodeId(Long internalStatusCodeId){
 		List<PaymentProcessorInternalStatusCode> list = jdbcTemplate.query( Queries.findAllPaymentProcessorInternalStatusCodeForInternalStatusCodeId, new Object[] {internalStatusCodeId},
 				new PaymentProcessorInternalStatusCodeRowMapper());
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: findAllForInternalStatusCodeId() : PaymentProcessorInternalStatusCode list size : "+list.size());
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: findAllForInternalStatusCodeId() : PaymentProcessorInternalStatusCode list size : "+list.size());
 		}
 		return list;
 	}
@@ -52,7 +52,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		@Override
 		public PaymentProcessorInternalStatusCode mapRow(ResultSet rs, int row) throws SQLException {
 			PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
-			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
+			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.PaymentProcessorInternalStatusCodeId));
 			paymentProcessorInternalStatusCode.setInternalStatusCodeId(rs.getLong("InternalStatusCodeID"));
 			paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(rs.getLong("PaymentProcessorStatusCodeID"));
 			paymentProcessorInternalStatusCode.setLastModifiedBy(rs.getString("ModifiedBy"));
@@ -65,7 +65,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		@Override
 		public PaymentProcessorInternalStatusCode mapRow(ResultSet rs, int row) throws SQLException {
 			PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
-			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong("PaymentProcessorInternalStatusCodeID"));
+			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.PaymentProcessorInternalStatusCodeId));
 			paymentProcessorInternalStatusCode.setInternalStatusCodeId(rs.getLong("InternalStatusCodeID"));
 			return paymentProcessorInternalStatusCode;
 		}
@@ -79,7 +79,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 				PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = paymentProcessorInternalStatusCodes.get(i);
 				DateTime utc1 = paymentProcessorInternalStatusCode.getCreatedDate() != null ? paymentProcessorInternalStatusCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-				LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: insertBatch() : Creating child item , InternalStatusCodeId="+(paymentProcessorInternalStatusCode.getInternalStatusCodeId()) + " , PaymentProcessorStatusCodeId="+paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
+				logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: insertBatch() : Creating child item , InternalStatusCodeId="+(paymentProcessorInternalStatusCode.getInternalStatusCodeId()) + " , PaymentProcessorStatusCodeId="+paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
 				ps.setLong(1, paymentProcessorInternalStatusCode.getInternalStatusCodeId());
 				ps.setLong(2, paymentProcessorInternalStatusCode.getPaymentProcessorStatusCodeId());
 				ps.setTimestamp(3, dateCreated);
@@ -100,23 +100,23 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 
 	@Override
 	public void delete(Long internalStatusCodeId) {
-		LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: delete() : Deleting child items for internalStatusCodeId {}",internalStatusCodeId);
+		logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: delete() : Deleting child items for internalStatusCodeId {}",internalStatusCodeId);
 		int noOfRowsDeleted = jdbcTemplate.update(Queries.deletePaymentProcessorInternalStatusCode, internalStatusCodeId);
-		LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: delete() : Number of childs items deleted {} internalStatusCodeId {}",noOfRowsDeleted,internalStatusCodeId);
+		logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: delete() : Number of childs items deleted {} internalStatusCodeId {}",noOfRowsDeleted,internalStatusCodeId);
 	}
 
 	@Override
 	public void deletePaymentProcessorInternalStatusCodeForPaymentProcessor(Long paymentProcessorId) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : Delete Payment processr status code for paymentprocessorid="+paymentProcessorId);
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : Delete Payment processr status code for paymentprocessorid="+paymentProcessorId);
 		}
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = fetchInternalStatusCodeIdsUsedForPaymentProcessor(paymentProcessorId);
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
 		}
 		Set<Entry<Long,List<Long>>> allEntries = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.entrySet();
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : allEntries size : "+allEntries.size()); 
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : allEntries size : "+allEntries.size()); 
 		}
 		List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<>();
 		List<Long> internalStatusCodeIds = new ArrayList<>();
@@ -126,17 +126,17 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		}
 		if (!paymentProcessorInternalStatusCodeIds.isEmpty()) {
 			deletePaymentProcessorInternalStatusCodeIds(paymentProcessorInternalStatusCodeIds);
-			LOGGER.info("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : PaymentProcessorInternalStatusCodeIds deletion completed");
+			logger.info("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : PaymentProcessorInternalStatusCodeIds deletion completed");
 		}
 		if (!internalStatusCodeIds.isEmpty()) {
 			deleteInternalStatusCodeIds(internalStatusCodeIds);
-			LOGGER.info("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : InternalStatusCodeIds deletion completed");
+			logger.info("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeForPaymentProcessor() : InternalStatusCodeIds deletion completed");
 		}
 	}
 	
 	private Map<Long,List<Long>> fetchInternalStatusCodeIdsUsedForPaymentProcessor(Long paymentProcessId){
-		if(LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: fetchInternalStatusCodeIdsUsedForPaymentProcessor() : Fetching Internal Status Code Ids for paymentprocessorid="+paymentProcessId);
+		if(logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: fetchInternalStatusCodeIdsUsedForPaymentProcessor() : Fetching Internal Status Code Ids for paymentprocessorid="+paymentProcessId);
 		}
 		String query = Queries.fetchInternalStatusCodeUsedForPaymentProcessor;
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = new HashMap<>();
@@ -145,7 +145,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 				Long paymentProcessorInternalStatusId;
 				while(rs.next()){
 					internalStatusCodeId = rs.getLong("InternalStatusCodeId");
-					paymentProcessorInternalStatusId = rs.getLong("PaymentProcessorInternalStatusCodeID");
+					paymentProcessorInternalStatusId = rs.getLong(BluefinWebPortalConstants.PaymentProcessorInternalStatusCodeId);
 					List<Long> paymentProcessorInternalStatusCodeIds = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.get(internalStatusCodeId);
 					if (paymentProcessorInternalStatusCodeIds == null) {
 						paymentProcessorInternalStatusCodeIds = new ArrayList<>();
@@ -155,16 +155,16 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 				}
 				return idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode;
 		});
-		if(LOGGER.isDebugEnabled())
-			LOGGER.debug(String.format("PaymentProcessorInternalStatusCodeDAOImpl :: fetchInternalStatusCodeIdsUsedForPaymentProcessor() : idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode size : %s",idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size()));
+		if(logger.isDebugEnabled())
+			logger.debug(String.format("PaymentProcessorInternalStatusCodeDAOImpl :: fetchInternalStatusCodeIdsUsedForPaymentProcessor() : idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode size : %s",idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size()));
 		
 		return idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode;
 	}
 
 	@Override
 	public void deletePaymentProcessorInternalStatusCodeIds(List<Long> paymentProcessorInternalStatusCodeIds) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeIds() : Delete Payment Processor Internal Status Code_IDs="+(paymentProcessorInternalStatusCodeIds));
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorInternalStatusCodeIds() : Delete Payment Processor Internal Status Code_IDs="+(paymentProcessorInternalStatusCodeIds));
 		}
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", paymentProcessorInternalStatusCodeIds);
@@ -173,8 +173,8 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 
 	@Override
 	public void deleteInternalStatusCodeIds(List<Long> internalStatusCodeIds) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deleteInternalStatusCodeIds() : Delete Internal Status Code_IDs="+(internalStatusCodeIds));
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deleteInternalStatusCodeIds() : Delete Internal Status Code_IDs="+(internalStatusCodeIds));
 		}
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", internalStatusCodeIds);
@@ -182,13 +182,13 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	}
 	
 	private void executeQueryToDeleteRecords(String deleteQuery,Map<String, List<Long>> idsToDelete){
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: executeQueryToDeleteRecords() : Finally deleteing records, idsToDelete= {}",idsToDelete);
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: executeQueryToDeleteRecords() : Finally deleteing records, idsToDelete= {}",idsToDelete);
 		}
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: executeQueryToDeleteRecords() : Number of rows deleted= {}",noOfRowsDeleted);
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: executeQueryToDeleteRecords() : Number of rows deleted= {}",noOfRowsDeleted);
 		}
 	}
 	
@@ -199,8 +199,8 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 
 	@Override
 	public void deletePaymentProcessorStatusCodeIds(List<Long> paymentProcessorStatusCodeIds) {
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorStatusCodeIds() : paymentProcessorStatusCodeIds size : "+paymentProcessorStatusCodeIds.size());
+		if (logger.isDebugEnabled()) {
+			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: deletePaymentProcessorStatusCodeIds() : paymentProcessorStatusCodeIds size : "+paymentProcessorStatusCodeIds.size());
 		}
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", paymentProcessorStatusCodeIds);

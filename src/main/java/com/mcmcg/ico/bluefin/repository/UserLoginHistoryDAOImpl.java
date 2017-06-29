@@ -23,7 +23,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 @Repository
 public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(UserLoginHistoryDAOImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(UserLoginHistoryDAOImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -59,7 +59,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 
 		Long id = holder.getKey().longValue();
 		userLoginHistory.setUserLoginHistoryId(id);
-		LOGGER.debug("UserLoginHistoryDAOImpl :: saveUserLoginHistory() : Saved userLoginHistory - id: " + id);
+		logger.debug("UserLoginHistoryDAOImpl :: saveUserLoginHistory() : Saved userLoginHistory - id: " + id);
 
 		return id;
 	}

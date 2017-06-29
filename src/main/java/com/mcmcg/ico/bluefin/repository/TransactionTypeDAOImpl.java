@@ -22,7 +22,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 @Repository
 public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(TransactionTypeDAOImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(TransactionTypeDAOImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -32,7 +32,7 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 		List<TransactionType> list = jdbcTemplate.query(Queries.findAllTransactionTypes,
 				new TransactionTypeRowMapper());
 
-		LOGGER.debug("TransactionTypeDAOImpl :: findAll() : Number of rows: " + list.size());
+		logger.debug("TransactionTypeDAOImpl :: findAll() : Number of rows: " + list.size());
 
 		return list;
 	}
@@ -42,13 +42,13 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
 				Queries.findTransactionTypeByTransactionId, new Object[] { transactionTypeId },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
-		LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType : " + list.size());
+		logger.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType : " + list.size());
 		TransactionType transactionType = DataAccessUtils.singleResult(list);
 
 		if (transactionType != null) {
-			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : Found TransactionType for transactionTypeId: " + transactionTypeId);
+			logger.debug("TransactionTypeDAOImpl :: findByTransactionId() : Found TransactionType for transactionTypeId: " + transactionTypeId);
 		} else {
-			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType not found for transactionTypeId: " + transactionTypeId);
+			logger.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType not found for transactionTypeId: " + transactionTypeId);
 		}
 
 		return transactionType;
@@ -59,13 +59,13 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
 				Queries.findTransactionTypeByTransactionType, new Object[] { type },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
-		LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType : " + list.size());
+		logger.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType : " + list.size());
 		TransactionType transactionType = DataAccessUtils.singleResult(list);
 
 		if (transactionType != null) {
-			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : Found TransactionType for type: " + type);
+			logger.debug("TransactionTypeDAOImpl :: findByTransactionType() : Found TransactionType for type: " + type);
 		} else {
-			LOGGER.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType not found for type: " + type);
+			logger.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType not found for type: " + type);
 		}
 
 		return transactionType;
