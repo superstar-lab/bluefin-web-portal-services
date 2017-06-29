@@ -16,6 +16,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -40,7 +41,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		// PreparedStatement.
 		DateTime utc1 = userLoginHistory.getLoginDateTime().withZone(DateTimeZone.UTC);
 		DateTime utc2 = userLoginHistory.getDateCreated().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp loginDateTime = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		

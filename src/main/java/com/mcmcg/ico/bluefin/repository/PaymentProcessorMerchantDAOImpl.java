@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -78,7 +79,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedStatementSetter {
 	
 	private final List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
-	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
 	public PaymentProcessorInsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants){
 		this.paymentProcessorMerchants = paymentProcessorMerchants;

@@ -27,6 +27,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -35,7 +36,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
-	private final DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -107,7 +108,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		// PreparedStatement.
 		DateTime utc1 = legalEntityApp.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc2 = legalEntityApp.getDateModified().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
@@ -146,7 +147,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		// Convert this string to Timestamp, which is supported by
 		// PreparedStatement.
 		DateTime utc2 = new DateTime(DateTimeZone.UTC);
-		DateTimeFormatter dateModifiedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dateModifiedDateFormat = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dateModifiedDateFormat.print(utc2));
 
 		jdbcTemplate.update(connection->{

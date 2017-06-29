@@ -25,6 +25,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -43,7 +44,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         DateTime utc1 = batchUpload.getProcessStart().withZone(DateTimeZone.UTC);
         DateTime utc2 = batchUpload.getDateUploaded().withZone(DateTimeZone.UTC);
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
         Timestamp processStart = Timestamp.valueOf(dtf.print(utc1));
         Timestamp dateUploaded = Timestamp.valueOf(dtf.print(utc2));
 
@@ -107,7 +108,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
     @Override
     public List<BatchUpload> findByDateUploadedAfter(DateTime dateBeforeNoofdays) {
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
         Timestamp dateBeforeNoofdaysTimestamp = Timestamp.valueOf(dtf.print(dateBeforeNoofdays));
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findByDateUploadedAfter,
@@ -157,10 +158,10 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
             batchUpload.setBatchApplication(rs.getString("BatchApplication"));
             batchUpload.setName(rs.getString("Name"));
             batchUpload.setFileName(rs.getString("FileName"));
-            batchUpload.setDateUploaded(getItemDate(rs.getString("DateUploaded"), "YYYY-MM-dd HH:mm:ss.SSS"));
+            batchUpload.setDateUploaded(getItemDate(rs.getString("DateUploaded"), BluefinWebPortalConstants.FULLDATEFORMAT));
             batchUpload.setUpLoadedBy(rs.getString("UpLoadedBy"));
-            batchUpload.setProcessStart(getItemDate(rs.getString("ProcessStart"), "YYYY-MM-dd HH:mm:ss.SSS"));
-            batchUpload.setProcessEnd(getItemDate(rs.getString("ProcessEnd"), "YYYY-MM-dd HH:mm:ss.SSS"));
+            batchUpload.setProcessStart(getItemDate(rs.getString("ProcessStart"), BluefinWebPortalConstants.FULLDATEFORMAT));
+            batchUpload.setProcessEnd(getItemDate(rs.getString("ProcessEnd"), BluefinWebPortalConstants.FULLDATEFORMAT));
             batchUpload.setNumberOfTransactions(rs.getInt("NumberOfTransactions"));
             batchUpload.setNumberOfApprovedTransactions(rs.getInt("NumberOfApprovedTransactions"));
             batchUpload.setNumberOfDeclinedTransactions(rs.getInt("NumberOfDeclinedTransactions"));

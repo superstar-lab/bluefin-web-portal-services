@@ -24,6 +24,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
@@ -110,7 +111,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		internalResponseCode.setModifiedDate(DateTime.now(DateTimeZone.UTC));
 		DateTime utc1 = internalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC);
 		DateTime utc2 = internalResponseCode.getModifiedDate().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
@@ -175,12 +176,12 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		@Override
 		public com.mcmcg.ico.bluefin.model.InternalResponseCode mapRow(ResultSet rs, int row) throws SQLException {
 			com.mcmcg.ico.bluefin.model.InternalResponseCode  internalResponseCode = new com.mcmcg.ico.bluefin.model.InternalResponseCode();
-			internalResponseCode.setCreatedDate(getItemDate(rs.getString("DateCreated"), "YYYY-MM-dd HH:mm:ss.SSS"));
+			internalResponseCode.setCreatedDate(getItemDate(rs.getString("DateCreated"), BluefinWebPortalConstants.FULLDATEFORMAT));
 			internalResponseCode.setInternalResponseCodeValue(rs.getString("InternalResponseCode"));
 			internalResponseCode.setInternalResponseCodeDescription(rs.getString("InternalResponseCodeDescription"));
 			internalResponseCode.setInternalResponseCodeId(rs.getLong("InternalResponseCodeID"));
 			internalResponseCode.setLastModifiedBy(rs.getString("ModifiedBy"));
-			internalResponseCode.setModifiedDate(getItemDate(rs.getString("DatedModified"), "YYYY-MM-dd HH:mm:ss.SSS"));
+			internalResponseCode.setModifiedDate(getItemDate(rs.getString("DatedModified"), BluefinWebPortalConstants.FULLDATEFORMAT));
 			internalResponseCode.setTransactionTypeName(rs.getString("TransactionType"));
 		    		
 			
@@ -192,7 +193,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 
 		LOGGER.info("Updating Internal Response Code##");
 		DateTime utc4 = internalResponseCode.getModifiedDate() != null ? internalResponseCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
 		int rows = jdbcTemplate.update(Queries.updateInternalResponseCode,

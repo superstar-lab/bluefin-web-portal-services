@@ -22,6 +22,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.RolePermission;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -57,7 +58,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 		// PreparedStatement.
 		DateTime utc1 = rolePermission.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc2 = rolePermission.getDateModified().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
