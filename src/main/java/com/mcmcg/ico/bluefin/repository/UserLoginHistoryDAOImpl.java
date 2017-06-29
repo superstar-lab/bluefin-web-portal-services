@@ -46,7 +46,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveUserLoginHistory,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEUSERLOGINHISTORY,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0"));
 				ps.setTimestamp(2, loginDateTime);

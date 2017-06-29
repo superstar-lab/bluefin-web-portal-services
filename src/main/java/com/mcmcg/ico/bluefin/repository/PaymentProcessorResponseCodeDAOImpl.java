@@ -50,7 +50,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorStatusCodeList;
 
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorResponseCodeByCodeId,
+				.query(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYCODEID,
 						new Object[] { transactionTypeName, paymentProcessorResponseCode,
 								paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>(
@@ -75,7 +75,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 			com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor) {
 
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorResponseCodeByTypeId,
+				.query(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYTYPEID,
 						new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>(
 								new PaymentProcessorResponseCodeRowMapper()));
@@ -92,7 +92,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 
 	@Override
 	public void deletePaymentProcessorResponseCode(Long paymentProcessorId) {
-			int rows = jdbcTemplate.update(Queries.deletePaymentProcessorResponseCodeByID, new Object[] { paymentProcessorId });
+			int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRESPONSECODEBYID, new Object[] { paymentProcessorId });
 			LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: deletePaymentProcessorResponseCode() : Deleted payment Processor Response Code by  PaymentProcessorId: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
@@ -108,7 +108,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorResponseCode,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPAYMENTPROCESSORRESPONSECODE,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorResponseCode.getPaymentProcessor().getPaymentProcessorId()); // ProcessorName
 				ps.setString(2, paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue()); // DateCreated
@@ -129,7 +129,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	@Override
 	public PaymentProcessorResponseCode findOne(Long paymentProcessorCodeId) {
 		try {
-			PaymentProcessorResponseCode paymentProcessorResponseCode = jdbcTemplate.queryForObject(Queries.findPaymentProcessorResponseCodeByID, new Object[] { paymentProcessorCodeId },
+			PaymentProcessorResponseCode paymentProcessorResponseCode = jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYID, new Object[] { paymentProcessorCodeId },
 					new PaymentProcessorResponseCodeRowMapper());
 			LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: findOne() : paymentProcessorResponseCode " + paymentProcessorResponseCode);
 			return paymentProcessorResponseCode;
@@ -149,7 +149,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
 
-		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorResponseCode,
+		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORRESPONSECODE,
 				new Object[] { 	paymentProcessorResponseCode.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue(), 
 								paymentProcessorResponseCode.getTransactionTypeName(), paymentProcessorResponseCode.getPaymentProcessorResponseCodeDescription(),
 								dateModified,paymentProcessorResponseCode.getLastModifiedBy(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeId()

@@ -36,7 +36,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 	@Override
 	public List<UserLegalEntityApp> findByUserId(long userId) {
 		ArrayList<UserLegalEntityApp> list = (ArrayList<UserLegalEntityApp>) jdbcTemplate.query(
-				Queries.findUserLegalEntityAppByUserId, new Object[] { userId },
+				Queries.FINDUSERLEGALENTITYAPPBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserLegalEntityApp>(new UserLegalEntityAppRowMapper()));
 
 		LOGGER.debug("UserLegalEntityAppDAOImpl :: findByUserId() : Number of rows: " + list.size());
@@ -49,7 +49,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 		if(!legalEntityAppsToRemove.isEmpty()) {
 			Map<String, Collection<Long>> valuesToDelete = new HashMap<>();
 			valuesToDelete.put("userLegalEntityAppIds", legalEntityAppsToRemove);
-			executeQueryToDeleteUserLegalEntity(Queries.deleteUserLegalEntities,valuesToDelete);
+			executeQueryToDeleteUserLegalEntity(Queries.DELETEUSERLEGALENTITIES,valuesToDelete);
 		}
 	}
 	
@@ -62,7 +62,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 
 	@Override
 	public List<Long> fetchLegalEntityApps(Long id) {
-		return jdbcTemplate.queryForList(Queries.findLegalEntitiesAssociatedWithUserByLEId,new Object[]{id},Long.class);
+		return jdbcTemplate.queryForList(Queries.FINDLEGALENTITIESASSOCIATEDWITHUSERBYLEID,new Object[]{id},Long.class);
 	}
 }
 

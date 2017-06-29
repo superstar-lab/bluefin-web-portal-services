@@ -9,10 +9,10 @@ public class BluefinWebPortalConstants {
 	public static final String USERNAME = "username";
 	public static final String ID = "id";
 	public static final String MANAGERESPONSECODES = "MANAGE_RESPONSE_CODES";
-	public static final String PaymentProcessorInternalStatusCodeId = "PaymentProcessorInternalStatusCodeID";
-	public static final String DateCreated = "DateCreated";
-	public static final String TransactionTime = "TransactionTime";
-	public static final String RemittanceCreationDate = "RemittanceCreationDate";
+	public static final String PAYMENTPROCESSORINTERNALSTATUSCODEID = "PaymentProcessorInternalStatusCodeID";
+	public static final String DATECREATED = "DateCreated";
+	public static final String TRANSACTIONTIME = "TransactionTime";
+	public static final String REMITTANCECREATIONDATE = "RemittanceCreationDate";
 	
 	private BluefinWebPortalConstants(){
 		

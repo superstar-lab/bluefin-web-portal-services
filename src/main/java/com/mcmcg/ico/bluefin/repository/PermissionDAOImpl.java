@@ -38,7 +38,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 	public Permission findByPermissionId(long permissionId) {
 		Permission permission;
 
-		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.findPermissionByPermissionId,
+		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONID,
 				new Object[] { permissionId }, new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
 		LOGGER.debug("PermissionDAOImpl :: findByPermissionId : Permission list : " + list.size());
 		permission = DataAccessUtils.singleResult(list);
@@ -55,7 +55,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 	@Override
 	public Permission findByPermissionName(String permissionName) {
 		Permission permission;
-		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.findPermissionByPermissionName,
+		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONNAME,
 				new Object[] { permissionName },
 				new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
 		LOGGER.debug("PermissionDAOImpl :: findByPermissionName() : Permission list : " + list.size());
@@ -88,7 +88,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePermission,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPERMISSION,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, permission.getPermissionName()); // PermissionName
 				ps.setString(2, permission.getDescription()); // Description

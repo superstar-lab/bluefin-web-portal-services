@@ -29,7 +29,7 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 
 	@Override
 	public List<TransactionType> findAll() {
-		List<TransactionType> list = jdbcTemplate.query(Queries.findAllTransactionTypes,
+		List<TransactionType> list = jdbcTemplate.query(Queries.FINDALLTRANSACTIONTYPES,
 				new TransactionTypeRowMapper());
 
 		logger.debug("TransactionTypeDAOImpl :: findAll() : Number of rows: " + list.size());
@@ -40,7 +40,7 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 	@Override
 	public TransactionType findByTransactionId(long transactionTypeId) {
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
-				Queries.findTransactionTypeByTransactionId, new Object[] { transactionTypeId },
+				Queries.FINDTRANSACTIONTYPEBYTRANSACTIONID, new Object[] { transactionTypeId },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
 		logger.debug("TransactionTypeDAOImpl :: findByTransactionId() : TransactionType : " + list.size());
 		TransactionType transactionType = DataAccessUtils.singleResult(list);
@@ -57,7 +57,7 @@ public class TransactionTypeDAOImpl implements TransactionTypeDAO {
 	@Override
 	public TransactionType findByTransactionType(String type) {
 		ArrayList<TransactionType> list = (ArrayList<TransactionType>) jdbcTemplate.query(
-				Queries.findTransactionTypeByTransactionType, new Object[] { type },
+				Queries.FINDTRANSACTIONTYPEBYTRANSACTIONTYPE, new Object[] { type },
 				new RowMapperResultSetExtractor<TransactionType>(new TransactionTypeRowMapper()));
 		logger.debug("TransactionTypeDAOImpl :: findByTransactionType() : TransactionType : " + list.size());
 		TransactionType transactionType = DataAccessUtils.singleResult(list);

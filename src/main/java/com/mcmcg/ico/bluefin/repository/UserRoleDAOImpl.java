@@ -47,7 +47,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	}
 	
 	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserRole> userRoles){
-		jdbcTemplate.batchUpdate(Queries.saveUserRole, new BatchPreparedStatementSetter() {
+		jdbcTemplate.batchUpdate(Queries.SAVEUSERROLE, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				com.mcmcg.ico.bluefin.model.UserRole userRole = userRoles.get(i);
@@ -71,7 +71,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 		if(!rolesToRemove.isEmpty()) {
 			Map<String, Set<Long>> valuesToDelete = new HashMap<>();
 			valuesToDelete.put("userRoleIds", rolesToRemove);
-			executeQueryToDeleteUserRoles(Queries.deleteUserRoles,valuesToDelete);
+			executeQueryToDeleteUserRoles(Queries.DELETEUSERROLES,valuesToDelete);
 		}
 	}
 	
@@ -84,7 +84,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	
 	@Override
 	public List<UserRole> findByUserId(long userId) {
-		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByUserId,
+		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.FINDUSERROLEBYUSERID,
 				new Object[] { userId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
 
 		LOGGER.debug("UserRoleDAOImpl :: findByUserId() : Number of rows: " + list.size());

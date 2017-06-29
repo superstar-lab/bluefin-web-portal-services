@@ -41,7 +41,7 @@ public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemitt
 		PaymentProcessorRemittance paymentProcessorRemittance;
 
 		ArrayList<PaymentProcessorRemittance> list = (ArrayList<PaymentProcessorRemittance>) jdbcTemplate.query(
-				Queries.findPaymentProcessorRemittanceByProcessorTransactionId, new Object[] { transactionId },
+				Queries.FINDPAYMENTPROCESSORREMITTANCEBYPROCESSORTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<PaymentProcessorRemittance>(new PaymentProcessorRemittanceRowMapper()));
 		logger.debug("PaymentProcessorRemittanceDAOImpl :: findByProcessorTransactionId : PaymentProcessorRemittance size : "+list.size());
 		paymentProcessorRemittance = DataAccessUtils.singleResult(list);
@@ -64,8 +64,8 @@ class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorR
 		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
 		paymentProcessorRemittance.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
 		Timestamp ts;
-		if (rs.getString(BluefinWebPortalConstants.DateCreated) != null){
-			ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DateCreated));
+		if (rs.getString(BluefinWebPortalConstants.DATECREATED) != null){
+			ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DATECREATED));
 			paymentProcessorRemittance.setDateCreated(new DateTime(ts));
 		}
 		paymentProcessorRemittance.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
@@ -73,8 +73,8 @@ class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorR
 		paymentProcessorRemittance.setPaymentMethod(rs.getString("PaymentMethod"));
 		paymentProcessorRemittance.setTransactionAmount(rs.getBigDecimal("TransactionAmount"));
 		paymentProcessorRemittance.setTransactionType(rs.getString("TransactionType"));
-		if (rs.getString(BluefinWebPortalConstants.TransactionTime) != null) {
-			ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.TransactionTime));
+		if (rs.getString(BluefinWebPortalConstants.TRANSACTIONTIME) != null) {
+			ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.TRANSACTIONTIME));
 			paymentProcessorRemittance.setTransactionTime(new DateTime(ts));
 		}
 		paymentProcessorRemittance.setAccountId(rs.getString("AccountID"));
@@ -84,7 +84,7 @@ class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorR
 		paymentProcessorRemittance.setTransactionSource(rs.getString("TransactionSource"));
 		paymentProcessorRemittance.setFirstName(rs.getString("FirstName"));
 		paymentProcessorRemittance.setLastName(rs.getString("LastName"));
-		paymentProcessorRemittance.setRemittanceCreationDate(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.RemittanceCreationDate)));
+		paymentProcessorRemittance.setRemittanceCreationDate(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.REMITTANCECREATIONDATE)));
 		paymentProcessorRemittance.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
 		paymentProcessorRemittance.setReProcessStatus(rs.getString("ReProcessStatus"));
 		paymentProcessorRemittance.setEtlRunId(rs.getLong("ETL_RUNID"));
@@ -107,8 +107,8 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 			PaymentProcessorRemittance ppr = new PaymentProcessorRemittance();
 			ppr.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
 			Timestamp ts;
-			if (rs.getString(BluefinWebPortalConstants.DateCreated) != null){
-				ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DateCreated));
+			if (rs.getString(BluefinWebPortalConstants.DATECREATED) != null){
+				ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DATECREATED));
 				ppr.setDateCreated(new DateTime(ts));
 			}
 			// Mitul overrides this with ReconciliationStatus_ID
@@ -117,7 +117,7 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 			ppr.setPaymentMethod(rs.getString("PaymentMethod"));
 			ppr.setTransactionAmount(rs.getBigDecimal("TransactionAmount"));
 			ppr.setTransactionType(rs.getString("TransactionType"));
-			ppr.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TransactionTime)));
+			ppr.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TRANSACTIONTIME)));
 			ppr.setAccountId(rs.getString("AccountID"));
 			ppr.setApplication(rs.getString("Application"));
 			ppr.setProcessorTransactionId(rs.getString("ProcessorTransactionID"));
@@ -126,8 +126,8 @@ class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<Rem
 			ppr.setTransactionSource(rs.getString("TransactionSource"));
 			ppr.setFirstName(rs.getString("FirstName"));
 			ppr.setLastName(rs.getString("LastName"));
-			if (rs.getString(BluefinWebPortalConstants.RemittanceCreationDate) != null){
-				ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.RemittanceCreationDate));
+			if (rs.getString(BluefinWebPortalConstants.REMITTANCECREATIONDATE) != null){
+				ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.REMITTANCECREATIONDATE));
 				ppr.setRemittanceCreationDate(new DateTime(ts));
 			}
 			ppr.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));

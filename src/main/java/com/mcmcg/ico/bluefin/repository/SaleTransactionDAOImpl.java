@@ -29,7 +29,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	
 	@Override
 	public List<SaleTransaction> findAll() {
-		List<SaleTransaction> list = jdbcTemplate.query(Queries.findAllSaleTransactions,
+		List<SaleTransaction> list = jdbcTemplate.query(Queries.FINDALLSALETRANSACTIONS,
 				new SaleTransactionRowMapper());
 
 		LOGGER.debug("SaleTransactionDAOImpl :: findAll() : Number of rows: " + list.size());
@@ -40,7 +40,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	@Override
 	public SaleTransaction findByApplicationTransactionId(String transactionId) {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findSaleTransactionByApplicationTransactionId, new Object[] { transactionId },
+				Queries.FINDSALETRANSACTIONBYAPPLICATIONTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 		LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Number of rows: " + list.size());
 		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
@@ -57,7 +57,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	@Override
 	public SaleTransaction findByProcessorTransactionId(String transactionId) {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findSaleTransactionByProcessorTransactionId, new Object[] { transactionId },
+				Queries.FINDSALETRANSACTIONBYPROCESSORTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());
 		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
@@ -74,7 +74,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	@Override
 	public List<SaleTransaction> findByBatchUploadId(Long batchUploadId) {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findSaleTransactionByBatchUploadId, new Object[] { batchUploadId },
+				Queries.FINDSALETRANSACTIONBYBATCHUPLOADID, new Object[] { batchUploadId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 
 		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());

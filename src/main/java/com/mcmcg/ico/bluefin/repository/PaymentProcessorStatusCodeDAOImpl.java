@@ -50,7 +50,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCodeList;
 		
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorStatusCodeByCodeId,
+				.query(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYCODEID,
 						new Object[] { transactionTypeName, paymentProcessorStatusCode,
 								paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
@@ -75,7 +75,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 			String transactionTypeName, PaymentProcessor paymentProcessor) {
 
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorStatusCodeByTypeId,
+				.query(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYTYPEID,
 						new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
 								new PaymentProcessorStatusCodeRowMapper()));
@@ -93,7 +93,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	@Override
 	public PaymentProcessorStatusCode findOne(Long paymentProcessorStatusCode) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorStatusCodeById, new Object[] { paymentProcessorStatusCode },
+			return jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYID, new Object[] { paymentProcessorStatusCode },
 					new PaymentProcessorStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -105,7 +105,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 	@Override
 	public void deletePaymentProcessorStatusCode(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorStatusCodeByID, new Object[] { paymentProcessorId });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORSTATUSCODEBYID, new Object[] { paymentProcessorId });
 		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: deletePaymentProcessorStatusCode() : Deleted payment Processor Status Code by  PaymentProcessorId: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
@@ -121,7 +121,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorStatusCode,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPAYMENTPROCESSORSTATUSCODE,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId()); // ProcessorName
 				ps.setString(2, paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue()); // Status Code
@@ -146,7 +146,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
 
-		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorStatusCode,
+		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORSTATUSCODE,
 				new Object[] { 	paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue(), 
 								paymentProcessorStatusCode.getTransactionTypeName(), paymentProcessorStatusCode.getPaymentProcessorStatusCodeDescription(),
 								dateModified,paymentProcessorStatusCode.getLastModifiedBy(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()

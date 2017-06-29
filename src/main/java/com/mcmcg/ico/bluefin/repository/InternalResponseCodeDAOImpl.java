@@ -47,7 +47,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode findByInternalResponseCodeAndTransactionTypeName(String internalResponseCode,
 			String transactionTypeName) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findByInternalResponseCodeAndTransactionTypeName, new Object[] { internalResponseCode,transactionTypeName },
+			return jdbcTemplate.queryForObject(Queries.FINDBYINTERNALRESPONSECODEANDTRANSACTIONTYPENAME, new Object[] { internalResponseCode,transactionTypeName },
 					new InternalResponseCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -64,11 +64,11 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		LOGGER.debug("Fetching Internal Response codes for transaction type="+transactionTypeName);
 		List<com.mcmcg.ico.bluefin.model.InternalResponseCode> list ;
 		if ("ALL".equalsIgnoreCase(transactionTypeName)) { 
-			list = sortInternalResponseCode( jdbcTemplate.query( Queries.findAllInternalResponseCode, new InternalResponseCodeRowMapper() ) );
+			list = sortInternalResponseCode( jdbcTemplate.query( Queries.FINDALLINTERNALRESPONSECODE, new InternalResponseCodeRowMapper() ) );
 			
 		}else{
 			list= jdbcTemplate.query(
-					Queries.findAllInternalResponseCodeByTransactionType,
+					Queries.FINDALLINTERNALRESPONSECODEBYTRANSACTIONTYPE,
 					new Object[] {  transactionTypeName }, new InternalResponseCodeRowMapper()  );
 		}
 		
@@ -116,7 +116,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-			PreparedStatement ps = connection.prepareStatement(Queries.saveInternalResponseCode,
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEINTERNALRESPONSECODE,
 						Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, internalResponseCode.getInternalResponseCodeValue()); // PermissionName
 			ps.setString(2, internalResponseCode.getInternalResponseCodeDescription()); // Description
@@ -145,7 +145,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode findOne(long internalResponseCodeId) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findOneInternalResponseCode, new Object[] { internalResponseCodeId },
+			return jdbcTemplate.queryForObject(Queries.FINDONEINTERNALRESPONSECODE, new Object[] { internalResponseCodeId },
 					new InternalResponseCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -158,7 +158,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public void delete(com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode) {
 		paymentProcessorInternalResponseCodeDAO.deleteByInternalResponseCode(internalResponseCode.getInternalResponseCodeId());
-		int rows = jdbcTemplate.update(Queries.deleteInternalResponseCode, new Object[] { internalResponseCode.getInternalResponseCodeId() });
+		int rows = jdbcTemplate.update(Queries.DELETEINTERNALRESPONSECODE, new Object[] { internalResponseCode.getInternalResponseCodeId() });
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Deleted InternalResponseCode with InternalResponseCodeid: {} , rows affected = {} ", internalResponseCode .getInternalResponseCodeId(), rows);
 		}
@@ -167,7 +167,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public List<com.mcmcg.ico.bluefin.model.InternalResponseCode> findAll() {
 		ArrayList<com.mcmcg.ico.bluefin.model.InternalResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.InternalResponseCode>) jdbcTemplate.query(
-				Queries.findAllInternalResponseCode, new InternalResponseCodeRowMapper());
+				Queries.FINDALLINTERNALRESPONSECODE, new InternalResponseCodeRowMapper());
 		LOGGER.debug("InternalResponseCodeDAOImpl :: findAll() : Number of rows: "+list.size());
 		return list;
 	}
@@ -196,7 +196,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
-		int rows = jdbcTemplate.update(Queries.updateInternalResponseCode,
+		int rows = jdbcTemplate.update(Queries.UPDATEINTERNALRESPONSECODE,
 					new Object[] { 	internalResponseCode.getInternalResponseCodeValue(), internalResponseCode.getInternalResponseCodeDescription(), internalResponseCode.getLastModifiedBy(), 
 							internalResponseCode.getTransactionTypeName(), dateModified, internalResponseCode.getInternalResponseCodeId() });
 

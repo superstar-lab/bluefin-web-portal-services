@@ -37,7 +37,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 	@Override
 	public SecurityTokenBlacklist findByTokenId(long tokenId) {
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
-				Queries.findSecurityTokenBlacklistByTokenId, new Object[] { tokenId },
+				Queries.FINDSECURITYTOKENBLACKLISTBYTOKENID, new Object[] { tokenId },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByTokenId() : SecurityTokenBlacklist size : "+list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
@@ -54,7 +54,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 	@Override
 	public SecurityTokenBlacklist findByToken(String token) {
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
-				Queries.findSecurityTokenBlacklistByToken, new Object[] { token },
+				Queries.FINDSECURITYTOKENBLACKLISTBYTOKEN, new Object[] { token },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByToken() : SecurityTokenBlacklist size : "+list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
@@ -71,7 +71,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 	@Override
 	public SecurityTokenBlacklist findByUserIdAndToken(long userId, String token) {
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
-				Queries.findSecurityTokenBlacklistByUserIdAndToken, new Object[] { userId, token },
+				Queries.FINDSECURITYTOKENBLACKLISTBYUSERIDANDTOKEN, new Object[] { userId, token },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndToken() : SecurityTokenBlacklist size : "+list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
@@ -88,7 +88,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 	@Override
 	public SecurityTokenBlacklist findByUserIdAndType(long userId, String type) {
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
-				Queries.findSecurityTokenBlacklistByUserIdAndType, new Object[] { userId, type },
+				Queries.FINDSECURITYTOKENBLACKLISTBYUSERIDANDTYPE, new Object[] { userId, type },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
 		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndType() : SecurityTokenBlacklist size : "+list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
@@ -118,7 +118,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveSecurityTokenBlacklist,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVESECURITYTOKENBLACKLIST,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, securityTokenBlacklist.getToken()); // Token
 				ps.setString(2, securityTokenBlacklist.getType()); // Type

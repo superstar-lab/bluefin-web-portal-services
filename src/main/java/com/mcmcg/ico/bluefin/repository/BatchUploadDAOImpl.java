@@ -49,7 +49,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         Timestamp dateUploaded = Timestamp.valueOf(dtf.print(utc2));
 
         jdbcTemplate.update(connection->{
-                PreparedStatement ps = connection.prepareStatement(Queries.saveBasicBatchUpload,
+                PreparedStatement ps = connection.prepareStatement(Queries.SAVEBASICBATCHUPLOAD,
                         Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, batchUpload.getBatchApplication());
                 ps.setString(2, batchUpload.getName());
@@ -71,7 +71,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
     @Override
     public List<BatchUpload> findAll() {
-        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findAllBatchUploads, new BatchUploadRowMapper());
+        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDALLBATCHUPLOADS, new BatchUploadRowMapper());
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("findAll() : Number of rows: {}",batchUploads != null ? batchUploads.size() : 0);
         }
@@ -81,7 +81,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
     @Override
     public BatchUpload findOne(Long id) {
         try {
-        	BatchUpload batchUpload = jdbcTemplate.queryForObject(Queries.findOneBatchUpload, new Object[] { id },
+        	BatchUpload batchUpload = jdbcTemplate.queryForObject(Queries.FINDONEBATCHUPLOAD, new Object[] { id },
                     new BatchUploadRowMapper());
         	if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("findOne() : BatchUpload found as : {} ", batchUpload);
@@ -111,7 +111,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
         Timestamp dateBeforeNoofdaysTimestamp = Timestamp.valueOf(dtf.print(dateBeforeNoofdays));
 
-        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findByDateUploadedAfter,
+        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDBYDATEUPLOADEDAFTER,
                 new Object[] { dateBeforeNoofdaysTimestamp }, new BatchUploadRowMapper());
         LOGGER.debug("BatchUploadDAOImpl :: findByDateUploadedAfter() : Number of rows: " + batchUploads.size());
         return batchUploads;
@@ -122,10 +122,10 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
             Pageable pageRequest) {
         int firstResult = (pageRequest.getPageSize() * pageRequest.getPageNumber()) + 1;
         int lastResult = firstResult + pageRequest.getPageSize();
-        int batchUploadCount = jdbcTemplate.queryForObject(Queries.findCountBatchUpload, Integer.class);
+        int batchUploadCount = jdbcTemplate.queryForObject(Queries.FINDCOUNTBATCHUPLOAD, Integer.class);
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(
-                Queries.findBatchUploadsByDateUploadedAfterOrderByDateUploadedDesc,
+                Queries.FINDBATCHUPLOADSBYDATEUPLOADEDAFTERORDERBYDATEUPLOADEDDESC,
                 new Object[] { dateBeforeNoofdays, firstResult, lastResult }, new BatchUploadRowMapper());
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: {}" , batchUploads != null ? batchUploads.size() : 0);
@@ -138,9 +138,9 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
     public Page<BatchUpload> findAllByOrderByDateUploadedDesc(PageRequest pageRequest) {
         int firstResult = (pageRequest.getPageSize() * pageRequest.getPageNumber()) + 1;
         int lastResult = firstResult + pageRequest.getPageSize();
-        int batchUploadCount = jdbcTemplate.queryForObject(Queries.findCountBatchUpload, Integer.class);
+        int batchUploadCount = jdbcTemplate.queryForObject(Queries.FINDCOUNTBATCHUPLOAD, Integer.class);
 
-        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.findAllBatchUploadsByOrderByDateUploadedDesc,
+        List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDALLBATCHUPLOADSBYORDERBYDATEUPLOADEDDESC,
                 new Object[] { firstResult, lastResult }, new BatchUploadRowMapper());
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("BatchUploadDAOImpl :: findAllByOrderByDateUploadedDesc() : Number of rows: {}" + ( batchUploads != null ? batchUploads.size() : 0 ));

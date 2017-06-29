@@ -56,7 +56,7 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public List<User> findAll() {
-		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
+		List<User> list = jdbcTemplate.query(Queries.FINDALLUSERS, new UserRowMapper());
 
 		LOGGER.debug("UserDAOImpl :: findAll() : Number of rows: " + list.size());
 
@@ -93,7 +93,7 @@ public class UserDAOImpl implements UserDAO {
 	
 	@Override
 	public User findByUserId(long userId) {
-		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.findUserByUserId, new Object[] { userId },
+		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.FINDUSERBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<User>(new UserRowMapper()));
 		LOGGER.debug("UserDAOImpl :: findByUserId() : Number of User: " + list.size());
 		User user = DataAccessUtils.singleResult(list);
@@ -109,7 +109,7 @@ public class UserDAOImpl implements UserDAO {
 
 	@Override
 	public User findByUsername(String username) {
-		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.findUserByUsername,
+		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.FINDUSERBYUSERNAME,
 				new Object[] { username }, new RowMapperResultSetExtractor<User>(new UserRowMapper()));
 		LOGGER.debug("UserDAOImpl :: findByUsername() : Number of User: " + list.size());
 		User user = DataAccessUtils.singleResult(list);
@@ -144,7 +144,7 @@ public class UserDAOImpl implements UserDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveUser, Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEUSER, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, user.getUsername()); // UserName
 				ps.setString(2, user.getFirstName()); // FirstName
 				ps.setString(3, user.getLastName()); // LastName
@@ -211,7 +211,7 @@ public class UserDAOImpl implements UserDAO {
 		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
-		int rows = jdbcTemplate.update(Queries.updateUser,
+		int rows = jdbcTemplate.update(Queries.UPDATEUSER,
 				new Object[] { user.getUsername(), user.getFirstName(), user.getLastName(), user.getIsActive(),
 						lastLogin, dateCreated, dateUpdated, user.getEmail(), user.getPassword(), dateModified,
 						modifiedBy, user.getStatus(), user.getUserId() });
@@ -225,7 +225,7 @@ public class UserDAOImpl implements UserDAO {
 	
 	@Override
 	public Page<User> findAll(BooleanExpression expression, PageRequest pageRequest) {
-		List<User> list = jdbcTemplate.query(Queries.findAllUsers, new UserRowMapper());
+		List<User> list = jdbcTemplate.query(Queries.FINDALLUSERS, new UserRowMapper());
 
 		LOGGER.debug("UserDAOImpl :: findAll(pageRequest) :  Number of rows: " + list.size());
 

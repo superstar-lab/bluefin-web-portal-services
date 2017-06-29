@@ -39,7 +39,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	
 	@Override
 	public List<PaymentProcessorInternalStatusCode> findAllForInternalStatusCodeId(Long internalStatusCodeId){
-		List<PaymentProcessorInternalStatusCode> list = jdbcTemplate.query( Queries.findAllPaymentProcessorInternalStatusCodeForInternalStatusCodeId, new Object[] {internalStatusCodeId},
+		List<PaymentProcessorInternalStatusCode> list = jdbcTemplate.query( Queries.FINDALLPAYMENTPROCESSORINTERNALSTATUSCODEFORINTERNALSTATUSCODEID, new Object[] {internalStatusCodeId},
 				new PaymentProcessorInternalStatusCodeRowMapper());
 		if (logger.isDebugEnabled()) {
 			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: findAllForInternalStatusCodeId() : PaymentProcessorInternalStatusCode list size : "+list.size());
@@ -52,7 +52,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		@Override
 		public PaymentProcessorInternalStatusCode mapRow(ResultSet rs, int row) throws SQLException {
 			PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
-			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.PaymentProcessorInternalStatusCodeId));
+			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.PAYMENTPROCESSORINTERNALSTATUSCODEID));
 			paymentProcessorInternalStatusCode.setInternalStatusCodeId(rs.getLong("InternalStatusCodeID"));
 			paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(rs.getLong("PaymentProcessorStatusCodeID"));
 			paymentProcessorInternalStatusCode.setLastModifiedBy(rs.getString("ModifiedBy"));
@@ -65,14 +65,14 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		@Override
 		public PaymentProcessorInternalStatusCode mapRow(ResultSet rs, int row) throws SQLException {
 			PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
-			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.PaymentProcessorInternalStatusCodeId));
+			paymentProcessorInternalStatusCode.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.PAYMENTPROCESSORINTERNALSTATUSCODEID));
 			paymentProcessorInternalStatusCode.setInternalStatusCodeId(rs.getLong("InternalStatusCodeID"));
 			return paymentProcessorInternalStatusCode;
 		}
 	}
 	
 	private void insertBatch(final List<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalStatusCode, new BatchPreparedStatementSetter() {
+		jdbcTemplate.batchUpdate(Queries.SAVEPAYMENTPROCESSORINTERNALSTATUSCODE, new BatchPreparedStatementSetter() {
 			
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -101,7 +101,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	@Override
 	public void delete(Long internalStatusCodeId) {
 		logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: delete() : Deleting child items for internalStatusCodeId {}",internalStatusCodeId);
-		int noOfRowsDeleted = jdbcTemplate.update(Queries.deletePaymentProcessorInternalStatusCode, internalStatusCodeId);
+		int noOfRowsDeleted = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORINTERNALSTATUSCODE, internalStatusCodeId);
 		logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: delete() : Number of childs items deleted {} internalStatusCodeId {}",noOfRowsDeleted,internalStatusCodeId);
 	}
 
@@ -138,14 +138,14 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		if(logger.isDebugEnabled()) {
 			logger.debug("PaymentProcessorInternalStatusCodeDAOImpl :: fetchInternalStatusCodeIdsUsedForPaymentProcessor() : Fetching Internal Status Code Ids for paymentprocessorid="+paymentProcessId);
 		}
-		String query = Queries.fetchInternalStatusCodeUsedForPaymentProcessor;
+		String query = Queries.FETCHINTERNALSTATUSCODEUSEDFORPAYMENTPROCESSOR;
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = new HashMap<>();
 		jdbcTemplate.query(query, new Object[]{paymentProcessId}, rs->{
 				Long internalStatusCodeId;
 				Long paymentProcessorInternalStatusId;
 				while(rs.next()){
 					internalStatusCodeId = rs.getLong("InternalStatusCodeId");
-					paymentProcessorInternalStatusId = rs.getLong(BluefinWebPortalConstants.PaymentProcessorInternalStatusCodeId);
+					paymentProcessorInternalStatusId = rs.getLong(BluefinWebPortalConstants.PAYMENTPROCESSORINTERNALSTATUSCODEID);
 					List<Long> paymentProcessorInternalStatusCodeIds = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.get(internalStatusCodeId);
 					if (paymentProcessorInternalStatusCodeIds == null) {
 						paymentProcessorInternalStatusCodeIds = new ArrayList<>();
@@ -168,7 +168,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		}
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", paymentProcessorInternalStatusCodeIds);
-		executeQueryToDeleteRecords(Queries.deletePaymentProcessorInternalStatusCodes,valuesToDelete);
+		executeQueryToDeleteRecords(Queries.DELETEPAYMENTPROCESSORINTERNALSTATUSCODES,valuesToDelete);
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		}
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", internalStatusCodeIds);
-		executeQueryToDeleteRecords(Queries.deleteInternalStatusCodes,valuesToDelete);
+		executeQueryToDeleteRecords(Queries.DELETEINTERNALSTATUSCODES,valuesToDelete);
 	}
 	
 	private void executeQueryToDeleteRecords(String deleteQuery,Map<String, List<Long>> idsToDelete){
@@ -194,7 +194,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	
 	@Override
 	public List<Long> findPaymentProcessorStatusCodeIdsForInternalStatusCodeId(Long internalStatusCodeId){
-		return jdbcTemplate.queryForList(Queries.findPaymentProcessorStatusCodeIds,new Object[]{internalStatusCodeId},Long.class);
+		return jdbcTemplate.queryForList(Queries.FINDPAYMENTPROCESSORSTATUSCODEIDS,new Object[]{internalStatusCodeId},Long.class);
 	}
 
 	@Override
@@ -204,7 +204,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		}
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", paymentProcessorStatusCodeIds);
-		executeQueryToDeleteRecords(Queries.deletePaymentProcessorStatusCodeIds,valuesToDelete);
+		executeQueryToDeleteRecords(Queries.DELETEPAYMENTPROCESSORSTATUSCODEIDS,valuesToDelete);
 	}
 	
 }

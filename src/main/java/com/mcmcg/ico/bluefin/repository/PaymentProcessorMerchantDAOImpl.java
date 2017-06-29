@@ -44,7 +44,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	@Override
 	public List<PaymentProcessorMerchant> findPaymentProccessorMerchantByProcessorId(Long paymentProcessorId) {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>) jdbcTemplate.query(
-				Queries.findPaymentProcessorMerchantsById, new Object[] { paymentProcessorId },
+				Queries.FINDPAYMENTPROCESSORMERCHANTSBYID, new Object[] { paymentProcessorId },
 				new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
 
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: findPaymentProccessorMerchantByProcessorId : Number of rows: " + list.size());
@@ -53,14 +53,14 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 
 	@Override
 	public void deletPaymentProcessorMerchantByProcID(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchantByProcId, new Object[] {paymentProcessorId});
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTBYPROCID, new Object[] {paymentProcessorId});
 
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletPaymentProcessorMerchantByProcID : Deleted Payment Processor Merchant by Payment Processor Id: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchants, new Object[] { paymentProcessorId });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTS, new Object[] { paymentProcessorId });
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletePaymentProcessorRules : Deleted Payment Processor Merchants for PaymentProcessor Id: " + paymentProcessorId
 				+ ", rows affected = " + rows);
 	}
@@ -71,7 +71,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	}
 
 	private void insertBatch(final List<PaymentProcessorMerchant> paymentProcessorMerchants){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorMarchent, new PaymentProcessorInsertBatchPreparedStatement(paymentProcessorMerchants));
+		jdbcTemplate.batchUpdate(Queries.SAVEPAYMENTPROCESSORMARCHENT, new PaymentProcessorInsertBatchPreparedStatement(paymentProcessorMerchants));
 	}
 
 }

@@ -37,7 +37,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 	@Override
 	public List<RolePermission> findByRoleId(long roleId) {
 		ArrayList<RolePermission> list = (ArrayList<RolePermission>) jdbcTemplate.query(
-				Queries.findRolePermissionByRoleId, new Object[] { roleId },
+				Queries.FINDROLEPERMISSIONBYROLEID, new Object[] { roleId },
 				new RowMapperResultSetExtractor<RolePermission>(new RolePermissionRowMapper()));
 
 		LOGGER.debug("RolePermissionDAOImpl :: findByRoleId() : Number of rows: " + list.size());
@@ -63,7 +63,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveRolePermission,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEROLEPERMISSION,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, rolePermission.getRoleId()); // RoleID
 				ps.setLong(1, rolePermission.getPermissionId()); // PermissionID

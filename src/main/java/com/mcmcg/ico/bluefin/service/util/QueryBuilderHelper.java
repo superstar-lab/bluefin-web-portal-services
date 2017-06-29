@@ -16,7 +16,7 @@ public class QueryBuilderHelper {
 	}
 	
 	public static StringBuilder buildQuery(Map<String,String> filterMap ,Sort sort){
-		StringBuilder  bf = new StringBuilder( Queries.findAllUsers);
+		StringBuilder  bf = new StringBuilder( Queries.FINDALLUSERS);
 		LOGGER.debug("QueryBuilderHelper :: buildQuery() : StringBuffer is : "+bf);
 		
 		setLegaEntity(bf,filterMap);

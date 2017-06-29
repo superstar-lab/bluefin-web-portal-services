@@ -44,7 +44,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 	@Override
 	public LegalEntityApp findByLegalEntityAppName(String legalEntityAppName) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findByLegalEntityAppName, new Object[] { legalEntityAppName },
+			return jdbcTemplate.queryForObject(Queries.FINDBYLEGALENTITYAPPNAME, new Object[] { legalEntityAppName },
 					new LegalEntityAppRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -58,7 +58,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 	public LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId) {
 		LegalEntityApp legalEntityApp = null;
 		try {
-			legalEntityApp = jdbcTemplate.queryForObject(Queries.findByLegalEntityAppId, new Object[] { legalEntityAppId },
+			legalEntityApp = jdbcTemplate.queryForObject(Queries.FINDBYLEGALENTITYAPPID, new Object[] { legalEntityAppId },
 					new LegalEntityAppRowMapper());
 			if ( LOGGER.isDebugEnabled() ) {
 				LOGGER.debug("LegalEntityAppDAOImpl :: findByLegalEntityAppId() : legalEntityApp: " + legalEntityApp);
@@ -75,7 +75,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	@Override
 	public List<LegalEntityApp> findAll() {
-		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.findAllLegalEntityApps,
+		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPS,
 				new LegalEntityAppRowMapper());
 
 		LOGGER.debug("LegalEntityAppDAOImpl :: findAll() : Number of rows: " + legalEntityApps.size());
@@ -87,7 +87,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 	public List<LegalEntityApp> findAll(List<Long> legalEntityAppIds) {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 		Map<String, List<Long>> map = Collections.singletonMap("legalEntityAppIds", legalEntityAppIds);
-		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.findAllLegalEntityAppsByIds,
+		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPSBYIDS,
 				map, new LegalEntityAppRowMapper());
 
 		LOGGER.debug("LegalEntityAppDAOImpl :: findAll(list) : Number of rows: " + legalEntityApps.size());
@@ -113,7 +113,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveLegalEntityApp,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVELEGALENTITYAPP,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
 				ps.setTimestamp(2, dateCreated); // DateCreated
@@ -132,7 +132,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	@Override
 	public void deleteLegalEntityApp(LegalEntityApp legalEntityApp) {
-		jdbcTemplate.update(Queries.deleteLegalEntityApp, legalEntityApp.getLegalEntityAppId());
+		jdbcTemplate.update(Queries.DELETELEGALENTITYAPP, legalEntityApp.getLegalEntityAppId());
 	}
 
 	@Override
@@ -151,7 +151,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		Timestamp dateModified = Timestamp.valueOf(dateModifiedDateFormat.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.updateLegalEntityApp,
+				PreparedStatement ps = connection.prepareStatement(Queries.UPDATELEGALENTITYAPP,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, legalEntityApp.getLegalEntityAppName()); // LegalEntityAppName
 				ps.setShort(2, legalEntityApp.getIsActive()); // IsActive
@@ -172,7 +172,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 	}
 	
 	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserLegalEntityApp> userLegalEntities){
-		jdbcTemplate.batchUpdate(Queries.saveUserLegalEntityApp, new BatchPreparedStatementSetter() {
+		jdbcTemplate.batchUpdate(Queries.SAVEUSERLEGALENTITYAPP, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				com.mcmcg.ico.bluefin.model.UserLegalEntityApp userLegalEntity = userLegalEntities.get(i);

@@ -26,7 +26,7 @@ public class OriginPaymentFrequencyDAOImpl implements OriginPaymentFrequencyDAO 
 
 	@Override
 	public List<OriginPaymentFrequency> findAll() {
-		List<OriginPaymentFrequency> list = jdbcTemplate.query(Queries.findAllOriginPaymentFrequencies,
+		List<OriginPaymentFrequency> list = jdbcTemplate.query(Queries.FINDALLORIGINPAYMENTFREQUENCIES,
 				new OriginPaymentFrequencyRowMapper());
 
 		LOGGER.debug("OriginPaymentFrequencyDAOImpl :: findAll(): Number of rows: " + list.size());

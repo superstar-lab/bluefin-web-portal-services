@@ -41,7 +41,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeId(
 			long internalResponseCodeId) {
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>) jdbcTemplate.query(
-				Queries.paymentProcessorInternalResponseCodeId, new Object[] { internalResponseCodeId}, new PaymentProcessorInternalResponseCodeRowMapper());
+				Queries.PAYMENTPROCESSORINTERNALRESPONSECODEID, new Object[] { internalResponseCodeId}, new PaymentProcessorInternalResponseCodeRowMapper());
 		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: paymentProcessorInternalResponseCodeId() : Number of rows: "+list.size());
 		return list;
 	}
@@ -65,12 +65,12 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	}
 	
 	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorInternalResponseCode, new PaymentProcessorInternalResponseCodeInsertBatch(paymentProcessorInternalResponseCodes));
+		jdbcTemplate.batchUpdate(Queries.SAVEPAYMENTPROCESSORINTERNALRESPONSECODE, new PaymentProcessorInternalResponseCodeInsertBatch(paymentProcessorInternalResponseCodes));
 	}
 	
 	@Override
 	public List<PaymentProcessorInternalResponseCode> findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(Long internalResponseCode) {
-		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.findAllPaymentProcessorInternalResponseCodeByInternalRespCodeId, new Object[]{internalResponseCode},
+		List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = jdbcTemplate.query(Queries.FINDALLPAYMENTPROCESSORINTERNALRESPONSECODEBYINTERNALRESPCODEID, new Object[]{internalResponseCode},
 				new PaymentProcessorInternalResponseCodeRowMapper());
 		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId() : size : "+paymentProcessorInternalResponseCodes.size());
 		return paymentProcessorInternalResponseCodes;
@@ -78,13 +78,13 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	
 	@Override
 	public void deleteByInternalResponseCode(Long internalResponseCode) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorInternalResponseCode, new Object[] {internalResponseCode});
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORINTERNALRESPONSECODE, new Object[] {internalResponseCode});
 		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: deleteByInternalResponseCode() :Number of PaymentProcessorInternalResponseCode deleted = "+rows);
 	}
 	
 	@Override
 	public List<Long> findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(Long internalResponseCode) {
-		return jdbcTemplate.queryForList(Queries.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode, new Object[]{internalResponseCode},
+		return jdbcTemplate.queryForList(Queries.FINDPAYMENTPROCESSORINTERNALRESPONSECODEIDSBYINTERNALRESPONSECODE, new Object[]{internalResponseCode},
 				Long.class);
 	}
 	
@@ -92,7 +92,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	public void deletePaymentProcessorResponseCodeIds(List<Long> ids ){
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", ids);
-		executeQueryToDeleteRecords(Queries.deletePaymentProcessorResponseCodeIds,valuesToDelete);
+		executeQueryToDeleteRecords(Queries.DELETEPAYMENTPROCESSORRESPONSECODEIDS,valuesToDelete);
 	}
 	
 	private void executeQueryToDeleteRecords(String deleteQuery,Map<String, List<Long>> idsToDelete){
@@ -105,7 +105,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	@Override
 	public void delete(Long paymentProcessorInternalResponseCodeId) {
 		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: delete() : Deleting child items for internalResponseCodeId {}",paymentProcessorInternalResponseCodeId);
-		int noOfRowsDeleted = jdbcTemplate.update(Queries.deletePaymentProcessorInternalResponseCode, paymentProcessorInternalResponseCodeId);
+		int noOfRowsDeleted = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORINTERNALRESPONSECODE, paymentProcessorInternalResponseCodeId);
 		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: delete() : Number of childs items deleted {} internalStatusCodeId {}",noOfRowsDeleted,paymentProcessorInternalResponseCodeId);		
 	}
 	
@@ -147,7 +147,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: deleteInternalResponseCodeIds() : Delete Internal Status Code_IDs="+(internalStatusCodeIds));
 		Map<String, List<Long>> valuesToDelete = new HashMap<>();
 		valuesToDelete.put("ids", internalStatusCodeIds);
-		executeQueryToDeleteRecords(Queries.deleteInternalResponseCodes,valuesToDelete);
+		executeQueryToDeleteRecords(Queries.DELETEINTERNALRESPONSECODES,valuesToDelete);
 	}
 	
 	private Map<Long,List<Long>> fetchInternalResponseCodeIdsUsedForPaymentProcessor(Long paymentProcessId){
@@ -180,7 +180,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 			logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: deletePaymentProcessorInternalResponseCodeIds() : Delete Payment Processor Internal Status Code_IDs="+(paymentProcessorInternalStatusCodeIds));
 			Map<String, List<Long>> valuesToDelete = new HashMap<>();
 			valuesToDelete.put("ids", paymentProcessorInternalStatusCodeIds);
-			executeQueryToDeleteRecords(Queries.deletePaymentProcessorInternalResponseCodes,valuesToDelete);
+			executeQueryToDeleteRecords(Queries.DELETEPAYMENTPROCESSORINTERNALRESPONSECODES,valuesToDelete);
 		
 	}
 }
