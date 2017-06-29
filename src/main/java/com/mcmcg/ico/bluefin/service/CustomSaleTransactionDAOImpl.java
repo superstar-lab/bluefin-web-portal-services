@@ -90,26 +90,26 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				":prefix.InternalStatusDescription = :internalStatusDescriptionParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.TRANSACTIONDATETIME,
 				":prefix.TransactionDateTime :atributeOperator :transactionDateTimeParam1");
-		predicatesHashMapping.put("amount", ":prefix.ChargeAmount :atributeOperator :amountParam1");
+		predicatesHashMapping.put(BluefinWebPortalConstants.AMOUNT, ":prefix.ChargeAmount :atributeOperator :amountParam1");
 		predicatesHashMapping.put("firstName", ":prefix.FirstName LIKE :firstNameParam1");
 		predicatesHashMapping.put("lastName", ":prefix.LastName LIKE :lastNameParam1");
 		predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
-		predicatesHashMapping.put("legalEntity", ":prefix.LegalEntityApp IN (:legalEntityParam1)");
+		predicatesHashMapping.put(BluefinWebPortalConstants.LEGALENTITY, ":prefix.LegalEntityApp IN (:legalEntityParam1)");
 		predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
 		predicatesHashMapping.put("application", ":prefix.Application = :applicationParam1");
 		predicatesHashMapping.put("processUser", ":prefix.ProcessUser = :processUserParam1");
-		predicatesHashMapping.put("batchUploadId", ":prefix.BatchUploadID = :batchUploadIdParam1"); // This is ONLY for sale
+		predicatesHashMapping.put(BluefinWebPortalConstants.BATCHUPLOADID, ":prefix.BatchUploadID = :batchUploadIdParam1"); // This is ONLY for sale
 		predicatesHashMapping.put("pUser", ":prefix.pUser = :pUserParam1"); // This is ONLY for void and refund 
 		predicatesHashMapping.put("accountPeriod", ":prefix.AccountPeriod = :accountPeriodParam1");
 		predicatesHashMapping.put("desk", ":prefix.Desk = :deskParam1");
 		predicatesHashMapping.put("invoiceNumber", ":prefix.InvoiceNumber = :invoiceNumberParam1");
-		predicatesHashMapping.put("paymentFrequency", "lower(:prefix.Origin) IN (:paymentFrequencyParam1)");
+		predicatesHashMapping.put(BluefinWebPortalConstants.PAYMENTFREQUENCY, "lower(:prefix.Origin) IN (:paymentFrequencyParam1)");
 		// Payment Processor Remittance
-		predicatesHashMapping.put("paymentProcessorId", ":prefix.PaymentProcessorID = :paymentProcessorIdParam1");
+		predicatesHashMapping.put(BluefinWebPortalConstants.PAYMENTPROCESSORID, ":prefix.PaymentProcessorID = :paymentProcessorIdParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.PROCESSORNAME, ":prefix.Processor = :processorNameParam1");
-		predicatesHashMapping.put("reconciliationStatusId",
+		predicatesHashMapping.put(BluefinWebPortalConstants.RECONCILIATIONSTATUSID,
 				":prefix.ReconciliationStatusID = :reconciliationStatusIdParam1");
-		predicatesHashMapping.put("remittanceCreationDate",
+		predicatesHashMapping.put(BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL,
 				":prefix.RemittanceCreationDate :atributeOperator :remittanceCreationDateParam1");
 		predicatesHashMapping.put("processorTransactionId",
 				":prefix.ProcessorTransactionID = :processorTransactionIdParam1");
@@ -125,11 +125,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.debug("CustomSaleTransactionDAOImpl :: findTransactionsReport() : Dynamic Query {}", query);
 		
 		Map<String, CustomQuery> queriesMap = createQueries(query, null,dynamicParametersMap);
-		CustomQuery result = queriesMap.get("result");
+		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
 		String finalQueryToExecute = result.getFinalQueryToExecute();
 		int transactionsReportMaxSize=getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
 		if (transactionsReportMaxSize > 0) {
-			finalQueryToExecute = finalQueryToExecute + " LIMIT " + transactionsReportMaxSize;
+			finalQueryToExecute = finalQueryToExecute + BluefinWebPortalConstants.LIMIT + transactionsReportMaxSize;
 		}
 		logger.debug("CustomSaleTransactionDAOImpl :: findTransactionsReport() : Query to execute="+finalQueryToExecute);
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
@@ -159,7 +159,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		
 		int transactionsReportMaxSize = getIntValue(propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_MAX_SIZE"));
 		if (transactionsReportMaxSize > 0) {
-			query = query + " LIMIT " + transactionsReportMaxSize;
+			query = query + BluefinWebPortalConstants.LIMIT + transactionsReportMaxSize;
 		}
 		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactionsReport() : RRR***-Result Data Query to execute:"+query);
 		@SuppressWarnings("unchecked")
@@ -188,7 +188,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		String query = getQueryByCriteria(search,dynamicParametersMap);
 		logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : Query="+(query));
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
-		CustomQuery result = queriesMap.get("result");
+		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
 		int pageNumber = page != null ? page.getPageNumber() : 0;
 		int pageSize = page != null ? page.getPageSize() : 0;
@@ -324,7 +324,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate, MAINSALE.BatchUploadID ")
 				.append("FROM Sale_Transaction MAINSALE ");
 
-		querySb.append(createWhereStatement(search, "MAINSALE",dynamicParametersMap));
+		querySb.append(createWhereStatement(search, BluefinWebPortalConstants.MAINSALE,dynamicParametersMap));
 
 		return querySb.toString();
 	}
@@ -354,13 +354,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				String attributeParam = attribute + BluefinWebPortalConstants.PARAM1;
 				String predicate = getPropertyPredicate(attribute);
 
-				if (!"MAINSALE".equalsIgnoreCase(prefix) && skipFilter(attribute, prefix)) {
+				if (!BluefinWebPortalConstants.MAINSALE.equalsIgnoreCase(prefix) && skipFilter(attribute, prefix)) {
 					continue;
 				}
 
 				// For payment processor remittance, remittanceCreationDate is
 				// not a filter, for these prefixes.
-				if ( ( "MAINSALE".equals(prefix) || "SALEINNERVOID".equals(prefix) || "SALEINNERREFUND".equals(prefix) ) && ("remittanceCreationDate".equalsIgnoreCase(attribute)) ) {
+				if ( ( BluefinWebPortalConstants.MAINSALE.equals(prefix) || "SALEINNERVOID".equals(prefix) || BluefinWebPortalConstants.SALEINNERREFUND.equals(prefix) ) && (BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)) ) {
 					continue;
 				}
 
@@ -370,26 +370,26 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					// Special case for pUser in VOID and REFUND tables
 					predicate = getPropertyPredicate("pUser");
 					attributeParam = "pUserParam1";
-				} else if (BluefinWebPortalConstants.TRANSACTIONDATETIME.equalsIgnoreCase(attribute) || "amount".equalsIgnoreCase(attribute)
-						|| "remittanceCreationDate".equalsIgnoreCase(attribute)) {
+				} else if (BluefinWebPortalConstants.TRANSACTIONDATETIME.equalsIgnoreCase(attribute) || BluefinWebPortalConstants.AMOUNT.equalsIgnoreCase(attribute)
+						|| BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)) {
 					// Specific cases for transactionDateTime, amount
 					predicate = predicate.replace(":atributeOperator", getOperation(operator));
 					if (dynamicParametersMap.containsKey(attribute + BluefinWebPortalConstants.PARAM1)) {
 						attributeParam = attribute + "Param2";
 						predicate = predicate.replace(attribute + BluefinWebPortalConstants.PARAM1, attributeParam);
 					}
-				} else if ("paymentProcessorId".equalsIgnoreCase(attribute)) {
-					if ("MAINSALE".equals(prefix) || "REFUND".equals(prefix) || "VOID".equals(prefix)
-							|| "SALEINNERVOID".equals(prefix) || "SALEINNERREFUND".equals(prefix)) {
+				} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(attribute)) {
+					if (BluefinWebPortalConstants.MAINSALE.equals(prefix) || "REFUND".equals(prefix) || "VOID".equals(prefix)
+							|| "SALEINNERVOID".equals(prefix) || BluefinWebPortalConstants.SALEINNERREFUND.equals(prefix)) {
 						// Processor name, not ID, is used in sale, refund, and
 						// void tables.
-						attributeParam = attributeParam.replaceAll("paymentProcessorId", BluefinWebPortalConstants.PROCESSORNAME);
+						attributeParam = attributeParam.replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME);
 						PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(value));
 						value = paymentProcessor != null ? paymentProcessor.getProcessorName() : null;
 						predicate = predicate.replace("PaymentProcessorID", "Processor");
 						predicate = predicate.replace(attribute, BluefinWebPortalConstants.PROCESSORNAME);
 					}
-				} else if ("paymentFrequency".equalsIgnoreCase(attribute)) {
+				} else if (BluefinWebPortalConstants.PAYMENTFREQUENCY.equalsIgnoreCase(attribute)) {
 					// Specific case for paymentFrequency, when paymentFrequency
 					// is NOT 'Recurring' then we need to search by all the
 					// values except 'Recurring'
@@ -471,7 +471,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				if ( pageNumber < 0 ) {
 					pageNumber = 0;
 				}
-				query = query + " LIMIT " + ( pageSize * pageNumber ) + "," + pageSize;
+				query = query + BluefinWebPortalConstants.LIMIT + ( pageSize * pageNumber ) + "," + pageSize;
 			}
 			return query;
 		}
@@ -523,7 +523,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				resultCustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
 				queryTotalCustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
 			} else if (entry.getKey().contains("transactionDateTimeParam")
-					|| (entry.getKey().contains("remittanceCreationDate"))) {
+					|| (entry.getKey().contains(BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL))) {
 				if (!validFormatDate(entry.getValue())) {
 					throw new CustomNotFoundException(
 							"Unable to process find transaction, due an error with date formatting");
@@ -545,7 +545,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		dynamicParametersMap.clear();
 		Map<String, CustomQuery> queriesMap = new HashMap<>();
 		
-		queriesMap.put("result", resultCustomQuery);
+		queriesMap.put(BluefinWebPortalConstants.RESULT, resultCustomQuery);
 		queriesMap.put("queryTotal", queryTotalCustomQuery);
 		return queriesMap;
 	}
@@ -589,24 +589,24 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		// For payment processor remittance, legalEntity and batchUploadId are
 		// not a filters.
-		if ("ppr".equals(prefix) && "legalEntity".equalsIgnoreCase(attribute)) {
+		if ("ppr".equals(prefix) && BluefinWebPortalConstants.LEGALENTITY.equalsIgnoreCase(attribute)) {
 			return true;
 		}
-		if ("ppr".equals(prefix) && "batchUploadId".equalsIgnoreCase(attribute)) {
+		if ("ppr".equals(prefix) && BluefinWebPortalConstants.BATCHUPLOADID.equalsIgnoreCase(attribute)) {
 			return true;
 		}
 		if ("transactionType".equalsIgnoreCase(attribute)) {
 			return true;
 		}
 		if ("REFUND".equals(prefix) || "VOID".equals(prefix)) {
-			if ("accountNumber".equalsIgnoreCase(attribute) || "amount".equalsIgnoreCase(attribute)
-					|| "cardType".equalsIgnoreCase(attribute) || "legalEntity".equalsIgnoreCase(attribute)
+			if ("accountNumber".equalsIgnoreCase(attribute) || BluefinWebPortalConstants.AMOUNT.equalsIgnoreCase(attribute)
+					|| "cardType".equalsIgnoreCase(attribute) || BluefinWebPortalConstants.LEGALENTITY.equalsIgnoreCase(attribute)
 					|| "firstName".equalsIgnoreCase(attribute) || "lastName".equalsIgnoreCase(attribute)
 					|| "accountPeriod".equalsIgnoreCase(attribute) || "desk".equalsIgnoreCase(attribute)
-					|| "invoiceNumber".equalsIgnoreCase(attribute) || "paymentFrequency".equalsIgnoreCase(attribute)
-					|| "reconciliationStatusId".equalsIgnoreCase(attribute)
-					|| "remittanceCreationDate".equalsIgnoreCase(attribute)
-					|| "batchUploadId".equalsIgnoreCase(attribute)) {
+					|| "invoiceNumber".equalsIgnoreCase(attribute) || BluefinWebPortalConstants.PAYMENTFREQUENCY.equalsIgnoreCase(attribute)
+					|| BluefinWebPortalConstants.RECONCILIATIONSTATUSID.equalsIgnoreCase(attribute)
+					|| BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)
+					|| BluefinWebPortalConstants.BATCHUPLOADID.equalsIgnoreCase(attribute)) {
 				return true;
 			}
 		} else if ("transactionId".equalsIgnoreCase(attribute) || "internalStatusCode".equalsIgnoreCase(attribute)
@@ -675,7 +675,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate,SALEINNERREFUND.BatchUploadID ")
 				.append("FROM Sale_Transaction SALEINNERREFUND ")
 
-				.append(createWhereStatement(search, "SALEINNERREFUND",dynamicParametersMap))
+				.append(createWhereStatement(search, BluefinWebPortalConstants.SALEINNERREFUND,dynamicParametersMap))
 				.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
 				.append(createWhereStatement(search, "REFUND",dynamicParametersMap));
 
@@ -1049,7 +1049,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				String values = temp.replaceAll("\\[|\\]", "");
 				merchantIdArray = values.split(",");
 			}
-			if (parameter.startsWith("reconciliationStatusId")) {
+			if (parameter.startsWith(BluefinWebPortalConstants.RECONCILIATIONSTATUSID)) {
 				String[] parameterArray = parameter.split(":");
 				reconciliationStatusId = parameterArray[1];
 			}

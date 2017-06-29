@@ -23,6 +23,20 @@ public class BluefinWebPortalConstants {
 	public static final String PROCESSORNAME = "processorName";
 	public static final String TRANSACTIONDATETIME = "transactionDateTime";
 	public static final String PARAM1 = "Param1";
+	public static final String AMOUNT = "amount";
+	public static final String LEGALENTITY = "legalEntity";
+	public static final String BATCHUPLOADID = "batchUploadId";
+	public static final String PAYMENTFREQUENCY = "paymentFrequency";
+	public static final String PAYMENTPROCESSORID = "paymentProcessorId";
+	public static final String RECONCILIATIONSTATUSID = "reconciliationStatusId";
+	public static final String REMITTANCECREATIONDATEVAL = "remittanceCreationDate";
+	public static final String RESULT = "result";
+	public static final String LIMIT = " LIMIT ";
+	public static final String MAINSALE = "MAINSALE";
+	public static final String SALEINNERREFUND = "SALEINNERREFUND";
+	
+	
+	
 	
 	private BluefinWebPortalConstants(){
 		
