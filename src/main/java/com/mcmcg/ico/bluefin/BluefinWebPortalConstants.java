@@ -22,6 +22,7 @@ public class BluefinWebPortalConstants {
 	public static final String CREATED = "created";
 	public static final String PROCESSORNAME = "processorName";
 	public static final String TRANSACTIONDATETIME = "transactionDateTime";
+	public static final String PARAM1 = "Param1";
 	
 	private BluefinWebPortalConstants(){
 		

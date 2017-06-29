@@ -176,7 +176,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		PaymentProcessorRemittance ppr = null;
 		if (query != null && query.length() > 0) {
 			logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactionsDetail() : Detail Page Query: {}", query);
-			ppr = fetchPaymentProcessorRemittanceCustomMappingResult_Single(query); 
+			ppr = fetchPaymentProcessorRemittanceCustomMappingResultSingle(query); 
 		}
 		return ppr;
 	}
@@ -351,7 +351,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				final String attribute = matcher.group(1);
 				final String operator = matcher.group(2);
 				String value = matcher.group(3);
-				String attributeParam = attribute + "Param1";
+				String attributeParam = attribute + BluefinWebPortalConstants.PARAM1;
 				String predicate = getPropertyPredicate(attribute);
 
 				if (!"MAINSALE".equalsIgnoreCase(prefix) && skipFilter(attribute, prefix)) {
@@ -374,9 +374,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 						|| "remittanceCreationDate".equalsIgnoreCase(attribute)) {
 					// Specific cases for transactionDateTime, amount
 					predicate = predicate.replace(":atributeOperator", getOperation(operator));
-					if (dynamicParametersMap.containsKey(attribute + "Param1")) {
+					if (dynamicParametersMap.containsKey(attribute + BluefinWebPortalConstants.PARAM1)) {
 						attributeParam = attribute + "Param2";
-						predicate = predicate.replace(attribute + "Param1", attributeParam);
+						predicate = predicate.replace(attribute + BluefinWebPortalConstants.PARAM1, attributeParam);
 					}
 				} else if ("paymentProcessorId".equalsIgnoreCase(attribute)) {
 					if ("MAINSALE".equals(prefix) || "REFUND".equals(prefix) || "VOID".equals(prefix)
@@ -415,12 +415,17 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	private class CustomQuery {
+		
 		private String queryAsString;
 		private Map<String,Object> parametersMap = new HashMap<>();
 		private Sort sort;
 		private int pageNumber;
 		private int pageSize;
 		private boolean pagination;
+		
+		public CustomQuery(String queryAsStringVal){
+			this.queryAsString = queryAsStringVal;
+		}
 		
 		public int getPageNumber() {
 			return pageNumber;
@@ -450,10 +455,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
 		public void setQueryAsString(String queryAsString) {
 			this.queryAsString = queryAsString;
-		}
-		
-		public CustomQuery(String queryAsStringVal){
-			this.queryAsString = queryAsStringVal;
 		}
 		
 		public void setParameter(String paramName,Object paramVal){
@@ -737,16 +738,16 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @return type of transaction
 	 */
 	private String getTransactionType(String search) {
-		final String TRANSACTIONTYPE = "(transactionType)(:|<|>)([\\w]+)";
+		final String transactionType = "(transactionType)(:|<|>)([\\w]+)";
 
-		String transactionType = "ALL";
-		Pattern pattern = Pattern.compile(TRANSACTIONTYPE);
+		String transactionTypeAll = "ALL";
+		Pattern pattern = Pattern.compile(transactionType);
 		Matcher matcher = pattern.matcher(search + QueryDSLUtil.SEARCH_DELIMITER_CHAR);
 		while (matcher.find()) {
-			transactionType = matcher.group(3);
+			transactionTypeAll = matcher.group(3);
 		}
 
-		return transactionType;
+		return transactionTypeAll;
 	}
 
 	private List<PaymentProcessorRemittance> fetchPaymentProcessorRemittanceCustomMappingResult(String query){
@@ -759,7 +760,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		public PaymentProcessorRemittance mapRow(ResultSet rs, int rowNum) throws SQLException {
 			PaymentProcessorRemittance record = new PaymentProcessorRemittance();
 			record.setPaymentProcessorRemittanceId(rs.getLong("PaymentProcessorRemittanceID"));
-			record.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
+			record.setCreatedDate(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.DATECREATED)));
 			record.setReconciliationStatusId(rs.getLong("ReconciliationStatusID"));
 			record.setReconciliationDate(new DateTime(rs.getTimestamp("ReconciliationDate")));
 			record.setPaymentMethod(rs.getString("PaymentMethod"));
@@ -914,8 +915,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		} 
 	}
 	
-	private PaymentProcessorRemittance fetchPaymentProcessorRemittanceCustomMappingResult_Single(String query){
-		PaymentProcessorRemittance obj = jdbcTemplate.query(query,rs->{
+	private PaymentProcessorRemittance fetchPaymentProcessorRemittanceCustomMappingResultSingle(String query){
+		return jdbcTemplate.query(query,rs->{
 				PaymentProcessorRemittance record=null;
 				while (rs.next()) {
 					record = new PaymentProcessorRemittance();
@@ -1002,7 +1003,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				return record;
 			}
 		);
-		return obj;
 	}
 	
 	/**

@@ -50,7 +50,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 @Service
 public class TransactionService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionService.class);
-
+	private static final String FAILEDTOPROCESSDATEFORMATMSG = "Unable to process find transaction, due an error with date formatting";
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	// CSV file header
@@ -166,7 +166,7 @@ public class TransactionService {
 		try {
 			result = customSaleTransactionDAO.findTransaction(search, paging);
 		} catch (ParseException e) {
-			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
 		final int page = paging.getPageNumber();
 
@@ -202,7 +202,7 @@ public class TransactionService {
 		try {
 			result = customSaleTransactionDAO.findTransactionsReport(search);
 		} catch (ParseException e) {
-			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
 
 		// Create the CSVFormat object with "\n" as a record delimiter
@@ -339,7 +339,7 @@ public class TransactionService {
 			result= customSaleTransactionDAO.findRemittanceSaleRefundTransactionsReport(search, negate);
 			
 		} catch (ParseException e) {
-			throw new CustomNotFoundException("Unable to process find transaction, due an error with date formatting");
+			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
 
 		// Create the CSVFormat object with "\n" as a record delimiter
