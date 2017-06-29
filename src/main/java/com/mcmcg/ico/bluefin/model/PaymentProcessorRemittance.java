@@ -361,6 +361,21 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsRefunded;
 
+    @Transient
+    @JsonProperty("ReconDate.Processor_Name")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String reProcessorName;
+
+    @Transient
+    @JsonProperty("ReconDate.MID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String MID;
+
+    @Transient
+    @JsonProperty("ReconDate.ReconciliationStatus_ID")
+    @JsonView({ Views.Extend.class, Views.Summary.class })
+    private String reReconciliationStatusId;
+    
     private String saleProcessor;
 	private String saleAccountId;
 	private BigDecimal saleChargeAmount;
@@ -565,20 +580,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
         return transactionTime;
     }
 
-	@Transient
-    @JsonProperty("ReconDate.Processor_Name")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String reProcessorName;
-
-    @Transient
-    @JsonProperty("ReconDate.MID")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String MID;
-
-    @Transient
-    @JsonProperty("ReconDate.ReconciliationStatus_ID")
-    @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String reReconciliationStatusId;
+	
 	// setter and getters added by dheeraj
 	public DateTime getCreatedDate() {
 		return createdDate;
