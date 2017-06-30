@@ -65,11 +65,7 @@ public class ErrorResource implements Serializable {
         // Enable additional information when development profile is on
         if (hasDevelopmentProfile) {
             StringWriter sw = new StringWriter();
-            try {
-            	exception.printStackTrace(new PrintWriter(sw));
-            } catch (Exception exp) {
-            	logger.warn("Failed to print stack trace");
-            }
+           	exception.printStackTrace(new PrintWriter(sw));
             em.setTrace(sw.toString());
         }
 
