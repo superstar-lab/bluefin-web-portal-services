@@ -34,9 +34,28 @@ public class BluefinWebPortalConstants {
 	public static final String LIMIT = " LIMIT ";
 	public static final String MAINSALE = "MAINSALE";
 	public static final String SALEINNERREFUND = "SALEINNERREFUND";
-	
-	
-	
+	public static final String SALEINNERVOID = "SALEINNERVOID";
+	public static final String REFUND = "REFUND";
+	public static final String PAYMENTPROCESSORIDVAL = "PaymentProcessorID";
+	public static final String PAYMENTPROCESSORREMITTANCEID = "PaymentProcessorRemittanceID";
+	public static final String RECONCILIATIONSTATUSIDVAL = "ReconciliationStatusID";
+	public static final String RECONCILIATIONDATE = "ReconciliationDate";
+	public static final String PAYMENTMETHOD = "PaymentMethod";
+	public static final String TRANSACTIONAMOUNT = "TransactionAmount";
+	public static final String TRANSACTIONTYPE = "TransactionType";
+	public static final String TRANSACTIONTIMEVAL = "TransactionTime";
+	public static final String ACCOUNTIDVAL = "AccountID";
+	public static final String APPLICATION = "Application";
+	public static final String PROCESSORTRANSACTIONID = "ProcessorTransactionID";
+	public static final String MERCHANTID = "MerchantID";
+	public static final String TRANSACTIONSOURCE = "TransactionSource";
+	public static final String FIRSTNAME = "FirstName";
+	public static final String LASTNAME = "LastName";
+	public static final String PROCESSORNAMEVAL = "ProcessorName";
+	public static final String SALETRANSACTIONID = "SaleTransactionID";
+	public static final String SALEFIRSTNAME = "SaleFirstName";
+	public static final String SALELASTNAME = "SaleLastName";
+	public static final String SALEPROCESSUSER = "SaleProcessUser";
 	
 	private BluefinWebPortalConstants(){
 		
