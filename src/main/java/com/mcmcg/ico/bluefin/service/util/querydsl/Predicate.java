@@ -32,13 +32,17 @@ import com.mysema.query.types.path.StringPath;
 
 class Predicate {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Predicate.class);
-    private SearchCriteria criteria;
-    private final static String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
-
-    public Predicate() {
+	public Predicate() {
     	// Default Constructor
     }
+	
+    private static final Logger LOGGER = LoggerFactory.getLogger(Predicate.class);
+    private SearchCriteria criteria;
+    
+    
+    private final static String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    
 
     public Predicate(SearchCriteria criteria) {
         this.criteria = criteria;
