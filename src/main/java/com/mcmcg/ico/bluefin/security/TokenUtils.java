@@ -124,25 +124,32 @@ public class TokenUtils {
 		switch (type) {
 		case AUTHENTICATION:
 			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("AUTHENTICATION_TOKEN_EXPIRATION")) * 1000);
+					+ getValueAsInt("AUTHENTICATION_TOKEN_EXPIRATION"));
 		case FORGOT_PASSWORD:
 			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("RESET_PASSWORD_TOKEN_EXPIRATION")) * 1000);
+					+ getValueAsInt("RESET_PASSWORD_TOKEN_EXPIRATION"));
 		case REGISTER_USER:
 			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("REGISTER_USER_TOKEN_EXPIRATION")) * 1000);
+					+ getValueAsInt("REGISTER_USER_TOKEN_EXPIRATION"));
 		case APPLICATION:
 			return new Date(System.currentTimeMillis()
-					+ Long.parseLong(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
+					+ getValueAsLong("APPLICATION_TOKEN_EXPIRATION"));
 		case TRANSACTION:
 			return new Date(System.currentTimeMillis()
-					+ Long.parseLong(propertyService.getPropertyValue("TOKEN_TRANSACTION_EXPIRATION")) * 1000);			
+					+ getValueAsLong("TOKEN_TRANSACTION_EXPIRATION"));			
 		default:
 			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);
+					+ getValueAsInt("TOKEN_EXPIRATION"));
 		}
 	}
+	
+	private int getValueAsInt(String prpName){
+		return Integer.parseInt(propertyService.getPropertyValue(prpName)) * 1000;
+	}
 
+	private long getValueAsLong(String prpName){
+		return Long.parseLong(propertyService.getPropertyValue(prpName)) * 1000;
+	}
 	private Boolean isTokenExpired(String token) {
 		final Date expiration = this.getExpirationDateFromToken(token);
 		return expiration.before(this.generateCurrentDate());
