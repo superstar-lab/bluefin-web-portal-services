@@ -58,7 +58,6 @@ public class BluefinWebPortalConstants {
 	public static final String SALEPROCESSUSER = "SaleProcessUser";
 	public static final String SALETRANSACTIONTYPE = "SaleTransactionType";
 	
-//	public static final String SALETRANSACTIONTYPE = "SaleTransactionType";
 	public static final String SALEADDRESS1 = "SaleAddress1";
 	public static final String SALEADDRESS2 = "SaleAddress2";
 	public static final String SALECITY = "SaleCity";
@@ -73,8 +72,6 @@ public class BluefinWebPortalConstants {
 	public static final String SALECHARGEAMOUNT = "SaleChargeAmount";
 	public static final String SALELEGALENTITYAPP = "SaleLegalEntityApp";
 	public static final String SALEACCOUNTID = "SaleAccountId";
-//	public static final String SALE = "SaleAccountId";
-//	public static final String SALECHARGEAMOUNT = "SaleChargeAmount";
 	public static final String SALEAPPLICATIONTRANSACTIONID = "SaleApplicationTransactionID";
 	public static final String SALEMERCHANTID = "SaleMerchantID";
 	public static final String SALEPROCESSOR = "SaleProcessor";
