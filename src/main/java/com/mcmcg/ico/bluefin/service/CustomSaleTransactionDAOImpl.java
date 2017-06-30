@@ -1388,7 +1388,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<RemittanceSale>> {
 
 	@Override
-	public List<RemittanceSale> extractData(ResultSet rs) throws SQLException, DataAccessException {
+	public List<RemittanceSale> extractData(ResultSet rs) throws SQLException {
 
 		ArrayList<RemittanceSale> list = new ArrayList<>();
 
