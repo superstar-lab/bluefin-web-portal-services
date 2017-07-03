@@ -5,9 +5,14 @@ public class Views {
 		
 	}
     public static class Summary {
-    	// View subtype as Summary
+    	private Summary(){
+    		
+    	}
     }
 
     public static class Extend extends Summary {
+    	private Extend(){
+    		
+    	}
     }
 }

@@ -199,9 +199,13 @@ public class TokenUtils {
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		final String username = this.getUsernameFromToken(token);
-		return username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
-				&& !isTokenInBlacklist(token, username);
+		if(userDetails != null){
+			final String username = this.getUsernameFromToken(token);
+			return username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
+					&& !isTokenInBlacklist(token, username);			
+		}else{
+			return false;
+		}
 	}
 
 	public SecurityTokenBlacklist sendTokenToBlacklist(String token, String username) {
@@ -209,7 +213,6 @@ public class TokenUtils {
 		SecurityTokenBlacklist blacklistToken = new SecurityTokenBlacklist();
 		blacklistToken.setToken(token);
 		blacklistToken.setUserId(user.getUserId());
-		// TODO: multiple token types
 		blacklistToken.setType(TokenType.AUTHENTICATION.name());
 		long tokenId = securityTokenBlacklistDAO.saveSecurityTokenBlacklist(blacklistToken);
 		return securityTokenBlacklistDAO.findByTokenId(tokenId);

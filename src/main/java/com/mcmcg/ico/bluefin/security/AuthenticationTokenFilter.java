@@ -38,15 +38,12 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
         if (username != null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (userDetails != null && this.tokenUtils.validateToken(authToken, userDetails)) {
+            boolean isTokenValid  = this.tokenUtils.validateToken(authToken, userDetails);
+            if (isTokenValid) {
                 String tokenType = this.tokenUtils.getTypeFromToken(authToken);
                 String tokenUrl = this.tokenUtils.getUrlFromToken(authToken);
-
-                if ((userDetails.isEnabled() && (tokenType.equals(TokenType.AUTHENTICATION.name())
-                        || tokenType.equals(TokenType.APPLICATION.name())
-                        || tokenType.equals(TokenType.TRANSACTION.name())
-                        ))
-                        || (userDetails.isAccountNonLocked() && url !=null && url.contains(tokenUrl))) {
+                if ((userDetails.isEnabled() && checkAllowedTokenForThisFilter(tokenType))
+                        || checkAccountLockAndTokenURL(userDetails,url,tokenUrl)) {
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities());
@@ -57,5 +54,18 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
         }
         chain.doFilter(request, response);
+    }
+    
+    /**
+     * || tokenType.equals(TokenType.TRANSACTION.name() for iframe transaction token 
+     */
+    private boolean checkAllowedTokenForThisFilter(String tokenType){
+    	
+    	return tokenType.equals(TokenType.AUTHENTICATION.name())
+                        || tokenType.equals(TokenType.APPLICATION.name());
+    }
+    
+    private boolean checkAccountLockAndTokenURL(UserDetails userDetails,String url,String tokenUrl){
+    	return userDetails.isAccountNonLocked() && url !=null && url.contains(tokenUrl);
     }
 }

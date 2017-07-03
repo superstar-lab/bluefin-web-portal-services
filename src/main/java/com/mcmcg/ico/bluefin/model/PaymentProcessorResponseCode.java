@@ -48,12 +48,12 @@ public class PaymentProcessorResponseCode implements Serializable {
     private DateTime createdDate;
 
     @JsonProperty("processorId")
-    private Long getProcessorId() {
+    public Long getProcessorId() {
         return this.paymentProcessor.getPaymentProcessorId();
     }
 
     @JsonProperty("processorName")
-    private String getProcessoName() {
+    public String getProcessoName() {
         return this.paymentProcessor.getProcessorName();
     }
 

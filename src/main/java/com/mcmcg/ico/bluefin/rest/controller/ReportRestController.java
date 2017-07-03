@@ -71,8 +71,8 @@ public class ReportRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-
-		LOGGER.debug("transactions service ::: Entered : search "+search);
+		
+		LOGGER.debug("transactions service ::: Entered : search {} ",search);
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
@@ -110,7 +110,7 @@ public class ReportRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-		LOGGER.debug("payment-processor-remittances service ::: Entered : search "+search);
+		LOGGER.debug("payment-processor-remittances service ::: Entered : search {} , sort {} ",search,sort);
 		String searchVal;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
@@ -123,7 +123,7 @@ public class ReportRestController {
 		// For 'Not Reconciled' status, which is not in the database, simply
 		// use: WHERE ReconciliationID != 'Reconciled'
 		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(searchVal,"reconciliationStatusId");
-		LOGGER.debug("payment-processor-remittances service ::: reconciliationStatusId : "+reconciliationStatusId);
+		LOGGER.debug("payment-processor-remittances service ::: reconciliationStatusId : {}",reconciliationStatusId);
 		if ("notReconciled".equals(reconciliationStatusId)) {
 			String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
 			searchVal = searchVal.replaceAll("notReconciled", id);
@@ -134,10 +134,11 @@ public class ReportRestController {
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
 		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
 		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-
+		
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
 		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-		downloadFile.delete();
+		boolean deleted = downloadFile.delete();
+		LOGGER.debug("File deleted ? {}",deleted);
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 

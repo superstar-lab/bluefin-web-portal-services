@@ -158,7 +158,10 @@ public class SessionRestController {
             return sessionService.generateToken(username,TokenType.APPLICATION);
     }
     
-    @ApiOperation(value = "generateTransactionToken", nickname = "generateTransactionToken")
+ /** 
+  * Below code is being used for iframe POC, to generated token and validating token for security implmentation
+  * 
+  * @ApiOperation(value = "generateTransactionToken", nickname = "generateTransactionToken")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/transaction-token/{username}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
@@ -188,5 +191,5 @@ public class SessionRestController {
 
         throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
     }
-
+*/
 }
