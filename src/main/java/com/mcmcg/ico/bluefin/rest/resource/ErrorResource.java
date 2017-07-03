@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.rest.resource;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -64,9 +65,13 @@ public class ErrorResource implements Serializable {
         
         // Enable additional information when development profile is on
         if (hasDevelopmentProfile) {
-            StringWriter sw = new StringWriter();
-            exp.printStackTrace(new PrintWriter(sw));
-            em.setTrace(sw.toString());
+        	/** After discussion with Matloob, we need to comment below code due to sonar qube scan giving issue 
+        	 * and use below line
+        	 *	StringWriter sw = new StringWriter();
+             *	exception.printStackTrace(new PrintWriter(sw));
+             *	em.setTrace(sw.toString());
+            */
+        	em.setTrace(Arrays.toString(exp.getStackTrace())); 
         }
 
         return em;
