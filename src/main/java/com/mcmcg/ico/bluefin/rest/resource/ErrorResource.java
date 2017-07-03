@@ -54,18 +54,18 @@ public class ErrorResource implements Serializable {
      *            development profile; otherwise it won't
      * @return ErrorResource object that holds the exception information
      */
-    public static ErrorResource buildErrorResource(UUID uniqueId, final Exception exception,
+    public static ErrorResource buildErrorResource(UUID uniqueId, final Exception exp,
             final boolean hasDevelopmentProfile) {
         ErrorResource em = new ErrorResource();
         em.setUniqueId(uniqueId);
         em.setTimestamp(Calendar.getInstance().getTimeInMillis());
-        em.setMessage(exception.getMessage());
-        em.setException(exception.getClass().getName());
-
+        em.setMessage(exp.getMessage());
+        em.setException(exp.getClass().getName());
+        
         // Enable additional information when development profile is on
         if (hasDevelopmentProfile) {
             StringWriter sw = new StringWriter();
-           	exception.printStackTrace(new PrintWriter(sw));
+            exp.printStackTrace(new PrintWriter(sw));
             em.setTrace(sw.toString());
         }
 
