@@ -60,8 +60,7 @@ class Predicate {
         } else if (keyInstance == String.class) {
             result = getStringPredicate(entityPath);
         } else if (keyInstance == Collection.class) {
-            String collectionType = getCollectionType();
-            result = getCollectionPredicate(collectionType);
+            result = getCollectionPredicate();
         } else {
             LOGGER.error("Predicate :: getPredicate() : Unable to filter by: {}", criteria.getKey());
             throw new CustomBadRequestException("Unable to filter by: " + criteria.getKey());
@@ -69,30 +68,7 @@ class Predicate {
         return result;
     }
 
-    private String getCollectionType() {
-        try {
-            Method method = User.class.getMethod(
-                    "set" + Character.toUpperCase(criteria.getKey().charAt(0)) + criteria.getKey().substring(1),
-                    Collection.class);
-            Type[] genericParameterTypes = method.getGenericParameterTypes();
-
-            for (Type type : genericParameterTypes) {
-                if (type instanceof ParameterizedType) {
-                    ParameterizedType pt = (ParameterizedType) type;
-                    for (Type t : pt.getActualTypeArguments()) {
-                        return t.getTypeName();
-                    }
-                }
-            }
-        } catch (NoSuchMethodException | SecurityException e) {
-        	if (LOGGER.isDebugEnabled()) {
-        		LOGGER.debug("Failed to get collection type ",e);
-        	}
-        }
-        throw new CustomBadRequestException("Predicate :: getCollectionType() : Unable to filter by " + criteria.getKey());
-    }
-
-    private BooleanExpression getCollectionPredicate(String collectionType) {
+    private BooleanExpression getCollectionPredicate() {
         getListFromCriteria();
         return null;
     }

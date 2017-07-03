@@ -254,7 +254,6 @@ public class UserService {
 		user.setDateUpdated(new DateTime());
 		String modifiedBy = null;
 		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
-		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		user.setRoles(Collections.emptyList());
 		user.setLegalEntities(Collections.emptyList());
@@ -341,7 +340,6 @@ public class UserService {
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
 		removeRolesFromUser(rolesToRemove);
-		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("UserService :: updateUserRoles() : ready to update user : ");
@@ -404,7 +402,6 @@ public class UserService {
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
 		removeLegalEntityFromUser(legalEntityAppsToRemove);
-		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		LOGGER.debug("UserService :: updateUserLegalEntities() : ready to update user");
@@ -519,16 +516,15 @@ public class UserService {
 	 */
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
 			final String token) {
-
-		username = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
-		LOGGER.debug("UserService :: updateUserPassword() : username : "+username);
+		String usernameVal = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
+		LOGGER.debug("UserService :: updateUserPassword() : username : "+usernameVal);
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("UserService :: updateUserPassword() : tokenType : "+tokenType);
-		if (username == null || tokenType == null) {
+		if (usernameVal == null || tokenType == null) {
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
 
-		User userToUpdate = getUser(username);
+		User userToUpdate = getUser(usernameVal);
 		LOGGER.debug("UserService :: updateUserPassword() : userToUpdate : "+userToUpdate.getUserId());
 
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
@@ -544,7 +540,6 @@ public class UserService {
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
-		//TODO
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		userToUpdate.setLegalEntities(Collections.emptyList());
@@ -601,7 +596,6 @@ public class UserService {
 				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
 			}
 			String modifiedBy = null;
-			//TODO
 			// Why we need to update roles and LE while activating/deactivating user, so make Roles/LE list as empty.[Matloob]
 			userToUpdate.setRoles(Collections.emptyList());
 			userToUpdate.setLegalEntities(Collections.emptyList());

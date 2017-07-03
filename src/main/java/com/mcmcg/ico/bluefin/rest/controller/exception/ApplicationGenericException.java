@@ -4,6 +4,7 @@ public class ApplicationGenericException extends Exception {
 	private static final long serialVersionUID = 2009201171724648178L;
 
 	public ApplicationGenericException() {
+		// Default Constructor
 	}
 
 	public ApplicationGenericException(String message) {

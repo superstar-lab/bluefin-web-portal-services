@@ -316,10 +316,10 @@ public class PaymentProcessorService {
 				LOGGER.info("Payment processor merchants deletion completed");
 			}
 			/*
-			 * TODO 1. - Before deleting Status Code Need to delete
+			 * Before deleting Status Code Need to delete
 			 * PaymentProcessorInternalStatusCode
 			 * paymentProcessorCodeService.deletePaymentProcessorStatusCode(
-			 * paymentProcessorToDelete.getPaymentProcessorId()); TODO 2. - Need
+			 * paymentProcessorToDelete.getPaymentProcessorId());  Need
 			 * to Delete PaymentProcessorResponseCode and it is also dependent
 			 * on PaymentProcessorInternalRespnseCode.
 			 */

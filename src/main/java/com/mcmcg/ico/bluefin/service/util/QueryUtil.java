@@ -135,18 +135,19 @@ public class QueryUtil {
 	 * @return
 	 */
 	private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
+		String searchVal;
 		if (!search.contains(filterKey)) {
 			if (!search.isEmpty()) {
-				search = search + SEARCH_DELIMITER_CHAR;
+				searchVal = search + SEARCH_DELIMITER_CHAR;
 			}
-			search = search + filterKey + userLegalEntities;
+			searchVal = search + filterKey + userLegalEntities;
 		} else {
 			String leFilterValue = getLEFilterValue(search, filterKey);
-			search = search.replace(filterKey + leFilterValue,
+			searchVal = search.replace(filterKey + leFilterValue,
 					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
 		}
-		LOGGER.debug("QueryUtil :: validateByFilter() : search : "+search);
-		return search;
+		LOGGER.debug("QueryUtil :: validateByFilter() : search : "+searchVal);
+		return searchVal;
 	}
 
 	/**
