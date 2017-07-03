@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,8 +136,9 @@ public class InternalResponseCodeService {
 							.getInternalResponseCode();
 					LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
 					for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
-						if (!currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode()
-								.equals(internalResponseCodeResource.getCode()) && !codeModified) {
+						if (currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode() != null && 
+								! StringUtils.equals(currentPaymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeValue(),
+								internalResponseCodeResource.getCode()) && !codeModified) {
 							throw new CustomBadRequestException(
 									"This Payment Processor is already related to another Internal Response Code.");
 						}

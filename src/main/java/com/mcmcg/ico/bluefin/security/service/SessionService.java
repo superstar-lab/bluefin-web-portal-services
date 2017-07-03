@@ -57,7 +57,9 @@ import com.mcmcg.ico.bluefin.service.UserService;
 @Transactional
 public class SessionService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SessionService.class);
-	private static final String RESET_PASSWORD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
+	
+	private static final String RESET_PWD_EMAIL_SUBJECT = "Bluefin web portal: Forgot password email";
+	
 	@Autowired
 	private UserDAO userDAO;
 	@Autowired
@@ -201,7 +203,7 @@ public class SessionService {
 				+ propertyService.getPropertyValue("RESET_PASSWORD_EMAIL_LINK") + "?token=" + token;
 		// Send email
 		LOGGER.info("Exit SessionService :: resetPassword() : ready to send email");
-		emailService.sendEmail(user.getEmail(), RESET_PASSWORD_EMAIL_SUBJECT, content);
+		emailService.sendEmail(user.getEmail(), RESET_PWD_EMAIL_SUBJECT, content);
 	}
 
 	private AuthenticationResponse getLoginResponse(final User user, final String token) {

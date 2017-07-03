@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,8 +146,9 @@ public class InternalStatusCodeService {
 					LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : PaymentProcessorInternalStatusCode size : {} ", currentPaymentProcessorInternalStatusCodes.size());
 					if ( currentPaymentProcessorInternalStatusCodes != null && !currentPaymentProcessorInternalStatusCodes.isEmpty()) {
 						for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
-							if (!currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode()
-								.equals(internalStatusCodeResource.getCode()) && !codeModified) {
+							if (currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode() != null 
+									&& !StringUtils.equals(currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeValue(),internalStatusCodeResource.getCode())
+									&& !codeModified) {
 								throw new CustomBadRequestException(
 									"This Payment Processor is already related to another Internal Status Code.");
 							}

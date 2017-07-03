@@ -16,6 +16,7 @@ import javax.net.ssl.X509TrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 
 public class HttpsUtil {
@@ -56,7 +57,7 @@ public class HttpsUtil {
         return jsonString.toString();
     }
 
-    private static SSLSocketFactory createTrustAllSslSocketFactory(final String pProtocol) throws Exception {
+    private static SSLSocketFactory createTrustAllSslSocketFactory(final String pProtocol) throws ApplicationGenericException{
         TrustManager[] byPassTrustManagers = new TrustManager[] { new X509TrustManager() {
         	@Override
             public X509Certificate[] getAcceptedIssuers() {
@@ -71,8 +72,13 @@ public class HttpsUtil {
         		// Overridden method
             }
         }, };
-        SSLContext sslContext = SSLContext.getInstance(pProtocol);
-        sslContext.init(null, byPassTrustManagers, new SecureRandom());
+        SSLContext sslContext;
+        try {
+        	sslContext = SSLContext.getInstance(pProtocol);
+        	sslContext.init(null, byPassTrustManagers, new SecureRandom()); 
+        } catch (Exception ex) {
+        	throw new ApplicationGenericException(ex);
+        }
         return sslContext.getSocketFactory();
     }
 }

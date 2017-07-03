@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.security.AuthenticationTokenFilter;
 import com.mcmcg.ico.bluefin.security.CustomAccessDeniedHandler;
 import com.mcmcg.ico.bluefin.security.EntryPointUnauthorizedHandler;
@@ -40,8 +41,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     private SecurityService securityService;
 
     @Autowired
-    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
+    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws ApplicationGenericException {
+        try {
+			authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
+		} catch (Exception e) {
+			throw new ApplicationGenericException(e);
+		}
     }
 
     @Bean
