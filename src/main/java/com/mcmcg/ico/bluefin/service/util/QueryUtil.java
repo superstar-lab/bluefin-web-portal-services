@@ -41,8 +41,8 @@ public class QueryUtil {
 
 	public static final String SEARCH_REGEX_LE = "(\\w+?)(:|<|>)" + "(" + ANY_LIST_REGEX + ")";
 
-	private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
-	private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
+	public static final String LEGAL_ENTITY_FILTER = "legalEntity:";
+	public static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
 	private QueryUtil(){
 		// Default Constructor
@@ -134,7 +134,7 @@ public class QueryUtil {
 	 * @param filterKey
 	 * @return
 	 */
-	private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
+	public static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
 		String searchVal;
 		if (!search.contains(filterKey)) {
 			if (!search.isEmpty()) {
@@ -146,7 +146,7 @@ public class QueryUtil {
 			searchVal = search.replace(filterKey + leFilterValue,
 					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
 		}
-		LOGGER.debug("QueryUtil :: validateByFilter() : search : {}",searchVal);
+		LOGGER.debug("Search : {}",searchVal);
 		return searchVal;
 	}
 
@@ -219,7 +219,7 @@ public class QueryUtil {
 	 * @param filter
 	 * @return String with the Legal Entities values
 	 */
-	private static String getLEFilterValue(String search, String filter) {
+	public static String getLEFilterValue(String search, String filter) {
 		String result = StringUtils.EMPTY;
 		Boolean validSearch = false;
 		Pattern pattern = Pattern.compile(SEARCH_REGEX_LE);
@@ -276,7 +276,7 @@ public class QueryUtil {
 	 * @param value
 	 * @return return a list of strings
 	 */
-	private static List<String> getLEListFilterValue(String value) {
+	public static List<String> getLEListFilterValue(String value) {
 		List<String> result = null;
 		if (!StringUtils.isBlank(value) && !"[]".equals(value)) {
 			Matcher matcher = Pattern.compile(ANY_LIST_REGEX).matcher(value);

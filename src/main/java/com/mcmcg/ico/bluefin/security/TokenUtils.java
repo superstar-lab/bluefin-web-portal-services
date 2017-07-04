@@ -121,20 +121,28 @@ public class TokenUtils {
 	}
 
 	private Date generateExpirationDate(TokenType type) {
+		Date valToReturn;
 		switch (type) {
-		case AUTHENTICATION:
-			return getDate("AUTHENTICATION_TOKEN_EXPIRATION",1);
-		case FORGOT_PASSWORD:
-			return getDate("RESET_PASSWORD_TOKEN_EXPIRATION",1);
-		case REGISTER_USER:
-			return getDate("REGISTER_USER_TOKEN_EXPIRATION",1);
-		case APPLICATION:
-			return getDate("APPLICATION_TOKEN_EXPIRATION",0);
-		case TRANSACTION:
-			return getDate("TOKEN_TRANSACTION_EXPIRATION",0);			
-		default:
-			return getDate("TOKEN_EXPIRATION",1);
+			case AUTHENTICATION:
+				valToReturn = getDate("AUTHENTICATION_TOKEN_EXPIRATION",1);
+				break;
+			case FORGOT_PASSWORD:
+				valToReturn = getDate("RESET_PASSWORD_TOKEN_EXPIRATION",1);
+				break;
+			case REGISTER_USER:
+				valToReturn = getDate("REGISTER_USER_TOKEN_EXPIRATION",1);
+				break;
+			case APPLICATION:
+				valToReturn = getDate("APPLICATION_TOKEN_EXPIRATION",0);
+				break;
+			case TRANSACTION:
+				valToReturn = getDate("TOKEN_TRANSACTION_EXPIRATION",0);
+				break;
+			default:
+				valToReturn = getDate("TOKEN_EXPIRATION",1);
+				break;
 		}
+		return valToReturn;
 	}
 	
 	private Date getDate(String prpName,int type){

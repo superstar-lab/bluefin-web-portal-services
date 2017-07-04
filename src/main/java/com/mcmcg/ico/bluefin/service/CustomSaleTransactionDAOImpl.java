@@ -46,7 +46,7 @@ import com.mcmcg.ico.bluefin.repository.PropertyDAO;
 import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
 @Repository
 public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
@@ -351,8 +351,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		StringJoiner statement = new StringJoiner(" AND ");
 
 		if (search != null && !search.isEmpty()) {
-			Pattern pattern = Pattern.compile(QueryDSLUtil.SEARCH_REGEX);
-			Matcher matcher = pattern.matcher(search + QueryDSLUtil.SEARCH_DELIMITER_CHAR);
+			Pattern pattern = Pattern.compile(QueryUtil.SEARCH_REGEX);
+			Matcher matcher = pattern.matcher(search + QueryUtil.SEARCH_DELIMITER_CHAR);
 
 			while (matcher.find()) {
 				final String attribute = matcher.group(1);
@@ -787,7 +787,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
 		String transactionTypeAll = "ALL";
 		Pattern pattern = Pattern.compile(transactionType);
-		Matcher matcher = pattern.matcher(search + QueryDSLUtil.SEARCH_DELIMITER_CHAR);
+		Matcher matcher = pattern.matcher(search + QueryUtil.SEARCH_DELIMITER_CHAR);
 		while (matcher.find()) {
 			transactionTypeAll = matcher.group(3);
 		}

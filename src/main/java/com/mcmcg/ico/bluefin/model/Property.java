@@ -3,8 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-import org.joda.time.DateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;

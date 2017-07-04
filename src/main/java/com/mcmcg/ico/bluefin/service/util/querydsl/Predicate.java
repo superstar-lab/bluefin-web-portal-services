@@ -1,8 +1,5 @@
 package com.mcmcg.ico.bluefin.service.util.querydsl;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -22,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.DatePath;
 import com.mysema.query.types.path.NumberPath;
@@ -160,7 +157,7 @@ class Predicate {
 
     private BooleanExpression getStringPredicate(PathBuilder<?> entityPath) {
         StringPath path = entityPath.getString(criteria.getKey());
-        if (criteria.getValue().toString().matches(QueryDSLUtil.WORD_LIST_REGEX)) {
+        if (criteria.getValue().toString().matches(QueryUtil.WORD_LIST_REGEX)) {
             List<String> values = getStringListFromCriteria();
             return path.in(values);
         } else {

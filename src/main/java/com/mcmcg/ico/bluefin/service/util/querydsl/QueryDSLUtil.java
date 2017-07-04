@@ -1,23 +1,19 @@
 package com.mcmcg.ico.bluefin.service.util.querydsl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import static com.mcmcg.ico.bluefin.service.util.QueryUtil.SEARCH_DELIMITER_CHAR;
+import static com.mcmcg.ico.bluefin.service.util.QueryUtil.SEARCH_REGEX;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.access.AccessDeniedException;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.PathBuilder;
 import com.mysema.query.types.path.StringPath;
@@ -25,24 +21,6 @@ import com.mysema.query.types.path.StringPath;
 public class QueryDSLUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QueryDSLUtil.class);
-
-    public static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
-    public static final String EMAIL_PATTERN = "[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
-    public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|-|\\w)*";
-    public static final String DECIMAL_NUMBER_REGEX = "\\d+(?:\\.\\d+)?";
-    public static final String ANY_LIST_REGEX = "\\[(.*?)\\]";
-    public static final String INTEGER_LIST_REGEX = "\\[\\d[\\d,\\s*]*\\]";
-    public static final String WORD_LIST_REGEX = "\\[" + WORD_REGEX + "(,\\s*" + WORD_REGEX + ")*\\]";
-    public static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}\\s\\d{2}:\\d{2}:\\d{2}";
-    public static final String NUMBERS_AND_WORDS_REGEX = WORD_REGEX + "|" + DECIMAL_NUMBER_REGEX;
-    public static final String SEARCH_DELIMITER_CHAR = "$$";
-    public static final String SEARCH_DELIMITER_CHAR_REGEX = "\\$\\$";
-    public static final String SEARCH_REGEX = "(\\w+?)(:|<|>)" + "(" + DATE_REGEX + "|" + NUMBERS_AND_WORDS_REGEX + "|"
-            + EMAIL_PATTERN + "|" + INTEGER_LIST_REGEX + "|" + WORD_LIST_REGEX + ")" + SEARCH_DELIMITER_CHAR_REGEX;
-    public static final String SEARCH_REGEX_LE = "(\\w+?)(:|<|>)" + "(" + ANY_LIST_REGEX + ")";
-    private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
-    private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
     private QueryDSLUtil() {
 		// default constructor
@@ -62,62 +40,7 @@ public class QueryDSLUtil {
     }
 
     public static PageRequest getPageRequest(int page, int size, String sort) {
-        List<Order> orderList = getOrderList(sort);
-        LOGGER.debug("QueryDSLUtil :: getPageRequest() : orderList size : "+orderList.size());
-        if (orderList.isEmpty()) {
-            return new PageRequest(page, size);
-        } else {
-            Sort finalSort = new Sort(orderList);
-            return new PageRequest(page, size, finalSort);
-        }
-    }
-
-    private static List<Order> getOrderList(String sort) {
-        Pattern pattern = Pattern.compile(SORT_REGEX);
-        Matcher matcher = pattern.matcher(sort + ",");
-        List<Order> sortList = new ArrayList<>();
-        while (matcher.find()) {
-            Sort.Direction sortDirection;
-            switch (matcher.group(3)) {
-            case "asc":
-                sortDirection = Sort.Direction.ASC;
-                break;
-            case "desc":
-                sortDirection = Sort.Direction.DESC;
-                break;
-            default :
-            	sortDirection = Sort.Direction.ASC;   
-            }
-            sortList.add(new Order(sortDirection, matcher.group(1)));
-        }
-        LOGGER.debug("QueryDSLUtil :: getOrderList() : sortList size : "+sortList.size());
-        return sortList;
-    }
-
-    /**
-     * Validates by filter given. Right now the validation can be achieved by id
-     * or name, this method will allow to pass the filter and execute the
-     * validation of the search criteria.
-     * 
-     * @param search
-     * @param userLegalEntities
-     * @param filterKey
-     * @return
-     */
-    private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
-    	String searchVal;
-        if (!search.contains(filterKey)) {
-            if (!search.isEmpty()) {
-            	searchVal = search + SEARCH_DELIMITER_CHAR;
-            }
-            searchVal = search + filterKey + userLegalEntities;
-        } else {
-            String leFilterValue = getLEFilterValue(search, filterKey);
-            searchVal = search.replace(filterKey + leFilterValue,
-                    filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
-        }
-        LOGGER.debug("QueryDSLUtil :: validateByFilter() : search : "+searchVal);
-        return searchVal;
+        return QueryUtil.getPageRequest(page, size, sort);
     }
 
     /**
@@ -131,11 +54,7 @@ public class QueryDSLUtil {
      * @return String with the valid search criteria
      */
     public static String getValidSearchBasedOnLegalEntitiesById(List<LegalEntityApp> userLE, String search) {
-        List<String> userLEIds = userLE.stream().map(current -> current.getLegalEntityAppId())
-                .collect(Collectors.toList()).stream().map(i -> i.toString()).collect(Collectors.toList());
-
-        LOGGER.debug("QueryDSLUtil :: getValidSearchBasedOnLegalEntitiesById() : userLEIds : "+userLEIds.size());
-        return validateByFilter(search, userLEIds, LEGAL_ENTITIES_FILTER);
+        return QueryUtil.getValidSearchBasedOnLegalEntitiesById(userLE, search);
     }
 
     /**
@@ -148,66 +67,7 @@ public class QueryDSLUtil {
      * @return String with the valid search criteria
      */
     public static String getValidSearchBasedOnLegalEntities(List<LegalEntityApp> userLE, String search) {
-        List<String> userLENames = userLE.stream().map(current -> current.getLegalEntityAppName())
-                .collect(Collectors.toList());
-
-        LOGGER.debug("QueryDSLUtil :: getValidSearchBasedOnLegalEntities() : userLENames : "+userLENames.size());
-        return validateByFilter(search, userLENames, LEGAL_ENTITY_FILTER);
-    }
-
-    /**
-     * This method ensures that the users have access to filter by the criteria
-     * given, if not a access denied exception will be raised.
-     * 
-     * @param filterKey
-     * @param userLegalEntities
-     * @return String with the valid filter to consult
-     */
-    private static String generateValidLEFilter(String filterKey, List<String> userLegalEntities) {
-        List<String> listFilterValue = getLEListFilterValue(filterKey);
-        int listFilterValueSize = listFilterValue != null ? listFilterValue.size() : 0;
-        LOGGER.debug("QueryDSLUtil :: generateValidLEFilter() : listFilterValue : "+listFilterValueSize);
-        if (listFilterValueSize == 0) {
-            listFilterValue = userLegalEntities;
-        } else {
-            for (String currentLE : listFilterValue) {
-                if (!userLegalEntities.contains(currentLE)) {
-                    LOGGER.error("QueryDSLUtil :: generateValidLEFilter() : User doesn't have access to filter by this legal entity: ,", currentLE);
-                    throw new AccessDeniedException(
-                            "User doesn't have access to filter by this legal entity: " + currentLE);
-                }
-            }
-        }
-        return "[" + String.join(",", listFilterValue) + "]";
-    }
-
-    /**
-     * Checks if the search criteria has an array with the LE and returns it. If
-     * it can not parse it a bad request exception will rise
-     * 
-     * @param search
-     * @param filter
-     * @return String with the Legal Entities values
-     */
-    private static String getLEFilterValue(String search, String filter) {
-        String result = StringUtils.EMPTY;
-        Boolean validSearch = false;
-        Pattern pattern = Pattern.compile(SEARCH_REGEX_LE);
-        Matcher matcher = pattern.matcher(search + ",");
-        while (matcher.find()) {
-            if (filter.contains(matcher.group(1))) {
-                result = matcher.group(3);
-                validSearch = true;
-            }
-        }
-
-        if (!validSearch) {
-            LOGGER.error("QueryDSLUtil :: getLEFilterValue() : Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
-            throw new CustomBadRequestException(
-                    "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
-        }
-
-        return result;
+        return QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
     }
 
     /**
@@ -219,22 +79,7 @@ public class QueryDSLUtil {
      * @return String with the transactionId value
      */
     public static String getTransactionIdValue(String search, String filter) {
-        String result = StringUtils.EMPTY;
-        Boolean validSearch = false;
-        Pattern pattern = Pattern.compile(SEARCH_REGEX);
-        Matcher matcher = pattern.matcher(search + SEARCH_DELIMITER_CHAR);
-        while (matcher.find()) {
-            if (filter.contains(matcher.group(1))) {
-                result = matcher.group(3);
-                validSearch = true;
-            }
-        }
-
-        if (!validSearch) {
-            LOGGER.error("QueryDSLUtil :: getTransactionIdValue() :  Unable to parse value of transactionId");
-            throw new CustomBadRequestException("Unable to parse value of transactionI");
-        }
-        return result;
+       return QueryUtil.getTransactionIdValue(search, filter);
     }
 
     /**
@@ -263,26 +108,6 @@ public class QueryDSLUtil {
      * @return return a list of strings
      */
     private static List<String> getLEListFilterValue(String value) {
-        List<String> result = null;
-        if (!StringUtils.isBlank(value) && !"[]".equals(value)) {
-            Matcher matcher = Pattern.compile(ANY_LIST_REGEX).matcher(value);
-            String criteriaValue = null;
-            while (matcher.find()) {
-                criteriaValue = matcher.group(1);
-            }
-            if (criteriaValue != null) {
-                result = Arrays.asList(criteriaValue.split(",")).stream().map(String::trim)
-                        .collect(Collectors.toList());
-                return result;
-            } else {
-                LOGGER.error("QueryDSLUtil :: getLEListFilterValue() : Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
-                throw new CustomBadRequestException(
-                        "Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
-            }
-        }
-        if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("getLEListFilterValue() :  result : "+ ( result ) );
-        }
-        return result;
+        return QueryUtil.getLEListFilterValue(value);
     }
 }

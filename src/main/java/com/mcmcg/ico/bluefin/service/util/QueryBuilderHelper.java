@@ -10,7 +10,6 @@ import org.springframework.data.domain.Sort;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 public class QueryBuilderHelper {
-	private static final Logger LOGGER = LoggerFactory.getLogger(QueryBuilderHelper.class);
 	private QueryBuilderHelper(){
 		// Default constructor
 	}
@@ -26,8 +25,7 @@ public class QueryBuilderHelper {
 	}
 
 	public static String appendLimit(String query,int offset,int pageSize){
-		String queryVal = query.concat(" LIMIT "+offset +", "+pageSize);
-		return queryVal;
+		return query.concat(" LIMIT "+offset +", "+pageSize);
 	}
 	
 	 
