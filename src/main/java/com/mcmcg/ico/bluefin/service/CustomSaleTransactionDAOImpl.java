@@ -343,7 +343,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @return where element that is going to be attached to the select element
 	 */
 	private String createWhereStatement(String search, String prefix,HashMap<String, String> dynamicParametersMap) {
-		logger.info("Entering to CustomSaleTransactionDAOImpl :: createWhereStatement() ");
+		logger.debug("Creating where statement");
 		StringJoiner statement = new StringJoiner(" AND ");
 
 		if (search != null && !search.isEmpty()) {
@@ -408,9 +408,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				dynamicParametersMap.put(attributeParam, value);
 			}
 		}
-		logger.info("Exiting from CustomSaleTransactionDAOImpl :: createWhereStatement() ");
 		return statement.length() == 0 ? "" : " WHERE " + statement.toString();
-
 	}
 	
 	private List<String> getOriginFromPaymentFrequency(String paymentFrequency) {

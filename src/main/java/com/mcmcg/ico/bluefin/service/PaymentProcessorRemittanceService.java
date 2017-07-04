@@ -76,11 +76,8 @@ public class PaymentProcessorRemittanceService {
 		if (ppr == null) {
 			ppr = new PaymentProcessorRemittance();
 		}
-		SaleTransaction st = saleTransactionDAO.findByProcessorTransactionId(transactionId);
-		if (st == null) {
-			st = new SaleTransaction();
-		}
-
+		saleTransactionDAO.findByProcessorTransactionId(transactionId);
+		
 		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
 		paymentProcessorRemittance.setPaymentProcessorRemittanceId(ppr.getPaymentProcessorRemittanceId());
 		paymentProcessorRemittance.setDateCreated(ppr.getDateCreated());

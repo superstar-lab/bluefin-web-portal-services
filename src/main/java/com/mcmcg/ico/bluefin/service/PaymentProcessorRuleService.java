@@ -182,7 +182,7 @@ public class PaymentProcessorRuleService {
         List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
                 .findByCardType(newPaymentProcessorRule.getCardType().name());
 
-        LOGGER.debug("PaymentProcessorRuleService :: validatePaymentProcessorRuleForCreditDebitCardType() : paymentProcessorRules size : "+paymentProcessorRules.size());
+        LOGGER.debug("PaymentProcessorRules size : {}",paymentProcessorRules.size());
         if (paymentProcessorRules == null || paymentProcessorRules.isEmpty()) {
             // No validation because there is no rules
             return;
@@ -197,23 +197,11 @@ public class PaymentProcessorRuleService {
             if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || !current.getPaymentProcessorRuleId()
                     .equals(newPaymentProcessorRule.getPaymentProcessorRuleId())) {
                 // Priority already assigned for the same transaction type
-                if (current.getPriority().equals(newPaymentProcessorRule.getPriority())) {
-                    LOGGER.error(
-                            "Unable to create/update payment processor rule with an existing priority.  Details: [{}]",
-                            newPaymentProcessorRule.toString());
-                    throw new CustomBadRequestException(
-                            "Unable to create/update payment processor rule with an existing priority.");
-                }
+            	validatePriority(current,newPaymentProcessorRule);
 
                 // Do not allow adding or editing if already exist a no
                 // maximum monthly amount
-                if (newPaymentProcessorRule.hasNoLimit() && current.hasNoLimit()) {
-                    LOGGER.error(
-                            "Unable to create/update payment processor rule with no maximum amount because already exist one.  Details: [{}]",
-                            newPaymentProcessorRule.toString());
-                    throw new CustomBadRequestException(
-                            "Unable to create/update payment processor rule with no maximum amount because already exist one.");
-                }
+            	validateNoLimit(current,newPaymentProcessorRule);
 
                 // Find the highest priority of the existing rules
                 highestPriority = highestPriority > current.getPriority().shortValue() ? highestPriority
@@ -226,7 +214,33 @@ public class PaymentProcessorRuleService {
             }
         }
 
-        /*
+        validatePriorityAndHighestPriority(newPaymentProcessorRule,highestPriority,existsNoLimitPaymentProcessorRule);
+        
+        validatePriorityAndHighestPriority(newPaymentProcessorRule,highestPriority);
+        
+    }
+    
+    private void validatePriority(PaymentProcessorRule current,PaymentProcessorRule newPaymentProcessorRule){
+    	if (current.getPriority().equals(newPaymentProcessorRule.getPriority())) {
+            LOGGER.error(
+                    "Unable to create/update payment processor rule with an existing priority.  Details: [{}]",
+                    newPaymentProcessorRule.toString());
+            throw new CustomBadRequestException(
+                    "Unable to create/update payment processor rule with an existing priority.");
+        }
+    }
+    
+    private void validateNoLimit(PaymentProcessorRule current,PaymentProcessorRule newPaymentProcessorRule){
+    	if (newPaymentProcessorRule.hasNoLimit() && current.hasNoLimit()) {
+            LOGGER.error(
+                    "Unable to create/update payment processor rule with no maximum amount because already exist one.  Details: [{}]",
+                    newPaymentProcessorRule.toString());
+            throw new CustomBadRequestException(
+                    "Unable to create/update payment processor rule with no maximum amount because already exist one.");
+        }
+    }
+    private void validatePriorityAndHighestPriority(PaymentProcessorRule newPaymentProcessorRule,short highestPriority,boolean existsNoLimitPaymentProcessorRule){
+    	/*
          * When the new payment processor rule has noMaximumMonthlyAmountFlag ON
          * then we need to make sure that has the lowest priority (which means
          * that MUST has the highest number)
@@ -238,8 +252,10 @@ public class PaymentProcessorRuleService {
             throw new CustomBadRequestException(
                     "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.");
         }
-
-        if (newPaymentProcessorRule.hasNoLimit()
+    }
+    
+    private void validatePriorityAndHighestPriority(PaymentProcessorRule newPaymentProcessorRule,short highestPriority){
+    	if (newPaymentProcessorRule.hasNoLimit()
                 && newPaymentProcessorRule.getPriority().shortValue() < highestPriority) {
             LOGGER.error(
                     "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: [{}]",
