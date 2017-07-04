@@ -413,8 +413,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 						// Processor name, not ID, is used in sale, refund, and
 						// void tables.
 						attributeParam = attributeParam.replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME);
-						PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(value));
-						value = paymentProcessor != null ? paymentProcessor.getProcessorName() : null;
+						value = getPaymentProcessorName(value);
 						predicate = predicate.replace(BluefinWebPortalConstants.PAYMENTPROCESSORIDVAL, "Processor");
 						predicate = predicate.replace(attribute, BluefinWebPortalConstants.PROCESSORNAME);
 					}
@@ -424,9 +423,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					// values except 'Recurring'
 					value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
 				} else if (isPrefixAndAttributeAsProcessor(attribute,prefix)) {
-					PaymentProcessor paymentProcessor = paymentProcessorDAO.getPaymentProcessorByProcessorName(value);
-					Long paymentProcessorId = paymentProcessor != null ? paymentProcessor.getPaymentProcessorId() : null;
-					value = String.valueOf(paymentProcessorId);
+					value = getPaymentProcessorId(value);
 				}
 
 				statement.add(predicate.replace(":prefix", prefix));
@@ -434,6 +431,17 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			}
 		}
 		return prepareStatementWithWhere(statement);
+	}
+	
+	private String getPaymentProcessorName(String value){
+		PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(value));
+		return paymentProcessor != null ? paymentProcessor.getProcessorName() : null;
+	}
+	
+	private String getPaymentProcessorId(String value){
+		PaymentProcessor paymentProcessor = paymentProcessorDAO.getPaymentProcessorByProcessorName(value);
+		Long paymentProcessorId = paymentProcessor != null ? paymentProcessor.getPaymentProcessorId() : null;
+		return String.valueOf(paymentProcessorId);
 	}
 	
 	private String prepareStatementWithWhere(StringJoiner statement){
