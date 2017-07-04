@@ -1297,7 +1297,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				"st.UserDefinedField1 AS SaleUserDefinedField1,st.UserDefinedField2 AS SaleUserDefinedField2,st.UserDefinedField3 AS SaleUserDefinedField3,");
 		querySb.append(
 				"st.ReconciliationStatusID AS SaleReconciliationStatusID,st.ReconciliationDate AS SaleReconciliationDate,st.BatchUploadID AS SaleBatchUploadID,");
-		querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded,");
+		querySb.append(BluefinWebPortalConstants.SALEVOIDREFUNDCONST);
 		querySb.append(
 				"ppr.MerchantID AS MID,ppl.ProcessorName AS Processor_Name,ppr.ReconciliationStatusID AS ReconciliationStatus_ID ");
 		querySb.append("FROM PaymentProcessor_Remittance ppr ");
@@ -1346,7 +1346,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				"NULL AS SaleDesk,NULL AS SaleInvoiceNumber,NULL AS SaleUserDefinedField1,NULL AS SaleUserDefinedField2,NULL AS SaleUserDefinedField3,");
 		querySb.append(
 				"rt.ReconciliationStatusID AS SaleReconciliationStatusID,rt.ReconciliationDate AS SaleReconciliationDate,NULL AS SaleBatchUploadID,");
-		querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded,");
+		querySb.append(BluefinWebPortalConstants.SALEVOIDREFUNDCONST);
 		querySb.append(
 				"ppr.MerchantID AS MID,ppl.ProcessorName AS Processor_Name,ppr.ReconciliationStatusID AS ReconciliationStatus_ID ");
 		querySb.append("FROM PaymentProcessor_Remittance ppr ");
@@ -1384,7 +1384,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				"SALE.RuleNoMaximumMonthlyAmountFlag,SALE.RulePriority,SALE.AccountPeriod,SALE.Desk,SALE.InvoiceNumber,SALE.UserDefinedField1,");
 		querySb.append(
 				"SALE.UserDefinedField2,SALE.UserDefinedField3,SALE.ReconciliationStatusID,SALE.ReconciliationDate,SALE.BatchUploadID,");
-		querySb.append("0 AS SaleIsVoided,0 AS SaleIsRefunded,");
+		querySb.append(BluefinWebPortalConstants.SALEVOIDREFUNDCONST);
 		querySb.append(
 				"SALE.MerchantID AS MID,SALE.Processor AS Processor_Name,SALE.ReconciliationStatusID AS ReconciliationStatus_ID ");
 		querySb.append("FROM Sale_Transaction SALE ");

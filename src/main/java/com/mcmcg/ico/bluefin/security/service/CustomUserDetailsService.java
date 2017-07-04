@@ -41,7 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private RolePermissionDAO rolePermissionDAO;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username){
 		LOGGER.info("Entering CustomUserDetailsService :: loadUserByUsername()");
 		User user = userDAO.findByUsername(username);
 

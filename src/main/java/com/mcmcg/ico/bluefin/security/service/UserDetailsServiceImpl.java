@@ -21,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private UserDAO userDAO;
 
 	@Override
-	public SecurityUser loadUserByUsername(String username) throws UsernameNotFoundException {
+	public SecurityUser loadUserByUsername(String username) {
 		LOGGER.info("Entering UserDetailsServiceImpl :: loadUserByUsername()");
 		User user = this.userDAO.findByUsername(username);
 		LOGGER.debug("Entering UserDetailsServiceImpl :: loadUserByUsername() : user is : "+user);

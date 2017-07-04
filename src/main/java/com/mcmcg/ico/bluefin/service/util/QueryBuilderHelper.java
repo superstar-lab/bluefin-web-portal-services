@@ -3,8 +3,6 @@ package com.mcmcg.ico.bluefin.service.util;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 
 import com.mcmcg.ico.bluefin.repository.sql.Queries;

@@ -113,6 +113,7 @@ public class BluefinWebPortalConstants {
 	public static final String RECONCILIATIONSTATUSIDVAL1 = "ReconciliationStatus_ID";
 	public static final String PROCESSORNAMEVAL1 = "Processor_Name";
 	public static final String UNION = " UNION ";
+	public static final String SALEVOIDREFUNDCONST = "0 AS SaleIsVoided,0 AS SaleIsRefunded,";
 	
 	private BluefinWebPortalConstants(){
 		
