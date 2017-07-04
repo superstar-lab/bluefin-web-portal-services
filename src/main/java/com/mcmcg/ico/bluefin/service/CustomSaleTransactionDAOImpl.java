@@ -9,9 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,9 +70,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	@Autowired
 	private PropertyDAO propertyDAO;
+	private Set<String> refundOrVoidTypeAttributesFilterNames = new HashSet<>();
 	
 	public CustomSaleTransactionDAOImpl(){
 		loadSaleTransactionMappings();
+		populateRefundOrVoidTypeAttributesFilterNames();
 	}
 	
 	/**
@@ -601,14 +605,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			return true;
 		}
 		if (BluefinWebPortalConstants.REFUND.equals(prefix) || "VOID".equals(prefix)) {
-			if ("accountNumber".equalsIgnoreCase(attribute) || BluefinWebPortalConstants.AMOUNT.equalsIgnoreCase(attribute)
-					|| "cardType".equalsIgnoreCase(attribute) || BluefinWebPortalConstants.LEGALENTITY.equalsIgnoreCase(attribute)
-					|| "firstName".equalsIgnoreCase(attribute) || "lastName".equalsIgnoreCase(attribute)
-					|| "accountPeriod".equalsIgnoreCase(attribute) || "desk".equalsIgnoreCase(attribute)
-					|| "invoiceNumber".equalsIgnoreCase(attribute) || BluefinWebPortalConstants.PAYMENTFREQUENCY.equalsIgnoreCase(attribute)
-					|| BluefinWebPortalConstants.RECONCILIATIONSTATUSID.equalsIgnoreCase(attribute)
-					|| BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)
-					|| BluefinWebPortalConstants.BATCHUPLOADID.equalsIgnoreCase(attribute)) {
+			if (refundOrVoidTypeAttributesFilterNames.contains(attribute)) {
 				return true;
 			}
 		} else if ("transactionId".equalsIgnoreCase(attribute) || "internalStatusCode".equalsIgnoreCase(attribute)
@@ -620,6 +617,22 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 
 		return false;
+	}
+	
+	private void populateRefundOrVoidTypeAttributesFilterNames(){
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountNumber"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.AMOUNT));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("cardType"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.LEGALENTITY));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("firstName"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("lastName"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountPeriod"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("desk"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("invoiceNumber"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.PAYMENTFREQUENCY));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.RECONCILIATIONSTATUSID));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.BATCHUPLOADID));
 	}
 	
 	/**
