@@ -589,27 +589,19 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	public boolean skipFilter(String attribute, String prefix) {
 		// For payment processor remittance, processorName is a filter,
 		// so this should not be skipped.
-		if (("st".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute))
-				|| ("ppr".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute))) {
+		if (validateProcessorName(attribute, prefix)) {
 			return false;
 		}
 		// For payment processor remittance, legalEntity and batchUploadId are
 		// not a filters.
-		if ("ppr".equals(prefix) && BluefinWebPortalConstants.LEGALENTITY.equalsIgnoreCase(attribute)) {
-			return true;
-		}
-		if ("ppr".equals(prefix) && BluefinWebPortalConstants.BATCHUPLOADID.equalsIgnoreCase(attribute)) {
-			return true;
-		}
-		if ("transactionType".equalsIgnoreCase(attribute)) {
+		if (validateLegalEntityOrBatchUploadOrTransactionType(attribute, prefix)) {
 			return true;
 		}
 		if (BluefinWebPortalConstants.REFUND.equals(prefix) || "VOID".equals(prefix)) {
 			if (refundOrVoidTypeAttributesFilterNames.contains(attribute)) {
 				return true;
 			}
-		} else if ("transactionId".equalsIgnoreCase(attribute) || "internalStatusCode".equalsIgnoreCase(attribute)
-				|| BluefinWebPortalConstants.TRANSACTIONDATETIME.equalsIgnoreCase(attribute) || BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute)) {
+		} else if (validateOtherAttributes(attribute)) {
 			// This are special cases where we don't need to apply this filters
 			// for the inner sale tables, because we will never get the sale
 			// transaction
@@ -617,6 +609,41 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 
 		return false;
+	}
+		
+	private boolean validateOtherAttributes(String attribute){
+		return "transactionId".equalsIgnoreCase(attribute) || "internalStatusCode".equalsIgnoreCase(attribute)
+		|| BluefinWebPortalConstants.TRANSACTIONDATETIME.equalsIgnoreCase(attribute) || BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute);
+	}
+	
+	private boolean validateLegalEntityOrBatchUploadOrTransactionType(String attribute, String prefix){
+		if (validateLegalEntityName(attribute, prefix)) {
+			return true;
+		}
+		if (validateBatchUpload(attribute, prefix)) {
+			return true;
+		}
+		if (validateTransactionType(attribute)) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean validateTransactionType(String attribute){
+		return "transactionType".equalsIgnoreCase(attribute);
+	}
+	
+	private boolean validateProcessorName(String attribute, String prefix){
+		return ("st".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute))
+				|| ("ppr".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute));
+	}
+	
+	private boolean validateLegalEntityName(String attribute, String prefix){
+		return "ppr".equals(prefix) && BluefinWebPortalConstants.LEGALENTITY.equalsIgnoreCase(attribute);
+	}
+	
+	private boolean validateBatchUpload(String attribute, String prefix){
+		return "ppr".equals(prefix) && BluefinWebPortalConstants.BATCHUPLOADID.equalsIgnoreCase(attribute);
 	}
 	
 	private void populateRefundOrVoidTypeAttributesFilterNames(){
