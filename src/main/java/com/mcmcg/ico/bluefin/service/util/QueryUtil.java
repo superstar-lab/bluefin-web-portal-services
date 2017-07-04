@@ -146,7 +146,7 @@ public class QueryUtil {
 			searchVal = search.replace(filterKey + leFilterValue,
 					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
 		}
-		LOGGER.debug("QueryUtil :: validateByFilter() : search : "+searchVal);
+		LOGGER.debug("QueryUtil :: validateByFilter() : search : {}",searchVal);
 		return searchVal;
 	}
 

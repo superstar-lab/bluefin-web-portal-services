@@ -120,42 +120,42 @@ public class TransactionService {
 		return result;
 	}
 
-	public Transaction getRemittanceSaleResult(String transactionId) {
-		Transaction result;
+	public Transaction getRemittanceSaleResult(String transactionIdVal) {
+		Transaction tranResult;
 
-		PaymentProcessorRemittance ppr = paymentProcessorRemittanceDAO.findByProcessorTransactionId(transactionId);
-		if (ppr == null) {
-			ppr = new PaymentProcessorRemittance();
+		PaymentProcessorRemittance pprForTran = paymentProcessorRemittanceDAO.findByProcessorTransactionId(transactionIdVal);
+		if (pprForTran == null) {
+			pprForTran = new PaymentProcessorRemittance();
 		}
-		saleTransactionDAO.findByProcessorTransactionId(transactionId);
+		saleTransactionDAO.findByProcessorTransactionId(transactionIdVal);
 
-		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
-		paymentProcessorRemittance.setPaymentProcessorRemittanceId(ppr.getPaymentProcessorRemittanceId());
-		paymentProcessorRemittance.setDateCreated(ppr.getDateCreated());
-		paymentProcessorRemittance.setReconciliationStatusId(ppr.getReconciliationStatusId());
-		paymentProcessorRemittance.setReconciliationDate(ppr.getReconciliationDate()); 
-		paymentProcessorRemittance.setPaymentMethod(ppr.getPaymentMethod());
-		paymentProcessorRemittance.setTransactionAmount(ppr.getTransactionAmount());
-		paymentProcessorRemittance.setTransactionType(ppr.getTransactionType()); 
-		paymentProcessorRemittance.setTransactionTime(ppr.getTransactionTime()); 
-		paymentProcessorRemittance.setAccountId(ppr.getAccountId()); 
-		paymentProcessorRemittance.setApplication(ppr.getApplication());
-		paymentProcessorRemittance.setProcessorTransactionId(ppr.getProcessorTransactionId()); 
-		paymentProcessorRemittance.setMerchantId(ppr.getMerchantId()); 
-		paymentProcessorRemittance.setTransactionSource(ppr.getTransactionSource()); 
-		paymentProcessorRemittance.setFirstName(ppr.getFirstName());
-		paymentProcessorRemittance.setLastName(ppr.getLastName()); 
-		paymentProcessorRemittance.setRemittanceCreationDate(ppr.getRemittanceCreationDate()); 
-		paymentProcessorRemittance.setPaymentProcessorId(ppr.getPaymentProcessorId()); 
-		paymentProcessorRemittance.setReProcessStatus(null); 
-		paymentProcessorRemittance.setEtlRunId(null); 
-		paymentProcessorRemittance.setSaleAccountNumber(ppr.getSaleAccountNumber()); 
-		paymentProcessorRemittance.setSaleAmount(ppr.getSaleAmount());
+		PaymentProcessorRemittance paymentProcessorRemittanceForTran = new PaymentProcessorRemittance();
+		paymentProcessorRemittanceForTran.setPaymentProcessorRemittanceId(pprForTran.getPaymentProcessorRemittanceId());
+		paymentProcessorRemittanceForTran.setDateCreated(pprForTran.getDateCreated());
+		paymentProcessorRemittanceForTran.setReconciliationStatusId(pprForTran.getReconciliationStatusId());
+		paymentProcessorRemittanceForTran.setReconciliationDate(pprForTran.getReconciliationDate()); 
+		paymentProcessorRemittanceForTran.setPaymentMethod(pprForTran.getPaymentMethod());
+		paymentProcessorRemittanceForTran.setTransactionAmount(pprForTran.getTransactionAmount());
+		paymentProcessorRemittanceForTran.setTransactionType(pprForTran.getTransactionType()); 
+		paymentProcessorRemittanceForTran.setTransactionTime(pprForTran.getTransactionTime()); 
+		paymentProcessorRemittanceForTran.setAccountId(pprForTran.getAccountId()); 
+		paymentProcessorRemittanceForTran.setApplication(pprForTran.getApplication());
+		paymentProcessorRemittanceForTran.setProcessorTransactionId(pprForTran.getProcessorTransactionId()); 
+		paymentProcessorRemittanceForTran.setMerchantId(pprForTran.getMerchantId()); 
+		paymentProcessorRemittanceForTran.setTransactionSource(pprForTran.getTransactionSource()); 
+		paymentProcessorRemittanceForTran.setFirstName(pprForTran.getFirstName());
+		paymentProcessorRemittanceForTran.setLastName(pprForTran.getLastName()); 
+		paymentProcessorRemittanceForTran.setRemittanceCreationDate(pprForTran.getRemittanceCreationDate()); 
+		paymentProcessorRemittanceForTran.setPaymentProcessorId(pprForTran.getPaymentProcessorId()); 
+		paymentProcessorRemittanceForTran.setReProcessStatus(null); 
+		paymentProcessorRemittanceForTran.setEtlRunId(null); 
+		paymentProcessorRemittanceForTran.setSaleAccountNumber(pprForTran.getSaleAccountNumber()); 
+		paymentProcessorRemittanceForTran.setSaleAmount(pprForTran.getSaleAmount());
 
-		result = paymentProcessorRemittance;
+		tranResult = paymentProcessorRemittanceForTran;
 
-		LOGGER.debug("Result : {}",result);
-		return result;
+		LOGGER.debug("Result : {}",tranResult);
+		return tranResult;
 	}
 
 	public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
@@ -497,6 +497,6 @@ public class TransactionService {
 		} else {
 			transactionTypeVal = transactionType;
 		}
-		return transactionType;
+		return transactionTypeVal;
 	}
 }

@@ -17,21 +17,16 @@ public class QueryBuilderHelper {
 	
 	public static StringBuilder buildQuery(Map<String,String> filterMap ,Sort sort){
 		StringBuilder  bf = new StringBuilder( Queries.FINDALLUSERS);
-		LOGGER.debug("QueryBuilderHelper :: buildQuery() : StringBuffer is : "+bf);
-		
 		setLegaEntity(bf,filterMap);
 		setRoles(bf,filterMap);
 		setWhere(bf,filterMap);
 		bf.append(clauseAppender(filterMap));
 		placeOderBy(bf,sort);
-		
 		return bf;
 	}
 
 	public static String appendLimit(String query,int offset,int pageSize){
-		
 		String queryVal = query.concat(" LIMIT "+offset +", "+pageSize);
-		LOGGER.debug("QueryBuilderHelper :: appendLimit() : query is : "+queryVal);
 		return queryVal;
 	}
 	
@@ -40,10 +35,12 @@ public class QueryBuilderHelper {
 		 if(filterMap.containsKey("legalEntities"))
 			 bf.append(" join User_LegalEntityApp  ule on ul.UserID=ule.UserID ");
 	}
+	
 	private static void setRoles(StringBuilder  bf,Map<String,String> filterMap){
 		 if(filterMap.containsKey("roles"))
 			 bf.append(" join User_Role ur on ul.UserID=ur.UserID ");
 	}
+	
 	private static void setWhere(StringBuilder  bf,Map<String,String> filterMap){
 		if(filterMap.size()>0)
 			bf.append(" Where ");
@@ -51,23 +48,30 @@ public class QueryBuilderHelper {
 	
 	private static String clauseAppender(Map<String,String> filterMap){
 		StringBuilder bf2 = new StringBuilder();
-		if(filterMap.containsKey("legalEntities"))
-			bf2.append(" AND ule.LegalEntityAppID=:legalEntities");
-		if(filterMap.containsKey("roles"))
-			bf2.append(" AND ur.RoleID=:roles ");
-		if(filterMap.containsKey("username"))
-			bf2.append(" AND userName like :username");		
-		if(filterMap.containsKey("lastName"))
-			bf2.append(" AND  lastName like :lastName ");
-		if(filterMap.containsKey("firstName"))
-			bf2.append(" AND  firstName like :firstName ");
-		if(filterMap.containsKey("email"))
-			bf2.append(" AND  email like :email ");
-		if(filterMap.containsKey("status"))
-			bf2.append(" AND  status like :status ");
+		if(isValidFilter(filterMap,"legalEntities"))
+			appendQuery(bf2," AND ule.LegalEntityAppID=:legalEntities");
+		if(isValidFilter(filterMap,"roles"))
+			appendQuery(bf2," AND ur.RoleID=:roles ");
+		if(isValidFilter(filterMap,"username"))
+			appendQuery(bf2," AND userName like :username");		
+		if(isValidFilter(filterMap,"lastName"))
+			appendQuery(bf2," AND  lastName like :lastName ");
+		if(isValidFilter(filterMap,"firstName"))
+			appendQuery(bf2," AND  firstName like :firstName ");
+		if(isValidFilter(filterMap,"email"))
+			appendQuery(bf2," AND  email like :email ");
+		if(isValidFilter(filterMap,"status"))
+			appendQuery(bf2," AND  status like :status ");
 		
 		bf2.replace(0, 4, " ");
 		return bf2.toString();
+	}
+	
+	private static void appendQuery(StringBuilder bf2,String query){
+		bf2.append(query);
+	}
+	private static boolean isValidFilter(Map<String,String> filterMap,String filterName){
+		return filterMap.containsKey(filterName);
 	}
 	
 	private static void placeOderBy(StringBuilder  bf,Sort sort){
