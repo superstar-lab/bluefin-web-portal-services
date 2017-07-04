@@ -147,7 +147,7 @@ public class InternalResponseCodeService {
 				}
 				
 				LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
-				createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode,internalResponseCodeResource,resourceProcessorCode.getCode(),codeModified);
+				paymentProcessorResponseCode = createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode,internalResponseCodeResource,resourceProcessorCode.getCode(),codeModified);
 
 				paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
 				paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());

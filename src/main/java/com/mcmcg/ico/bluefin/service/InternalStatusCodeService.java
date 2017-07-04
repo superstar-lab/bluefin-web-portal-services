@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.InternalStatusCode;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
@@ -111,10 +112,9 @@ public class InternalStatusCodeService {
 			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Creating new payment processor Status code {}", resourceProcessorCode.getCode());
 			paymentProcessorStatusCodeObj = new PaymentProcessorStatusCode();
 		} else {
-			Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
+			Collection<PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
 					.getInternalStatusCode();
-			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : PaymentProcessorInternalStatusCode size : {} ", currentPaymentProcessorInternalStatusCodes.size());
-			if ( currentPaymentProcessorInternalStatusCodes != null && !currentPaymentProcessorInternalStatusCodes.isEmpty()) {
+			if ( currentPaymentProcessorInternalStatusCodes != null ) {
 				for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
 					if (currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode() != null 
 							&& !StringUtils.equals(currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeValue(),internalStatusCodeResource.getCode())
@@ -127,6 +127,15 @@ public class InternalStatusCodeService {
 			paymentProcessorStatusCodeObj = paymentProcessorStatusCode;
 		}
 		return paymentProcessorStatusCodeObj;
+	}
+	
+	private void validatePaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(PaymentProcessor paymentProcessor,String code,String transactionTypeName){
+		if (paymentProcessorStatusCodeDAO
+				.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
+						code, transactionTypeName,
+						paymentProcessor) != null) {
+			throw new CustomBadRequestException("The code " + code + " is already used by other Payment Processor Status Code.");
+		}
 	}
 	
 	public InternalStatusCode createInternalStatusCodes(InternalCodeResource internalStatusCodeResource,String currentLoginUserName) {
@@ -144,7 +153,7 @@ public class InternalStatusCodeService {
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalStatusCodeResource.getPaymentProcessorCodes()) {
 				LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Payment processor internal status code="+resourceProcessorCode);
 				// validate if payment processor is exists or not
-				com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(resourceProcessorCode.getPaymentProcessorId());
+				PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(resourceProcessorCode.getPaymentProcessorId());
 				if (paymentProcessor == null) {
 					LOGGER.error("InternalStatusCodeService :: createInternalStatusCodes() : Payment processor {} not found",resourceProcessorCode.getPaymentProcessorId());
 					throw new CustomBadRequestException("Payment processor does not exists. Id="+resourceProcessorCode.getPaymentProcessorId());
@@ -163,12 +172,7 @@ public class InternalStatusCodeService {
 						throw new CustomNotFoundException("Payment Processor Status Code does not exist: " + paymentProcessorCodeId);
 					} else if (!paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue().equals(resourceProcessorCode.getCode())) {
 						codeModified = true;
-						if (paymentProcessorStatusCodeDAO
-								.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
-										resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
-										paymentProcessor) != null) {
-							throw new CustomBadRequestException("The code " + resourceProcessorCode.getCode() + " is already used by other Payment Processor Status Code.");
-						}
+						validatePaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(paymentProcessor,resourceProcessorCode.getCode(), transactionType.getTransactionTypeName());
 					}
 				}
 				
@@ -194,9 +198,9 @@ public class InternalStatusCodeService {
 
 			}
 			internalStatusCode.getPaymentProcessorInternalStatusCodes().addAll(paymentProcessorInternalStatusCodes);
-			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : No of childs added "+internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
+			LOGGER.debug("No of childs added {}",internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
 		} else {
-			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : No payment processor internal status codes found as child items");
+			LOGGER.debug("No payment processor internal status codes found as child items");
 		}
 		// Finally creating internal status code with parent and child in single transaction
 		internalStatusCode = internalStatusCodeDAO.save(internalStatusCode);
