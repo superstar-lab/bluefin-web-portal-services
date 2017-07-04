@@ -1221,7 +1221,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		
 		querySbPart3.append("ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
-		logger.debug("CustomSaleTransactionDAOImpl :: getNativeQueryForRemittanceSaleRefund() : query (part 3): " + querySbPart3.toString());
+		logger.debug("Query (part 3): {}" , querySbPart3.toString());
 
 		if (numberOfFilters != 0) {
 			querySb.append("SELECT * FROM (");
