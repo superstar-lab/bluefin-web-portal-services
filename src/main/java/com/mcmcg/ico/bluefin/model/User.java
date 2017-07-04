@@ -11,7 +11,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class User implements Serializable {
+import lombok.Data;
+@Data
+public class User extends Common implements Serializable {
 
 	private static final long serialVersionUID = -8557780879103606219L;
 
@@ -23,9 +25,6 @@ public class User implements Serializable {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime lastLogin = new DateTime();
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime dateCreated = new DateTime();
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -33,19 +32,10 @@ public class User implements Serializable {
 	private String email;
 	@JsonIgnore
 	private String password;
-	@JsonIgnore
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime dateModified = new DateTime();
-	@JsonIgnore
-	private String modifiedBy;
 	private String status;
-	
 	private String selectedTimeZone;
-	
 	@JsonIgnore
 	private Collection<UserRole> roles;
-
 	@JsonIgnore
 	private Collection<UserLegalEntityApp> legalEntities;
 
@@ -144,14 +134,6 @@ public class User implements Serializable {
 		this.lastLogin = lastLogin;
 	}
 
-	public DateTime getDateCreated() {
-		return dateCreated;
-	}
-
-	public void setDateCreated(DateTime dateCreated) {
-		this.dateCreated = dateCreated;
-	}
-
 	public DateTime getDateUpdated() {
 		return dateUpdated;
 	}
@@ -174,22 +156,6 @@ public class User implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public DateTime getDateModified() {
-		return dateModified;
-	}
-
-	public void setDateModified(DateTime dateModified) {
-		this.dateModified = dateModified;
-	}
-
-	public String getModifiedBy() {
-		return modifiedBy;
-	}
-
-	public void setModifiedBy(String modifiedBy) {
-		this.modifiedBy = modifiedBy;
 	}
 
 	public String getStatus() {

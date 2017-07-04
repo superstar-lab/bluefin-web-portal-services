@@ -11,6 +11,9 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.User;
 
+import lombok.Data;
+
+@Data
 public class UpdateUserResource implements Serializable {
 
 	private static final long serialVersionUID = 2025146972481454967L;
@@ -49,38 +52,5 @@ public class UpdateUserResource implements Serializable {
 		user.setEmail(email);
 		return user;
 	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getSelectedTimeZone() {
-		return selectedTimeZone;
-	}
-
-	public void setSelectedTimeZone(String selectedTimeZone) {
-		this.selectedTimeZone = selectedTimeZone;
-	}
-	
 	
 }

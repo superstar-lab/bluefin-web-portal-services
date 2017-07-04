@@ -107,10 +107,10 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode save(com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode) {
 		KeyHolder holder = new GeneratedKeyHolder();
-		internalResponseCode.setCreatedDate(DateTime.now(DateTimeZone.UTC));
-		internalResponseCode.setModifiedDate(DateTime.now(DateTimeZone.UTC));
-		DateTime utc1 = internalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC);
-		DateTime utc2 = internalResponseCode.getModifiedDate().withZone(DateTimeZone.UTC);
+		internalResponseCode.setDateCreated(DateTime.now(DateTimeZone.UTC));
+		internalResponseCode.setDateModified(DateTime.now(DateTimeZone.UTC));
+		DateTime utc1 = internalResponseCode.getDateCreated().withZone(DateTimeZone.UTC);
+		DateTime utc2 = internalResponseCode.getDateModified().withZone(DateTimeZone.UTC);
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
@@ -176,12 +176,12 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 		@Override
 		public com.mcmcg.ico.bluefin.model.InternalResponseCode mapRow(ResultSet rs, int row) throws SQLException {
 			com.mcmcg.ico.bluefin.model.InternalResponseCode  internalResponseCode = new com.mcmcg.ico.bluefin.model.InternalResponseCode();
-			internalResponseCode.setCreatedDate(getItemDate(rs.getString("DateCreated"), BluefinWebPortalConstants.FULLDATEFORMAT));
+			internalResponseCode.setDateCreated(getItemDate(rs.getString("DateCreated"), BluefinWebPortalConstants.FULLDATEFORMAT));
 			internalResponseCode.setInternalResponseCodeValue(rs.getString("InternalResponseCode"));
 			internalResponseCode.setInternalResponseCodeDescription(rs.getString("InternalResponseCodeDescription"));
 			internalResponseCode.setInternalResponseCodeId(rs.getLong("InternalResponseCodeID"));
 			internalResponseCode.setLastModifiedBy(rs.getString("ModifiedBy"));
-			internalResponseCode.setModifiedDate(getItemDate(rs.getString("DatedModified"), BluefinWebPortalConstants.FULLDATEFORMAT));
+			internalResponseCode.setDateModified(getItemDate(rs.getString("DatedModified"), BluefinWebPortalConstants.FULLDATEFORMAT));
 			internalResponseCode.setTransactionTypeName(rs.getString("TransactionType"));
 		    		
 			
@@ -192,7 +192,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	public InternalResponseCode update(InternalResponseCode internalResponseCode) {
 
 		LOGGER.info("Updating Internal Response Code##");
-		DateTime utc4 = internalResponseCode.getModifiedDate() != null ? internalResponseCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
+		DateTime utc4 = internalResponseCode.getDateModified() != null ? internalResponseCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 
@@ -200,9 +200,9 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 					new Object[] { 	internalResponseCode.getInternalResponseCodeValue(), internalResponseCode.getInternalResponseCodeDescription(), internalResponseCode.getLastModifiedBy(), 
 							internalResponseCode.getTransactionTypeName(), dateModified, internalResponseCode.getInternalResponseCodeId() });
 
-		LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Updated InternalStatusCode with ID: " + internalResponseCode.getInternalResponseCodeId() + ", rows affected = " + rows);
+		LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Updated InternalStatusCode with ID: {}", internalResponseCode.getInternalResponseCodeId() + ", rows affected = " + rows);
 		if (internalResponseCode.getPaymentProcessorInternalResponseCodes() != null && !internalResponseCode.getPaymentProcessorInternalResponseCodes().isEmpty()) {
-			LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Number of childs items to update {}"+internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
+			LOGGER.debug("InternalResponseCodeDAOImpl :: update() : Number of childs items to update {}",internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
 			// in this case we need to create child items also.
 			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()) {
 				paymentProcessorInternalResponseCode.setInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId());
@@ -230,10 +230,10 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public InternalResponseCode findOneWithChilds(Long internalResponseCodeId) {
 		InternalResponseCode internalStatusCode = findOne(internalResponseCodeId);
-		LOGGER.debug("InternalResponseCodeDAOImpl :: findOneWithChilds() : internalStatusCode  : "+internalStatusCode);
+		LOGGER.debug("InternalResponseCodeDAOImpl :: findOneWithChilds() : internalStatusCode  : {}",internalStatusCode);
 		if (internalStatusCode != null){
 			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeList = paymentProcessorInternalResponseCodeDAO.paymentProcessorInternalResponseCodeId(internalResponseCodeId);
-			LOGGER.debug("InternalResponseCodeDAOImpl :: findOneWithChilds() : paymentProcessorInternalResponseCodeList size : "+paymentProcessorInternalResponseCodeList.size());
+			LOGGER.debug("InternalResponseCodeDAOImpl :: findOneWithChilds() : paymentProcessorInternalResponseCodeList size : {}",paymentProcessorInternalResponseCodeList.size());
 			for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : paymentProcessorInternalResponseCodeList) {
 				PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId());
 				paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);

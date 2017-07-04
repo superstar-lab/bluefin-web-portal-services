@@ -123,23 +123,25 @@ public class TokenUtils {
 	private Date generateExpirationDate(TokenType type) {
 		switch (type) {
 		case AUTHENTICATION:
-			return new Date(System.currentTimeMillis()
-					+ getValueAsInt("AUTHENTICATION_TOKEN_EXPIRATION"));
+			return getDate("AUTHENTICATION_TOKEN_EXPIRATION",1);
 		case FORGOT_PASSWORD:
-			return new Date(System.currentTimeMillis()
-					+ getValueAsInt("RESET_PASSWORD_TOKEN_EXPIRATION"));
+			return getDate("RESET_PASSWORD_TOKEN_EXPIRATION",1);
 		case REGISTER_USER:
-			return new Date(System.currentTimeMillis()
-					+ getValueAsInt("REGISTER_USER_TOKEN_EXPIRATION"));
+			return getDate("REGISTER_USER_TOKEN_EXPIRATION",1);
 		case APPLICATION:
-			return new Date(System.currentTimeMillis()
-					+ getValueAsLong("APPLICATION_TOKEN_EXPIRATION"));
+			return getDate("APPLICATION_TOKEN_EXPIRATION",0);
 		case TRANSACTION:
-			return new Date(System.currentTimeMillis()
-					+ getValueAsLong("TOKEN_TRANSACTION_EXPIRATION"));			
+			return getDate("TOKEN_TRANSACTION_EXPIRATION",0);			
 		default:
-			return new Date(System.currentTimeMillis()
-					+ getValueAsInt("TOKEN_EXPIRATION"));
+			return getDate("TOKEN_EXPIRATION",1);
+		}
+	}
+	
+	private Date getDate(String prpName,int type){
+		if (type == 1) {
+			return new Date(System.currentTimeMillis() + getValueAsInt(prpName) );
+		} else {
+			return new Date(System.currentTimeMillis() + getValueAsLong(prpName) );
 		}
 	}
 	

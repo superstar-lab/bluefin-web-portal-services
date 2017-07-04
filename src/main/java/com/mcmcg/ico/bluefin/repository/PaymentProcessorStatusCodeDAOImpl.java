@@ -113,8 +113,8 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	public PaymentProcessorStatusCode save(PaymentProcessorStatusCode paymentProcessorStatusCode) {
 		KeyHolder holder = new GeneratedKeyHolder();
 
-		DateTime utc1 = paymentProcessorStatusCode.getCreatedDate() != null ? paymentProcessorStatusCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-		DateTime utc2 =  paymentProcessorStatusCode.getModifiedDate() != null ? paymentProcessorStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc1 = paymentProcessorStatusCode.getDateCreated() != null ? paymentProcessorStatusCode.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc2 =  paymentProcessorStatusCode.getDateModified() != null ? paymentProcessorStatusCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
@@ -141,7 +141,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 	@Override
 	public PaymentProcessorStatusCode update(PaymentProcessorStatusCode paymentProcessorStatusCode) {
-		DateTime utc1 =  paymentProcessorStatusCode.getModifiedDate() != null ? paymentProcessorStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc1 =  paymentProcessorStatusCode.getDateModified() != null ? paymentProcessorStatusCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
@@ -168,8 +168,8 @@ class PaymentProcessorStatusCodeRowMapper implements RowMapper<com.mcmcg.ico.blu
 		PaymentProcessor paymentProcessor = new PaymentProcessor();
 		paymentProcessor.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
 		paymentProcessorStatusCode.setPaymentProcessor(paymentProcessor);
-		paymentProcessorStatusCode.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
-		paymentProcessorStatusCode.setModifiedDate(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		paymentProcessorStatusCode.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+		paymentProcessorStatusCode.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
 		paymentProcessorStatusCode.setLastModifiedBy(rs.getString("ModifiedBy"));
 
 		return paymentProcessorStatusCode;

@@ -100,8 +100,8 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	public PaymentProcessorResponseCode save(PaymentProcessorResponseCode paymentProcessorResponseCode) {
 		KeyHolder holder = new GeneratedKeyHolder();
 
-		DateTime utc1 = paymentProcessorResponseCode.getCreatedDate() != null ? paymentProcessorResponseCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-		DateTime utc2 =  paymentProcessorResponseCode.getModifiedDate() != null ? paymentProcessorResponseCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc1 = paymentProcessorResponseCode.getDateCreated() != null ? paymentProcessorResponseCode.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc2 =  paymentProcessorResponseCode.getDateModified() != null ? paymentProcessorResponseCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
@@ -144,7 +144,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 
 	@Override
 	public PaymentProcessorResponseCode update(PaymentProcessorResponseCode paymentProcessorResponseCode) {
-		DateTime utc1 =  paymentProcessorResponseCode.getModifiedDate() != null ? paymentProcessorResponseCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc1 =  paymentProcessorResponseCode.getDateModified() != null ? paymentProcessorResponseCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
@@ -176,12 +176,12 @@ class PaymentProcessorResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.b
 		paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
 		if(rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
-			paymentProcessorResponseCode.setCreatedDate(new DateTime(ts));
+			paymentProcessorResponseCode.setDateCreated(new DateTime(ts));
 		}
 		
 		if(rs.getString("DatedModified") != null) {
 			ts = Timestamp.valueOf(rs.getString("DatedModified"));
-			paymentProcessorResponseCode.setModifiedDate(new DateTime(ts));
+			paymentProcessorResponseCode.setDateModified(new DateTime(ts));
 		}
 		
 		paymentProcessorResponseCode.setLastModifiedBy(rs.getString("ModifiedBy"));

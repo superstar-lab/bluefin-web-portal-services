@@ -16,6 +16,9 @@ import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserRole;
 
+import lombok.Data;
+
+@Data
 public class UserResource implements Serializable {
 
 	private static final long serialVersionUID = 2895903899201191359L;
@@ -89,68 +92,5 @@ public class UserResource implements Serializable {
 
 		return user;
 	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Set<Role> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(Set<Role> roles) {
-		this.roles = roles;
-	}
-
-	public Set<LegalEntityApp> getLegalEntityApps() {
-		return legalEntityApps;
-	}
-
-	public void setLegalEntityApps(Set<LegalEntityApp> legalEntityApps) {
-		this.legalEntityApps = legalEntityApps;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public String getSelectedTimeZone() {
-		return selectedTimeZone;
-	}
-
-	public void setSelectedTimeZone(String selectedTimeZone) {
-		this.selectedTimeZone = selectedTimeZone;
-	}
+	
 }

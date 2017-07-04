@@ -279,11 +279,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
 			break;
 		case "all":
-			querySb.append(getSelectForSaleTransaction(search,dynamicParametersMap));
-			querySb.append(" UNION ");
-			querySb.append(getSelectForVoidTransaction(search,dynamicParametersMap));
-			querySb.append(" UNION ");
-			querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
+			prepareQueryForAllType(querySb,search,dynamicParametersMap);
 			break;
 		case "sale":
 		case "tokenize":
@@ -294,6 +290,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySb.append(" ) RESULTINFO ");
 
 		return querySb.toString();
+	}
+	
+	private void prepareQueryForAllType(StringBuilder querySb,String search,HashMap<String, String> dynamicParametersMap){
+		querySb.append(getSelectForSaleTransaction(search,dynamicParametersMap));
+		querySb.append(BluefinWebPortalConstants.UNION);
+		querySb.append(getSelectForVoidTransaction(search,dynamicParametersMap));
+		querySb.append(BluefinWebPortalConstants.UNION);
+		querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
 	}
 	
 	/**

@@ -3,46 +3,27 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Collection;
 
-import org.joda.time.DateTime;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
 @Data
-public class PaymentProcessorStatusCode implements Serializable {
+public class PaymentProcessorStatusCode extends Common implements Serializable {
 
     private static final long serialVersionUID = -4612223418828597035L;
 
     private Long paymentProcessorStatusCodeId;
     @JsonProperty("paymentProcessorStatusCode")
     private String paymentProcessorStatusCodeValue;
-
     private String paymentProcessorStatusCodeDescription;
-
     @JsonIgnore
     private Collection<PaymentProcessorInternalStatusCode> internalStatusCode;
-
     @JsonIgnore
     private PaymentProcessor paymentProcessor;
-
     @JsonIgnore
     private String lastModifiedBy;
-
-    @JsonIgnore
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private DateTime modifiedDate;
-
     private String transactionTypeName;
-
-    @JsonIgnore
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private DateTime createdDate;
 
     @JsonProperty("processorId")
     public Long getProcessorId() {
