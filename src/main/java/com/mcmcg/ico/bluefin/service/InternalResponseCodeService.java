@@ -88,6 +88,23 @@ public class InternalResponseCodeService {
 		return internalResponseCode;
 	}
 	
+	private PaymentProcessorResponseCode createOrUpdatePaymentProcessorResponseCode(PaymentProcessorResponseCode paymentProcessorResponseCode,InternalCodeResource internalResponseCodeResource,String code,boolean codeModified){
+		PaymentProcessorResponseCode paymentProcessorResponseCodeObj;
+		if (paymentProcessorResponseCode == null) {
+			LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new payment processor response code {}", code);
+			paymentProcessorResponseCodeObj = new PaymentProcessorResponseCode();
+		} else {
+			Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
+					.getInternalResponseCode();
+			LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
+			for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
+				validatePaymentProcessorResponseCode(currentPaymentProcessorInternalResponseCode,internalResponseCodeResource,codeModified);
+			}
+			paymentProcessorResponseCodeObj = paymentProcessorResponseCode;
+		}
+		return paymentProcessorResponseCodeObj;
+	}
+	
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode createInternalResponseCodes(InternalCodeResource internalResponseCodeResource,String userName) {
 
 		// Get transactionType if null thrown an exception
@@ -130,17 +147,7 @@ public class InternalResponseCodeService {
 				}
 				
 				LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
-				if (paymentProcessorResponseCode == null) {
-					LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new payment processor response code {}", resourceProcessorCode.getCode());
-					paymentProcessorResponseCode = new PaymentProcessorResponseCode();
-				} else {
-					Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
-							.getInternalResponseCode();
-					LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
-					for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
-						validatePaymentProcessorResponseCode(currentPaymentProcessorInternalResponseCode,internalResponseCodeResource,codeModified);
-					}
-				}
+				createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode,internalResponseCodeResource,resourceProcessorCode.getCode(),codeModified);
 
 				paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
 				paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
