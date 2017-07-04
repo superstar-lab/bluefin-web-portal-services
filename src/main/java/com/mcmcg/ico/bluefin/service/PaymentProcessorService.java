@@ -388,9 +388,8 @@ public class PaymentProcessorService {
 		com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = paymentProcessorDAO
 				.findByPaymentProcessorId(id);
 
-		if (paymentProcessor == null) {
-			throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
-		}
+		validatePaymentProcessor(paymentProcessor,id);
+		
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
 				.findPaymentProccessorRulByProcessorId(paymentProcessor.getPaymentProcessorId());
 		LOGGER.debug("PaymentProcessorRules size : {}",paymentProcessorRules.size());
@@ -427,6 +426,18 @@ public class PaymentProcessorService {
 		paymentProcessorStatusResource.setHasResponseCodesAssociated(hasResponseCodesAssociated);
 		paymentProcessorStatusResource.setHasStatusCodesAssociated(hasStatusCodesAssociated);
 
+		updatePaymentProcessor(paymentProcessor,paymentProcessorStatusResource);
+
+		return paymentProcessorStatusResource;
+	}
+	
+	private void validatePaymentProcessor(PaymentProcessor paymentProcessor,long id){
+		if (paymentProcessor == null) {
+			throw new CustomNotFoundException(String.format("Unable to find payment processor with id = [%s]", id));
+		}
+	}
+	
+	private void updatePaymentProcessor(PaymentProcessor paymentProcessor,PaymentProcessorStatusResource paymentProcessorStatusResource){
 		if (paymentProcessor.getIsActive() == 1 ) {
 			boolean type1 = paymentProcessorStatusResource.getHasPaymentProcessorName().getCompleted()
 					&& paymentProcessorStatusResource.getHasSameDayProcessing().getCompleted()
@@ -440,8 +451,6 @@ public class PaymentProcessorService {
 					paymentProcessorDAO.update(paymentProcessor);
 				}
 		}
-
-		return paymentProcessorStatusResource;
 	}
 
 	private boolean hasCodesAssociated(List<ItemStatusCodeResource> statusCodeItems) {

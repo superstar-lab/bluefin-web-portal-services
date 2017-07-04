@@ -127,10 +127,7 @@ public class TransactionService {
 		if (ppr == null) {
 			ppr = new PaymentProcessorRemittance();
 		}
-		SaleTransaction st = saleTransactionDAO.findByProcessorTransactionId(transactionId);
-		if (st == null) {
-			st = new SaleTransaction();
-		}
+		saleTransactionDAO.findByProcessorTransactionId(transactionId);
 
 		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
 		paymentProcessorRemittance.setPaymentProcessorRemittanceId(ppr.getPaymentProcessorRemittanceId());
@@ -157,7 +154,7 @@ public class TransactionService {
 
 		result = paymentProcessorRemittance;
 
-		LOGGER.debug("TransactionService :: getRemittanceSaleResult() : result : "+result);
+		LOGGER.debug("Result : {}",result);
 		return result;
 	}
 
@@ -428,9 +425,7 @@ public class TransactionService {
 
 		// Transaction Type
 		String transactionType = transaction.getSaleTransaction().getTransactionType();
-		if (transactionType == null) {
-			transactionType = transaction.getPaymentProcessorRemittance().getTransactionType();
-		}
+		getTransactionType(transactionType,transaction);
 		transactionDataRecord.add(transactionType);
 
 		// Bluefin information section
@@ -493,5 +488,15 @@ public class TransactionService {
 		// Application
 		transactionDataRecord.add(transaction.getPaymentProcessorRemittance().getApplication());
 		return transactionDataRecord;
+	}
+	
+	private String getTransactionType(String transactionType,RemittanceSale transaction){
+		String transactionTypeVal;
+		if (transactionType == null) {
+			transactionTypeVal = transaction.getPaymentProcessorRemittance().getTransactionType();
+		} else {
+			transactionTypeVal = transactionType;
+		}
+		return transactionType;
 	}
 }

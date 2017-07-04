@@ -517,36 +517,40 @@ public class UserService {
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
 			final String token) {
 		String usernameVal = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
-		LOGGER.debug("UserService :: updateUserPassword() : username : "+usernameVal);
+		LOGGER.debug("Username : {}",usernameVal);
 		String tokenType = tokenUtils.getTypeFromToken(token);
-		LOGGER.debug("UserService :: updateUserPassword() : tokenType : "+tokenType);
+		LOGGER.debug("TokenType : {}",tokenType);
 		if (usernameVal == null || tokenType == null) {
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
 
 		User userToUpdate = getUser(usernameVal);
-		LOGGER.debug("UserService :: updateUserPassword() : userToUpdate : "+userToUpdate.getUserId());
+		LOGGER.debug("UserToUpdate : {} ",userToUpdate.getUserId());
 
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
-		if (tokenType.equals(TokenType.REGISTER_USER.name())) {
-			userToUpdate.setStatus("ACTIVE");
-		}
-		if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus() == "NEW") {
-			userToUpdate.setStatus("ACTIVE");
-		}
+		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		userToUpdate.setLegalEntities(Collections.emptyList());
-		LOGGER.info("UserService :: updateUserPassword() : ready to update user : ");
+		LOGGER.info("Ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
-		LOGGER.info("UserService :: updateUserPassword() : ready to find user by id: ");
+		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
+	}
+	
+	private void setStatus(String tokenType,User userToUpdate){
+		if (tokenType.equals(TokenType.REGISTER_USER.name())) {
+			userToUpdate.setStatus("ACTIVE");
+		}
+		if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus() == "NEW") {
+			userToUpdate.setStatus("ACTIVE");
+		}
 	}
 
 	public void userActivation(ActivationResource activationResource) {

@@ -597,6 +597,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (validateLegalEntityOrBatchUploadOrTransactionType(attribute, prefix)) {
 			return true;
 		}
+		return validateOtherCases(attribute, prefix);
+	}
+	
+	private boolean validateOtherCases(String attribute, String prefix){
 		if (BluefinWebPortalConstants.REFUND.equals(prefix) || "VOID".equals(prefix)) {
 			if (refundOrVoidTypeAttributesFilterNames.contains(attribute)) {
 				return true;
@@ -607,7 +611,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			// transaction
 			return true;
 		}
-
 		return false;
 	}
 		
