@@ -336,6 +336,37 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return querySb.toString();
 	}
 	
+	private boolean shouldContinue(String attribute,String prefix){
+		return validateAndSkipFilter(attribute,prefix) || isRemitanceCreattionDateFilterAllow(attribute,prefix);
+	}
+	
+	private boolean validateAndSkipFilter(String attribute,String prefix){
+		return !BluefinWebPortalConstants.MAINSALE.equalsIgnoreCase(prefix) && skipFilter(attribute, prefix);
+	}
+	
+	private boolean isRemitanceCreattionDateFilterAllow(String attribute,String prefix){
+		return  ( BluefinWebPortalConstants.MAINSALE.equals(prefix) || BluefinWebPortalConstants.SALEINNERVOID.equals(prefix) || BluefinWebPortalConstants.SALEINNERREFUND.equals(prefix) ) && (BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)) ;
+	}
+	
+	private boolean isProcessUser(String attribute,String prefix){
+		return "processUser".equalsIgnoreCase(attribute)
+				&& (BluefinWebPortalConstants.REFUND.equalsIgnoreCase(prefix) || "VOID".equalsIgnoreCase(prefix));
+	}
+	
+	private boolean isAttributeInBetweenTransactionDateTimeOrAmountOrRemittanceCreationDate(String attribute){
+		return BluefinWebPortalConstants.TRANSACTIONDATETIME.equalsIgnoreCase(attribute) || BluefinWebPortalConstants.AMOUNT.equalsIgnoreCase(attribute)
+		|| BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute);
+	}
+	
+	private boolean isPrefixAsSale(String prefix){
+		boolean type1 = BluefinWebPortalConstants.MAINSALE.equals(prefix) || BluefinWebPortalConstants.REFUND.equals(prefix) || "VOID".equals(prefix);
+		boolean type2 = type1 || BluefinWebPortalConstants.SALEINNERVOID.equals(prefix) || BluefinWebPortalConstants.SALEINNERREFUND.equals(prefix);
+		return type1 || type2;
+	}
+	
+	private boolean isPrefixAndAttributeAsProcessor(String attribute,String prefix){
+		return "ppr".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute);
+	}
 	/**
 	 * Creates the WHERE element in the select, it will verify each element in
 	 * the search string. Specials cases are taken into account, like
@@ -350,7 +381,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.debug("Creating where statement");
 		StringJoiner statement = new StringJoiner(" AND ");
 
-		if (search != null && !search.isEmpty()) {
+		if (StringUtils.isNotEmpty(search)) {
 			Pattern pattern = Pattern.compile(QueryUtil.SEARCH_REGEX);
 			Matcher matcher = pattern.matcher(search + QueryUtil.SEARCH_DELIMITER_CHAR);
 
@@ -361,24 +392,16 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				String attributeParam = attribute + BluefinWebPortalConstants.PARAM1;
 				String predicate = getPropertyPredicate(attribute);
 
-				if (!BluefinWebPortalConstants.MAINSALE.equalsIgnoreCase(prefix) && skipFilter(attribute, prefix)) {
-					continue;
-				}
-
-				// For payment processor remittance, remittanceCreationDate is
-				// not a filter, for these prefixes.
-				if ( ( BluefinWebPortalConstants.MAINSALE.equals(prefix) || BluefinWebPortalConstants.SALEINNERVOID.equals(prefix) || BluefinWebPortalConstants.SALEINNERREFUND.equals(prefix) ) && (BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)) ) {
+				if (shouldContinue(attribute,prefix)) {
 					continue;
 				}
 
 				// Special scenarios, be careful when you change this
-				if ("processUser".equalsIgnoreCase(attribute)
-						&& (BluefinWebPortalConstants.REFUND.equalsIgnoreCase(prefix) || "VOID".equalsIgnoreCase(prefix))) {
+				if (isProcessUser(attribute,prefix)) {
 					// Special case for pUser in VOID and REFUND tables
 					predicate = getPropertyPredicate("pUser");
 					attributeParam = "pUserParam1";
-				} else if (BluefinWebPortalConstants.TRANSACTIONDATETIME.equalsIgnoreCase(attribute) || BluefinWebPortalConstants.AMOUNT.equalsIgnoreCase(attribute)
-						|| BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL.equalsIgnoreCase(attribute)) {
+				} else if (isAttributeInBetweenTransactionDateTimeOrAmountOrRemittanceCreationDate(attribute)) {
 					// Specific cases for transactionDateTime, amount
 					predicate = predicate.replace(":atributeOperator", getOperation(operator));
 					if (dynamicParametersMap.containsKey(attribute + BluefinWebPortalConstants.PARAM1)) {
@@ -386,9 +409,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 						predicate = predicate.replace(attribute + BluefinWebPortalConstants.PARAM1, attributeParam);
 					}
 				} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(attribute)) {
-					boolean type1 = BluefinWebPortalConstants.MAINSALE.equals(prefix) || BluefinWebPortalConstants.REFUND.equals(prefix) || "VOID".equals(prefix);
-					boolean type2 = type1 || BluefinWebPortalConstants.SALEINNERVOID.equals(prefix) || BluefinWebPortalConstants.SALEINNERREFUND.equals(prefix);
-					if (type1 || type2) {
+					if (isPrefixAsSale(prefix)) {
 						// Processor name, not ID, is used in sale, refund, and
 						// void tables.
 						attributeParam = attributeParam.replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME);
@@ -402,7 +423,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					// is NOT 'Recurring' then we need to search by all the
 					// values except 'Recurring'
 					value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
-				} else if ("ppr".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute)) {
+				} else if (isPrefixAndAttributeAsProcessor(attribute,prefix)) {
 					PaymentProcessor paymentProcessor = paymentProcessorDAO.getPaymentProcessorByProcessorName(value);
 					Long paymentProcessorId = paymentProcessor != null ? paymentProcessor.getPaymentProcessorId() : null;
 					value = String.valueOf(paymentProcessorId);
@@ -412,6 +433,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				dynamicParametersMap.put(attributeParam, value);
 			}
 		}
+		return prepareStatementWithWhere(statement);
+	}
+	
+	private String prepareStatementWithWhere(StringJoiner statement){
 		return statement.length() == 0 ? "" : " WHERE " + statement.toString();
 	}
 	

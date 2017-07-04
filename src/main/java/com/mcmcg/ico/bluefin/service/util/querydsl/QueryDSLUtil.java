@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
@@ -19,8 +17,6 @@ import com.mysema.query.types.path.PathBuilder;
 import com.mysema.query.types.path.StringPath;
 
 public class QueryDSLUtil {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(QueryDSLUtil.class);
 
     private QueryDSLUtil() {
 		// default constructor
@@ -98,16 +94,4 @@ public class QueryDSLUtil {
                 .or(pathProcessorTransactionId.containsIgnoreCase(value));
     }
 
-    /**
-     * Creates a list that with the LE that are given in the search criteria. It
-     * takes the search criteria and pulls out the parameter with the LE and
-     * split it into a list to be analyzed with the own legal entities of the
-     * consultant user
-     * 
-     * @param value
-     * @return return a list of strings
-     */
-    private static List<String> getLEListFilterValue(String value) {
-        return QueryUtil.getLEListFilterValue(value);
-    }
 }
