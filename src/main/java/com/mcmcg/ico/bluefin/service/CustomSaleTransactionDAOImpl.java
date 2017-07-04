@@ -408,15 +408,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 						attributeParam = attribute + "Param2";
 						predicate = predicate.replace(attribute + BluefinWebPortalConstants.PARAM1, attributeParam);
 					}
-				} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(attribute)) {
-					if (isPrefixAsSale(prefix)) {
+				} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(attribute) && isPrefixAsSale(prefix)) {
 						// Processor name, not ID, is used in sale, refund, and
 						// void tables.
 						attributeParam = attributeParam.replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME);
 						value = getPaymentProcessorName(value);
 						predicate = predicate.replace(BluefinWebPortalConstants.PAYMENTPROCESSORIDVAL, "Processor");
 						predicate = predicate.replace(attribute, BluefinWebPortalConstants.PROCESSORNAME);
-					}
 				} else if (BluefinWebPortalConstants.PAYMENTFREQUENCY.equalsIgnoreCase(attribute)) {
 					// Specific case for paymentFrequency, when paymentFrequency
 					// is NOT 'Recurring' then we need to search by all the
