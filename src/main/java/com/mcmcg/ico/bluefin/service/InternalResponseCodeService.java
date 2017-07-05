@@ -411,9 +411,9 @@ public class InternalResponseCodeService {
 		} else {
 			throw new CustomBadRequestException(
 					"Unable to save Payment Processor code with code or description empty.");
-
 		}
 	}
+	
 	private void addNewPaymentProcessorResponseCodes(InternalResponseCode internalResponseCode,Long internalResponseCodeIdToModify,List<PaymentProcessorResponseCode> newPaymentProcessorResponseCode){
 		for (com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode current : newPaymentProcessorResponseCode) {
 			com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode();
