@@ -346,38 +346,44 @@ public class InternalStatusCodeService {
 
 					LOGGER.debug("PaymentProcessorStatusCode value : {} ",paymentProcessorStatusCode);
 					paymentProcessorStatusCode = verifyUpdateChanges(paymentProcessor,paymentProcessorStatusCode,resourceProcessorCode,newPaymentProcessorStatusCode,internalStatusCode,transactionType.getTransactionTypeName(),codeModified);
-					if (paymentProcessorStatusCode != null) {
-						paymentProcessorStatusCode = createOrUpdatePaymentProcessorStatusCode(paymentProcessorStatusCode);
-						newMapOfPaymentProcessorStatusCodes.put(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),paymentProcessorStatusCode);
-					}
+					paymentProcessorStatusCode = createOrUpdatePaymentProcessorStatusCode(paymentProcessorStatusCode);
+					newMapOfPaymentProcessorStatusCodes.put(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),paymentProcessorStatusCode);
 				} else {
 					validateCodeOrDesription(resourceProcessorCode);
 				}
 			}
 
 			// Update information from current payment processor merchants
-			Iterator<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode> iter = internalStatusCode.getPaymentProcessorInternalStatusCodes().iterator();
-			while (iter.hasNext()) {
-				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode element = iter.next();
-				com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode ppmr = newMapOfPaymentProcessorStatusCodes.get(element.getPaymentProcessorStatusCodeId());
-				if (ppmr == null) {
-					paymentProcessorStatusCodeToDelete.add(element.getPaymentProcessorStatusCodeId());
-					iter.remove();
-				} else {
-					element.setPaymentProcessorStatusCodeId(ppmr.getPaymentProcessorStatusCodeId());
-				}
-			}
+			updatePaymentProcessorMerchants(internalStatusCode,newMapOfPaymentProcessorStatusCodes,paymentProcessorStatusCodeToDelete);
 			
 			LOGGER.debug("NewPaymentProcessorStatusCode size : {}",newPaymentProcessorStatusCode.size());
 			// Add the new payment processor Status codes
-			for (com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode current : newPaymentProcessorStatusCode) {
-				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode();
-				paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(current.getPaymentProcessorStatusCodeId());
-				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCodeIdToModify);
-				internalStatusCode.getPaymentProcessorInternalStatusCodes().add(paymentProcessorInternalStatusCode);
-			}
+			addNewPaymentProcessorStatusCodes(internalStatusCode,newPaymentProcessorStatusCode,internalStatusCodeIdToModify);
 		}
 		return internalStatusCodeDAO.update(internalStatusCode);
+	}
+	
+	private void addNewPaymentProcessorStatusCodes(InternalStatusCode internalStatusCode,List<PaymentProcessorStatusCode> newPaymentProcessorStatusCode,Long internalStatusCodeIdToModify){
+		for (PaymentProcessorStatusCode current : newPaymentProcessorStatusCode) {
+			PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
+			paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(current.getPaymentProcessorStatusCodeId());
+			paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCodeIdToModify);
+			internalStatusCode.getPaymentProcessorInternalStatusCodes().add(paymentProcessorInternalStatusCode);
+		}
+	}
+	
+	private void updatePaymentProcessorMerchants(InternalStatusCode internalStatusCode,Map<Long, PaymentProcessorStatusCode> newMapOfPaymentProcessorStatusCodes,Set<Long> paymentProcessorStatusCodeToDelete){
+		Iterator<PaymentProcessorInternalStatusCode> iter = internalStatusCode.getPaymentProcessorInternalStatusCodes().iterator();
+		while (iter.hasNext()) {
+			PaymentProcessorInternalStatusCode element = iter.next();
+			PaymentProcessorStatusCode ppmr = newMapOfPaymentProcessorStatusCodes.get(element.getPaymentProcessorStatusCodeId());
+			if (ppmr == null) {
+				paymentProcessorStatusCodeToDelete.add(element.getPaymentProcessorStatusCodeId());
+				iter.remove();
+			} else {
+				element.setPaymentProcessorStatusCodeId(ppmr.getPaymentProcessorStatusCodeId());
+			}
+		}
 	}
 
 	private PaymentProcessorStatusCode verifyUpdateChanges(PaymentProcessor paymentProcessor,PaymentProcessorStatusCode paymentProcessorStatusCode,PaymentProcessorCodeResource resourceProcessorCode,List<PaymentProcessorStatusCode> newPaymentProcessorStatusCode,InternalStatusCode internalStatusCode,String transactionTypeName,boolean codeModified){
