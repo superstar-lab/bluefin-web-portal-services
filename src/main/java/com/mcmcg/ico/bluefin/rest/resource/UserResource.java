@@ -5,10 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
@@ -19,31 +16,16 @@ import com.mcmcg.ico.bluefin.model.UserRole;
 import lombok.Data;
 
 @Data
-public class UserResource implements Serializable {
+public class UserResource extends CommonUserResource implements Serializable {
 
 	private static final long serialVersionUID = 2895903899201191359L;
-
-	@NotBlank(message = "Please provide a user name")
-	@Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field user name must be alphanumeric")
-	private String username;
-
-	@NotBlank(message = "Please provide a first name for the user")
-	@Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field first name must be alphanumeric")
-	private String firstName;
-
-	@NotBlank(message = "Please provide a last name for the user")
-	@Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field last name must be alphanumeric")
-	private String lastName;
-
-	@NotBlank(message = "Please provide an email address for the user")
-	private String email;
-
+	
 	@Size(min = 1, message = "Please provide a role for the user")
 	@NotNull(message = "Please provide a role for the user")
 	private Set<Role> roles;
-
-	@Size(min = 1, message = "Please provide a legal entity for the user")
-	@NotNull(message = "Please provide a legal entity for the user")
+	
+	@Size(min = 1, message = "Please provide legal entity for the user")
+	@NotNull(message = "Please provide legal entity for the user")
 	private Set<LegalEntityApp> legalEntityApps;
 	
 	private String selectedTimeZone;
@@ -55,26 +37,26 @@ public class UserResource implements Serializable {
 	}
 
 	public UserResource(User user) {
-		this.username = user.getUsername();
-		this.firstName = user.getFirstName();
-		this.lastName = user.getLastName();
-		this.status = user.getStatus();
-		this.email = user.getEmail();
-		this.selectedTimeZone = user.getSelectedTimeZone();
-		roles = new HashSet<>();
+		this.setUsername(user.getUsername());
+		this.setFirstName(user.getFirstName());
+		this.setLastName(user.getLastName());
+		this.setStatus(user.getStatus());
+		this.setEmail(user.getEmail());
+		this.setSelectedTimeZone(user.getSelectedTimeZone());
+		this.setRoles(new HashSet<>());
 		if(user.getRoles() != null) {
 			for (UserRole role : user.getRoles()) {
 				Role roleObj = new Role();
 				roleObj.setRoleId(role.getRoleId());
-				this.roles.add(roleObj);
+				this.getRoles().add(roleObj);
 			}
 		}
-		legalEntityApps = new HashSet<>();
+		this.setLegalEntityApps(new HashSet<>());
 		if (user.getLegalEntities() != null) {
 			for (UserLegalEntityApp legalEntity : user.getLegalEntities()) {
 				LegalEntityApp userLegal = new LegalEntityApp();
 				userLegal.setLegalEntityAppId(legalEntity.getLegalEntityAppId());
-				this.legalEntityApps.add(userLegal);
+				this.getLegalEntityApps().add(userLegal);
 			}
 		}
 	}
@@ -82,11 +64,11 @@ public class UserResource implements Serializable {
 	public User toUser(Set<UserRole> roles, Set<UserLegalEntityApp> entities) {
 		User user = new User();
 
-		user.setUsername(username);
-		user.setFirstName(firstName);
-		user.setLastName(lastName);
-		user.setEmail(email);
-		user.setStatus(status);
+		user.setUsername(this.getUsername());
+		user.setFirstName(this.getFirstName());
+		user.setLastName(this.getLastName());
+		user.setEmail(this.getEmail());
+		user.setStatus(this.getStatus());
 		user.setRoles(roles);
 		user.setLegalEntities(entities);
 
