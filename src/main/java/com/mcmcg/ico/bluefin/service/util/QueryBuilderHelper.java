@@ -44,23 +44,57 @@ public class QueryBuilderHelper {
 	
 	private static String clauseAppender(Map<String,String> filterMap){
 		StringBuilder bf2 = new StringBuilder();
-		if(isValidFilter(filterMap,"legalEntities"))
-			appendQuery(bf2," AND ule.LegalEntityAppID=:legalEntities");
-		if(isValidFilter(filterMap,"roles"))
-			appendQuery(bf2," AND ur.RoleID=:roles ");
-		if(isValidFilter(filterMap,"username"))
-			appendQuery(bf2," AND userName like :username");		
-		if(isValidFilter(filterMap,"lastName"))
-			appendQuery(bf2," AND  lastName like :lastName ");
-		if(isValidFilter(filterMap,"firstName"))
-			appendQuery(bf2," AND  firstName like :firstName ");
-		if(isValidFilter(filterMap,"email"))
-			appendQuery(bf2," AND  email like :email ");
-		if(isValidFilter(filterMap,"status"))
-			appendQuery(bf2," AND  status like :status ");
-		
+		processLegalEntities(bf2,filterMap);
+		processRoles(bf2,filterMap);
+		processUserName(bf2,filterMap);
+		processLastName(bf2,filterMap);
+		processFirstName(bf2,filterMap);
+		processEmail(bf2,filterMap);
+		processStatus(bf2,filterMap);
 		bf2.replace(0, 4, " ");
 		return bf2.toString();
+	}
+	
+	private static void processLegalEntities(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"legalEntities")) {
+			appendQuery(bf2," AND ule.LegalEntityAppID=:legalEntities");
+		}
+	}
+	
+	private static void processRoles(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"roles")) {
+			appendQuery(bf2," AND ur.RoleID=:roles ");
+		}
+	}
+	
+	private static void processUserName(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"username")) {
+			appendQuery(bf2," AND userName like :username");
+		}	
+	}
+	
+	private static void processLastName(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"lastName")) {
+			appendQuery(bf2," AND  lastName like :lastName ");
+		}	
+	}
+	
+	private static void processFirstName(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"firstName")) {
+			appendQuery(bf2," AND  firstName like :firstName ");
+		}
+	}
+	
+	private static void processEmail(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"email")) {
+			appendQuery(bf2," AND  email like :email ");
+		}
+	}
+	
+	private static void processStatus(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"status")) {
+			appendQuery(bf2," AND  status like :status ");
+		}
 	}
 	
 	private static void appendQuery(StringBuilder bf2,String query){
