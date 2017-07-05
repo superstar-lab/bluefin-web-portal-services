@@ -26,11 +26,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public SecurityUser loadUserByUsername(String username) {
 		LOGGER.info("Entering UserDetailsServiceImpl :: loadUserByUsername()");
 		User user = this.userDAO.findByUsername(username);
-		LOGGER.debug("Uuser is : {}",user);
+		LOGGER.debug("User is : {}",user);
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} else {
-			LOGGER.info("Exit UserDetailsServiceImpl%%%%%%%%%%%%%%%%DHEERAJ :: loadUserByUsername() : user found");
+			LOGGER.info("Exit UserDetailsServiceImpl :: loadUserByUsername() : user found");
 			return securityUserFactory.create(user);
 		}
 	}
