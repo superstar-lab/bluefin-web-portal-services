@@ -122,13 +122,8 @@ public class InternalStatusCodeService {
 			Collection<PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
 					.getInternalStatusCode();
 			if ( currentPaymentProcessorInternalStatusCodes != null ) {
-				for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
-					if (currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode() != null 
-							&& !StringUtils.equals(currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeValue(),internalStatusCodeResource.getCode())
-							&& !codeModified) {
-						throw new CustomBadRequestException(
-							"This Payment Processor is already assingned to another Internal Status Code.");
-					}
+				for (PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode : currentPaymentProcessorInternalStatusCodes) {
+					validateStatusCodeChange(currentPaymentProcessorInternalStatusCode,internalStatusCodeResource,codeModified);
 				}
 			}
 			paymentProcessorStatusCodeObj = paymentProcessorStatusCode;
@@ -136,6 +131,14 @@ public class InternalStatusCodeService {
 		return paymentProcessorStatusCodeObj;
 	}
 	
+	private void validateStatusCodeChange(PaymentProcessorInternalStatusCode currentPaymentProcessorInternalStatusCode,InternalCodeResource internalStatusCodeResource,boolean codeModified){
+		if (currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode() != null 
+				&& !StringUtils.equals(currentPaymentProcessorInternalStatusCode.getPaymentProcessorStatusCode().getPaymentProcessorStatusCodeValue(),internalStatusCodeResource.getCode())
+				&& !codeModified) {
+			throw new CustomBadRequestException(
+				"This Payment Processor is already assingned to another Internal Status Code.");
+		}
+	}
 	private void validatePaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(PaymentProcessor paymentProcessor,String code,String transactionTypeName){
 		if (paymentProcessorStatusCodeDAO
 				.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
@@ -143,6 +146,14 @@ public class InternalStatusCodeService {
 						paymentProcessor) != null) {
 			throw new CustomBadRequestException("The code " + code + " is already used by other Payment Processor Status Code.");
 		}
+	}
+	
+	private boolean isCodeModifiedCreateCase(PaymentProcessor paymentProcessor,PaymentProcessorStatusCode paymentProcessorStatusCode,PaymentProcessorCodeResource resourceProcessorCode,String transactionTypeName){
+		if (!paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue().equals(resourceProcessorCode.getCode())) {
+			validatePaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(paymentProcessor,resourceProcessorCode.getCode(), transactionTypeName);
+			return true;
+		}
+		return false;
 	}
 	
 	public InternalStatusCode createInternalStatusCodes(InternalCodeResource internalStatusCodeResource,String currentLoginUserName) {
@@ -174,13 +185,9 @@ public class InternalStatusCodeService {
 									paymentProcessor);
 				} else {
 					Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-					paymentProcessorStatusCode = paymentProcessorStatusCodeDAO.findOne(paymentProcessorCodeId);
-					if (paymentProcessorStatusCode == null) {
-						throw new CustomNotFoundException("Payment Processor Status Code does not exist: " + paymentProcessorCodeId);
-					} else if (!paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue().equals(resourceProcessorCode.getCode())) {
-						codeModified = true;
-						validatePaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(paymentProcessor,resourceProcessorCode.getCode(), transactionType.getTransactionTypeName());
-					}
+					paymentProcessorStatusCode = validatePaymentProcessorStatusCode(paymentProcessorCodeId);
+					
+					codeModified = isCodeModifiedCreateCase(paymentProcessor,paymentProcessorStatusCode,resourceProcessorCode,transactionType.getTransactionTypeName());
 				}
 				
 				LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : paymentProcessorStatusCode value : ", paymentProcessorStatusCode);
