@@ -21,27 +21,27 @@ public class RegisterUserResource implements Serializable {
 
 	private static final long serialVersionUID = 304759584210372543L;
 
-	@NotBlank(message = "Please provide a user name")
+	@NotBlank(message = "Please provide user name")
 	@Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field user name must be alphanumeric")
 	private String username;
 
-	@NotBlank(message = "Please provide a first name for the user")
+	@NotBlank(message = "Please provide first name for the user")
 	@Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field first name must be alphanumeric")
 	private String firstName;
 
-	@NotBlank(message = "Please provide a last name for the user")
+	@NotBlank(message = "Please provide last name for the user")
 	@Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field last name must be alphanumeric")
 	private String lastName;
 
-	@NotBlank(message = "Please provide an email address for the user")
+	@NotBlank(message = "Please provide email address for the user")
 	private String email;
 
-	@Size(min = 1, message = "Please provide a role for the user")
+	@Size(min = 1, message = "Please provide role for the user")
 	@NotNull(message = "Please provide a role for the user")
 	private Set<Long> roles;
 
-	@Size(min = 1, message = "Please provide a legal entity for the user")
-	@NotNull(message = "Please provide a legal entity for the user")
+	@Size(min = 1, message = "Please provide legal entity for the user")
+	@NotNull(message = "Please provide legal entity for the user")
 	private Set<Long> legalEntityApps;
 	
 	@NotBlank(message = "Please provide time zone")
