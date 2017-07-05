@@ -147,16 +147,8 @@ public class InternalResponseCodeService {
 									paymentProcessor);
 				} else {
 					Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-					paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
-							.findOne(paymentProcessorCodeId);
-					if (paymentProcessorResponseCode == null) {
-						throw new CustomNotFoundException(
-								"Payment Processor Response Code does not exist: " + paymentProcessorCodeId);
-					} else if (!resourceProcessorCode.getCode()
-							.equals(paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue())) {
-						codeModified = true;
-						validatePaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(paymentProcessor,resourceProcessorCode.getCode(),transactionType.getTransactionTypeName());
-					}
+					paymentProcessorResponseCode = validatePaymentProcessorResponseCode(paymentProcessorCodeId);
+					codeModified = isCodeModified(paymentProcessor,resourceProcessorCode.getCode(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue(),transactionType.getTransactionTypeName());
 				}
 				
 				LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
@@ -391,9 +383,7 @@ public class InternalResponseCodeService {
 							 newPaymentProcessorResponseCode,transactionType.getTransactionTypeName(), codeModified );
 					// update payment processor status code
 					paymentProcessorResponseCode = createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode);
-					if (paymentProcessorResponseCode != null) {
-						newMapOfPaymentProcessorResponseCodes.put(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),paymentProcessorResponseCode);
-					}
+					checkIfPutPaymentProcessorResponseCodeToUpdate(paymentProcessorResponseCode,newMapOfPaymentProcessorResponseCodes);
 				} else {
 					validateCodeOrDesription(resourceProcessorCode);
 				}
@@ -410,6 +400,11 @@ public class InternalResponseCodeService {
 		return internalResponseCodeDAO.update(internalResponseCode);
 	}
 
+	private void checkIfPutPaymentProcessorResponseCodeToUpdate(PaymentProcessorResponseCode paymentProcessorResponseCode,Map<Long, PaymentProcessorResponseCode> newMapOfPaymentProcessorResponseCodes){
+		if (paymentProcessorResponseCode != null) {
+			newMapOfPaymentProcessorResponseCodes.put(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),paymentProcessorResponseCode);
+		}
+	}
 	private void validateCodeOrDesription(PaymentProcessorCodeResource resourceProcessorCode){
 		if (resourceProcessorCode.getCode().isEmpty() && resourceProcessorCode.getDescription().isEmpty()) {
 			LOGGER.info("InternalResponseCodeService :: updateInternalResponseCode() : Removing payment processor code");
