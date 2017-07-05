@@ -48,6 +48,8 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
+import lombok.Data;
+
 @Repository
 public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
@@ -396,41 +398,63 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					continue;
 				}
 
-				// Special scenarios, be careful when you change this
-				if (isProcessUser(attribute,prefix)) {
-					// Special case for pUser in VOID and REFUND tables
-					predicate = getPropertyPredicate("pUser");
-					attributeParam = "pUserParam1";
-				} else if (isAttributeInBetweenTransactionDateTimeOrAmountOrRemittanceCreationDate(attribute)) {
-					// Specific cases for transactionDateTime, amount
-					predicate = predicate.replace(":atributeOperator", getOperation(operator));
-					if (dynamicParametersMap.containsKey(attribute + BluefinWebPortalConstants.PARAM1)) {
-						attributeParam = attribute + "Param2";
-						predicate = predicate.replace(attribute + BluefinWebPortalConstants.PARAM1, attributeParam);
-					}
-				} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(attribute) && isPrefixAsSale(prefix)) {
-						// Processor name, not ID, is used in sale, refund, and
-						// void tables.
-						attributeParam = attributeParam.replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME);
-						value = getPaymentProcessorName(value);
-						predicate = predicate.replace(BluefinWebPortalConstants.PAYMENTPROCESSORIDVAL, "Processor");
-						predicate = predicate.replace(attribute, BluefinWebPortalConstants.PROCESSORNAME);
-				} else if (BluefinWebPortalConstants.PAYMENTFREQUENCY.equalsIgnoreCase(attribute)) {
-					// Specific case for paymentFrequency, when paymentFrequency
-					// is NOT 'Recurring' then we need to search by all the
-					// values except 'Recurring'
-					value = getOriginFromPaymentFrequency(value.toLowerCase()).toString().toLowerCase();
-				} else if (isPrefixAndAttributeAsProcessor(attribute,prefix)) {
-					value = getPaymentProcessorId(value);
-				}
+				WhereCalValues whereCalValues = new WhereCalValues(attribute,prefix,value,attributeParam,operator,predicate);
+				calculateValues(whereCalValues,dynamicParametersMap);
 
-				statement.add(predicate.replace(":prefix", prefix));
-				dynamicParametersMap.put(attributeParam, value);
+				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
+				dynamicParametersMap.put(whereCalValues.getAttributeParam(), whereCalValues.getValue());
 			}
 		}
 		return prepareStatementWithWhere(statement);
 	}
 	
+	@Data
+	private class WhereCalValues {
+		String attribute;
+		String prefix;
+		String value;
+		String attributeParam;
+		String operator;
+		String predicate;
+		private WhereCalValues(String attribute,String prefix,String value,String attributeParam,String operator,String predicate){
+			// Default Constructor
+			this.attribute = attribute;
+			this.prefix = prefix;
+			this.value = value;
+			this.attributeParam = attributeParam;
+			this.operator = operator;
+			this.predicate = predicate;
+		}
+	}
+	private void calculateValues(WhereCalValues whereCalValues,HashMap<String, String> dynamicParametersMap){
+		// Special scenarios, be careful when you change this
+		if (isProcessUser(whereCalValues.getAttribute(),whereCalValues.getPrefix())) {
+			// Special case for pUser in VOID and REFUND tables
+			whereCalValues.setPredicate(getPropertyPredicate("pUser"));
+			whereCalValues.setAttributeParam("pUserParam1");
+		} else if (isAttributeInBetweenTransactionDateTimeOrAmountOrRemittanceCreationDate(whereCalValues.getAttribute())) {
+			// Specific cases for transactionDateTime, amount
+			whereCalValues.setPredicate(whereCalValues.getPredicate().replace(":atributeOperator", getOperation(whereCalValues.getOperator())));
+			if (dynamicParametersMap.containsKey(whereCalValues.getAttribute() + BluefinWebPortalConstants.PARAM1)) {
+				whereCalValues.setAttributeParam(whereCalValues.getAttribute() + "Param2");
+				whereCalValues.setPredicate( whereCalValues.getPredicate().replace(whereCalValues.getAttribute() + BluefinWebPortalConstants.PARAM1, whereCalValues.getAttributeParam()));
+			}
+		} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(whereCalValues.getAttribute()) && isPrefixAsSale(whereCalValues.getPrefix())) {
+				// Processor name, not ID, is used in sale, refund, and
+				// void tables.
+			whereCalValues.setAttributeParam(whereCalValues.getAttributeParam().replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME) );
+			whereCalValues.setValue(getPaymentProcessorName(whereCalValues.getValue()));
+			whereCalValues.setPredicate(whereCalValues.getPredicate().replace(BluefinWebPortalConstants.PAYMENTPROCESSORIDVAL, "Processor"));
+			whereCalValues.setPredicate(whereCalValues.getPredicate().replace(whereCalValues.getAttribute(), BluefinWebPortalConstants.PROCESSORNAME));
+		} else if (BluefinWebPortalConstants.PAYMENTFREQUENCY.equalsIgnoreCase(whereCalValues.getAttribute())) {
+			// Specific case for paymentFrequency, when paymentFrequency
+			// is NOT 'Recurring' then we need to search by all the
+			// values except 'Recurring'
+			whereCalValues.setValue(getOriginFromPaymentFrequency(whereCalValues.getValue().toLowerCase()).toString().toLowerCase());
+		} else if (isPrefixAndAttributeAsProcessor(whereCalValues.getAttribute(),whereCalValues.getPrefix())) {
+			whereCalValues.setValue(getPaymentProcessorId(whereCalValues.getValue()));
+		}
+	}
 	private String getPaymentProcessorName(String value){
 		PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(value));
 		return paymentProcessor != null ? paymentProcessor.getProcessorName() : null;

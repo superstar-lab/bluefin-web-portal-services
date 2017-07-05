@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public SecurityUser loadUserByUsername(String username) {
 		LOGGER.info("Entering UserDetailsServiceImpl :: loadUserByUsername()");
 		User user = this.userDAO.findByUsername(username);
-		LOGGER.debug("Entering UserDetailsServiceImpl :: loadUserByUsername() : user is : "+user);
+		LOGGER.debug("Uuser is : {}",user);
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} else {
