@@ -20,8 +20,6 @@ import org.springframework.security.access.AccessDeniedException;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 
-import lombok.Data;
-
 public class QueryUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryUtil.class);
 
