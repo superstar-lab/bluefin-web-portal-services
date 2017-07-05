@@ -1108,6 +1108,49 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return record;
 	}
 	
+	private String getSearchValue(String search){
+		int anyOtherParamsIndex = search.indexOf("&");
+		String searchValue;
+		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
+			searchValue = search.substring(0, anyOtherParamsIndex);
+		} else {
+			searchValue = search;
+		}
+		return searchValue;
+	}
+	
+	private String[] evaluateSearchParam(String searchValue){
+		String[] searchArray = searchValue.split("\\$\\$");
+		logger.debug("Search Array Values= {} and size of searchArray {}",Arrays.asList(searchArray),searchArray.length);
+		String[] valuesToReturn = new String[]{null,null,null,null,null};
+		for (String parameter : searchArray) {
+			if (parameter.startsWith("remittanceCreationDate>")) {
+				String[] parameterArray = parameter.split(">");
+				valuesToReturn[0] = parameterArray[1];
+			}
+			if (parameter.startsWith("remittanceCreationDate<")) {
+				String[] parameterArray = parameter.split("<");
+				valuesToReturn[1] = parameterArray[1];
+			}
+			if (parameter.startsWith(BluefinWebPortalConstants.PROCESSORNAME)) {
+				String[] parameterArray = parameter.split(":");
+				valuesToReturn[2] = parameterArray[1];
+			}
+			if (parameter.startsWith("merchantId")) {
+				String temp = parameter.replaceAll("merchantId:", "");
+				String values = temp.replaceAll("\\[|\\]", "");
+				valuesToReturn[3] = values;
+			}
+			if (parameter.startsWith(BluefinWebPortalConstants.RECONCILIATIONSTATUSID)) {
+				String[] parameterArray = parameter.split(":");
+				valuesToReturn[4] = parameterArray[1];
+			}
+		}
+		return valuesToReturn;
+	}
+	private String[] getMerchantIdArray(String values){
+		return values != null ? values.split(",") : null;
+	}
 	/**
 	 * Native SQL query for reconciliation screen. The UI passes processorName
 	 * as a string. The UI passes merchantId as a list of strings. The UI passes
@@ -1119,44 +1162,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @return SQL query
 	 */
 	private String getNativeQueryForRemittanceSaleRefund(String search,boolean negate) {
-
-		String remittanceCreationDateBegin = null;
-		String remittanceCreationDateEnd = null;
-		String processorName = null;
-		String[] merchantIdArray = null;
-		String reconciliationStatusId = null;
-		int anyOtherParamsIndex = search.indexOf("&");
-		String searchValue;
-		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
-			searchValue = search.substring(0, anyOtherParamsIndex);
-		} else {
-			searchValue = search;
-		}
-		String[] searchArray = searchValue.split("\\$\\$");
-		logger.debug("Search Array Values= {} and size of searchArray {}",Arrays.asList(searchArray),searchArray.length);
-		for (String parameter : searchArray) {
-			if (parameter.startsWith("remittanceCreationDate>")) {
-				String[] parameterArray = parameter.split(">");
-				remittanceCreationDateBegin = parameterArray[1];
-			}
-			if (parameter.startsWith("remittanceCreationDate<")) {
-				String[] parameterArray = parameter.split("<");
-				remittanceCreationDateEnd = parameterArray[1];
-			}
-			if (parameter.startsWith(BluefinWebPortalConstants.PROCESSORNAME)) {
-				String[] parameterArray = parameter.split(":");
-				processorName = parameterArray[1];
-			}
-			if (parameter.startsWith("merchantId")) {
-				String temp = parameter.replaceAll("merchantId:", "");
-				String values = temp.replaceAll("\\[|\\]", "");
-				merchantIdArray = values.split(",");
-			}
-			if (parameter.startsWith(BluefinWebPortalConstants.RECONCILIATIONSTATUSID)) {
-				String[] parameterArray = parameter.split(":");
-				reconciliationStatusId = parameterArray[1];
-			}
-		}
+		String searchValue = getSearchValue(search);
+		String[] evaluatedValues = evaluateSearchParam(searchValue);
+		String remittanceCreationDateBegin = evaluatedValues[0];
+		String remittanceCreationDateEnd = evaluatedValues[1];
+		String processorName = evaluatedValues[2];
+		String[] merchantIdArray = getMerchantIdArray(evaluatedValues[3]);
+		String reconciliationStatusId = evaluatedValues[4];
 
 		StringBuilder querySb = new StringBuilder();
 		String testOrProd = propertyDAO.getPropertyValue("TEST_OR_PROD");
@@ -1164,6 +1176,45 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		// Get reconciliationStatudId for "Missing from Remit"
 		ReconciliationStatus reconciliationStatus = reconciliationStatusDAO.findByReconciliationStatus("Missing from Remit");
 		String statusId = reconciliationStatus != null ? String.valueOf(reconciliationStatus.getReconciliationStatusId()) : "";
+		appendQueryForPPR(querySbPart1,remittanceCreationDateBegin,remittanceCreationDateEnd,testOrProd);
+
+		StringBuilder querySbPart2 = appendSaleWhereCondQuery(remittanceCreationDateBegin,statusId);
+
+		StringBuilder querySbPart3 = new StringBuilder();
+
+		int numberOfFilters = processNumberOfFilters(querySbPart3,remittanceCreationDateBegin,processorName,merchantIdArray,reconciliationStatusId);
+		
+		StringBuilder afterWhereClauseSB= new StringBuilder();
+		appendProcessName(processorName,afterWhereClauseSB);
+		
+		processMerchantIdArr(merchantIdArray,afterWhereClauseSB);
+		
+		appendReconcilationStatusId(reconciliationStatusId,afterWhereClauseSB);
+		
+		afterWhereClauseSB.replace(0, 4, " ");
+		
+		appendWhereClause(querySbPart3,afterWhereClauseSB);
+		
+		querySbPart3.append("ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
+
+		appendQueryBasedOnFilterNumbers(querySb,"SELECT * FROM (",numberOfFilters);
+		
+		querySb.append(querySbPart1);
+		querySb.append(querySbPart2);
+		
+		appendQueryBasedOnFilterNumbers(querySb,")",numberOfFilters);
+		
+		querySb.append(querySbPart3);
+		
+		/**
+		 *  Currently this is only used if the user selects 'Not Reconcilied' on
+		 *  the UI.
+		 *  Change to: WHERE ReconciliationID != 'Reconciled'
+		 */
+		return finalQuery(querySb,negate);
+	}
+	
+	private void appendQueryForPPR(StringBuilder querySbPart1,String remittanceCreationDateBegin,String remittanceCreationDateEnd,String testOrProd){
 		querySbPart1.append(getPaymentProcessorRemittanceAndSaleQuery());
 		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
 		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
@@ -1176,7 +1227,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySbPart1.append("AND (ppr.TransactionType = 'REFUND') ");
 		querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
 		logger.debug("Query (part 1): {} " , querySbPart1.toString());
-
+	}
+	
+	private StringBuilder appendSaleWhereCondQuery(String remittanceCreationDateBegin,String statusId){
 		StringBuilder querySbPart2 = new StringBuilder();
 		querySbPart2.append(BluefinWebPortalConstants.UNION);
 		querySbPart2.append(getSaleQuery());
@@ -1196,10 +1249,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySbPart2.append("AND REFUND.InternalStatusCode = 1 ");
 		querySbPart2.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
 		logger.debug("query (part 2): {}" , querySbPart2.toString());
-
-		StringBuilder querySbPart3 = new StringBuilder();
-
-		int numberOfFilters = 0;
+		return querySbPart2;
+	}
+	
+	private int processNumberOfFilters(StringBuilder querySbPart3,String remittanceCreationDateBegin,String processorName,String[] merchantIdArray,String reconciliationStatusId){
+		int numberOfFilters=0;
 		if (remittanceCreationDateBegin != null) {
 			numberOfFilters++;
 		}
@@ -1213,16 +1267,18 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (reconciliationStatusId != null) {
 			numberOfFilters++;
 		}
-
 		if (numberOfFilters != 0) {
 			querySbPart3.append("ReconDate ");
 		}
+		return numberOfFilters;
+	}
 	
-		
-		StringBuilder afterWhereClauseSB= new StringBuilder();
+	private void appendProcessName(String processorName,StringBuilder afterWhereClauseSB){
 		if (processorName != null) {
 			afterWhereClauseSB.append(" AND  ReconDate.Processor_Name = '" + processorName + "' ");
 		}
+	}
+	private void processMerchantIdArr(String[] merchantIdArray,StringBuilder afterWhereClauseSB){
 		if (merchantIdArray != null) {
 			afterWhereClauseSB.append(" AND  (ReconDate.MID IN (");
 			for (int i = 0; i < merchantIdArray.length; i++) {
@@ -1233,44 +1289,32 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			}
 			afterWhereClauseSB.append(")) ");
 		}
+	}
+	private void appendReconcilationStatusId(String reconciliationStatusId,StringBuilder afterWhereClauseSB){
 		if (reconciliationStatusId != null) {
 			afterWhereClauseSB.append(" AND  ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
 		}
-		afterWhereClauseSB.replace(0, 4, " ");
-		
+	}
+	
+	private void appendWhereClause(StringBuilder querySbPart3,StringBuilder afterWhereClauseSB){
 		if(StringUtils.isNotEmpty(afterWhereClauseSB.toString().trim())){
 			querySbPart3.append("  Where ");
 			querySbPart3.append(afterWhereClauseSB);
-			
 		}
-		
-		querySbPart3.append("ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
-		logger.debug("Query (part 3): {}" , querySbPart3.toString());
+	}
+	private void appendQueryBasedOnFilterNumbers(StringBuilder querySb,String queryToAppend,int numberOfFilters){
+		if (numberOfFilters != 0) {
+			querySb.append(queryToAppend);
+		}
+	}
 
-		if (numberOfFilters != 0) {
-			querySb.append("SELECT * FROM (");
-		}
-		querySb.append(querySbPart1);
-		querySb.append(querySbPart2);
-		if (numberOfFilters != 0) {
-			querySb.append(")");
-		}
-		querySb.append(querySbPart3);
-		
-		/**
-		 *  Currently this is only used if the user selects 'Not Reconcilied' on
-		 *  the UI.
-		 *  Change to: WHERE ReconciliationID != 'Reconciled'
-		 */
-		
+	private String finalQuery(StringBuilder querySb,boolean negate){
 		if (negate) {
 			return querySb.toString().replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
 		}else{
 			return querySb.toString();
 		}
-		
 	}
-
 	
 	private String getPaymentProcessorRemittanceAndSaleQuery() {
 		StringBuilder querySb = new StringBuilder();
