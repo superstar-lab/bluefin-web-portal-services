@@ -326,11 +326,15 @@ public class InternalResponseCodeService {
 					.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
 			paymentProcessorResponseCodeObj.setTransactionTypeName(transactionTypeName);
 			
-			if (!internalSet.contains(internalResponseCode.getInternalResponseCodeId())) {
-				newPaymentProcessorResponseCode.add(paymentProcessorResponseCodeObj);
-			}
+			validateInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId(),paymentProcessorResponseCodeObj,internalSet,newPaymentProcessorResponseCode);
 		}
 		return paymentProcessorResponseCodeObj;
+	}
+	
+	private void validateInternalResponseCodeId(Long internalResponseCodeId,PaymentProcessorResponseCode paymentProcessorResponseCodeObj,Set<Long> internalSet,List<PaymentProcessorResponseCode> newPaymentProcessorResponseCode){
+		if (!internalSet.contains(internalResponseCodeId)) {
+			newPaymentProcessorResponseCode.add(paymentProcessorResponseCodeObj);
+		}
 	}
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode updateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource) {
 		LOGGER.debug("Updating InternalResponseCode Record, Requested Data= {} , Child Items= {}",internalResponseCodeResource ,internalResponseCodeResource.getPaymentProcessorCodes() != null ? internalResponseCodeResource.getPaymentProcessorCodes().size() : 0 );
