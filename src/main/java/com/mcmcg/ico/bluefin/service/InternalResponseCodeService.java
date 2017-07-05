@@ -293,22 +293,23 @@ public class InternalResponseCodeService {
 		return false;
 	}
 	
-	private void verifyUpdateChanges(PaymentProcessor paymentProcessor,PaymentProcessorResponseCode paymentProcessorResponseCode,InternalResponseCode internalResponseCode,PaymentProcessorCodeResource resourceProcessorCode,
+	private PaymentProcessorResponseCode verifyUpdateChanges(PaymentProcessor paymentProcessor,PaymentProcessorResponseCode paymentProcessorResponseCode,InternalResponseCode internalResponseCode,PaymentProcessorCodeResource resourceProcessorCode,
 			List<PaymentProcessorResponseCode> newPaymentProcessorResponseCode,String transactionTypeName,boolean codeModified ){
 		Set<Long> internalSet = new HashSet<>();
+		PaymentProcessorResponseCode paymentProcessorResponseCodeObj;
 		if (paymentProcessorResponseCode == null) {
 			LOGGER.debug("Creating new payment processor response code {}", resourceProcessorCode.getCode());
-			paymentProcessorResponseCode = new PaymentProcessorResponseCode();
+			paymentProcessorResponseCodeObj = new PaymentProcessorResponseCode();
 
-			paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-			paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
-			paymentProcessorResponseCode
-					.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-			paymentProcessorResponseCode.setTransactionTypeName(transactionTypeName);
+			paymentProcessorResponseCodeObj.setPaymentProcessor(paymentProcessor);
+			paymentProcessorResponseCodeObj.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
+			paymentProcessorResponseCodeObj.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
+			paymentProcessorResponseCodeObj.setTransactionTypeName(transactionTypeName);
 
-			newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
+			newPaymentProcessorResponseCode.add(paymentProcessorResponseCodeObj);
 		} else {
-			Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
+			paymentProcessorResponseCodeObj = paymentProcessorResponseCode;
+			Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCodeObj
 					.getInternalResponseCode();
 			LOGGER.debug("CurrentPaymentProcessorInternalResponseCodes size : {}",currentPaymentProcessorInternalResponseCodes != null ? currentPaymentProcessorInternalResponseCodes.size() : 0 );
 			if (currentPaymentProcessorInternalResponseCodes != null && !currentPaymentProcessorInternalResponseCodes.isEmpty()) {
@@ -319,16 +320,17 @@ public class InternalResponseCodeService {
 					addInternalResponseCodeIds(currentPaymentProcessorInternalResponseCode,internalSet);
 				}
 			}
-			paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
-			paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
-			paymentProcessorResponseCode
+			paymentProcessorResponseCodeObj.setPaymentProcessor(paymentProcessor);
+			paymentProcessorResponseCodeObj.setPaymentProcessorResponseCodeValue(resourceProcessorCode.getCode());
+			paymentProcessorResponseCodeObj
 					.setPaymentProcessorResponseCodeDescription(resourceProcessorCode.getDescription());
-			paymentProcessorResponseCode.setTransactionTypeName(transactionTypeName);
+			paymentProcessorResponseCodeObj.setTransactionTypeName(transactionTypeName);
 			
 			if (!internalSet.contains(internalResponseCode.getInternalResponseCodeId())) {
-				newPaymentProcessorResponseCode.add(paymentProcessorResponseCode);
+				newPaymentProcessorResponseCode.add(paymentProcessorResponseCodeObj);
 			}
 		}
+		return paymentProcessorResponseCodeObj;
 	}
 	public com.mcmcg.ico.bluefin.model.InternalResponseCode updateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource) {
 		LOGGER.debug("Updating InternalResponseCode Record, Requested Data= {} , Child Items= {}",internalResponseCodeResource ,internalResponseCodeResource.getPaymentProcessorCodes() != null ? internalResponseCodeResource.getPaymentProcessorCodes().size() : 0 );
@@ -381,7 +383,7 @@ public class InternalResponseCodeService {
 					}
 
 					LOGGER.debug("PaymentProcessorResponseCode value : {}",paymentProcessorResponseCode);
-					verifyUpdateChanges(paymentProcessor,paymentProcessorResponseCode,internalResponseCode,resourceProcessorCode,
+					paymentProcessorResponseCode = verifyUpdateChanges(paymentProcessor,paymentProcessorResponseCode,internalResponseCode,resourceProcessorCode,
 							 newPaymentProcessorResponseCode,transactionType.getTransactionTypeName(), codeModified );
 					// update payment processor status code
 					paymentProcessorResponseCode = createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode);
