@@ -328,7 +328,7 @@ public class InternalResponseCodeService {
 			newPaymentProcessorResponseCode.add(paymentProcessorResponseCodeObj);
 		}
 	}
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode updateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource) {
+	public InternalResponseCode updateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource) {
 		LOGGER.debug("Updating InternalResponseCode Record, Requested Data= {} , Child Items= {}",internalResponseCodeResource ,internalResponseCodeResource.getPaymentProcessorCodes() != null ? internalResponseCodeResource.getPaymentProcessorCodes().size() : 0 );
 		Long internalResponseCodeIdToModify = internalResponseCodeResource.getInternalCodeId();
 		LOGGER.debug("Internal Response CodeId to modify {}",internalResponseCodeIdToModify);
@@ -365,25 +365,7 @@ public class InternalResponseCodeService {
 				PaymentProcessor paymentProcessor = validatePaymentProcessor(resourceProcessorCode.getPaymentProcessorId());
 				
 				if (!resourceProcessorCode.getCode().isEmpty() && !resourceProcessorCode.getDescription().isEmpty()) {
-					PaymentProcessorResponseCode paymentProcessorResponseCode;
-					Boolean codeModified = false;
-					if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
-						paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
-								.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
-										resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
-										paymentProcessor);
-					} else {
-						Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-						paymentProcessorResponseCode = validatePaymentProcessorResponseCode(paymentProcessorCodeId);
-						codeModified = isCodeModified(paymentProcessor,resourceProcessorCode.getCode(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue(),transactionType.getTransactionTypeName());
-					}
-
-					LOGGER.debug("PaymentProcessorResponseCode value : {}",paymentProcessorResponseCode);
-					paymentProcessorResponseCode = verifyUpdateChanges(paymentProcessor,paymentProcessorResponseCode,internalResponseCode,resourceProcessorCode,
-							 newPaymentProcessorResponseCode,transactionType.getTransactionTypeName(), codeModified );
-					// update payment processor status code
-					paymentProcessorResponseCode = createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode);
-					checkIfPutPaymentProcessorResponseCodeToUpdate(paymentProcessorResponseCode,newMapOfPaymentProcessorResponseCodes);
+					processResponseCode(paymentProcessor, resourceProcessorCode,internalResponseCode, newPaymentProcessorResponseCode, newMapOfPaymentProcessorResponseCodes,transactionType.getTransactionTypeName());
 				} else {
 					validateCodeOrDesription(resourceProcessorCode);
 				}
@@ -400,6 +382,28 @@ public class InternalResponseCodeService {
 		return internalResponseCodeDAO.update(internalResponseCode);
 	}
 
+	private void processResponseCode(PaymentProcessor paymentProcessor, PaymentProcessorCodeResource resourceProcessorCode,InternalResponseCode internalResponseCode,List<PaymentProcessorResponseCode> newPaymentProcessorResponseCode,Map<Long, PaymentProcessorResponseCode> newMapOfPaymentProcessorResponseCodes,String transactionTypeName){
+		Boolean codeModified = false;
+		PaymentProcessorResponseCode paymentProcessorResponseCode;
+		if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
+			paymentProcessorResponseCode = paymentProcessorResponseCodeDAO
+					.findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
+							resourceProcessorCode.getCode(), transactionTypeName,
+							paymentProcessor);
+		} else {
+			Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
+			paymentProcessorResponseCode = validatePaymentProcessorResponseCode(paymentProcessorCodeId);
+			codeModified = isCodeModified(paymentProcessor,resourceProcessorCode.getCode(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue(),transactionTypeName);
+		}
+
+		LOGGER.debug("PaymentProcessorResponseCode value : {}",paymentProcessorResponseCode);
+		paymentProcessorResponseCode = verifyUpdateChanges(paymentProcessor,paymentProcessorResponseCode,internalResponseCode,resourceProcessorCode,
+				 newPaymentProcessorResponseCode,transactionTypeName, codeModified );
+		// update payment processor status code
+		paymentProcessorResponseCode = createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode);
+		checkIfPutPaymentProcessorResponseCodeToUpdate(paymentProcessorResponseCode,newMapOfPaymentProcessorResponseCodes);
+	}
+	
 	private void checkIfPutPaymentProcessorResponseCodeToUpdate(PaymentProcessorResponseCode paymentProcessorResponseCode,Map<Long, PaymentProcessorResponseCode> newMapOfPaymentProcessorResponseCodes){
 		if (paymentProcessorResponseCode != null) {
 			newMapOfPaymentProcessorResponseCodes.put(paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(),paymentProcessorResponseCode);

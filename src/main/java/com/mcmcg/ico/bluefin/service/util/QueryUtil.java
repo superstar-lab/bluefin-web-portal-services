@@ -20,6 +20,8 @@ import org.springframework.security.access.AccessDeniedException;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 
+import lombok.Data;
+
 public class QueryUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryUtil.class);
 
@@ -135,21 +137,36 @@ public class QueryUtil {
 	 * @return
 	 */
 	public static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
-		String searchVal;
-		if (!search.contains(filterKey)) {
-			if (!search.isEmpty()) {
-				searchVal = search + SEARCH_DELIMITER_CHAR;
+		ValidateFilter validateFilter = new ValidateFilter(search);
+		if (!validateFilter.getSearch().contains(filterKey)) {
+			if (!validateFilter.getSearch().isEmpty()) {
+				validateFilter.setSearch(validateFilter.getSearch() + SEARCH_DELIMITER_CHAR);
 			}
-			searchVal = search + filterKey + userLegalEntities;
+			validateFilter.setSearch(validateFilter.getSearch() + filterKey + userLegalEntities);
 		} else {
-			String leFilterValue = getLEFilterValue(search, filterKey);
-			searchVal = search.replace(filterKey + leFilterValue,
-					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
+			String leFilterValue = getLEFilterValue(validateFilter.getSearch(), filterKey);
+			validateFilter.setSearch(validateFilter.getSearch().replace(filterKey + leFilterValue,
+					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities)));
 		}
-		LOGGER.debug("Search : {}",searchVal);
-		return searchVal;
+		LOGGER.debug("Search : {}",validateFilter.getSearch());
+		return validateFilter.getSearch();
 	}
+	
+	private static class ValidateFilter {
+		private String search;
+		
+		public ValidateFilter(String search){
+			this.search = search;
+		}
+		
+		public String getSearch() {
+			return search;
+		}
 
+		public void setSearch(String search) {
+			this.search = search;
+		}
+	}
 	/**
 	 * Checks the validity of the search criteria by checking the current legal
 	 * entities owned by the consultant user and the ones provided. This

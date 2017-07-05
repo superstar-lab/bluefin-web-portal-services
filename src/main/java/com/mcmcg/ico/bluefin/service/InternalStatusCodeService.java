@@ -336,28 +336,8 @@ public class InternalStatusCodeService {
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalStatusCodeResource.getPaymentProcessorCodes()) {
 
 				PaymentProcessor paymentProcessor = validatePaymentProcessor(resourceProcessorCode.getPaymentProcessorId());
-				if (resourceProcessorCode.getCode() != null && !resourceProcessorCode.getCode().trim().isEmpty() 
-						&& resourceProcessorCode.getDescription() != null && !resourceProcessorCode.getDescription().trim().isEmpty()) {
-					PaymentProcessorStatusCode paymentProcessorStatusCode;
-					Boolean codeModified = false;
-					if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
-						paymentProcessorStatusCode = paymentProcessorStatusCodeDAO
-								.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
-										resourceProcessorCode.getCode(), transactionType.getTransactionTypeName(),
-										paymentProcessor);
-					} else {
-						Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
-						paymentProcessorStatusCode = validatePaymentProcessorStatusCode(paymentProcessorCodeId);
-						codeModified = isCodeModified(paymentProcessor,resourceProcessorCode.getCode(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue(),transactionType.getTransactionTypeName());
-					}
-
-					LOGGER.debug("PaymentProcessorStatusCode value : {} ",paymentProcessorStatusCode);
-					paymentProcessorStatusCode = verifyUpdateChanges(paymentProcessor,paymentProcessorStatusCode,resourceProcessorCode,newPaymentProcessorStatusCode,internalStatusCode,transactionType.getTransactionTypeName(),codeModified);
-					paymentProcessorStatusCode = createOrUpdatePaymentProcessorStatusCode(paymentProcessorStatusCode);
-					newMapOfPaymentProcessorStatusCodes.put(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),paymentProcessorStatusCode);
-				} else {
-					validateCodeOrDesription(resourceProcessorCode);
-				}
+				processPaymentProcessorCode(paymentProcessor,resourceProcessorCode,newMapOfPaymentProcessorStatusCodes,internalStatusCode,newPaymentProcessorStatusCode,transactionType.getTransactionTypeName());
+				
 			}
 
 			// Update information from current payment processor merchants
@@ -370,6 +350,30 @@ public class InternalStatusCodeService {
 		return internalStatusCodeDAO.update(internalStatusCode);
 	}
 	
+	private void processPaymentProcessorCode(PaymentProcessor paymentProcessor,PaymentProcessorCodeResource resourceProcessorCode,Map<Long, PaymentProcessorStatusCode> newMapOfPaymentProcessorStatusCodes,InternalStatusCode internalStatusCode,List<PaymentProcessorStatusCode> newPaymentProcessorStatusCode,String transactionTypeName){
+		if (resourceProcessorCode.getCode() != null && !resourceProcessorCode.getCode().trim().isEmpty() 
+				&& resourceProcessorCode.getDescription() != null && !resourceProcessorCode.getDescription().trim().isEmpty()) {
+			PaymentProcessorStatusCode paymentProcessorStatusCode;
+			Boolean codeModified = false;
+			if (resourceProcessorCode.getPaymentProcessorCodeId() == null) {
+				paymentProcessorStatusCode = paymentProcessorStatusCodeDAO
+						.findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
+								resourceProcessorCode.getCode(), transactionTypeName,
+								paymentProcessor);
+			} else {
+				Long paymentProcessorCodeId = resourceProcessorCode.getPaymentProcessorCodeId();
+				paymentProcessorStatusCode = validatePaymentProcessorStatusCode(paymentProcessorCodeId);
+				codeModified = isCodeModified(paymentProcessor,resourceProcessorCode.getCode(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue(),transactionTypeName);
+			}
+
+			LOGGER.debug("PaymentProcessorStatusCode value : {} ",paymentProcessorStatusCode);
+			paymentProcessorStatusCode = verifyUpdateChanges(paymentProcessor,paymentProcessorStatusCode,resourceProcessorCode,newPaymentProcessorStatusCode,internalStatusCode,transactionTypeName,codeModified);
+			paymentProcessorStatusCode = createOrUpdatePaymentProcessorStatusCode(paymentProcessorStatusCode);
+			newMapOfPaymentProcessorStatusCodes.put(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),paymentProcessorStatusCode);
+		} else {
+			validateCodeOrDesription(resourceProcessorCode);
+		}
+	}
 	private void addNewPaymentProcessorStatusCodes(InternalStatusCode internalStatusCode,List<PaymentProcessorStatusCode> newPaymentProcessorStatusCode,Long internalStatusCodeIdToModify){
 		for (PaymentProcessorStatusCode current : newPaymentProcessorStatusCode) {
 			PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
