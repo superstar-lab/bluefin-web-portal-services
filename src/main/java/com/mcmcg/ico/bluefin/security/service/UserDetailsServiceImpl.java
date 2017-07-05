@@ -19,6 +19,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private UserDAO userDAO;
+	@Autowired
+	private SecurityUserFactory securityUserFactory;
 
 	@Override
 	public SecurityUser loadUserByUsername(String username) {
@@ -28,8 +30,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} else {
-			LOGGER.info("Exit UserDetailsServiceImpl :: loadUserByUsername() : user found");
-			return SecurityUserFactory.create(user);
+			LOGGER.info("Exit UserDetailsServiceImpl%%%%%%%%%%%%%%%%DHEERAJ :: loadUserByUsername() : user found");
+			return securityUserFactory.create(user);
 		}
 	}
 }

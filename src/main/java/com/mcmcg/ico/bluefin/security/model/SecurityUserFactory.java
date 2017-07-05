@@ -19,21 +19,16 @@ import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 public class SecurityUserFactory {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUserFactory.class);
-
-	private static RoleDAO roleDAO;
-	private static UserRoleDAO userRoleDAO;
-
 	@Autowired
-	public SecurityUserFactory(RoleDAO roleDAO, UserRoleDAO userRoleDAO) {
-		SecurityUserFactory.roleDAO = roleDAO;
-		SecurityUserFactory.userRoleDAO = userRoleDAO;
-	}
+	private RoleDAO roleDAO;
+	@Autowired
+	private UserRoleDAO userRoleDAO;
 
-	public static SecurityUser create(User user) {
+	public SecurityUser create(User user) {
 		return new SecurityUser(user, getRoles(userRoleDAO.findByUserId(user.getUserId())));
 	}
 
-	public static Collection<SimpleGrantedAuthority> getRoles(Collection<UserRole> roles) {
+	public Collection<SimpleGrantedAuthority> getRoles(Collection<UserRole> roles) {
 		LOGGER.info("Entering SecurityUserFactory :: getRoles()");
 		List<SimpleGrantedAuthority> result = new ArrayList<>();
 		if (roles == null) {
