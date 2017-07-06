@@ -29,57 +29,45 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	
 	@Override
 	public List<SaleTransaction> findAll() {
-		List<SaleTransaction> list = jdbcTemplate.query(Queries.findAllSaleTransactions,
+		List<SaleTransaction> list = jdbcTemplate.query(Queries.FINDALLSALETRANSACTIONS,
 				new SaleTransactionRowMapper());
-
-		LOGGER.debug("SaleTransactionDAOImpl :: findAll() : Number of rows: " + list.size());
-
+		LOGGER.debug("Number of records: {}",list.size());
 		return list;
 	}
 
 	@Override
 	public SaleTransaction findByApplicationTransactionId(String transactionId) {
-		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findSaleTransactionByApplicationTransactionId, new Object[] { transactionId },
-				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
-		LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Number of rows: " + list.size());
-		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
-
-		if (saleTransaction != null) {
-			LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : Found SaleTransaction for transactionId: " + transactionId);
-		} else {
-			LOGGER.debug("SaleTransactionDAOImpl :: findByApplicationTransactionId() : SaleTransaction not found for transactionId: " + transactionId);
-		}
-
-		return saleTransaction;
+		return findTransaction(Queries.FINDSALETRANSACTIONBYAPPLICATIONTRANSACTIONID,transactionId);
 	}
 
 	@Override
 	public SaleTransaction findByProcessorTransactionId(String transactionId) {
-		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findSaleTransactionByProcessorTransactionId, new Object[] { transactionId },
-				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
-		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());
-		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
-
-		if (saleTransaction != null) {
-			LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Found SaleTransaction for transactionId: " + transactionId);
-		} else {
-			LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : SaleTransaction not found for transactionId: " + transactionId);
-		}
-
-		return saleTransaction;
+		return findTransaction(Queries.FINDSALETRANSACTIONBYPROCESSORTRANSACTIONID,transactionId);
 	}
 
 	@Override
 	public List<SaleTransaction> findByBatchUploadId(Long batchUploadId) {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-				Queries.findSaleTransactionByBatchUploadId, new Object[] { batchUploadId },
+				Queries.FINDSALETRANSACTIONBYBATCHUPLOADID, new Object[] { batchUploadId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
-
-		LOGGER.debug("SaleTransactionDAOImpl :: findByProcessorTransactionId() : Number of rows: " + list.size());
-
+		LOGGER.debug("Number of batch uploads: {}", list.size());
 		return list;
+	}
+	
+	public SaleTransaction findTransaction(String queryToExecute,String transactionId){
+		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
+				queryToExecute, new Object[] { transactionId },
+				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+		LOGGER.debug("Number of transactions: {}", list.size());
+		SaleTransaction saleTransaction = DataAccessUtils.singleResult(list);
+
+		if (saleTransaction != null) {
+			LOGGER.debug("Record found for transactionId: {}", transactionId);
+		} else {
+			LOGGER.debug("Record not found for transactionId: {} ", transactionId);
+		}
+
+		return saleTransaction;
 	}
 }
 

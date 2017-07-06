@@ -29,7 +29,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler(CustomNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ErrorResource handleNotFoundException(final Exception exception, WebRequest request) {
+    @ResponseBody public ErrorResource handleNotFoundException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
@@ -38,7 +38,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
     @ExceptionHandler({ DataAccessResourceFailureException.class, JDBCConnectionException.class,
             AccessDeniedException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public @ResponseBody ErrorResource handleForbiddenException(final Exception exception, WebRequest request) {
+    @ResponseBody public ErrorResource handleForbiddenException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
@@ -46,7 +46,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler({ CustomException.class, Exception.class })
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public @ResponseBody ErrorResource handleGeneralException(final Exception exception, WebRequest request) {
+    @ResponseBody public ErrorResource handleGeneralException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
@@ -54,7 +54,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler({ IllegalArgumentException.class, CustomBadRequestException.class })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResource handleBadRequestException(final Exception exception, WebRequest request) {
+    @ResponseBody public ErrorResource handleBadRequestException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
@@ -62,7 +62,7 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
 
     @ExceptionHandler({ CustomUnauthorizedException.class })
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public @ResponseBody ErrorResource handleUnauthorizedException(final Exception exception, WebRequest request) {
+    @ResponseBody public ErrorResource handleUnauthorizedException(final Exception exception, WebRequest request) {
         UUID uniqueErrorId = logException(exception);
 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));

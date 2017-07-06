@@ -28,6 +28,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -48,7 +49,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	@Override
 	public PaymentProcessor findByPaymentProcessorId(Long paymentProcessorId) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorById, new Object[] { paymentProcessorId },
+			return jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORBYID, new Object[] { paymentProcessorId },
 					new PaymentProcessorRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -60,7 +61,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 
 	@Override
 	public List<PaymentProcessor> findAll() {
-		List<PaymentProcessor> paymentProcessors = jdbcTemplate.query(Queries.findAllPaymentProcessors,
+		List<PaymentProcessor> paymentProcessors = jdbcTemplate.query(Queries.FINDALLPAYMENTPROCESSORS,
 				new PaymentProcessorRowMapper());
 
 		LOGGER.debug("PaymentProcessorDAOImpl :: findAll() : Number of rows: " + paymentProcessors.size());
@@ -70,7 +71,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 
 	@Override
 	public void delete(PaymentProcessor paymentProcessor) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorByID, new Object[] { paymentProcessor.getPaymentProcessorId() });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORBYID, new Object[] { paymentProcessor.getPaymentProcessorId() });
 		LOGGER.debug("PaymentProcessorDAOImpl :: delete() : Deleted payment Processor by Id: " + paymentProcessor.getPaymentProcessorId() + ", rows affected = " + rows);
 	}
 
@@ -78,7 +79,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	public List<PaymentProcessor> findAll(Set<Long> paymentProcessorIds) {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 		Map<String, Set<Long>> map = Collections.singletonMap("paymentProcessorIds", paymentProcessorIds);
-		List<PaymentProcessor> paymentProcessors = namedParameterJdbcTemplate.query(Queries.findAllPaymentProcessorsByIds,
+		List<PaymentProcessor> paymentProcessors = namedParameterJdbcTemplate.query(Queries.FINDALLPAYMENTPROCESSORSBYIDS,
 				map, new PaymentProcessorRowMapper());
 
 		LOGGER.debug("PaymentProcessorDAOImpl :: findAll(set) : Number of rows: " + paymentProcessors.size());
@@ -89,7 +90,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	@Override
 	public PaymentProcessor getPaymentProcessorByProcessorName(String processorName) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorByName, new Object[] { processorName },
+			return jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORBYNAME, new Object[] { processorName },
 					new PaymentProcessorRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -106,12 +107,12 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		DateTime utc1 = paymentProcessor.getCreatedDate() != null ? paymentProcessor.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		DateTime utc2 =  paymentProcessor.getModifiedDate() != null ? paymentProcessor.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessors,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPAYMENTPROCESSORS,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, paymentProcessor.getProcessorName()); // ProcessorName
 				ps.setTimestamp(2, dateCreated); // DateCreated
@@ -139,10 +140,10 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		}
 		LOGGER.debug("PaymentProcessorDAOImpl :: update() : Updating Payment Processor, PaymentProcessorId - "+(paymentProcessor.getPaymentProcessorId()));
 		DateTime utc4 = paymentProcessor.getModifiedDate() != null ? paymentProcessor.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 //UPDATE PaymentProcessor_Lookup SET ProcessorName=?,IsActive=?,RemitTransactionOpenTime=?,RemitTransactionCloseTime=?,DatedModified=? WHERE PaymentProcessorID=?		
-		int rows = jdbcTemplate.update(Queries.updatePaymentProcessor,
+		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSOR,
 					new Object[] { 	paymentProcessor.getProcessorName(), paymentProcessor.getIsActive(), paymentProcessor.getRemitTransactionOpenTime(),
 							paymentProcessor.getRemitTransactionOpenTime(), dateModified, 
 							paymentProcessor.getPaymentProcessorId()

@@ -29,7 +29,7 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 	@Override
 	public VoidTransaction findByApplicationTransactionId(String transactionId) {
 		ArrayList<VoidTransaction> list = (ArrayList<VoidTransaction>) jdbcTemplate.query(
-				Queries.findVoidTransactionByApplicationTransactionId, new Object[] { transactionId },
+				Queries.FINDVOIDTRANSACTIONBYAPPLICATIONTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<VoidTransaction>(new VoidTransactionRowMapper()));
 		LOGGER.debug("VoidTransactionDAOImpl :: findByApplicationTransactionId() : VoidTransaction size : "+list.size());
 		VoidTransaction voidTransaction = DataAccessUtils.singleResult(list);

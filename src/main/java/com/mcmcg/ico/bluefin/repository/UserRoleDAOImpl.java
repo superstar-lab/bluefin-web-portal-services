@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -32,7 +33,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 public class UserRoleDAOImpl implements UserRoleDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoleDAOImpl.class);
-	private final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -46,7 +47,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	}
 	
 	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserRole> userRoles){
-		jdbcTemplate.batchUpdate(Queries.saveUserRole, new BatchPreparedStatementSetter() {
+		jdbcTemplate.batchUpdate(Queries.SAVEUSERROLE, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
 				com.mcmcg.ico.bluefin.model.UserRole userRole = userRoles.get(i);
@@ -70,7 +71,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 		if(!rolesToRemove.isEmpty()) {
 			Map<String, Set<Long>> valuesToDelete = new HashMap<>();
 			valuesToDelete.put("userRoleIds", rolesToRemove);
-			executeQueryToDeleteUserRoles(Queries.deleteUserRoles,valuesToDelete);
+			executeQueryToDeleteUserRoles(Queries.DELETEUSERROLES,valuesToDelete);
 		}
 	}
 	
@@ -83,7 +84,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	
 	@Override
 	public List<UserRole> findByUserId(long userId) {
-		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.findUserRoleByUserId,
+		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.FINDUSERROLEBYUSERID,
 				new Object[] { userId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
 
 		LOGGER.debug("UserRoleDAOImpl :: findByUserId() : Number of rows: " + list.size());

@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -43,7 +44,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	@Override
 	public List<PaymentProcessorMerchant> findPaymentProccessorMerchantByProcessorId(Long paymentProcessorId) {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>) jdbcTemplate.query(
-				Queries.findPaymentProcessorMerchantsById, new Object[] { paymentProcessorId },
+				Queries.FINDPAYMENTPROCESSORMERCHANTSBYID, new Object[] { paymentProcessorId },
 				new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
 
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: findPaymentProccessorMerchantByProcessorId : Number of rows: " + list.size());
@@ -52,14 +53,14 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 
 	@Override
 	public void deletPaymentProcessorMerchantByProcID(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchantByProcId, new Object[] {paymentProcessorId});
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTBYPROCID, new Object[] {paymentProcessorId});
 
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletPaymentProcessorMerchantByProcID : Deleted Payment Processor Merchant by Payment Processor Id: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorMerchants, new Object[] { paymentProcessorId });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTS, new Object[] { paymentProcessorId });
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletePaymentProcessorRules : Deleted Payment Processor Merchants for PaymentProcessor Id: " + paymentProcessorId
 				+ ", rows affected = " + rows);
 	}
@@ -70,7 +71,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	}
 
 	private void insertBatch(final List<PaymentProcessorMerchant> paymentProcessorMerchants){
-		jdbcTemplate.batchUpdate(Queries.savePaymentProcessorMarchent, new PaymentProcessorInsertBatchPreparedStatement(paymentProcessorMerchants));
+		jdbcTemplate.batchUpdate(Queries.SAVEPAYMENTPROCESSORMARCHENT, new PaymentProcessorInsertBatchPreparedStatement(paymentProcessorMerchants));
 	}
 
 }
@@ -78,7 +79,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedStatementSetter {
 	
 	private final List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
-	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
 	public PaymentProcessorInsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants){
 		this.paymentProcessorMerchants = paymentProcessorMerchants;

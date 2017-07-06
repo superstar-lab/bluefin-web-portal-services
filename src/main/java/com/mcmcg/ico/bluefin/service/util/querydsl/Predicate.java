@@ -1,8 +1,5 @@
 package com.mcmcg.ico.bluefin.service.util.querydsl;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -22,8 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 import com.mysema.query.types.expr.BooleanExpression;
 import com.mysema.query.types.path.DatePath;
 import com.mysema.query.types.path.NumberPath;
@@ -34,7 +31,7 @@ class Predicate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Predicate.class);
     private SearchCriteria criteria;
-    private final static String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public Predicate() {
     	// Default Constructor
@@ -60,8 +57,7 @@ class Predicate {
         } else if (keyInstance == String.class) {
             result = getStringPredicate(entityPath);
         } else if (keyInstance == Collection.class) {
-            String collectionType = getCollectionType();
-            result = getCollectionPredicate(collectionType);
+            result = getCollectionPredicate();
         } else {
             LOGGER.error("Predicate :: getPredicate() : Unable to filter by: {}", criteria.getKey());
             throw new CustomBadRequestException("Unable to filter by: " + criteria.getKey());
@@ -69,30 +65,7 @@ class Predicate {
         return result;
     }
 
-    private String getCollectionType() {
-        try {
-            Method method = User.class.getMethod(
-                    "set" + Character.toUpperCase(criteria.getKey().charAt(0)) + criteria.getKey().substring(1),
-                    Collection.class);
-            Type[] genericParameterTypes = method.getGenericParameterTypes();
-
-            for (Type type : genericParameterTypes) {
-                if (type instanceof ParameterizedType) {
-                    ParameterizedType pt = (ParameterizedType) type;
-                    for (Type t : pt.getActualTypeArguments()) {
-                        return t.getTypeName();
-                    }
-                }
-            }
-        } catch (NoSuchMethodException | SecurityException e) {
-        	if (LOGGER.isDebugEnabled()) {
-        		LOGGER.debug("Failed to get collection type ",e);
-        	}
-        }
-        throw new CustomBadRequestException("Predicate :: getCollectionType() : Unable to filter by " + criteria.getKey());
-    }
-
-    private BooleanExpression getCollectionPredicate(String collectionType) {
+    private BooleanExpression getCollectionPredicate() {
         getListFromCriteria();
         return null;
     }
@@ -184,7 +157,7 @@ class Predicate {
 
     private BooleanExpression getStringPredicate(PathBuilder<?> entityPath) {
         StringPath path = entityPath.getString(criteria.getKey());
-        if (criteria.getValue().toString().matches(QueryDSLUtil.WORD_LIST_REGEX)) {
+        if (criteria.getValue().toString().matches(QueryUtil.WORD_LIST_REGEX)) {
             List<String> values = getStringListFromCriteria();
             return path.in(values);
         } else {

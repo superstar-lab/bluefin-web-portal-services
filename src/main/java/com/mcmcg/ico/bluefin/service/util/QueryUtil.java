@@ -41,8 +41,8 @@ public class QueryUtil {
 
 	public static final String SEARCH_REGEX_LE = "(\\w+?)(:|<|>)" + "(" + ANY_LIST_REGEX + ")";
 
-	private static final String LEGAL_ENTITY_FILTER = "legalEntity:";
-	private static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
+	public static final String LEGAL_ENTITY_FILTER = "legalEntity:";
+	public static final String LEGAL_ENTITIES_FILTER = "legalEntities:";
 
 	private QueryUtil(){
 		// Default Constructor
@@ -134,21 +134,37 @@ public class QueryUtil {
 	 * @param filterKey
 	 * @return
 	 */
-	private static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
-		if (!search.contains(filterKey)) {
-			if (!search.isEmpty()) {
-				search = search + SEARCH_DELIMITER_CHAR;
+	public static String validateByFilter(String search, List<String> userLegalEntities, String filterKey) {
+		ValidateFilter validateFilter = new ValidateFilter(search);
+		if (!validateFilter.getSearch().contains(filterKey)) {
+			if (!validateFilter.getSearch().isEmpty()) {
+				validateFilter.setSearch(validateFilter.getSearch() + SEARCH_DELIMITER_CHAR);
 			}
-			search = search + filterKey + userLegalEntities;
+			validateFilter.setSearch(validateFilter.getSearch() + filterKey + userLegalEntities);
 		} else {
-			String leFilterValue = getLEFilterValue(search, filterKey);
-			search = search.replace(filterKey + leFilterValue,
-					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities));
+			String leFilterValue = getLEFilterValue(validateFilter.getSearch(), filterKey);
+			validateFilter.setSearch(validateFilter.getSearch().replace(filterKey + leFilterValue,
+					filterKey + generateValidLEFilter(leFilterValue, userLegalEntities)));
 		}
-		LOGGER.debug("QueryUtil :: validateByFilter() : search : "+search);
-		return search;
+		LOGGER.debug("Search : {}",validateFilter.getSearch());
+		return validateFilter.getSearch();
 	}
+	
+	private static class ValidateFilter {
+		private String search;
+		
+		public ValidateFilter(String search){
+			this.search = search;
+		}
+		
+		public String getSearch() {
+			return search;
+		}
 
+		public void setSearch(String search) {
+			this.search = search;
+		}
+	}
 	/**
 	 * Checks the validity of the search criteria by checking the current legal
 	 * entities owned by the consultant user and the ones provided. This
@@ -218,7 +234,7 @@ public class QueryUtil {
 	 * @param filter
 	 * @return String with the Legal Entities values
 	 */
-	private static String getLEFilterValue(String search, String filter) {
+	public static String getLEFilterValue(String search, String filter) {
 		String result = StringUtils.EMPTY;
 		Boolean validSearch = false;
 		Pattern pattern = Pattern.compile(SEARCH_REGEX_LE);
@@ -275,7 +291,7 @@ public class QueryUtil {
 	 * @param value
 	 * @return return a list of strings
 	 */
-	private static List<String> getLEListFilterValue(String value) {
+	public static List<String> getLEListFilterValue(String value) {
 		List<String> result = null;
 		if (!StringUtils.isBlank(value) && !"[]".equals(value)) {
 			Matcher matcher = Pattern.compile(ANY_LIST_REGEX).matcher(value);

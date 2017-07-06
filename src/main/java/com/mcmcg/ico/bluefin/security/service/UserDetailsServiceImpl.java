@@ -19,17 +19,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private UserDAO userDAO;
+	@Autowired
+	private SecurityUserFactory securityUserFactory;
 
 	@Override
-	public SecurityUser loadUserByUsername(String username) throws UsernameNotFoundException {
+	public SecurityUser loadUserByUsername(String username) {
 		LOGGER.info("Entering UserDetailsServiceImpl :: loadUserByUsername()");
 		User user = this.userDAO.findByUsername(username);
-		LOGGER.debug("Entering UserDetailsServiceImpl :: loadUserByUsername() : user is : "+user);
+		LOGGER.debug("User is : {}",user);
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} else {
 			LOGGER.info("Exit UserDetailsServiceImpl :: loadUserByUsername() : user found");
-			return SecurityUserFactory.create(user);
+			return securityUserFactory.create(user);
 		}
 	}
 }

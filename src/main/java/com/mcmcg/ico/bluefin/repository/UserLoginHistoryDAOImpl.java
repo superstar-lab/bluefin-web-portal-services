@@ -16,13 +16,14 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
 public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(UserLoginHistoryDAOImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(UserLoginHistoryDAOImpl.class);
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -40,12 +41,12 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 		// PreparedStatement.
 		DateTime utc1 = userLoginHistory.getLoginDateTime().withZone(DateTimeZone.UTC);
 		DateTime utc2 = userLoginHistory.getDateCreated().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp loginDateTime = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
 		
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveUserLoginHistory,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEUSERLOGINHISTORY,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, userLoginHistory.getUserId()!=null?userLoginHistory.getUserId():Long.valueOf("0"));
 				ps.setTimestamp(2, loginDateTime);
@@ -58,7 +59,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 
 		Long id = holder.getKey().longValue();
 		userLoginHistory.setUserLoginHistoryId(id);
-		LOGGER.debug("UserLoginHistoryDAOImpl :: saveUserLoginHistory() : Saved userLoginHistory - id: " + id);
+		logger.debug("UserLoginHistoryDAOImpl :: saveUserLoginHistory() : Saved userLoginHistory - id: " + id);
 
 		return id;
 	}

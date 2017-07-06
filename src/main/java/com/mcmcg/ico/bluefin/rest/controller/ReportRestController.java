@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
@@ -44,7 +45,8 @@ import springfox.documentation.annotations.ApiIgnore;
 public class ReportRestController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReportRestController.class);
-
+	private static final String DELETETEMPFILE = "Deleting temp file: {}";
+	
 	@Autowired
 	private TransactionService transactionService;
 	@Autowired
@@ -69,8 +71,8 @@ public class ReportRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-
-		LOGGER.debug("transactions service ::: Entered : search "+search);
+		
+		LOGGER.debug("transactions service ::: Entered : search {} ",search);
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
@@ -81,12 +83,12 @@ public class ReportRestController {
 
 		File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 		
 		// Below line found in releases while merging, but was not available in develop branch
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -108,32 +110,35 @@ public class ReportRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-		LOGGER.debug("payment-processor-remittances service ::: Entered : search "+search);
-		
+		LOGGER.debug("payment-processor-remittances service ::: Entered : search {} , sort {} ",search,sort);
+		String searchVal;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
-			search = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+			searchVal = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		} else {
+			searchVal = search;
 		}
 
 		boolean negate = false;
 		// For 'Not Reconciled' status, which is not in the database, simply
 		// use: WHERE ReconciliationID != 'Reconciled'
-		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(search,"reconciliationStatusId");
-		LOGGER.debug("payment-processor-remittances service ::: reconciliationStatusId : "+reconciliationStatusId);
+		String reconciliationStatusId = ApplicationUtil.getValueFromParameter(searchVal,"reconciliationStatusId");
+		LOGGER.debug("payment-processor-remittances service ::: reconciliationStatusId : {}",reconciliationStatusId);
 		if ("notReconciled".equals(reconciliationStatusId)) {
 			String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
-			search = search.replaceAll("notReconciled", id);
+			searchVal = searchVal.replaceAll("notReconciled", id);
 			negate = true;
 		}
 		
-		File downloadFile = transactionService.getRemittanceTransactionsReport(search, timeZone,negate);
+		File downloadFile = transactionService.getRemittanceTransactionsReport(searchVal, timeZone,negate);
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
-
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
+		
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
-		downloadFile.delete();
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
+		boolean deleted = downloadFile.delete();
+		LOGGER.debug("File deleted ? {}",deleted);
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 
@@ -153,11 +158,11 @@ public class ReportRestController {
 		File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
 
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -179,11 +184,11 @@ public class ReportRestController {
 		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
 		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType("application/octet-stream");
-		response.setHeader("Content-Disposition", "attachment; filename=" + downloadFile.getName());
+		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 
 		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug("Deleting temp file: {}", downloadFile.getName());
+		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
 		downloadFile.delete();
 		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}

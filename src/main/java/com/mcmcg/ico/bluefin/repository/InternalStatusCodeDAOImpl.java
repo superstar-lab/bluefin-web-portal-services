@@ -25,6 +25,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -44,7 +45,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	public InternalStatusCode findByInternalStatusCodeAndTransactionTypeName(String internalStatusCode,
 			String transactionTypeName) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findByInternalStatusCodeAndTransactionType, new Object[] { internalStatusCode,transactionTypeName },
+			return jdbcTemplate.queryForObject(Queries.FINDBYINTERNALSTATUSCODEANDTRANSACTIONTYPE, new Object[] { internalStatusCode,transactionTypeName },
 					new InternalStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -59,9 +60,9 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		LOGGER.debug("InternalStatusCodeDAOImpl :: findByTransactionTypeNameOrderByInternalStatusCodeAsc() : Fetching Internal status codes for transaction type="+transactionTypeName);
 		List<InternalStatusCode> fetchedInternalStatusCodeByTransactionTypeList;
 		if ("ALL".equalsIgnoreCase(transactionTypeName)) { 
-			fetchedInternalStatusCodeByTransactionTypeList = sortInternalStatusCode( jdbcTemplate.query( Queries.findAllInternalStatusCode, new InternalStatusCodeRowMapper() ) );
+			fetchedInternalStatusCodeByTransactionTypeList = sortInternalStatusCode( jdbcTemplate.query( Queries.FINDALLINTERNALSTATUSCODE, new InternalStatusCodeRowMapper() ) );
 		} else {
-			fetchedInternalStatusCodeByTransactionTypeList = jdbcTemplate.query( Queries.findAllInternalStatusCodeByTransactionType, new Object[] {transactionTypeName },
+			fetchedInternalStatusCodeByTransactionTypeList = jdbcTemplate.query( Queries.FINDALLINTERNALSTATUSCODEBYTRANSACTIONTYPE, new Object[] {transactionTypeName },
 					new InternalStatusCodeRowMapper());
 		}
 		
@@ -80,12 +81,12 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		
 		DateTime utc1 = internalStatusCode.getCreatedDate() != null ? internalStatusCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		DateTime utc2 =  internalStatusCode.getModifiedDate() != null ? internalStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-			PreparedStatement ps = connection.prepareStatement(Queries.saveInternalStatusCode, Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEINTERNALSTATUSCODE, Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, internalStatusCode.getInternalStatusCodeValue());
 			ps.setString(2, internalStatusCode.getInternalStatusCodeDescription());
 			ps.setString(3, internalStatusCode.getLastModifiedBy());
@@ -117,10 +118,10 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	public InternalStatusCode update(InternalStatusCode internalStatusCode) {
 		LOGGER.debug("InternalStatusCodeDAOImpl :: update() : Updating Internal Status Code"+(internalStatusCode.getInternalStatusCodeId()));
 		DateTime utc4 = internalStatusCode.getModifiedDate() != null ? internalStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
 		
-		int rows = jdbcTemplate.update(Queries.updateInternalStatusCode,
+		int rows = jdbcTemplate.update(Queries.UPDATEINTERNALSTATUSCODE,
 					new Object[] { 	internalStatusCode.getInternalStatusCodeValue(), internalStatusCode.getInternalStatusCodeDescription(), internalStatusCode.getLastModifiedBy(), 
 									internalStatusCode.getInternalStatusCategoryAbbr(), internalStatusCode.getInternalStatusCategory(), internalStatusCode.getTransactionTypeName(),
 									dateModified, internalStatusCode.getInternalStatusCodeId()
@@ -200,7 +201,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	@Override
 	public InternalStatusCode findOne(Long internalStatusCodeId) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findInternalStatusCodeById, new Object[] { internalStatusCodeId },
+			return jdbcTemplate.queryForObject(Queries.FINDINTERNALSTATUSCODEBYID, new Object[] { internalStatusCodeId },
 					new InternalStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -214,7 +215,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	public void delete(Long internalStatusCodeId) {
 		paymentProcessorInternalStatusCodeDAO.delete(internalStatusCodeId);
 		LOGGER.debug("InternalStatusCodeDAOImpl :: delete() : Deleting InternalStatusCodeId {}",internalStatusCodeId);
-		jdbcTemplate.update(Queries.deleteInternalStatusCode, internalStatusCodeId);
+		jdbcTemplate.update(Queries.DELETEINTERNALSTATUSCODE, internalStatusCodeId);
 		LOGGER.debug("InternalStatusCodeDAOImpl :: delete() : Record deleted successfully InternalStatusCodeId {}",internalStatusCodeId);
 	}
 

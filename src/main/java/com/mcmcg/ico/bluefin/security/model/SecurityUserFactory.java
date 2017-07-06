@@ -7,7 +7,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
@@ -20,21 +19,16 @@ import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 public class SecurityUserFactory {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUserFactory.class);
-
-	private static RoleDAO roleDAO;
-	private static UserRoleDAO userRoleDAO;
-
 	@Autowired
-	public SecurityUserFactory(RoleDAO roleDAO, UserRoleDAO userRoleDAO) {
-		SecurityUserFactory.roleDAO = roleDAO;
-		SecurityUserFactory.userRoleDAO = userRoleDAO;
-	}
+	private RoleDAO roleDAO;
+	@Autowired
+	private UserRoleDAO userRoleDAO;
 
-	public static SecurityUser create(User user) {
+	public SecurityUser create(User user) {
 		return new SecurityUser(user, getRoles(userRoleDAO.findByUserId(user.getUserId())));
 	}
 
-	public static Collection<? extends GrantedAuthority> getRoles(Collection<UserRole> roles) {
+	public Collection<SimpleGrantedAuthority> getRoles(Collection<UserRole> roles) {
 		LOGGER.info("Entering SecurityUserFactory :: getRoles()");
 		List<SimpleGrantedAuthority> result = new ArrayList<>();
 		if (roles == null) {

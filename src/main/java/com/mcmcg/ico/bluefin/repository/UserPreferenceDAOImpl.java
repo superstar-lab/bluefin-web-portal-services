@@ -28,7 +28,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 
 	@Override
 	public Long findPreferenceIdByPreferenceKey(String prefKey) {
-		Long preferenceKey = jdbcTemplate.queryForObject(Queries.findPreferenceIdByPreferenceKey, new Object[] { prefKey },  Long.class);
+		Long preferenceKey = jdbcTemplate.queryForObject(Queries.FINDPREFERENCEIDBYPREFERENCEKEY, new Object[] { prefKey },  Long.class);
 		LOGGER.debug("UserPreferenceDAOImpl :: findPreferenceIdByPreferenceKey() : preferenceKey : "+preferenceKey);
 		return preferenceKey;
 	}
@@ -36,7 +36,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	@Override
 	public UserPreference findUserPreferenceIdByPreferenceId(Long userId, long preferenceId) {
 		try {
-		return jdbcTemplate.queryForObject(Queries.findPreferenceIdByPreferenceId,
+		return jdbcTemplate.queryForObject(Queries.FINDPREFERENCEIDBYPREFERENCEID,
 				new Object[] { userId, preferenceId }, new UserPreferenceRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -49,7 +49,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	@Override
 	public UserPreference updateUserTimeZonePreference(UserPreference userPrefrence) {
 		LOGGER.debug("UserPreferenceDAOImpl :: updateUserTimeZonePreference() : Updating User Preference, UserPreferenceId - "+(userPrefrence.getUserPrefeenceID()));
-		int rows = jdbcTemplate.update(Queries.updateUserPreference,
+		int rows = jdbcTemplate.update(Queries.UPDATEUSERPREFERENCE,
 					new Object[] { 	userPrefrence.getPreferenceValue(), userPrefrence.getUserPrefeenceID() });
 		LOGGER.debug("UserPreferenceDAOImpl :: updateUserTimeZonePreference() : Updated UserPreference, No of Rows Updated " + rows);
 		return userPrefrence;
@@ -59,7 +59,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	public UserPreference insertUserTimeZonePreference(UserPreference userPrefrence) {
 		KeyHolder holder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveUserPreference,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEUSERPREFERENCE,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, userPrefrence.getPreferenceKeyID()); // PreferenceKeyID
 				ps.setString(2, userPrefrence.getPreferenceValue()); //PreferenceValue
@@ -76,7 +76,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 	@Override
 	public String getSelectedTimeZone(Long userId) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findSelectedTimeZoneByUserId, new Object[] { userId },  String.class);
+			return jdbcTemplate.queryForObject(Queries.FINDSELECTEDTIMEZONEBYUSERID, new Object[] { userId },  String.class);
 		} catch (EmptyResultDataAccessException e) {
 			LOGGER.error("UserPreferenceDAOImpl :: getSelectedTimeZone() : No time zone saved for userid="+userId,e);
 			return null;

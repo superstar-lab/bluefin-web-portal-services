@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.SecurityTokenBlacklist;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.repository.SecurityTokenBlacklistDAO;
@@ -49,7 +50,7 @@ public class TokenUtils {
 		Date created;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			created = new Date((Long) claims.get("created"));
+			created = new Date((Long) claims.get(BluefinWebPortalConstants.CREATED));
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get date from token = {}",token,e);
@@ -120,28 +121,45 @@ public class TokenUtils {
 	}
 
 	private Date generateExpirationDate(TokenType type) {
+		Date valToReturn;
 		switch (type) {
-		case AUTHENTICATION:
-			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("AUTHENTICATION_TOKEN_EXPIRATION")) * 1000);
-		case FORGOT_PASSWORD:
-			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("RESET_PASSWORD_TOKEN_EXPIRATION")) * 1000);
-		case REGISTER_USER:
-			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("REGISTER_USER_TOKEN_EXPIRATION")) * 1000);
-		case APPLICATION:
-			return new Date(System.currentTimeMillis()
-					+ Long.parseLong(propertyService.getPropertyValue("APPLICATION_TOKEN_EXPIRATION")) * 1000);
-		case TRANSACTION:
-			return new Date(System.currentTimeMillis()
-					+ Long.parseLong(propertyService.getPropertyValue("TOKEN_TRANSACTION_EXPIRATION")) * 1000);			
-		default:
-			return new Date(System.currentTimeMillis()
-					+ Integer.parseInt(propertyService.getPropertyValue("TOKEN_EXPIRATION")) * 1000);
+			case AUTHENTICATION:
+				valToReturn = getDate("AUTHENTICATION_TOKEN_EXPIRATION",1);
+				break;
+			case FORGOT_PASSWORD:
+				valToReturn = getDate("RESET_PASSWORD_TOKEN_EXPIRATION",1);
+				break;
+			case REGISTER_USER:
+				valToReturn = getDate("REGISTER_USER_TOKEN_EXPIRATION",1);
+				break;
+			case APPLICATION:
+				valToReturn = getDate("APPLICATION_TOKEN_EXPIRATION",0);
+				break;
+			case TRANSACTION:
+				valToReturn = getDate("TOKEN_TRANSACTION_EXPIRATION",0);
+				break;
+			default:
+				valToReturn = getDate("TOKEN_EXPIRATION",1);
+				break;
+		}
+		return valToReturn;
+	}
+	
+	private Date getDate(String prpName,int type){
+		if (type == 1) {
+			return new Date(System.currentTimeMillis() + getValueAsInt(prpName) );
+		} else {
+			return new Date(System.currentTimeMillis() + getValueAsLong(prpName) );
 		}
 	}
+	
+	private int getValueAsInt(String prpName){
+		return Integer.parseInt(propertyService.getPropertyValue(prpName)) * 1000;
+	}
 
+	private long getValueAsLong(String prpName){
+		return Long.parseLong(propertyService.getPropertyValue(prpName)) * 1000;
+	}
 	private Boolean isTokenExpired(String token) {
 		final Date expiration = this.getExpirationDateFromToken(token);
 		return expiration.before(this.generateCurrentDate());
@@ -154,7 +172,7 @@ public class TokenUtils {
 	public String generateToken(UserDetails userDetails, TokenType type, String url) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("sub", userDetails.getUsername());
-		claims.put("created", this.generateCurrentDate());
+		claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
 		claims.put("type", type.name());
 		claims.put("url", url);
 		return this.generateToken(claims);
@@ -179,7 +197,7 @@ public class TokenUtils {
 		String refreshedToken;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			claims.put("created", this.generateCurrentDate());
+			claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
 			refreshedToken = this.generateToken(claims);
 		} catch (Exception e) {
 			if (LOGGER.isDebugEnabled()) {
@@ -191,9 +209,13 @@ public class TokenUtils {
 	}
 
 	public Boolean validateToken(String token, UserDetails userDetails) {
-		final String username = this.getUsernameFromToken(token);
-		return username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
-				&& !isTokenInBlacklist(token, username);
+		if(userDetails != null){
+			final String username = this.getUsernameFromToken(token);
+			return username != null && username.equalsIgnoreCase(userDetails.getUsername()) && !this.isTokenExpired(token)
+					&& !isTokenInBlacklist(token, username);			
+		}else{
+			return false;
+		}
 	}
 
 	public SecurityTokenBlacklist sendTokenToBlacklist(String token, String username) {
@@ -201,7 +223,6 @@ public class TokenUtils {
 		SecurityTokenBlacklist blacklistToken = new SecurityTokenBlacklist();
 		blacklistToken.setToken(token);
 		blacklistToken.setUserId(user.getUserId());
-		// TODO: multiple token types
 		blacklistToken.setType(TokenType.AUTHENTICATION.name());
 		long tokenId = securityTokenBlacklistDAO.saveSecurityTokenBlacklist(blacklistToken);
 		return securityTokenBlacklistDAO.findByTokenId(tokenId);

@@ -22,6 +22,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -37,7 +38,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 	public Permission findByPermissionId(long permissionId) {
 		Permission permission;
 
-		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.findPermissionByPermissionId,
+		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONID,
 				new Object[] { permissionId }, new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
 		LOGGER.debug("PermissionDAOImpl :: findByPermissionId : Permission list : " + list.size());
 		permission = DataAccessUtils.singleResult(list);
@@ -54,7 +55,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 	@Override
 	public Permission findByPermissionName(String permissionName) {
 		Permission permission;
-		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.findPermissionByPermissionName,
+		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONNAME,
 				new Object[] { permissionName },
 				new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
 		LOGGER.debug("PermissionDAOImpl :: findByPermissionName() : Permission list : " + list.size());
@@ -82,12 +83,12 @@ public class PermissionDAOImpl implements PermissionDAO {
 		// PreparedStatement.
 		DateTime utc1 = permission.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc2 = permission.getDateModified().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePermission,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPERMISSION,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, permission.getPermissionName()); // PermissionName
 				ps.setString(2, permission.getDescription()); // Description

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
@@ -82,10 +83,10 @@ public class SessionRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> logout(HttpServletRequest request) {
     	LOGGER.info("Inside logoutUser");
-        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+        final String token = request.getHeader(propertyService.getPropertyValue(BluefinWebPortalConstants.TOKENHEADER));
 
         if (token == null) {
-            throw new CustomBadRequestException("An authorization token is required to request this resource");
+            throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
         }
 
         sessionService.deleteSession(token);
@@ -101,13 +102,13 @@ public class SessionRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public AuthenticationResponse refreshAuthanticationToken(HttpServletRequest request) {
     	LOGGER.info("Inside refreshAuthanticationToken");
-        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+        final String token = request.getHeader(propertyService.getPropertyValue(BluefinWebPortalConstants.TOKENHEADER));
         LOGGER.debug("refreshAuthanticationToken token "+token);
         if (token != null) {
             return sessionService.refreshToken(token);
         }
 
-        throw new CustomBadRequestException("An authorization token is required to request this resource");
+        throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
     }
 
     @ApiOperation(value = "Reset password", nickname = "resetPassword")
@@ -157,7 +158,10 @@ public class SessionRestController {
             return sessionService.generateToken(username,TokenType.APPLICATION);
     }
     
-    @ApiOperation(value = "generateTransactionToken", nickname = "generateTransactionToken")
+ /** 
+  * Below code is being used for iframe POC, to generated token and validating token for security implmentation
+  * 
+  * @ApiOperation(value = "generateTransactionToken", nickname = "generateTransactionToken")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json", value = "/transaction-token/{username}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = AuthenticationResponse.class),
@@ -178,14 +182,14 @@ public class SessionRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Boolean authenticationTransaction(HttpServletRequest request,@ApiIgnore Authentication authentication) {
     	LOGGER.info("Inside authanticateTransaction ");
-        final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
+        final String token = request.getHeader(propertyService.getPropertyValue(BluefinWebPortalConstants.TOKENHEADER));
         LOGGER.debug("authanticateTransaction token "+token);
         if(authentication != null && authentication.isAuthenticated() ){
         	// do nothing, that means filter has already validated token and move forward
         	return true;
         }
 
-        throw new CustomBadRequestException("An authorization token is required to request this resource");
+        throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
     }
-
+*/
 }

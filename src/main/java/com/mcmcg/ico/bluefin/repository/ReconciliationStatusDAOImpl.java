@@ -29,7 +29,7 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 
 	@Override
 	public List<ReconciliationStatus> findAll() {
-		List<ReconciliationStatus> list = jdbcTemplate.query(Queries.findAllReconciliationStatuses,
+		List<ReconciliationStatus> list = jdbcTemplate.query(Queries.FINDALLRECONCILIATIONSTATUSES,
 				new ReconciliationStatusRowMapper());
 		LOGGER.debug("ReconciliationStatusDAOImpl :: findAll() : Number of rows: " + ( list != null ? list.size() : 0 ));
 		return list;
@@ -38,7 +38,7 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 	@Override
 	public ReconciliationStatus findByReconciliationStatusId(long reconciliationStatusId) {
 		ArrayList<ReconciliationStatus> list = (ArrayList<ReconciliationStatus>) jdbcTemplate.query(
-				Queries.findReconciliationStatusByReconciliationStatusId, new Object[] { reconciliationStatusId },
+				Queries.FINDRECONCILIATIONSTATUSBYRECONCILIATIONSTATUSID, new Object[] { reconciliationStatusId },
 				new RowMapperResultSetExtractor<ReconciliationStatus>(new ReconciliationStatusRowMapper()));
 		ReconciliationStatus reconciliationStatus = DataAccessUtils.singleResult(list);
 
@@ -54,7 +54,7 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 	@Override
 	public ReconciliationStatus findByReconciliationStatus(String status) {
 		ArrayList<ReconciliationStatus> list = (ArrayList<ReconciliationStatus>) jdbcTemplate.query(
-				Queries.findReconciliationStatusByReconciliationStatus, new Object[] { status },
+				Queries.FINDRECONCILIATIONSTATUSBYRECONCILIATIONSTATUS, new Object[] { status },
 				new RowMapperResultSetExtractor<ReconciliationStatus>(new ReconciliationStatusRowMapper()));
 		LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatus() : ReconciliationStatus size : "+list.size());
 		ReconciliationStatus reconciliationStatus = DataAccessUtils.singleResult(list);

@@ -26,6 +26,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -39,7 +40,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 	@Override
 	public List<Role> findAll() {
-		List<Role> list = jdbcTemplate.query(Queries.findAllRoles, new RoleRowMapper());
+		List<Role> list = jdbcTemplate.query(Queries.FINDALLROLES, new RoleRowMapper());
 
 		LOGGER.debug("RoleDAOImpl :: findAll() : Number of rows: " + list.size());
 
@@ -50,7 +51,7 @@ public class RoleDAOImpl implements RoleDAO {
 	public List<Role> findAll(List<Long> roleIds) {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 		Map<String, List<Long>> map = Collections.singletonMap("roleIds", roleIds);
-		List<Role> list = namedParameterJdbcTemplate.query(Queries.findAllRolesByIds, map, new RoleRowMapper());
+		List<Role> list = namedParameterJdbcTemplate.query(Queries.FINDALLROLESBYIDS, map, new RoleRowMapper());
 
 		LOGGER.debug("RoleDAOImpl :: findAll(list) : Number of rows: " + list.size());
 
@@ -59,7 +60,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 	@Override
 	public Role findByRoleId(long roleId) {
-		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.findRoleByRoleId, new Object[] { roleId },
+		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.FINDROLEBYROLEID, new Object[] { roleId },
 				new RowMapperResultSetExtractor<Role>(new RoleRowMapper()));
 		LOGGER.debug("RoleDAOImpl :: findByRoleId() : Role size : "+list.size());
 		Role role = DataAccessUtils.singleResult(list);
@@ -75,7 +76,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 	@Override
 	public Role findByRoleName(String roleName) {
-		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.findRoleByRoleName,
+		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.FINDROLEBYROLENAME,
 				new Object[] { roleName }, new RowMapperResultSetExtractor<Role>(new RoleRowMapper()));
 		LOGGER.debug("RoleDAOImpl :: findByRoleName() : Role size : "+list.size());
 		Role role = DataAccessUtils.singleResult(list);
@@ -102,12 +103,12 @@ public class RoleDAOImpl implements RoleDAO {
 		// PreparedStatement.
 		DateTime utc1 = role.getDateCreated().withZone(DateTimeZone.UTC);
 		DateTime utc2 = role.getDateModified().withZone(DateTimeZone.UTC);
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.saveRole, Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEROLE, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, role.getRoleName()); // RoleName
 				ps.setString(2, role.getDescription()); // Description
 				ps.setTimestamp(3, dateCreated); // DateCreated

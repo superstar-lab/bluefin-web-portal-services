@@ -361,30 +361,31 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     @JsonView({ Views.Extend.class, Views.Summary.class })
     private Integer saleIsRefunded;
 
-    @Transient
+	private String saleProcessor;
+	private String saleAccountId;
+	private BigDecimal saleChargeAmount;
+	
+
+	@Transient
     @JsonProperty("ReconDate.Processor_Name")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String reProcessorName;
+    private String reconProcessorName;
 
     @Transient
     @JsonProperty("ReconDate.MID")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String MID;
+    private String mid;
 
     @Transient
     @JsonProperty("ReconDate.ReconciliationStatus_ID")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String reReconciliationStatusId;
-    
-    private String saleProcessor;
-	private String saleAccountId;
-	private BigDecimal saleChargeAmount;
-	
-    public PaymentProcessorRemittance() {
+    private String reconReconciliationStatusId;
+
+	public PaymentProcessorRemittance() {
 		// Default constructor
 	}
-    
-    @JsonProperty("sale.paymentFrequency")
+	
+	@JsonProperty("sale.paymentFrequency")
     @JsonView({ Views.Extend.class, Views.Summary.class })
     public String getSalePaymentFrequency() {
         return PaymentFrequency.getPaymentFrequency(saleOrigin).toString();
@@ -580,9 +581,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
         return transactionTime;
     }
 
-	
-	// setter and getters added by dheeraj
-	public DateTime getCreatedDate() {
+    public DateTime getCreatedDate() {
 		return createdDate;
 	}
 
@@ -1054,28 +1053,28 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.saleBatchUploadId = saleBatchUploadId;
 	}
 
-	public String getReProcessorName() {
-		return reProcessorName;
+	public String getReconProcessorName() {
+		return reconProcessorName;
 	}
 
-	public void setReProcessorName(String processor_Name) {
-		this.reProcessorName = processor_Name;
+	public void setRecondProcessorName(String processorName) {
+		this.reconProcessorName = processorName;
 	}
 
-	public String getMID() {
-		return MID;
+	public String getMid() {
+		return mid;
 	}
 
-	public void setMID(String mID) {
-		MID = mID;
+	public void setMid(String mID) {
+		mid = mID;
 	}
 
-	public String getReReconciliationStatusId() {
-		return reReconciliationStatusId;
+	public String getReconReconciliationStatusId() {
+		return reconReconciliationStatusId;
 	}
 
-	public void setReReconciliationStatusId(String reconciliationStatus_ID) {
-		reReconciliationStatusId = reconciliationStatus_ID;
+	public void setReconReconciliationStatusId(String reconciliationStatusID) {
+		reconReconciliationStatusId = reconciliationStatusID;
 	}
 
 	public String getSaleProcessor() {

@@ -13,7 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.RolePermission;
@@ -41,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private RolePermissionDAO rolePermissionDAO;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username){
 		LOGGER.info("Entering CustomUserDetailsService :: loadUserByUsername()");
 		User user = userDAO.findByUsername(username);
 

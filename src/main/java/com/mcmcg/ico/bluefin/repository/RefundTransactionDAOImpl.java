@@ -29,7 +29,7 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 	@Override
 	public RefundTransaction findByApplicationTransactionId(String transactionId) {
 		ArrayList<RefundTransaction> list = (ArrayList<RefundTransaction>) jdbcTemplate.query(
-				Queries.findRefundTransactionByApplicationTransactionId, new Object[] { transactionId },
+				Queries.FINDREFUNDTRANSACTIONBYAPPLICATIONTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<RefundTransaction>(new RefundTransactionRowMapper()));
 		LOGGER.debug("RefundTransactionDAOImpl :: findByApplicationTransactionId : RefundTransaction size : "+list.size());
 		RefundTransaction refundTransaction = DataAccessUtils.singleResult(list);

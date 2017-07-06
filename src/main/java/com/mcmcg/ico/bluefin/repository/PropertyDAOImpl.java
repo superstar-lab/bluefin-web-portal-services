@@ -29,7 +29,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 	@Override
 	public Property findByName(String name) {
 		Property property;
-		ArrayList<Property> list = (ArrayList<Property>) jdbcTemplate.query(Queries.findPropertyByName,
+		ArrayList<Property> list = (ArrayList<Property>) jdbcTemplate.query(Queries.FINDPROPERTYBYNAME,
 				new Object[] { name }, new RowMapperResultSetExtractor<Property>(new PropertyRowMapper()));
 		LOGGER.debug("PropertyDAOImpl :: findByName() : Property size : "+list.size());
 		property = DataAccessUtils.singleResult(list);

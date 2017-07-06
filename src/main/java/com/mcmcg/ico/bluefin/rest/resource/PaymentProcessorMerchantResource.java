@@ -21,7 +21,7 @@ public class PaymentProcessorMerchantResource implements Serializable {
     @NotNull(message = "Please provide a testOrProd flag for the payment processor merchant")
     private Short testOrProd;
 
-    public com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant toPaymentProcessorMerchant() {
+    public PaymentProcessorMerchant toPaymentProcessorMerchant() {
         PaymentProcessorMerchant paymentProcessorMerchant = new PaymentProcessorMerchant();
         paymentProcessorMerchant.setLegalEntityAppId(legalEntityAppId);
         paymentProcessorMerchant.setMerchantId(merchantId);

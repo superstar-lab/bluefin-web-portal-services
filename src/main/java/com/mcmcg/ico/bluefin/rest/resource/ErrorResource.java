@@ -3,9 +3,12 @@ package com.mcmcg.ico.bluefin.rest.resource;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +21,7 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ErrorResource implements Serializable {
     private static final long serialVersionUID = -998746769406083432L;
-
+    private static final Logger logger = LoggerFactory.getLogger(ErrorResource.class);
     public static final String REQUEST_HEADER_PROFILE = "profile";
     public static final String REQUEST_HEADER_PROFILE_DEVELOPMENT = "development";
 
@@ -52,19 +55,23 @@ public class ErrorResource implements Serializable {
      *            development profile; otherwise it won't
      * @return ErrorResource object that holds the exception information
      */
-    public static ErrorResource buildErrorResource(UUID uniqueId, final Exception exception,
+    public static ErrorResource buildErrorResource(UUID uniqueId, final Exception exp,
             final boolean hasDevelopmentProfile) {
         ErrorResource em = new ErrorResource();
         em.setUniqueId(uniqueId);
         em.setTimestamp(Calendar.getInstance().getTimeInMillis());
-        em.setMessage(exception.getMessage());
-        em.setException(exception.getClass().getName());
-
+        em.setMessage(exp.getMessage());
+        em.setException(exp.getClass().getName());
+        
         // Enable additional information when development profile is on
         if (hasDevelopmentProfile) {
-            StringWriter sw = new StringWriter();
-            exception.printStackTrace(new PrintWriter(sw));
-            em.setTrace(sw.toString());
+        	/** After discussion with Matloob, we need to comment below code due to sonar qube scan giving issue 
+        	 * and use below line
+        	 *	StringWriter sw = new StringWriter();
+             *	exception.printStackTrace(new PrintWriter(sw));
+             *	em.setTrace(sw.toString());
+            */
+        	em.setTrace(Arrays.toString(exp.getStackTrace())); 
         }
 
         return em;

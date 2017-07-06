@@ -27,6 +27,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -49,7 +50,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCodeList;
 		
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorStatusCodeByCodeId,
+				.query(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYCODEID,
 						new Object[] { transactionTypeName, paymentProcessorStatusCode,
 								paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
@@ -74,7 +75,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 			String transactionTypeName, PaymentProcessor paymentProcessor) {
 
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
-				.query(Queries.findPaymentProcessorStatusCodeByTypeId,
+				.query(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYTYPEID,
 						new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
 								new PaymentProcessorStatusCodeRowMapper()));
@@ -92,7 +93,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	@Override
 	public PaymentProcessorStatusCode findOne(Long paymentProcessorStatusCode) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorStatusCodeById, new Object[] { paymentProcessorStatusCode },
+			return jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYID, new Object[] { paymentProcessorStatusCode },
 					new PaymentProcessorStatusCodeRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -104,7 +105,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 	@Override
 	public void deletePaymentProcessorStatusCode(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorStatusCodeByID, new Object[] { paymentProcessorId });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORSTATUSCODEBYID, new Object[] { paymentProcessorId });
 		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: deletePaymentProcessorStatusCode() : Deleted payment Processor Status Code by  PaymentProcessorId: " + paymentProcessorId + ", rows affected = " + rows);
 	}
 
@@ -112,15 +113,15 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	public PaymentProcessorStatusCode save(PaymentProcessorStatusCode paymentProcessorStatusCode) {
 		KeyHolder holder = new GeneratedKeyHolder();
 
-		DateTime utc1 = paymentProcessorStatusCode.getCreatedDate() != null ? paymentProcessorStatusCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
-		DateTime utc2 =  paymentProcessorStatusCode.getModifiedDate() != null ? paymentProcessorStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc1 = paymentProcessorStatusCode.getDateCreated() != null ? paymentProcessorStatusCode.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc2 =  paymentProcessorStatusCode.getDateModified() != null ? paymentProcessorStatusCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
 
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorStatusCode,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPAYMENTPROCESSORSTATUSCODE,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId()); // ProcessorName
 				ps.setString(2, paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue()); // Status Code
@@ -140,12 +141,12 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 	@Override
 	public PaymentProcessorStatusCode update(PaymentProcessorStatusCode paymentProcessorStatusCode) {
-		DateTime utc1 =  paymentProcessorStatusCode.getModifiedDate() != null ? paymentProcessorStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
+		DateTime utc1 =  paymentProcessorStatusCode.getDateModified() != null ? paymentProcessorStatusCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 
-		DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
 
-		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorStatusCode,
+		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORSTATUSCODE,
 				new Object[] { 	paymentProcessorStatusCode.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorStatusCode.getPaymentProcessorStatusCodeValue(), 
 								paymentProcessorStatusCode.getTransactionTypeName(), paymentProcessorStatusCode.getPaymentProcessorStatusCodeDescription(),
 								dateModified,paymentProcessorStatusCode.getLastModifiedBy(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()
@@ -167,8 +168,8 @@ class PaymentProcessorStatusCodeRowMapper implements RowMapper<com.mcmcg.ico.blu
 		PaymentProcessor paymentProcessor = new PaymentProcessor();
 		paymentProcessor.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));
 		paymentProcessorStatusCode.setPaymentProcessor(paymentProcessor);
-		paymentProcessorStatusCode.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
-		paymentProcessorStatusCode.setModifiedDate(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
+		paymentProcessorStatusCode.setDateCreated(new DateTime(rs.getTimestamp("DateCreated")));
+		paymentProcessorStatusCode.setDateModified(new DateTime(rs.getTimestamp("DatedModified"))); // Misspelled
 		paymentProcessorStatusCode.setLastModifiedBy(rs.getString("ModifiedBy"));
 
 		return paymentProcessorStatusCode;

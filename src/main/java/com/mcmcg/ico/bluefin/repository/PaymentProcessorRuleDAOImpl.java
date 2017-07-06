@@ -26,6 +26,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
@@ -47,7 +48,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findPaymentProccessorRulByProcessorId(
 			Long paymentProcessorId) {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
-				.query(Queries.findPaymentProcessorRuleById, new Object[] { paymentProcessorId },
+				.query(Queries.FINDPAYMENTPROCESSORRULEBYID, new Object[] { paymentProcessorId },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 
@@ -57,7 +58,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorRules, new Object[] { paymentProcessorId });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRULES, new Object[] { paymentProcessorId });
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: deletePaymentProcessorRules() : Deleted Payment Processor Rules for PaymentProcessor Id: " + paymentProcessorId
 				+ " rows affected: " + rows);
 	}
@@ -65,7 +66,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByCardType(String cardType) {
 		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
-				.query(Queries.findPaymentProcessorRuleByCardType, new Object[] { cardType },
+				.query(Queries.FINDPAYMENTPROCESSORRULEBYCARDTYPE, new Object[] { cardType },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findByCardType() : Number of rows: " + list.size());
@@ -78,10 +79,10 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 		DateTime utc1 = paymentProcessorRule.getCreatedDate() != null ? paymentProcessorRule.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		
-		DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+		DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dateCreatedDateFormat.print(utc1));
 		jdbcTemplate.update(connection->{
-				PreparedStatement ps = connection.prepareStatement(Queries.savePaymentProcessorRule,
+				PreparedStatement ps = connection.prepareStatement(Queries.SAVEPAYMENTPROCESSORRULE,
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorRule.getPaymentProcessor().getPaymentProcessorId()); // PaymentProcessorID
 				ps.setString(2, paymentProcessorRule.getCardType().name()); // DateCreated
@@ -103,7 +104,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public PaymentProcessorRule findOne(long paymentProcessorRuleId) {
 		try {
-			return jdbcTemplate.queryForObject(Queries.findPaymentProcessorRuleBy_ID, new Object[] { paymentProcessorRuleId },
+			return jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORRULEBY_ID, new Object[] { paymentProcessorRuleId },
 					new PaymentProcessorRuleRowMapper());
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -115,7 +116,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	@Override
 	public void delete(Long paymentProcessorRuleId) {
-		int rows = jdbcTemplate.update(Queries.deletePaymentProcessorRuleByID, new Object[] { paymentProcessorRuleId });
+		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRULEBYID, new Object[] { paymentProcessorRuleId });
 
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: delete() : Deleted Payment Processor Rule by Id: " + paymentProcessorRuleId + ", rows affected = " + rows);
 	}
@@ -123,7 +124,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public PaymentProcessorRule updatepaymentProcessorRule(PaymentProcessorRule paymentProcessorRuleToUpdate) {
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: updatepaymentProcessorRule() : Updating PaymentProcessorRule##"+(paymentProcessorRuleToUpdate.toString()) );
-		int rows = jdbcTemplate.update(Queries.updatePaymentProcessorRule,
+		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORRULE,
 					new Object[] { 	paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorRuleToUpdate.getCardType().name(), paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(), 
 							paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(), paymentProcessorRuleToUpdate.getPriority(),paymentProcessorRuleToUpdate.getPaymentProcessorRuleId()
 								 });
@@ -134,7 +135,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public List<PaymentProcessorRule> findByPaymentProcessor(Long paymentProcessorId) {
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
-				.query(Queries.findPaymentProcessorRulesByPaymentProcessorID,
+				.query(Queries.FINDPAYMENTPROCESSORRULESBYPAYMENTPROCESSORID,
 						new Object[] { paymentProcessorId },
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
@@ -151,7 +152,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public List<PaymentProcessorRule> findAll() {
 		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
-				.query(Queries.findAllProcessorRules,
+				.query(Queries.FINDALLPROCESSORRULES,
 						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findAll() : paymentProcessorRules size : "+paymentProcessorRules.size());

@@ -48,9 +48,9 @@ public class PaymentProcessorCodeService {
 	public boolean hasInternalResponseCodesAssociated(List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> responseCodes) {
 		LOGGER.debug("PaymentProcessorCodeService ::Entering to hasInternalResponseCodesAssociated() : responseCodes size : "+responseCodes.size());
 		for (com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode code : responseCodes) {
-			//if (code.getInternalResponseCode() != null && !code.getInternalResponseCode().isEmpty()) {
+			if (code.getInternalResponseCode() != null && !code.getInternalResponseCode().isEmpty()) {
 				return true;
-			//}
+			}
 		}
 		return false;
 	}
@@ -73,9 +73,9 @@ public class PaymentProcessorCodeService {
 	public boolean hasInternalStatusCodesAssociated(List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> statusCodes) {
 		LOGGER.debug("PaymentProcessorCodeService ::Entering to hasInternalStatusCodesAssociated() : statusCodes size : "+statusCodes.size());
 		for (com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode code : statusCodes) {
-			//if (code.getInternalStatusCode() != null && !code.getInternalStatusCode().isEmpty()) {
+			if (code.getInternalStatusCode() != null && !code.getInternalStatusCode().isEmpty()) {
 				return true;
-			//}
+			}
 		}
 		return false;
 	}

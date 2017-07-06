@@ -24,7 +24,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 
 	@Override
 	public List<Application> findAll() {
-		List<Application> list = jdbcTemplate.query(Queries.findAllApplications, new ApplicationRowMapper());
+		List<Application> list = jdbcTemplate.query(Queries.FINDALLAPPLICATIONS, new ApplicationRowMapper());
 
 		LOGGER.debug("ApplicationDAOImpl :: findAll() : Number of rows: " + list.size());
 

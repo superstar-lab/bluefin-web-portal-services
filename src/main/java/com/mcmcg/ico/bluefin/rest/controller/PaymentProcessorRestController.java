@@ -23,6 +23,7 @@ import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorMerchantResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorStatusResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorService;
 
@@ -131,7 +132,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public com.mcmcg.ico.bluefin.model.PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
-            @Validated @RequestBody Set<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchantResource> paymentProcessorMerchants,
+            @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
             @ApiIgnore Errors errors) {
         LOGGER.debug("Updating payment processors merchants = [{}] from payment processor id = [{}]",
                 paymentProcessorMerchants, id);

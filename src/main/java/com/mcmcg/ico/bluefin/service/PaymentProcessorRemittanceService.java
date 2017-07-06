@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
-import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
@@ -76,35 +75,32 @@ public class PaymentProcessorRemittanceService {
 		if (ppr == null) {
 			ppr = new PaymentProcessorRemittance();
 		}
-		SaleTransaction st = saleTransactionDAO.findByProcessorTransactionId(transactionId);
-		if (st == null) {
-			st = new SaleTransaction();
-		}
+		saleTransactionDAO.findByProcessorTransactionId(transactionId);
+		
+		PaymentProcessorRemittance paymentProcessorRemittanceObj = new PaymentProcessorRemittance();
+		paymentProcessorRemittanceObj.setPaymentProcessorRemittanceId(ppr.getPaymentProcessorRemittanceId());
+		paymentProcessorRemittanceObj.setDateCreated(ppr.getDateCreated());
+		paymentProcessorRemittanceObj.setReconciliationStatusId(ppr.getReconciliationStatusId());
+		paymentProcessorRemittanceObj.setReconciliationDate(ppr.getReconciliationDate()); 
+		paymentProcessorRemittanceObj.setPaymentMethod(ppr.getPaymentMethod());
+		paymentProcessorRemittanceObj.setTransactionAmount(ppr.getTransactionAmount());
+		paymentProcessorRemittanceObj.setTransactionType(ppr.getTransactionType()); 
+		paymentProcessorRemittanceObj.setTransactionTime(ppr.getTransactionTime()); 
+		paymentProcessorRemittanceObj.setAccountId(ppr.getAccountId()); 
+		paymentProcessorRemittanceObj.setApplication(ppr.getApplication());
+		paymentProcessorRemittanceObj.setProcessorTransactionId(ppr.getProcessorTransactionId()); 
+		paymentProcessorRemittanceObj.setMerchantId(ppr.getMerchantId()); 
+		paymentProcessorRemittanceObj.setTransactionSource(ppr.getTransactionSource()); 
+		paymentProcessorRemittanceObj.setFirstName(ppr.getFirstName());
+		paymentProcessorRemittanceObj.setLastName(ppr.getLastName()); 
+		paymentProcessorRemittanceObj.setRemittanceCreationDate(ppr.getRemittanceCreationDate()); 
+		paymentProcessorRemittanceObj.setPaymentProcessorId(ppr.getPaymentProcessorId()); 
+		paymentProcessorRemittanceObj.setReProcessStatus(null); 
+		paymentProcessorRemittanceObj.setEtlRunId(null); 
+		paymentProcessorRemittanceObj.setSaleAccountNumber(ppr.getSaleAccountNumber()); 
+		paymentProcessorRemittanceObj.setSaleAmount(ppr.getSaleAmount());
 
-		PaymentProcessorRemittance paymentProcessorRemittance = new PaymentProcessorRemittance();
-		paymentProcessorRemittance.setPaymentProcessorRemittanceId(ppr.getPaymentProcessorRemittanceId());
-		paymentProcessorRemittance.setDateCreated(ppr.getDateCreated());
-		paymentProcessorRemittance.setReconciliationStatusId(ppr.getReconciliationStatusId());
-		paymentProcessorRemittance.setReconciliationDate(ppr.getReconciliationDate()); 
-		paymentProcessorRemittance.setPaymentMethod(ppr.getPaymentMethod());
-		paymentProcessorRemittance.setTransactionAmount(ppr.getTransactionAmount());
-		paymentProcessorRemittance.setTransactionType(ppr.getTransactionType()); 
-		paymentProcessorRemittance.setTransactionTime(ppr.getTransactionTime()); 
-		paymentProcessorRemittance.setAccountId(ppr.getAccountId()); 
-		paymentProcessorRemittance.setApplication(ppr.getApplication());
-		paymentProcessorRemittance.setProcessorTransactionId(ppr.getProcessorTransactionId()); 
-		paymentProcessorRemittance.setMerchantId(ppr.getMerchantId()); 
-		paymentProcessorRemittance.setTransactionSource(ppr.getTransactionSource()); 
-		paymentProcessorRemittance.setFirstName(ppr.getFirstName());
-		paymentProcessorRemittance.setLastName(ppr.getLastName()); 
-		paymentProcessorRemittance.setRemittanceCreationDate(ppr.getRemittanceCreationDate()); 
-		paymentProcessorRemittance.setPaymentProcessorId(ppr.getPaymentProcessorId()); 
-		paymentProcessorRemittance.setReProcessStatus(null); 
-		paymentProcessorRemittance.setEtlRunId(null); 
-		paymentProcessorRemittance.setSaleAccountNumber(ppr.getSaleAccountNumber()); 
-		paymentProcessorRemittance.setSaleAmount(ppr.getSaleAmount());
-
-		result = paymentProcessorRemittance;
+		result = paymentProcessorRemittanceObj;
 
 		LOGGER.info("Exit from PaymentProcessorRemittanceService :: getRemittanceSaleResult()");
 		return result;
