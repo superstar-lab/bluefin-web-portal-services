@@ -188,7 +188,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	@Override
 	public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException {
-		logger.debug("CustomSaleTransactionDAOImpl :: Executing findTransaction, Search  Value {} , page{} ",search,page); 
+		logger.info("Fetching Transactions, Search  Value {} , page{} ",search,page); 
 		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,dynamicParametersMap);
 		logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : Query="+(query));
@@ -229,7 +229,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			list = new PageImpl(tr,page,countResult); 
 		} else {
 			list = new PageImpl( new ArrayList<>(),page,countResult);
-		}
+		} 
 		return list;
 	}
 
@@ -657,7 +657,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	private boolean validateOtherCases(String attribute, String prefix){
 		if (BluefinWebPortalConstants.REFUND.equals(prefix) || "VOID".equals(prefix)) {
-			if (refundOrVoidTypeAttributesFilterNames.contains(attribute)) {
+			if (refundOrVoidTypeAttributesFilterNames.contains(StringUtils.upperCase(attribute))) {
 				return true;
 			}
 		} else if (validateOtherAttributes(attribute)) {

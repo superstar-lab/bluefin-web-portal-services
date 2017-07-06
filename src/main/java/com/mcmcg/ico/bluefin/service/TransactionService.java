@@ -182,7 +182,7 @@ public class TransactionService {
 		List<LegalEntityApp> list = new ArrayList<>();
 		if (user != null) {
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
-				long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
+				long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
 				list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 			}
 		}
