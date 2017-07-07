@@ -103,7 +103,7 @@ public class InternalStatusCodeService {
 	
 	private InternalStatusCode populatenInternalStatusCode(InternalCodeResource internalStatusCodeResource,String transactionTypeName,String currentLoginUserName){
 		InternalStatusCode internalStatusCode = new InternalStatusCode();
-		internalStatusCode.setInternalStatusCode(internalStatusCodeResource.getCode());
+		internalStatusCode.setInternalStatusCodeValue(internalStatusCodeResource.getCode());
 		internalStatusCode.setInternalStatusCodeDescription(internalStatusCodeResource.getDescription());
 		internalStatusCode.setTransactionTypeName(transactionTypeName);
 		internalStatusCode.setPaymentProcessorInternalStatusCodes(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode>());
@@ -315,7 +315,7 @@ public class InternalStatusCodeService {
 		// if the code is already assigned
 		validateInternalStatusCode(internalStatusCodeResource,internalStatusCode);
 
-		internalStatusCode.setInternalStatusCode(internalStatusCodeResource.getCode());
+		internalStatusCode.setInternalStatusCodeValue(internalStatusCodeResource.getCode());
 		internalStatusCode.setInternalStatusCodeDescription(internalStatusCodeResource.getDescription());
 		internalStatusCode.setTransactionTypeName(transactionType.getTransactionTypeName());
 		internalStatusCode.setLastModifiedBy(currentLoginUserName);
