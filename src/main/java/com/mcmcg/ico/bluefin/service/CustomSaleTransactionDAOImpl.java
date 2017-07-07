@@ -971,7 +971,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			
 			record.setCardType(rs.getString("CardType"));
 			record.setChargeAmount(rs.getBigDecimal("ChargeAmount"));
-			record.setExpiryDate(rs.getDate("ExpiryDate"));
+			try {
+				record.setExpiryDate(rs.getDate("ExpiryDate"));
+			} catch (SQLException sqlExp){
+				logger.debug("Invalid value found for expiry date , App Transaction Id= {} , Exp Message={}",record.getApplicationTransactionId(),sqlExp.getMessage(),sqlExp);
+			}
 			record.setFirstName(rs.getString(BluefinWebPortalConstants.FIRSTNAME));
 			record.setLastName(rs.getString(BluefinWebPortalConstants.LASTNAME));
 			record.setAddress1(rs.getString("Address1"));

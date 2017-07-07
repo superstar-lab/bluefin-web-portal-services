@@ -72,7 +72,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 }
 
 class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(SaleTransactionRowMapper.class);
 	@Override
 	public SaleTransaction mapRow(ResultSet rs, int row) throws SQLException {
 		SaleTransaction saleTransaction = new SaleTransaction();
@@ -90,7 +90,11 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setCardNumberFirst6Char(rs.getString("CardNumberFirst6Char"));
 		saleTransaction.setCardNumberLast4Char(rs.getString("CardNumberLast4Char"));
 		saleTransaction.setCardType(rs.getString("CardType"));
-		saleTransaction.setExpiryDate(rs.getTimestamp("ExpiryDate"));
+		try {
+			saleTransaction.setExpiryDate(rs.getTimestamp("ExpiryDate"));
+		} catch (SQLException sqlEcp){
+			LOGGER.debug("Invalid value found for expiry date , App Transaction Id= {} , Exp Message={}",saleTransaction.getApplicationTransactionId(),sqlEcp.getMessage(),sqlEcp);
+		}
 		saleTransaction.setToken(rs.getString("Token"));
 		saleTransaction.setChargeAmount(rs.getBigDecimal("ChargeAmount"));
 		saleTransaction.setLegalEntityApp(rs.getString("LegalEntityApp"));

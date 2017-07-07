@@ -88,7 +88,7 @@ public class TransactionsRestController {
 			searchValue = search;
 		}
 
-		LOGGER.debug("Generating Report with the following filters= {}", searchValue);
+		LOGGER.info("Generating Report with the following filters= {}", searchValue);
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JodaModule());
