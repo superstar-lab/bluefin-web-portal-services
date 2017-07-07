@@ -159,7 +159,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 		public InternalStatusCode mapRow(ResultSet rs, int row) throws SQLException {
 			InternalStatusCode internalStatusCode = new InternalStatusCode();
 			internalStatusCode.setInternalStatusCodeId(rs.getLong("InternalStatusCodeID"));
-			internalStatusCode.setInternalStatusCode(rs.getString("InternalStatusCode"));
+			internalStatusCode.setInternalStatusCodeValue(rs.getString("InternalStatusCode"));
 			internalStatusCode.setInternalStatusCodeDescription(rs.getString("InternalStatusCodeDescription"));
 			internalStatusCode.setLastModifiedBy(rs.getString("ModifiedBy"));
 			internalStatusCode.setInternalStatusCategoryAbbr(rs.getString("InternalStatusCategoryAbbr"));
