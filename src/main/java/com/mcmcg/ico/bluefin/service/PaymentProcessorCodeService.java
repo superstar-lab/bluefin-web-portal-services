@@ -38,36 +38,20 @@ public class PaymentProcessorCodeService {
 		LOGGER.debug("hasResponseCodesAssociated() : transactionTypes size :{} ",transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
-			List<PaymentProcessorResponseCode> responseCodes = paymentProcessorResponseCodeDAO
-					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionTypeName(), paymentProcessor);
-
 			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
-			paymentProcessorStatusCodeResource.setCompleted(hasInternalResponseCodesAssociated(responseCodes));
+			paymentProcessorStatusCodeResource.setCompleted(paymentProcessorResponseCodeDAO.isProcessorResponseCodeMapped(type.getTransactionTypeName(), paymentProcessor));
 			result.add(paymentProcessorStatusCodeResource);
 		}
 		return result;
 	}
 
-	public boolean hasInternalResponseCodesAssociated(List<PaymentProcessorResponseCode> responseCodes) {
-		LOGGER.debug("Entering to hasInternalResponseCodesAssociated() : responseCodes size : {}",responseCodes.size());
-		for (PaymentProcessorResponseCode code : responseCodes) {
-//			if (code.getInternalResponseCode() != null && !code.getInternalResponseCode().isEmpty()) {
-				return true;
-//			}
-		}
-		return false;
-	}
-
 	public List<ItemStatusCodeResource> hasStatusCodesAssociated(PaymentProcessor paymentProcessor) {
 		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
-		LOGGER.debug("PaymentProcessorCodeService :: hasStatusCodesAssociated() : transactionTypes : "+transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
-			List<PaymentProcessorStatusCode> responseCodes = paymentProcessorStatusCodeDAO
-					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionTypeName(), paymentProcessor);
 			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
-			paymentProcessorStatusCodeResource.setCompleted(hasInternalStatusCodesAssociated(responseCodes));
+			paymentProcessorStatusCodeResource.setCompleted(paymentProcessorStatusCodeDAO.isProcessorStatusCodeMapped(type.getTransactionTypeName(), paymentProcessor));
 			result.add(paymentProcessorStatusCodeResource);
 		}
 		return result;

@@ -155,6 +155,20 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: update() : Updated Payment Processor Status Code - id: " + paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()+" and affected rows are : "+rows);
 		return paymentProcessorStatusCode;
 	}
+
+	@Override
+	public boolean isProcessorStatusCodeMapped(String transactionTypeName, PaymentProcessor paymentProcessor) {
+		Integer count = jdbcTemplate.queryForObject(Queries.ISPROCESSORSTATUSCODEMAPPED,new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },Integer.class);
+
+		if (count != null && count.intValue() > 0) {
+			LOGGER.debug("Processor status code mapped, count= {}",count);
+			return true;
+		} else {
+			LOGGER.debug("Found payment processor ={} statuscode not found for transaction type = {}: ", transactionTypeName ,
+					paymentProcessor.getPaymentProcessorId());
+		}
+		return false;
+	}
 }
 
 class PaymentProcessorStatusCodeRowMapper implements RowMapper<PaymentProcessorStatusCode> {

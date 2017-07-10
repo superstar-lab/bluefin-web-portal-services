@@ -154,7 +154,8 @@ public class Queries {
 	public static final String UPDATEUSERPREFERENCE = "UPDATE User_Preference_Lookup SET PreferenceValue = ? WHERE UserPreferenceID =?"; 
 	public static final String SAVEUSERPREFERENCE = "INSERT INTO User_Preference_Lookup (PreferenceID, PreferenceValue, UserID) VALUES (?,?,?)";
 	public static final String FINDSELECTEDTIMEZONEBYUSERID = "SELECT PreferenceValue From User_Preference_Lookup WHERE UserID = ? ";
-	
+	public static final String ISPROCESSORRESPONSECODEMAPPED = "SELECT count(PPRCL.PaymentProcessorResponseCodeID) FROM PaymentProcessor_InternalResponseCode PPIRC join PaymentProcessorResponseCode_Lookup  PPRCL ON PPIRC.PaymentProcessorResponseCodeID=PPRCL.PaymentProcessorResponseCodeID WHERE PPRCL.TransactionType=? AND PPRCL.PaymentProcessorID=?";
+	public static final String ISPROCESSORSTATUSCODEMAPPED = "SELECT count(PPSCL.PaymentProcessorStatusCodeID) FROM PaymentProcessor_InternalStatusCode PPISC join PaymentProcessorStatusCode_Lookup  PPSCL ON PPISC.PaymentProcessorStatusCodeID=PPSCL.PaymentProcessorStatusCodeID WHERE PPSCL.TransactionType=? AND PPSCL.PaymentProcessorID=?";
 	private Queries(){
 		// Default Constructor
 	}

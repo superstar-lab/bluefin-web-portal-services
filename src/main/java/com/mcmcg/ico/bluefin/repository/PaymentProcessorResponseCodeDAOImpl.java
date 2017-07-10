@@ -158,6 +158,19 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		return paymentProcessorResponseCode;
 	}
 	
+	@Override
+	public boolean isProcessorResponseCodeMapped(String transactionTypeName,PaymentProcessor paymentProcessor) {
+		Integer count = jdbcTemplate.queryForObject(Queries.ISPROCESSORRESPONSECODEMAPPED,new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },Integer.class);
+
+		if (count != null && count.intValue() > 0) {
+			LOGGER.debug("Processor response code mapped, count= {}",count);
+			return true;
+		} else {
+			LOGGER.debug("Found payment processor ={} response code not found for transaction type = {}: ", transactionTypeName ,
+					paymentProcessor.getPaymentProcessorId());
+		}
+		return false;
+	}
 	
 }
 
@@ -176,7 +189,7 @@ class PaymentProcessorResponseCodeRowMapper implements RowMapper<PaymentProcesso
 		if(rs.getString("DateCreated") != null) {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			paymentProcessorResponseCode.setDateCreated(new DateTime(ts));
-		}
+		}	
 		
 		if(rs.getString("DatedModified") != null) {
 			ts = Timestamp.valueOf(rs.getString("DatedModified"));
@@ -187,4 +200,5 @@ class PaymentProcessorResponseCodeRowMapper implements RowMapper<PaymentProcesso
 
 		return paymentProcessorResponseCode;
 	}
+	
 }
