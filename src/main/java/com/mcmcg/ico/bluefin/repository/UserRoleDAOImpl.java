@@ -42,15 +42,15 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
 	@Override
 	public void saveRoles(
-			Collection<com.mcmcg.ico.bluefin.model.UserRole> userRoles) {
-		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserRole>(userRoles));
+			Collection<UserRole> userRoles) {
+		insertBatch(new ArrayList<UserRole>(userRoles));
 	}
 	
-	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserRole> userRoles){
+	private void insertBatch(final List<UserRole> userRoles){
 		jdbcTemplate.batchUpdate(Queries.SAVEUSERROLE, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				com.mcmcg.ico.bluefin.model.UserRole userRole = userRoles.get(i);
+				UserRole userRole = userRoles.get(i);
 				DateTime utc1 = userRole.getDateModified() != null ? userRole.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 				LOGGER.debug("UserRoleDAOImpl :: insertBatch() : Creating child item for , UserId = "+(userRole.getUserId()));

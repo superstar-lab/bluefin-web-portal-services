@@ -8,6 +8,8 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
+
 import lombok.Data;
 
 @Data
@@ -22,8 +24,8 @@ public class BasicPaymentProcessorResource {
     private Time remitTransactionCloseTime;
     private String lastModifiedBy;
     
-    public com.mcmcg.ico.bluefin.model.PaymentProcessor toPaymentProcessor() {
-    	com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor = new com.mcmcg.ico.bluefin.model.PaymentProcessor();
+    public PaymentProcessor toPaymentProcessor() {
+    	PaymentProcessor paymentProcessor = new PaymentProcessor();
         paymentProcessor.setProcessorName(processorName);
         paymentProcessor.setIsActive(isActive);
         paymentProcessor.setRemitTransactionOpenTime(remitTransactionOpenTime);

@@ -49,7 +49,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.PaymentProcessor get(@PathVariable Long id) {
+    public PaymentProcessor get(@PathVariable Long id) {
         LOGGER.debug("Getting information with the following id: {}", id);
         return paymentProcessorService.getPaymentProcessorById(id);
     }
@@ -62,7 +62,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public List<com.mcmcg.ico.bluefin.model.PaymentProcessor> get() {
+    public List<PaymentProcessor> get() {
         LOGGER.info("Getting information with the following filters: {}");
         return paymentProcessorService.getPaymentProcessors();
     }
@@ -89,7 +89,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessor> create(
+    public ResponseEntity<PaymentProcessor> create(
             @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
@@ -111,7 +111,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.PaymentProcessor update(@PathVariable Long id,
+    public PaymentProcessor update(@PathVariable Long id,
             @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -131,7 +131,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
+    public PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
             @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
             @ApiIgnore Errors errors) {
         LOGGER.debug("Updating payment processors merchants = [{}] from payment processor id = [{}]",

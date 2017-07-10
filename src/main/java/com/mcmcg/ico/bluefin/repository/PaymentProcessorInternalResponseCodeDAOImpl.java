@@ -38,11 +38,11 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	private JdbcTemplate jdbcTemplate;
 	
 	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeId(
+	public List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodeId(
 			long internalResponseCodeId) {
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>) jdbcTemplate.query(
+		ArrayList<PaymentProcessorInternalResponseCode> list = (ArrayList<PaymentProcessorInternalResponseCode>) jdbcTemplate.query(
 				Queries.PAYMENTPROCESSORINTERNALRESPONSECODEID, new Object[] { internalResponseCodeId}, new PaymentProcessorInternalResponseCodeRowMapper());
-		logger.debug("PaymentProcessorInternalResponseCodeDAOImpl :: paymentProcessorInternalResponseCodeId() : Number of rows: "+list.size());
+		logger.debug("paymentProcessorInternalResponseCodeId() : Number of rows:{} ",list.size());
 		return list;
 	}
 	
@@ -60,11 +60,11 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	
 	@Override
 	public void createPaymentProcessorInternalStatusCode(
-			Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes) {
-		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>(paymentProcessorInternalResponseCodes));
+			Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes) {
+		insertBatch(new ArrayList<PaymentProcessorInternalResponseCode>(paymentProcessorInternalResponseCodes));
 	}
 	
-	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
+	private void insertBatch(final List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
 		jdbcTemplate.batchUpdate(Queries.SAVEPAYMENTPROCESSORINTERNALRESPONSECODE, new PaymentProcessorInternalResponseCodeInsertBatch(paymentProcessorInternalResponseCodes));
 	}
 	
@@ -112,7 +112,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	@Override
 	public void savePaymentProcessorInternalResponseCodes(
 			Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes) {
-		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>(paymentProcessorInternalResponseCodes));
+		insertBatch(new ArrayList<PaymentProcessorInternalResponseCode>(paymentProcessorInternalResponseCodes));
 	}
 	
 	@Override
@@ -204,14 +204,14 @@ class PaymentProcessorInternalResponseCodeRowMapper implements RowMapper<Payment
 }
 
 class PaymentProcessorInternalResponseCodeInsertBatch implements BatchPreparedStatementSetter {
-	final List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
+	final List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes;
 	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
-	public PaymentProcessorInternalResponseCodeInsertBatch(List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
+	public PaymentProcessorInternalResponseCodeInsertBatch(List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes){
 		this.paymentProcessorInternalResponseCodes = paymentProcessorInternalResponseCodes;
 	}
 	@Override
 	public void setValues(PreparedStatement ps, int i) throws SQLException {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = paymentProcessorInternalResponseCodes.get(i);
+		PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = paymentProcessorInternalResponseCodes.get(i);
 		DateTime utc1 = paymentProcessorInternalResponseCode.getCreatedDate() != null ? paymentProcessorInternalResponseCode.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		if (paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode() != null && paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId()!= null) {

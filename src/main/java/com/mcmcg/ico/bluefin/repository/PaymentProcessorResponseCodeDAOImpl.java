@@ -45,15 +45,15 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	private JdbcTemplate jdbcTemplate;
 	
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
+	public PaymentProcessorResponseCode findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
 			String paymentProcessorResponseCode, String transactionTypeName, PaymentProcessor paymentProcessor) {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorStatusCodeList;
+		PaymentProcessorResponseCode paymentProcessorStatusCodeList;
 
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>) jdbcTemplate
+		ArrayList<PaymentProcessorResponseCode> list = (ArrayList<PaymentProcessorResponseCode>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYCODEID,
 						new Object[] { transactionTypeName, paymentProcessorResponseCode,
 								paymentProcessor.getPaymentProcessorId() },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>(
+						new RowMapperResultSetExtractor<PaymentProcessorResponseCode>(
 								new PaymentProcessorResponseCodeRowMapper()));
 		LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor() : PaymentProcessorResponseCode size : "+list.size());
 		paymentProcessorStatusCodeList = DataAccessUtils.singleResult(list);
@@ -71,20 +71,19 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	}
 
 	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> findByTransactionTypeNameAndPaymentProcessor(String transactionTypeName,
-			com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor) {
+	public List<PaymentProcessorResponseCode> findByTransactionTypeNameAndPaymentProcessor(String transactionTypeName,PaymentProcessor paymentProcessor) {
 
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>) jdbcTemplate
+		ArrayList<PaymentProcessorResponseCode> list = (ArrayList<PaymentProcessorResponseCode>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYTYPEID,
 						new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode>(
+						new RowMapperResultSetExtractor<PaymentProcessorResponseCode>(
 								new PaymentProcessorResponseCodeRowMapper()));
 
 		if (list != null) {
 			LOGGER.debug("Found payment processor statuscode for : ");
 		} else {
-			LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: findByTransactionTypeNameAndPaymentProcessor() : Found payment processor statuscode not found for : " + transactionTypeName + "/"
-					+ paymentProcessor.getPaymentProcessorId());
+			LOGGER.debug("Found payment processor ={} statuscode not found for transaction type = {}: ", transactionTypeName ,
+					paymentProcessor.getPaymentProcessorId());
 		}
 
 		return list;
@@ -162,11 +161,11 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	
 }
 
-class PaymentProcessorResponseCodeRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> {
+class PaymentProcessorResponseCodeRowMapper implements RowMapper<PaymentProcessorResponseCode> {
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode mapRow(ResultSet rs, int row) throws SQLException {
+	public PaymentProcessorResponseCode mapRow(ResultSet rs, int row) throws SQLException {
 		Timestamp ts;
-		com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode();
+		PaymentProcessorResponseCode paymentProcessorResponseCode = new PaymentProcessorResponseCode();
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeId(rs.getLong("PaymentProcessorResponseCodeID"));
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeValue(rs.getString("PaymentProcessorResponseCode"));
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeDescription(rs.getString("PaymentProcessorResponseCodeDescription"));

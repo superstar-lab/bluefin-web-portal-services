@@ -43,9 +43,9 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	
 	@Override
 	public List<PaymentProcessorMerchant> findPaymentProccessorMerchantByProcessorId(Long paymentProcessorId) {
-		List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>) jdbcTemplate.query(
+		List<PaymentProcessorMerchant> list = (ArrayList<PaymentProcessorMerchant>) jdbcTemplate.query(
 				Queries.FINDPAYMENTPROCESSORMERCHANTSBYID, new Object[] { paymentProcessorId },
-				new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
+				new RowMapperResultSetExtractor<PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
 
 		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: findPaymentProccessorMerchantByProcessorId : Number of rows: " + list.size());
 		return list;
@@ -78,15 +78,15 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 
 class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedStatementSetter {
 	
-	private final List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
+	private final List<PaymentProcessorMerchant> paymentProcessorMerchants;
 	private static final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
-	public PaymentProcessorInsertBatchPreparedStatement(List<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants){
+	public PaymentProcessorInsertBatchPreparedStatement(List<PaymentProcessorMerchant> paymentProcessorMerchants){
 		this.paymentProcessorMerchants = paymentProcessorMerchants;
 	}
 	@Override
 	public void setValues(PreparedStatement ps, int i) throws SQLException {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant = paymentProcessorMerchants.get(i);
+		PaymentProcessorMerchant paymentProcessorMerchant = paymentProcessorMerchants.get(i);
 		DateTime utc1 = paymentProcessorMerchant.getCreatedDate() != null ? paymentProcessorMerchant.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		DateTime utc2 = paymentProcessorMerchant.getModifiedDate() != null ? paymentProcessorMerchant.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
@@ -104,10 +104,10 @@ class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedState
 	}
 }
 
-class PaymentProcessorMerchantRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> {
+class PaymentProcessorMerchantRowMapper implements RowMapper<PaymentProcessorMerchant> {
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant mapRow(ResultSet rs, int row) throws SQLException {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant paymentProcessorMerchant = new com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant();
+	public PaymentProcessorMerchant mapRow(ResultSet rs, int row) throws SQLException {
+		PaymentProcessorMerchant paymentProcessorMerchant = new PaymentProcessorMerchant();
 		paymentProcessorMerchant.setMerchantId(rs.getString("MerchantID"));
 		paymentProcessorMerchant.setPaymentProcessorMechantId(rs.getLong("PaymentProcessorMerchantID"));
 		paymentProcessorMerchant.setLastModifiedBy(rs.getString("ModifiedBy"));

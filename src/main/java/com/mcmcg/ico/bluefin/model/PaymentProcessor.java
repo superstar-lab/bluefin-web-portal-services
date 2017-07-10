@@ -25,9 +25,9 @@ public class PaymentProcessor implements Serializable {
 
     private String processorName;
 
-    private Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant> paymentProcessorMerchants;
+    private Collection<PaymentProcessorMerchant> paymentProcessorMerchants;
 
-    private Collection<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules;
+    private Collection<PaymentProcessorRule> paymentProcessorRules;
 
     @JsonIgnore
     private String lastModifiedBy;
@@ -84,8 +84,8 @@ public class PaymentProcessor implements Serializable {
         return paymentProcessorRules == null || paymentProcessorRules.isEmpty() ? false : true;
     }
 
-    public com.mcmcg.ico.bluefin.model.PaymentProcessor createPaymentProcessor(){
-    	com.mcmcg.ico.bluefin.model.PaymentProcessor returnObj = new com.mcmcg.ico.bluefin.model.PaymentProcessor();
+    public PaymentProcessor createPaymentProcessor(){
+    	PaymentProcessor returnObj = new PaymentProcessor();
     	returnObj.setPaymentProcessorId(this.getPaymentProcessorId());
     	return returnObj;
     }

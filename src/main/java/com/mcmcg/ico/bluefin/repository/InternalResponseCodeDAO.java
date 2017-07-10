@@ -2,23 +2,25 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.util.List;
 
+import com.mcmcg.ico.bluefin.model.InternalResponseCode;
+
 public interface InternalResponseCodeDAO {
 
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode findByInternalResponseCodeAndTransactionTypeName(String internalResponseCode,
+	public InternalResponseCode findByInternalResponseCodeAndTransactionTypeName(String internalResponseCode,
 			String transactionTypeName) ;
 
-	public List<com.mcmcg.ico.bluefin.model.InternalResponseCode> findByTransactionTypeNameOrderByInternalResponseCodeAsc(
+	public List<InternalResponseCode> findByTransactionTypeNameOrderByInternalResponseCodeAsc(
 			String transactionTypeName) ;
 
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode save(com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode);
+	public InternalResponseCode save(InternalResponseCode internalResponseCode);
 
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode findOne(long internalResponseCodeId);
+	public InternalResponseCode findOne(long internalResponseCodeId);
 
-	public void delete(com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode) ;
+	public void delete(InternalResponseCode internalResponseCode) ;
 
-	public List<com.mcmcg.ico.bluefin.model.InternalResponseCode> findAll();
+	public List<InternalResponseCode> findAll();
 	
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode update(com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode);
+	public InternalResponseCode update(InternalResponseCode internalResponseCode);
 
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode findOneWithChilds(Long internalResponseCodeId);
+	public InternalResponseCode findOneWithChilds(Long internalResponseCodeId);
 }
