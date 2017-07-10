@@ -101,7 +101,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	}
 
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessor save(PaymentProcessor paymentProcessor) {
+	public PaymentProcessor save(PaymentProcessor paymentProcessor) {
 		KeyHolder holder = new GeneratedKeyHolder();
 
 		DateTime utc1 = paymentProcessor.getCreatedDate() != null ? paymentProcessor.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);

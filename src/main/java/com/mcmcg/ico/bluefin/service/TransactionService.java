@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentFrequency;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.model.RemittanceSale;
@@ -355,9 +356,9 @@ public class TransactionService {
 
 			// Create PaymentProcessor hashmap
 			Map<Long, String> paymentProcessorMap = new HashMap<>();
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessor> paymentProcessorList = paymentProcessorDAO.findAll();
+			List<PaymentProcessor> paymentProcessorList = paymentProcessorDAO.findAll();
 			LOGGER.debug("PaymentProcessorList size : {} ",paymentProcessorList.size());
-			for (com.mcmcg.ico.bluefin.model.PaymentProcessor pp : paymentProcessorList) {
+			for (PaymentProcessor pp : paymentProcessorList) {
 				paymentProcessorMap.put(pp.getPaymentProcessorId(), pp.getProcessorName());
 			}
 

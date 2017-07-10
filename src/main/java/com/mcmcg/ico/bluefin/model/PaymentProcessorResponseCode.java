@@ -23,7 +23,7 @@ public class PaymentProcessorResponseCode extends Common implements Serializable
     private Collection<PaymentProcessorInternalResponseCode> internalResponseCode;
     @ManyToOne
     @JsonIgnore
-    private com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor;
+    private PaymentProcessor paymentProcessor;
     @JsonIgnore
     private String lastModifiedBy;
     private String transactionTypeName;

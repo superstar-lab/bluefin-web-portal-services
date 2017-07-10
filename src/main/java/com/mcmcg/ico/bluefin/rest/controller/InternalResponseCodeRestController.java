@@ -51,7 +51,7 @@ public class InternalResponseCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public Iterable<com.mcmcg.ico.bluefin.model.InternalResponseCode> getInternalResponseCodesByTransactionType(
+    public Iterable<InternalResponseCode> getInternalResponseCodesByTransactionType(
             @RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
             @ApiIgnore Authentication authentication) {
         if (authentication == null) {
@@ -70,7 +70,7 @@ public class InternalResponseCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.InternalResponseCode createInternalResponseCodes(
+    public InternalResponseCode createInternalResponseCodes(
             @Valid @RequestBody InternalCodeResource internalResponseCodeResource, @ApiIgnore Errors errors,Authentication auth) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
@@ -95,7 +95,7 @@ public class InternalResponseCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.InternalResponseCode updateInternalResponseCodes(
+    public InternalResponseCode updateInternalResponseCodes(
             @Valid @RequestBody UpdateInternalCodeResource updateInternalResponseCodeResource,
             @ApiIgnore Errors errors) {
         // First checks if all required data is given

@@ -8,6 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.mcmcg.ico.bluefin.model.CardType;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 
 import lombok.Data;
 
@@ -40,8 +41,8 @@ public class PaymentProcessorRuleResource implements Serializable {
      * 
      * @return PaymentProcessorRule
      */
-    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule toPaymentProcessorRule() {
-    	com.mcmcg.ico.bluefin.model.PaymentProcessorRule rule = new com.mcmcg.ico.bluefin.model.PaymentProcessorRule();
+    public PaymentProcessorRule toPaymentProcessorRule() {
+    	PaymentProcessorRule rule = new PaymentProcessorRule();
         rule.setCardType(cardType);
         rule.setMaximumMonthlyAmount(maximumMonthlyAmount);
         rule.setNoMaximumMonthlyAmountFlag(noMaximumMonthlyAmountFlag);
@@ -50,8 +51,8 @@ public class PaymentProcessorRuleResource implements Serializable {
         return rule;
     }
 
-    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule toPaymentProcessorRule(Long paymentProcessorRuleId) {
-    	com.mcmcg.ico.bluefin.model.PaymentProcessorRule rule = new com.mcmcg.ico.bluefin.model.PaymentProcessorRule();
+    public PaymentProcessorRule toPaymentProcessorRule(Long paymentProcessorRuleId) {
+    	PaymentProcessorRule rule = new PaymentProcessorRule();
         rule.setPaymentProcessorRuleId(paymentProcessorRuleId);
         rule.setCardType(cardType);
         rule.setMaximumMonthlyAmount(maximumMonthlyAmount);

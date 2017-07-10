@@ -45,11 +45,11 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findPaymentProccessorRulByProcessorId(
+	public List<PaymentProcessorRule> findPaymentProccessorRulByProcessorId(
 			Long paymentProcessorId) {
-		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
+		List<PaymentProcessorRule> list = (ArrayList<PaymentProcessorRule>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRULEBYID, new Object[] { paymentProcessorId },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
+						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findPaymentProccessorRulByProcessorId() : Number of rows: " + list.size());
@@ -64,17 +64,17 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	}
 
 	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByCardType(String cardType) {
-		List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
+	public List<PaymentProcessorRule> findByCardType(String cardType) {
+		List<PaymentProcessorRule> list = (ArrayList<PaymentProcessorRule>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRULEBYCARDTYPE, new Object[] { cardType },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
+						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findByCardType() : Number of rows: " + list.size());
 		return list;
 	}
 
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule save(com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule) {
+	public PaymentProcessorRule save(PaymentProcessorRule paymentProcessorRule) {
 		KeyHolder holder = new GeneratedKeyHolder();
 
 		DateTime utc1 = paymentProcessorRule.getCreatedDate() != null ? paymentProcessorRule.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
@@ -134,10 +134,10 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	@Override
 	public List<PaymentProcessorRule> findByPaymentProcessor(Long paymentProcessorId) {
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
+		ArrayList<PaymentProcessorRule> paymentProcessorRules = (ArrayList<PaymentProcessorRule>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRULESBYPAYMENTPROCESSORID,
 						new Object[] { paymentProcessorId },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
+						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 
 		if (paymentProcessorRules != null) {
@@ -151,9 +151,9 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	@Override
 	public List<PaymentProcessorRule> findAll() {
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> paymentProcessorRules = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>) jdbcTemplate
+		ArrayList<PaymentProcessorRule> paymentProcessorRules = (ArrayList<PaymentProcessorRule>) jdbcTemplate
 				.query(Queries.FINDALLPROCESSORRULES,
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorRule>(
+						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findAll() : paymentProcessorRules size : "+paymentProcessorRules.size());
 
@@ -162,10 +162,10 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 }
 
-class PaymentProcessorRuleRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> {
+class PaymentProcessorRuleRowMapper implements RowMapper<PaymentProcessorRule> {
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule mapRow(ResultSet rs, int row) throws SQLException {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule = new com.mcmcg.ico.bluefin.model.PaymentProcessorRule();
+	public PaymentProcessorRule mapRow(ResultSet rs, int row) throws SQLException {
+		PaymentProcessorRule paymentProcessorRule = new PaymentProcessorRule();
 		paymentProcessorRule.setPaymentProcessorRuleId(rs.getLong("PaymentProcessorRuleID"));
 		PaymentProcessor paymentProcessor = new PaymentProcessor();
 		paymentProcessor.setPaymentProcessorId(rs.getLong("PaymentProcessorID"));

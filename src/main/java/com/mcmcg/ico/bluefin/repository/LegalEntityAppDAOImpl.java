@@ -168,14 +168,14 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	@Override
 	public void createLegalEntityApps(Collection<UserLegalEntityApp> legalEntities) {
-		insertBatch(new ArrayList<com.mcmcg.ico.bluefin.model.UserLegalEntityApp>(legalEntities));
+		insertBatch(new ArrayList<UserLegalEntityApp>(legalEntities));
 	}
 	
-	private void insertBatch(final List<com.mcmcg.ico.bluefin.model.UserLegalEntityApp> userLegalEntities){
+	private void insertBatch(final List<UserLegalEntityApp> userLegalEntities){
 		jdbcTemplate.batchUpdate(Queries.SAVEUSERLEGALENTITYAPP, new BatchPreparedStatementSetter() {
 			@Override
 			public void setValues(PreparedStatement ps, int i) throws SQLException {
-				com.mcmcg.ico.bluefin.model.UserLegalEntityApp userLegalEntity = userLegalEntities.get(i);
+				UserLegalEntityApp userLegalEntity = userLegalEntities.get(i);
 				DateTime utc1 = userLegalEntity.getDateCreated() != null ? userLegalEntity.getDateCreated().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dateCreatedDateFormat.print(utc1));
 				LOGGER.info("Creating child item for , UserLegalEntityApp ");

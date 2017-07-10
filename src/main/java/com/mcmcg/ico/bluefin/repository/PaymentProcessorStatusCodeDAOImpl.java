@@ -45,15 +45,15 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
+	public PaymentProcessorStatusCode findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor(
 			String paymentProcessorStatusCode, String transactionTypeName, PaymentProcessor paymentProcessor) {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCodeList;
+		PaymentProcessorStatusCode paymentProcessorStatusCodeList;
 		
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
+		ArrayList<PaymentProcessorStatusCode> list = (ArrayList<PaymentProcessorStatusCode>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYCODEID,
 						new Object[] { transactionTypeName, paymentProcessorStatusCode,
 								paymentProcessor.getPaymentProcessorId() },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
+						new RowMapperResultSetExtractor<PaymentProcessorStatusCode>(
 								new PaymentProcessorStatusCodeRowMapper()));
 		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: findByPaymentProcessorStatusCodeAndTransactionTypeNameAndPaymentProcessor() : PaymentProcessorStatusCode size : "
 				+list.size());
@@ -71,13 +71,13 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	}
 
 	@Override
-	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> findByTransactionTypeNameAndPaymentProcessor(
+	public List<PaymentProcessorStatusCode> findByTransactionTypeNameAndPaymentProcessor(
 			String transactionTypeName, PaymentProcessor paymentProcessor) {
 
-		ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> list = (ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>) jdbcTemplate
+		ArrayList<PaymentProcessorStatusCode> list = (ArrayList<PaymentProcessorStatusCode>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORSTATUSCODEBYTYPEID,
 						new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },
-						new RowMapperResultSetExtractor<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode>(
+						new RowMapperResultSetExtractor<PaymentProcessorStatusCode>(
 								new PaymentProcessorStatusCodeRowMapper()));
 
 		if (list != null) {
@@ -155,12 +155,26 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		LOGGER.debug("PaymentProcessorStatusCodeDAOImpl :: update() : Updated Payment Processor Status Code - id: " + paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()+" and affected rows are : "+rows);
 		return paymentProcessorStatusCode;
 	}
+
+	@Override
+	public boolean isProcessorStatusCodeMapped(String transactionTypeName, PaymentProcessor paymentProcessor) {
+		Integer count = jdbcTemplate.queryForObject(Queries.ISPROCESSORSTATUSCODEMAPPED,new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },Integer.class);
+
+		if (count != null && count.intValue() > 0) {
+			LOGGER.debug("Processor status code mapped, count= {}",count);
+			return true;
+		} else {
+			LOGGER.debug("Found payment processor ={} statuscode not found for transaction type = {}: ", transactionTypeName ,
+					paymentProcessor.getPaymentProcessorId());
+		}
+		return false;
+	}
 }
 
-class PaymentProcessorStatusCodeRowMapper implements RowMapper<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> {
+class PaymentProcessorStatusCodeRowMapper implements RowMapper<PaymentProcessorStatusCode> {
 	@Override
-	public com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode mapRow(ResultSet rs, int row) throws SQLException {
-		com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode paymentProcessorStatusCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode();
+	public PaymentProcessorStatusCode mapRow(ResultSet rs, int row) throws SQLException {
+		PaymentProcessorStatusCode paymentProcessorStatusCode = new PaymentProcessorStatusCode();
 		paymentProcessorStatusCode.setPaymentProcessorStatusCodeId(rs.getLong("PaymentProcessorStatusCodeID"));
 		paymentProcessorStatusCode.setPaymentProcessorStatusCodeValue(rs.getString("PaymentProcessorStatusCode"));
 		paymentProcessorStatusCode.setPaymentProcessorStatusCodeDescription(rs.getString("PaymentProcessorStatusDescription"));

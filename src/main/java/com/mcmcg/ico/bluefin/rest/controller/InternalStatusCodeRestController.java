@@ -85,7 +85,7 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.InternalStatusCode createInternalStatusCodes(
+    public InternalStatusCode createInternalStatusCodes(
             @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors,Authentication auth) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
@@ -110,7 +110,7 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.InternalStatusCode upsertInternalStatusCodes(
+    public InternalStatusCode upsertInternalStatusCodes(
             @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource, @ApiIgnore Errors errors,Authentication auth) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
@@ -155,7 +155,7 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.InternalStatusCode get(@PathVariable Long id) {
+    public InternalStatusCode get(@PathVariable Long id) {
         LOGGER.debug("Fetching Internal Status Code {}", id);
         return internalStatusCodeService.getInternalStatusCode(id);
     }

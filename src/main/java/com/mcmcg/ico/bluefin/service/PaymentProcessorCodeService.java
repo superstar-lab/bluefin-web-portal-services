@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorResponseCodeDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorStatusCodeDAO;
@@ -29,50 +32,34 @@ public class PaymentProcessorCodeService {
 	@Autowired
 	private TransactionTypeService transactionTypeService;
 
-	public List<ItemStatusCodeResource> hasResponseCodesAssociated(com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor) {
+	public List<ItemStatusCodeResource> hasResponseCodesAssociated(PaymentProcessor paymentProcessor) {
 		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
-		LOGGER.debug("PaymentProcessorCodeService :: hasResponseCodesAssociated() : transactionTypes size : "+transactionTypes.size());
+		LOGGER.debug("hasResponseCodesAssociated() : transactionTypes size :{} ",transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> responseCodes = paymentProcessorResponseCodeDAO
-					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionTypeName(), paymentProcessor);
-
 			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
-			paymentProcessorStatusCodeResource.setCompleted(hasInternalResponseCodesAssociated(responseCodes));
+			paymentProcessorStatusCodeResource.setCompleted(paymentProcessorResponseCodeDAO.isProcessorResponseCodeMapped(type.getTransactionTypeName(), paymentProcessor));
 			result.add(paymentProcessorStatusCodeResource);
 		}
 		return result;
 	}
 
-	public boolean hasInternalResponseCodesAssociated(List<com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode> responseCodes) {
-		LOGGER.debug("PaymentProcessorCodeService ::Entering to hasInternalResponseCodesAssociated() : responseCodes size : "+responseCodes.size());
-		for (com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode code : responseCodes) {
-			if (code.getInternalResponseCode() != null && !code.getInternalResponseCode().isEmpty()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public List<ItemStatusCodeResource> hasStatusCodesAssociated(com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessor) {
+	public List<ItemStatusCodeResource> hasStatusCodesAssociated(PaymentProcessor paymentProcessor) {
 		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
-		LOGGER.debug("PaymentProcessorCodeService :: hasStatusCodesAssociated() : transactionTypes : "+transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> responseCodes = paymentProcessorStatusCodeDAO
-					.findByTransactionTypeNameAndPaymentProcessor(type.getTransactionTypeName(), paymentProcessor);
 			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
-			paymentProcessorStatusCodeResource.setCompleted(hasInternalStatusCodesAssociated(responseCodes));
+			paymentProcessorStatusCodeResource.setCompleted(paymentProcessorStatusCodeDAO.isProcessorStatusCodeMapped(type.getTransactionTypeName(), paymentProcessor));
 			result.add(paymentProcessorStatusCodeResource);
 		}
 		return result;
 	}
 
-	public boolean hasInternalStatusCodesAssociated(List<com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode> statusCodes) {
+	public boolean hasInternalStatusCodesAssociated(List<PaymentProcessorStatusCode> statusCodes) {
 		LOGGER.debug("PaymentProcessorCodeService ::Entering to hasInternalStatusCodesAssociated() : statusCodes size : "+statusCodes.size());
-		for (com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode code : statusCodes) {
+		for (PaymentProcessorStatusCode code : statusCodes) {
 			if (code.getInternalStatusCode() != null && !code.getInternalStatusCode().isEmpty()) {
 				return true;
 			}

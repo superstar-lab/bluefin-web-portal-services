@@ -47,7 +47,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule get(@PathVariable Long id) {
+    public PaymentProcessorRule get(@PathVariable Long id) {
         LOGGER.debug("Getting information with the following id: {}", id);
 
         return paymentProcessorRuleService.getPaymentProcessorRule(id);
@@ -89,7 +89,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> create(
+    public ResponseEntity<PaymentProcessorRule> create(
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors) {
         // First checks if all required fields are set
@@ -113,7 +113,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public com.mcmcg.ico.bluefin.model.PaymentProcessorRule update(@PathVariable Long id,
+    public PaymentProcessorRule update(@PathVariable Long id,
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors) {
         if (errors.hasErrors()) {

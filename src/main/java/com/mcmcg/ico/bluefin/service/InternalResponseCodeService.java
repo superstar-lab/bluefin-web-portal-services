@@ -51,17 +51,17 @@ public class InternalResponseCodeService {
 	@Autowired
 	private TransactionTypeDAO transactionTypeDAO;
 
-	public List<com.mcmcg.ico.bluefin.model.InternalResponseCode> getInternalResponseCodesByTransactionType(String transactionType) {
+	public List<InternalResponseCode> getInternalResponseCodesByTransactionType(String transactionType) {
 		// Get transactionType if null thrown an exception
 	
-		List<com.mcmcg.ico.bluefin.model.InternalResponseCode> internalResponseCodeList =internalResponseCodeDAO.findByTransactionTypeNameOrderByInternalResponseCodeAsc(transactionType);
+		List<InternalResponseCode> internalResponseCodeList =internalResponseCodeDAO.findByTransactionTypeNameOrderByInternalResponseCodeAsc(transactionType);
 		LOGGER.debug("InternalResponseCodeService :: getInternalResponseCodesByTransactionType() : internalResponseCodeList size is : "+internalResponseCodeList);
 		if(null != internalResponseCodeList && !internalResponseCodeList.isEmpty()){
-			for (com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCode : internalResponseCodeList) {
+			for (InternalResponseCode internalResponseCode : internalResponseCodeList) {
 				internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId()));
-				for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()){
+				for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()){
 					Long paymentProcessorResponseCodeId = paymentProcessorInternalResponseCode.getPaymentProcessorResponseCode().getPaymentProcessorResponseCodeId();
-					com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorResponseCodeId);
+					PaymentProcessorResponseCode paymentProcessorResponseCode = paymentProcessorResponseCodeDAO.findOne(paymentProcessorResponseCodeId);
 					paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
 					paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
 				}
@@ -97,7 +97,7 @@ public class InternalResponseCodeService {
 		internalResponseCode.setLastModifiedBy(userName);
 		internalResponseCode.setTransactionTypeName(transactionType);
 		internalResponseCode
-				.setPaymentProcessorInternalResponseCodes(new ArrayList<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode>());
+				.setPaymentProcessorInternalResponseCodes(new ArrayList<PaymentProcessorInternalResponseCode>());
 		return internalResponseCode;
 	}
 	
@@ -110,7 +110,7 @@ public class InternalResponseCodeService {
 			Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
 					.getInternalResponseCode();
 			LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
-			for (com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
+			for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
 				validatePaymentProcessorResponseCode(currentPaymentProcessorInternalResponseCode,internalResponseCodeResource,codeModified);
 			}
 			paymentProcessorResponseCodeObj = paymentProcessorResponseCode;
@@ -118,7 +118,7 @@ public class InternalResponseCodeService {
 		return paymentProcessorResponseCodeObj;
 	}
 	
-	public com.mcmcg.ico.bluefin.model.InternalResponseCode createInternalResponseCodes(InternalCodeResource internalResponseCodeResource,String userName) {
+	public InternalResponseCode createInternalResponseCodes(InternalCodeResource internalResponseCodeResource,String userName) {
 
 		// Get transactionType if null thrown an exception
 		TransactionType transactionType = transactionTypeDAO
@@ -133,7 +133,7 @@ public class InternalResponseCodeService {
 		LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new internal response code {}", internalResponseCodeResource.getCode());
 		
 		if (internalResponseCodeResource.getPaymentProcessorCodes() != null && !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
-			List<com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<>();
+			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<>();
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalResponseCodeResource.getPaymentProcessorCodes()) {
 
 				PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(resourceProcessorCode.getPaymentProcessorId());
@@ -163,7 +163,7 @@ public class InternalResponseCodeService {
 				// save or update payment processor status code..
 				paymentProcessorResponseCode = saveOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode);
 				
-				com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode();
+				PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new PaymentProcessorInternalResponseCode();
 				paymentProcessorInternalResponseCode.setPaymentProcessorResponseCode(paymentProcessorResponseCode);
 				paymentProcessorInternalResponseCode.setInternalResponseCode(internalResponseCode);
 				paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
@@ -223,7 +223,7 @@ public class InternalResponseCodeService {
 	
 	private void validateInternalResponseCode(UpdateInternalCodeResource internalResponseCodeResource,InternalResponseCode internalResponseCode){
 		if (!internalResponseCodeResource.getCode().equals(internalResponseCode.getInternalResponseCodeValue())) {
-			com.mcmcg.ico.bluefin.model.InternalResponseCode existingInternalResponseCode = internalResponseCodeDAO
+			InternalResponseCode existingInternalResponseCode = internalResponseCodeDAO
 					.findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(),
 							internalResponseCodeResource.getTransactionTypeName());
 			if (existingInternalResponseCode != null) {
@@ -419,8 +419,8 @@ public class InternalResponseCodeService {
 	}
 	
 	private void addNewPaymentProcessorResponseCodes(InternalResponseCode internalResponseCode,Long internalResponseCodeIdToModify,List<PaymentProcessorResponseCode> newPaymentProcessorResponseCode){
-		for (com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode current : newPaymentProcessorResponseCode) {
-			com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode();
+		for (PaymentProcessorResponseCode current : newPaymentProcessorResponseCode) {
+			PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode = new PaymentProcessorInternalResponseCode();
 			paymentProcessorInternalResponseCode.setPaymentProcessorResponseCodeId(current.getPaymentProcessorResponseCodeId());
 			paymentProcessorInternalResponseCode.setInternalResponseCodeId(internalResponseCodeIdToModify);
 			internalResponseCode.getPaymentProcessorInternalResponseCodes().add(paymentProcessorInternalResponseCode);
@@ -444,7 +444,7 @@ public class InternalResponseCodeService {
 		}
 	}
 	public void deleteInternalResponseCode(Long id) {
-		com.mcmcg.ico.bluefin.model.InternalResponseCode internalResponseCodeToDelete = internalResponseCodeDAO.findOne(id);
+		InternalResponseCode internalResponseCodeToDelete = internalResponseCodeDAO.findOne(id);
 
 		if (internalResponseCodeToDelete == null) {
 			throw new CustomNotFoundException(
