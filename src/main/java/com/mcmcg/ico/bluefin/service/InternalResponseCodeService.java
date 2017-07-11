@@ -56,7 +56,7 @@ public class InternalResponseCodeService {
 	
 		List<InternalResponseCode> internalResponseCodeList =internalResponseCodeDAO.findByTransactionTypeNameOrderByInternalResponseCodeAsc(transactionType);
 		LOGGER.debug("internalResponseCodeList size is ={} ",internalResponseCodeList.size());
-		if(null != internalResponseCodeList && !internalResponseCodeList.isEmpty()){
+		if(!internalResponseCodeList.isEmpty()){
 			for (InternalResponseCode internalResponseCode : internalResponseCodeList) {
 				internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId()));
 				for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()){

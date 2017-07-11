@@ -191,7 +191,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.info("Fetching Transactions, Search  Value {} , page{} ",search,page); 
 		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,dynamicParametersMap);
-		logger.debug(" Query={}",(query));
+		logger.debug(" Query={}", query);
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
 		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
 		CustomQuery queryTotal = queriesMap.get("queryTotal");

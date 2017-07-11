@@ -247,7 +247,7 @@ public class QueryUtil {
 		}
 
 		if (!validSearch) {
-			LOGGER.error("Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
+			LOGGER.error("Unable to parse value of legalEntity, correct format example: [XXXXX,YYYYYY,ZZZZZ]");
 			throw new CustomBadRequestException(
 					"Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
 		}
@@ -304,7 +304,7 @@ public class QueryUtil {
 						.collect(Collectors.toList());
 				return result;
 			} else {
-				LOGGER.error("Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
+				LOGGER.error("Unable to parse value of legalEntity, correct format example- [XXXXX,YYYYYY,ZZZZZ]");
 				throw new CustomBadRequestException(
 						"Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
 			}

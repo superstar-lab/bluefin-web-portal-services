@@ -48,7 +48,7 @@ public class UserPreferenceDAOImpl implements UserPreferenceDAO {
 
 	@Override
 	public UserPreference updateUserTimeZonePreference(UserPreference userPrefrence) {
-		LOGGER.debug("Updating User Preference, UserPreferenceId ={} ",(userPrefrence.getUserPrefeenceID()));
+		LOGGER.debug("Updating User Preference, UserPreferenceId ={} ",userPrefrence.getUserPrefeenceID());
 		int rows = jdbcTemplate.update(Queries.UPDATEUSERPREFERENCE,
 					new Object[] { 	userPrefrence.getPreferenceValue(), userPrefrence.getUserPrefeenceID() });
 		LOGGER.debug(" Updated UserPreference, No of Rows Updated ={}", rows);
