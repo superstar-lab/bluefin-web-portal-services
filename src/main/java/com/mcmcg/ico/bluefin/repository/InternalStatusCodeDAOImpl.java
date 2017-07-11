@@ -57,7 +57,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 
 	@Override
 	public List<InternalStatusCode> findByTransactionTypeNameOrderByInternalStatusCodeAsc(String transactionTypeName) {
-		LOGGER.debug("InternalStatusCodeDAOImpl :: findByTransactionTypeNameOrderByInternalStatusCodeAsc() : Fetching Internal status codes for transaction type="+transactionTypeName);
+		LOGGER.debug("Fetching Internal status codes for transaction type={}",transactionTypeName);
 		List<InternalStatusCode> fetchedInternalStatusCodeByTransactionTypeList;
 		if ("ALL".equalsIgnoreCase(transactionTypeName)) { 
 			fetchedInternalStatusCodeByTransactionTypeList = sortInternalStatusCode( jdbcTemplate.query( Queries.FINDALLINTERNALSTATUSCODE, new InternalStatusCodeRowMapper() ) );
@@ -100,10 +100,10 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 
 		Long id = holder.getKey().longValue();
 		internalStatusCode.setInternalStatusCodeId(id);
-		LOGGER.debug("InternalStatusCodeDAOImpl :: save() : Saved Internal Status Code: " + id);
+		LOGGER.debug("Saved Internal Status Code ={} ", id);
 
 		if (internalStatusCode.getPaymentProcessorInternalStatusCodes() != null && !internalStatusCode.getPaymentProcessorInternalStatusCodes().isEmpty()) {
-			LOGGER.debug("InternalStatusCodeDAOImpl :: save() : Number of childs items {}"+internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
+			LOGGER.debug("Number of childs items {}",internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
 			// in this case we need to create child items also.
 			for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : internalStatusCode.getPaymentProcessorInternalStatusCodes()) {
 				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCode.getInternalStatusCodeId());
@@ -116,7 +116,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 
 	@Override
 	public InternalStatusCode update(InternalStatusCode internalStatusCode) {
-		LOGGER.debug("InternalStatusCodeDAOImpl :: update() : Updating Internal Status Code"+(internalStatusCode.getInternalStatusCodeId()));
+		LOGGER.debug("Updating Internal Status Code ={}", internalStatusCode.getInternalStatusCodeId());
 		DateTime utc4 = internalStatusCode.getModifiedDate() != null ? internalStatusCode.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
@@ -127,13 +127,13 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 									dateModified, internalStatusCode.getInternalStatusCodeId()
 								 });
 
-		LOGGER.debug("InternalStatusCodeDAOImpl :: update() : Updated PaymentProcessor, No of Rows Updated " + rows + " and Updated InternalStatusCode with ID: " +internalStatusCode.getInternalStatusCodeId());
+		LOGGER.debug("Updated PaymentProcessor, No of Rows Updated ={}", rows , " and Updated InternalStatusCode with ID: =",internalStatusCode.getInternalStatusCodeId());
 		if (internalStatusCode.getPaymentProcessorInternalStatusCodes() != null && !internalStatusCode.getPaymentProcessorInternalStatusCodes().isEmpty()) {
-			LOGGER.debug("InternalStatusCodeDAOImpl :: update() : Number of childs items to update {}"+internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
+			LOGGER.debug("Number of childs items to update ={}" ,internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
 			// in this case we need to create child items also.
 			for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : internalStatusCode.getPaymentProcessorInternalStatusCodes()) {
 				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCode.getInternalStatusCodeId());
-				LOGGER.debug("InternalStatusCodeDAOImpl :: update() : PaymentProcessorInternalStatusCode_ChildItem="+(paymentProcessorInternalStatusCode));
+				LOGGER.debug("PaymentProcessorInternalStatusCode_ChildItem={}",paymentProcessorInternalStatusCode);
 			}
 			paymentProcessorInternalStatusCodeDAO.delete(internalStatusCode.getInternalStatusCodeId());
 			LOGGER.debug("Old Child Items deleted successfully");
@@ -214,15 +214,15 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 	@Override
 	public void delete(Long internalStatusCodeId) {
 		paymentProcessorInternalStatusCodeDAO.delete(internalStatusCodeId);
-		LOGGER.debug("InternalStatusCodeDAOImpl :: delete() : Deleting InternalStatusCodeId {}",internalStatusCodeId);
+		LOGGER.debug("Deleting InternalStatusCodeId ={}",internalStatusCodeId);
 		jdbcTemplate.update(Queries.DELETEINTERNALSTATUSCODE, internalStatusCodeId);
-		LOGGER.debug("InternalStatusCodeDAOImpl :: delete() : Record deleted successfully InternalStatusCodeId {}",internalStatusCodeId);
+		LOGGER.debug("Record deleted successfully InternalStatusCodeId ={}",internalStatusCodeId);
 	}
 
 	@Override
 	public InternalStatusCode findOneWithChilds(Long internalStatusCodeId) {
 		InternalStatusCode internalStatusCode = findOne(internalStatusCodeId);
-		LOGGER.debug("InternalStatusCodeDAOImpl :: findOneWithChilds() : internalStatusCode ",internalStatusCode);
+		LOGGER.debug("internalStatusCode ={} ",internalStatusCode);
 		if (internalStatusCode != null){
 			internalStatusCode.setPaymentProcessorInternalStatusCodes(paymentProcessorInternalStatusCodeDAO.findAllForInternalStatusCodeId(internalStatusCodeId));
 		}

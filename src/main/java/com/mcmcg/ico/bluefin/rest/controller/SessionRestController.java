@@ -103,7 +103,7 @@ public class SessionRestController {
     public AuthenticationResponse refreshAuthanticationToken(HttpServletRequest request) {
     	LOGGER.info("Inside refreshAuthanticationToken");
         final String token = request.getHeader(propertyService.getPropertyValue(BluefinWebPortalConstants.TOKENHEADER));
-        LOGGER.debug("refreshAuthanticationToken token "+token);
+        LOGGER.debug("refreshAuthanticationToken token ={}",token);
         if (token != null) {
             return sessionService.refreshToken(token);
         }

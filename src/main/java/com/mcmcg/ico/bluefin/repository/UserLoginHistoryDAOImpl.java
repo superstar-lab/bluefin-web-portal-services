@@ -59,7 +59,7 @@ public class UserLoginHistoryDAOImpl implements UserLoginHistoryDAO {
 
 		Long id = holder.getKey().longValue();
 		userLoginHistory.setUserLoginHistoryId(id);
-		logger.debug("UserLoginHistoryDAOImpl :: saveUserLoginHistory() : Saved userLoginHistory - id: " + id);
+		logger.debug("Saved userLoginHistory - id ={} ", id);
 
 		return id;
 	}

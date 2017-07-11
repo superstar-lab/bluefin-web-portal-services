@@ -54,14 +54,14 @@ public class InternalStatusCodeService {
 	public List<InternalStatusCode> getInternalStatusCodesByTransactionType(final String transactionType) {
 		List<InternalStatusCode> internalStatusCodeList = internalStatusCodeDAO.findByTransactionTypeNameOrderByInternalStatusCodeAsc(transactionType);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : internalStatusCodeList size : {}",internalStatusCodeList.size());
+			LOGGER.debug("internalStatusCodeList size : {}",internalStatusCodeList.size());
 		}
 		if (internalStatusCodeList != null) {
 			for(InternalStatusCode internalStatusCode : internalStatusCodeList){
 				Long internalStatusCodeId = internalStatusCode.getInternalStatusCodeId();
 				List<PaymentProcessorInternalStatusCode> list = paymentProcessorInternalStatusCodeDAO.findAllForInternalStatusCodeId(internalStatusCodeId);
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("InternalStatusCodeService :: getInternalStatusCodesByTransactionType() : PaymentProcessorInternalStatusCode size : {} ",list.size());
+					LOGGER.debug("PaymentProcessorInternalStatusCode size : {} ",list.size());
 				}
 				for (PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode : list) {
 					InternalStatusCode internalStatusCode1 = internalStatusCodeDAO.findOne(paymentProcessorInternalStatusCode.getInternalStatusCodeId());
@@ -79,7 +79,7 @@ public class InternalStatusCodeService {
 		TransactionType transactionType = transactionTypeDAO
 				.findByTransactionType(transactionTypeName);
 		if (transactionType == null) {
-			LOGGER.error("InternalStatusCodeService :: createInternalStatusCodes() : Transaction type {} not found",transactionTypeName);
+			LOGGER.error("Transaction type {} not found",transactionTypeName);
 			throw new CustomBadRequestException("Transaction type not exists.");
 		}
 		return transactionType;
@@ -116,7 +116,7 @@ public class InternalStatusCodeService {
 	private PaymentProcessorStatusCode validatePaymentProcessorStatusCode(PaymentProcessorStatusCode paymentProcessorStatusCode,InternalCodeResource internalStatusCodeResource,PaymentProcessorCodeResource resourceProcessorCode,boolean codeModified){
 		PaymentProcessorStatusCode paymentProcessorStatusCodeObj;
 		if (paymentProcessorStatusCode == null) {
-			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Creating new payment processor Status code {}", resourceProcessorCode.getCode());
+			LOGGER.debug("Creating new payment processor Status code {}", resourceProcessorCode.getCode());
 			paymentProcessorStatusCodeObj = new PaymentProcessorStatusCode();
 		} else {
 			Collection<PaymentProcessorInternalStatusCode> currentPaymentProcessorInternalStatusCodes = paymentProcessorStatusCode
@@ -162,18 +162,18 @@ public class InternalStatusCodeService {
 		TransactionType transactionType = validateTransactionType(internalStatusCodeResource.getTransactionTypeName());
 		validateInternalStatusCode(internalStatusCodeResource.getCode(),internalStatusCodeResource.getTransactionTypeName());
 		
-		LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Creating new internal Status code {}", internalStatusCodeResource.getCode());
+		LOGGER.debug("Creating new internal Status code {}", internalStatusCodeResource.getCode());
 		InternalStatusCode internalStatusCode = populatenInternalStatusCode(internalStatusCodeResource,transactionType.getTransactionTypeName(),currentLoginUserName);
 		
 		if ( internalStatusCodeResource.getPaymentProcessorCodes() != null && !internalStatusCodeResource.getPaymentProcessorCodes().isEmpty()) {
-			LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Number of payment processor internal status codes="+internalStatusCodeResource.getPaymentProcessorCodes().size());
+			LOGGER.debug("Number of payment processor internal status codes={}",internalStatusCodeResource.getPaymentProcessorCodes().size());
 			List<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes = new ArrayList<>();
 			for (PaymentProcessorCodeResource resourceProcessorCode : internalStatusCodeResource.getPaymentProcessorCodes()) {
-				LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : Payment processor internal status code="+resourceProcessorCode);
+				LOGGER.debug("Payment processor internal status code={}",resourceProcessorCode);
 				// validate if payment processor is exists or not
 				PaymentProcessor paymentProcessor = paymentProcessorDAO.findByPaymentProcessorId(resourceProcessorCode.getPaymentProcessorId());
 				if (paymentProcessor == null) {
-					LOGGER.error("InternalStatusCodeService :: createInternalStatusCodes() : Payment processor {} not found",resourceProcessorCode.getPaymentProcessorId());
+					LOGGER.error("Payment processor {} not found",resourceProcessorCode.getPaymentProcessorId());
 					throw new CustomBadRequestException("Payment processor does not exists. Id="+resourceProcessorCode.getPaymentProcessorId());
 				}
 				PaymentProcessorStatusCode paymentProcessorStatusCode;
@@ -190,7 +190,7 @@ public class InternalStatusCodeService {
 					codeModified = isCodeModifiedCreateCase(paymentProcessor,paymentProcessorStatusCode,resourceProcessorCode,transactionType.getTransactionTypeName());
 				}
 				
-				LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : paymentProcessorStatusCode value : ", paymentProcessorStatusCode);
+				LOGGER.debug("paymentProcessorStatusCode value : ", paymentProcessorStatusCode);
 				
 				paymentProcessorStatusCode = validatePaymentProcessorStatusCode(paymentProcessorStatusCode,internalStatusCodeResource,resourceProcessorCode, codeModified);
 				
@@ -203,7 +203,7 @@ public class InternalStatusCodeService {
 				paymentProcessorStatusCode = createOrUpdatePaymentProcessorStatusCode(paymentProcessorStatusCode);
 				PaymentProcessorInternalStatusCode paymentProcessorInternalStatusCode = new PaymentProcessorInternalStatusCode();
 				// no need to set these two objects  in create case
-				LOGGER.debug("InternalStatusCodeService :: createInternalStatusCodes() : paymentProcessorStatusCode  : ",paymentProcessorStatusCode);
+				LOGGER.debug("paymentProcessorStatusCode  : ",paymentProcessorStatusCode);
 				paymentProcessorInternalStatusCode.setPaymentProcessorStatusCodeId(paymentProcessorStatusCode.getPaymentProcessorStatusCodeId());
 				paymentProcessorInternalStatusCode.setInternalStatusCodeId(internalStatusCode.getInternalStatusCodeId());
 				paymentProcessorInternalStatusCode.setLastModifiedBy(currentLoginUserName);
@@ -301,7 +301,7 @@ public class InternalStatusCodeService {
 	}
 	
 	public InternalStatusCode updateInternalStatusCode(UpdateInternalCodeResource internalStatusCodeResource,String currentLoginUserName) {
-		LOGGER.info("InternalStatusCodeService :: updateInternalStatusCode() : Updating InternalStatusCode Record");
+		LOGGER.info("Updating InternalStatusCode Record");
 		LOGGER.debug("Requested Data= {} , Child Items=",internalStatusCodeResource, internalStatusCodeResource.getPaymentProcessorCodes() != null ? internalStatusCodeResource.getPaymentProcessorCodes().size() : 0 );
 		Long internalStatusCodeIdToModify = internalStatusCodeResource.getInternalCodeId();
 		LOGGER.debug("Internal Status CodeId to modify {}",internalStatusCodeIdToModify);
@@ -486,7 +486,7 @@ public class InternalStatusCodeService {
 	public String getLetterFromStatusCodeForSaleTransactions(String statusCode) {
 		InternalStatusCode internalStatusCode = internalStatusCodeDAO
 				.findByInternalStatusCodeAndTransactionTypeName(statusCode, "SALE");
-		LOGGER.debug("nternalStatusCodeService :: getLetterFromStatusCodeForSaleTransactions() : internalStatusCode : "+internalStatusCode);
+		LOGGER.debug("internalStatusCode ={} ",internalStatusCode);
 		if (internalStatusCode == null)
 			return "";
 		else

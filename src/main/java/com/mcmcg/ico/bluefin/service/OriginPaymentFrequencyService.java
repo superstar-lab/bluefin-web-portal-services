@@ -22,7 +22,7 @@ public class OriginPaymentFrequencyService {
 	private OriginPaymentFrequencyDAO originPaymentFrequencyDAO;
 
 	public List<OriginPaymentFrequency> getOriginPaymentFrequencies() {
-		LOGGER.info("OriginPaymentFrequencyService :: getOriginPaymentFrequencies : Getting Origin Payment Frequency list.");
+		LOGGER.info("Getting Origin Payment Frequency list.");
 		return originPaymentFrequencyDAO.findAll();
 	}
 }

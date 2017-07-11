@@ -39,7 +39,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
     @Override
     public BatchUpload saveBasicBatchUpload(BatchUpload batchUpload) {
-    	LOGGER.info("Entering BatchUploadDAOImpl :: saveBasicBatchUpload()");
+    	LOGGER.info("save Basic BatchUpload");
         KeyHolder holder = new GeneratedKeyHolder();
 
         DateTime utc1 = batchUpload.getProcessStart().withZone(DateTimeZone.UTC);
@@ -64,8 +64,8 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         Long id = holder.getKey().longValue();
         batchUpload.setBatchUploadId(id);
-        LOGGER.debug("Created batchUploadId: " + id);
-        LOGGER.info("Exit from BatchUploadDAOImpl :: saveBasicBatchUpload()");
+        LOGGER.debug("Created batchUploadId {} ", id);
+        LOGGER.info("saveBasicBatchUpload");
         return batchUpload;
     }
 
@@ -113,7 +113,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDBYDATEUPLOADEDAFTER,
                 new Object[] { dateBeforeNoofdaysTimestamp }, new BatchUploadRowMapper());
-        LOGGER.debug("BatchUploadDAOImpl :: findByDateUploadedAfter() : Number of rows: " + batchUploads.size());
+        LOGGER.debug("Number of rows ={} ", batchUploads.size());
         return batchUploads;
     }
 
@@ -143,7 +143,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDALLBATCHUPLOADSBYORDERBYDATEUPLOADEDDESC,
                 new Object[] { firstResult, lastResult }, new BatchUploadRowMapper());
         if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("BatchUploadDAOImpl :: findAllByOrderByDateUploadedDesc() : Number of rows: {}" + ( batchUploads != null ? batchUploads.size() : 0 ));
+        	LOGGER.debug("Number of rows: ={}",  batchUploads != null ? batchUploads.size() : 0 );
         }
         return new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);

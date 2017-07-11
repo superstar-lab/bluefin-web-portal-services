@@ -53,7 +53,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 				UserRole userRole = userRoles.get(i);
 				DateTime utc1 = userRole.getDateModified() != null ? userRole.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 				Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
-				LOGGER.debug("UserRoleDAOImpl :: insertBatch() : Creating child item for , UserId = "+(userRole.getUserId()));
+				LOGGER.debug("Creating child item for , UserId ={} ",userRole.getUserId());
 				ps.setLong(1, userRole.getUser().getUserId());
 				ps.setLong(2, userRole.getRole().getRoleId());
 				ps.setTimestamp(3, dateCreated);
@@ -76,10 +76,10 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	}
 	
 	private void executeQueryToDeleteUserRoles(String deleteQuery,Map<String, Set<Long>> idsToDelete){
-		LOGGER.debug("UserRoleDAOImpl :: executeQueryToDeleteUserRoles() : Finally deleteing records, idsToDelete="+idsToDelete);
+		LOGGER.debug("Finally deleteing records, idsToDelete={}",idsToDelete);
 		
 		int noOfRowsDeleted = namedJDBCTemplate.update(deleteQuery,idsToDelete);
-		LOGGER.debug("UserRoleDAOImpl :: executeQueryToDeleteUserRoles() : Number of rows of roles deleted (Using user role id) ="+(noOfRowsDeleted));
+		LOGGER.debug("Number of rows of roles deleted (Using user role id) ={}",noOfRowsDeleted);
 	}
 	
 	@Override
@@ -87,7 +87,7 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 		ArrayList<UserRole> list = (ArrayList<UserRole>) jdbcTemplate.query(Queries.FINDUSERROLEBYUSERID,
 				new Object[] { userId }, new RowMapperResultSetExtractor<UserRole>(new UserRoleRowMapper()));
 
-		LOGGER.debug("UserRoleDAOImpl :: findByUserId() : Number of rows: " + list.size());
+		LOGGER.debug(" Number of rows: ={}", list.size());
 
 		return list;
 	}

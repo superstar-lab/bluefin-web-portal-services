@@ -61,7 +61,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			legalEntityApp = jdbcTemplate.queryForObject(Queries.FINDBYLEGALENTITYAPPID, new Object[] { legalEntityAppId },
 					new LegalEntityAppRowMapper());
 			if ( LOGGER.isDebugEnabled() ) {
-				LOGGER.debug("LegalEntityAppDAOImpl :: findByLegalEntityAppId() : legalEntityApp: " + legalEntityApp);
+				LOGGER.debug("legalEntityApp: ={}" + legalEntityApp);
 			}
 			return legalEntityApp;
 		} catch (EmptyResultDataAccessException e) {
@@ -78,7 +78,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPS,
 				new LegalEntityAppRowMapper());
 
-		LOGGER.debug("LegalEntityAppDAOImpl :: findAll() : Number of rows: " + legalEntityApps.size());
+		LOGGER.debug("Number of rows ={}", legalEntityApps.size());
 
 		return legalEntityApps;
 	}
@@ -90,7 +90,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPSBYIDS,
 				map, new LegalEntityAppRowMapper());
 
-		LOGGER.debug("LegalEntityAppDAOImpl :: findAll(list) : Number of rows: " + legalEntityApps.size());
+		LOGGER.debug("Number of rows ={}",legalEntityApps.size());
 
 		return legalEntityApps;
 	}
@@ -125,7 +125,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 		Long id = holder.getKey().longValue();
 		legalEntityApp.setLegalEntityAppId(id);
-		LOGGER.debug("LegalEntityAppDAOImpl :: saveLegalEntityApp() : Created legalEntityAppId: " + id);
+		LOGGER.debug("Created legalEntityAppId ={} ", id);
 
 		return legalEntityApp;
 	}
@@ -161,7 +161,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				return ps;
 		}, holder);
 
-		LOGGER.debug("LegalEntityAppDAOImpl :: updateLegalEntityApp() : Updated legalEntityAppId: " + legalEntityApp.getLegalEntityAppId());
+		LOGGER.debug("Updated legalEntityAppIdv={} ", legalEntityApp.getLegalEntityAppId());
 
 		return legalEntityApp;
 	}

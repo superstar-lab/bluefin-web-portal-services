@@ -29,7 +29,7 @@ public class HttpsUtil {
         StringBuilder jsonString = new StringBuilder();
         try {
             URL url = new URL(requestUrl);
-            LOGGER.debug("HttpsUtil :: sendPostRequest() : url is : "+url);
+            LOGGER.debug("url is ={} ",url);
             HttpsURLConnection cntn = (HttpsURLConnection) url.openConnection();
             SSLSocketFactory sslSocketFactory = createTrustAllSslSocketFactory("TLSv1.2");
             cntn.setSSLSocketFactory(sslSocketFactory);

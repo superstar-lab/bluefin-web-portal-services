@@ -42,7 +42,7 @@ public class RoleDAOImpl implements RoleDAO {
 	public List<Role> findAll() {
 		List<Role> list = jdbcTemplate.query(Queries.FINDALLROLES, new RoleRowMapper());
 
-		LOGGER.debug("RoleDAOImpl :: findAll() : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows = {} ", list.size());
 
 		return list;
 	}
@@ -53,7 +53,7 @@ public class RoleDAOImpl implements RoleDAO {
 		Map<String, List<Long>> map = Collections.singletonMap("roleIds", roleIds);
 		List<Role> list = namedParameterJdbcTemplate.query(Queries.FINDALLROLESBYIDS, map, new RoleRowMapper());
 
-		LOGGER.debug("RoleDAOImpl :: findAll(list) : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows ={} ", list.size());
 
 		return list;
 	}
@@ -62,13 +62,13 @@ public class RoleDAOImpl implements RoleDAO {
 	public Role findByRoleId(long roleId) {
 		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.FINDROLEBYROLEID, new Object[] { roleId },
 				new RowMapperResultSetExtractor<Role>(new RoleRowMapper()));
-		LOGGER.debug("RoleDAOImpl :: findByRoleId() : Role size : "+list.size());
+		LOGGER.debug("Role size={} ",list.size());
 		Role role = DataAccessUtils.singleResult(list);
 
 		if (role != null) {
-			LOGGER.debug("RoleDAOImpl :: findByRoleId() :Found Role for roleId: " + roleId);
+			LOGGER.debug("Found Role for roleId ={} ", roleId);
 		} else {
-			LOGGER.debug("RoleDAOImpl :: findByRoleId() " + roleId);
+			LOGGER.debug("roleId not found ={}", roleId);
 		}
 
 		return role;
@@ -78,13 +78,13 @@ public class RoleDAOImpl implements RoleDAO {
 	public Role findByRoleName(String roleName) {
 		ArrayList<Role> list = (ArrayList<Role>) jdbcTemplate.query(Queries.FINDROLEBYROLENAME,
 				new Object[] { roleName }, new RowMapperResultSetExtractor<Role>(new RoleRowMapper()));
-		LOGGER.debug("RoleDAOImpl :: findByRoleName() : Role size : "+list.size());
+		LOGGER.debug("Role size ={} ",list.size());
 		Role role = DataAccessUtils.singleResult(list);
 
 		if (role != null) {
-			LOGGER.debug("RoleDAOImpl :: findByRoleName() : Found Role for roleName: " + roleName);
+			LOGGER.debug("Found Role for roleName ={} ", roleName);
 		} else {
-			LOGGER.debug("RoleDAOImpl :: findByRoleName() : Role not found for roleName: " + roleName);
+			LOGGER.debug("Role not found for roleName={} ", roleName);
 		}
 
 		return role;
@@ -119,7 +119,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 		Long id = holder.getKey().longValue();
 		role.setRoleId(id);
-		LOGGER.debug("RoleDAOImpl :: saveRole() : Saved role - id: " + id);
+		LOGGER.debug("Saved role - id ={} ", id);
 
 		return id;
 	}

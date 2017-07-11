@@ -55,8 +55,8 @@ public class InternalResponseCodeService {
 		// Get transactionType if null thrown an exception
 	
 		List<InternalResponseCode> internalResponseCodeList =internalResponseCodeDAO.findByTransactionTypeNameOrderByInternalResponseCodeAsc(transactionType);
-		LOGGER.debug("InternalResponseCodeService :: getInternalResponseCodesByTransactionType() : internalResponseCodeList size is : "+internalResponseCodeList);
-		if(null != internalResponseCodeList && !internalResponseCodeList.isEmpty()){
+		LOGGER.debug("internalResponseCodeList size is ={} ",internalResponseCodeList.size());
+		if(!internalResponseCodeList.isEmpty()){
 			for (InternalResponseCode internalResponseCode : internalResponseCodeList) {
 				internalResponseCode.setPaymentProcessorInternalResponseCodes(paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeListByInternalResponseCodeId(internalResponseCode.getInternalResponseCodeId()));
 				for (PaymentProcessorInternalResponseCode paymentProcessorInternalResponseCode : internalResponseCode.getPaymentProcessorInternalResponseCodes()){
@@ -104,12 +104,12 @@ public class InternalResponseCodeService {
 	private PaymentProcessorResponseCode createOrUpdatePaymentProcessorResponseCode(PaymentProcessorResponseCode paymentProcessorResponseCode,InternalCodeResource internalResponseCodeResource,String code,boolean codeModified){
 		PaymentProcessorResponseCode paymentProcessorResponseCodeObj;
 		if (paymentProcessorResponseCode == null) {
-			LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new payment processor response code {}", code);
+			LOGGER.debug("Creating new payment processor response code {}", code);
 			paymentProcessorResponseCodeObj = new PaymentProcessorResponseCode();
 		} else {
 			Collection<PaymentProcessorInternalResponseCode> currentPaymentProcessorInternalResponseCodes = paymentProcessorResponseCode
 					.getInternalResponseCode();
-			LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
+			LOGGER.debug("currentPaymentProcessorInternalResponseCodes size : ",currentPaymentProcessorInternalResponseCodes.size() );
 			for (PaymentProcessorInternalResponseCode currentPaymentProcessorInternalResponseCode : currentPaymentProcessorInternalResponseCodes) {
 				validatePaymentProcessorResponseCode(currentPaymentProcessorInternalResponseCode,internalResponseCodeResource,codeModified);
 			}
@@ -130,7 +130,7 @@ public class InternalResponseCodeService {
 
 		validateInternalResponseCode(internalResponseCode);
 		internalResponseCode = populateInternalResponseCode(internalResponseCodeResource.getCode(),internalResponseCodeResource.getDescription(),transactionType.getTransactionTypeName(),userName);
-		LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : Creating new internal response code {}", internalResponseCodeResource.getCode());
+		LOGGER.debug("Creating new internal response code {}", internalResponseCodeResource.getCode());
 		
 		if (internalResponseCodeResource.getPaymentProcessorCodes() != null && !internalResponseCodeResource.getPaymentProcessorCodes().isEmpty()) {
 			List<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes = new ArrayList<>();
@@ -151,7 +151,7 @@ public class InternalResponseCodeService {
 					codeModified = isCodeModified(paymentProcessor,resourceProcessorCode.getCode(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeValue(),transactionType.getTransactionTypeName());
 				}
 				
-				LOGGER.debug("InternalResponseCodeService :: createInternalResponseCodes() : paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
+				LOGGER.debug("paymentProcessorResponseCode value : ",paymentProcessorResponseCode);
 				paymentProcessorResponseCode = createOrUpdatePaymentProcessorResponseCode(paymentProcessorResponseCode,internalResponseCodeResource,resourceProcessorCode.getCode(),codeModified);
 
 				paymentProcessorResponseCode.setPaymentProcessor(paymentProcessor);
@@ -176,7 +176,7 @@ public class InternalResponseCodeService {
 					.addAll(paymentProcessorInternalResponseCodes);
 
 		}
-		LOGGER.info("InternalResponseCodeService :: createInternalResponseCodes() : Ready to save internalResponseCode");
+		LOGGER.info("Ready to save internalResponseCode");
 		return internalResponseCodeDAO.save(internalResponseCode);
 
 	}
@@ -215,7 +215,7 @@ public class InternalResponseCodeService {
 		TransactionType transactionType = transactionTypeDAO.findByTransactionType(transactionTypeName);
 		
 		if (transactionType == null) {
-			LOGGER.error("InternalResponseCodeService :: updateInternalResponseCode() : Transaction type {} not found",transactionTypeName);
+			LOGGER.error("Transaction type {} not found",transactionTypeName);
 			throw new CustomBadRequestException("Transaction type="+transactionTypeName+" not exists.");
 		}
 		return transactionType;
@@ -339,7 +339,7 @@ public class InternalResponseCodeService {
 
 		// Get transactionType if null thrown an exception
 		TransactionType transactionType = getTransactionType(internalResponseCodeResource.getTransactionTypeName());
-		LOGGER.debug("InternalResponseCodeService :: updateInternalResponseCode() : Updating internal response code {}", internalResponseCodeIdToModify);
+		LOGGER.debug("Updating internal response code {}", internalResponseCodeIdToModify);
 
 		// Just in case of modify the code of the Internal Response Code, verify
 		// if the code is already assigned
@@ -374,7 +374,7 @@ public class InternalResponseCodeService {
 			// Update information from current payment processor merchants
 			updateInformationForCurrentProcessorMerchants(internalResponseCode,newMapOfPaymentProcessorResponseCodes,paymentProcessorResponseCodeToDelete);
 
-			LOGGER.info("InternalResponseCodeService :: updateInternalResponseCode() : newPaymentProcessorResponseCode size : ", newPaymentProcessorResponseCode.size()); 
+			LOGGER.info("newPaymentProcessorResponseCode size : ", newPaymentProcessorResponseCode.size()); 
 			// Add the new payment processor response codes
 			addNewPaymentProcessorResponseCodes(internalResponseCode,internalResponseCodeIdToModify,newPaymentProcessorResponseCode);
 
@@ -411,7 +411,7 @@ public class InternalResponseCodeService {
 	}
 	private void validateCodeOrDesription(PaymentProcessorCodeResource resourceProcessorCode){
 		if (resourceProcessorCode.getCode().isEmpty() && resourceProcessorCode.getDescription().isEmpty()) {
-			LOGGER.info("InternalResponseCodeService :: updateInternalResponseCode() : Removing payment processor code");
+			LOGGER.info("Removing payment processor code");
 		} else {
 			throw new CustomBadRequestException(
 					"Unable to save Payment Processor code with code or description empty.");
@@ -451,7 +451,7 @@ public class InternalResponseCodeService {
 					String.format("Unable to find internal response code with id = [%s]", id));
 		}
 		List<Long > paymentProcessorResponseCodeIds = paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(id);
-		LOGGER.info("InternalResponseCodeService :: deleteInternalResponseCode() : paymentProcessorResponseCodeIds size : {} ", paymentProcessorResponseCodeIds != null ? paymentProcessorResponseCodeIds.size() : 0);
+		LOGGER.info("paymentProcessorResponseCodeIds size : {} ", paymentProcessorResponseCodeIds != null ? paymentProcessorResponseCodeIds.size() : 0);
 		internalResponseCodeDAO.delete(internalResponseCodeToDelete);
 		if(paymentProcessorResponseCodeIds != null && !paymentProcessorResponseCodeIds.isEmpty()){
 			paymentProcessorInternalResponseCodeDAO.deletePaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);

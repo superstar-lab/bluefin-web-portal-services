@@ -40,13 +40,13 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONID,
 				new Object[] { permissionId }, new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
-		LOGGER.debug("PermissionDAOImpl :: findByPermissionId : Permission list : " + list.size());
+		LOGGER.debug("Permission list ={} ", list.size());
 		permission = DataAccessUtils.singleResult(list);
 
 		if (permission != null) {
-			LOGGER.debug("PermissionDAOImpl :: findByPermissionId() : Found Permission for permissionId: " + permissionId);
+			LOGGER.debug("Found Permission for permissionId ={} ", permissionId);
 		} else {
-			LOGGER.debug("PermissionDAOImpl :: findByPermissionId() : Permission not found for permissionId: " + permissionId);
+			LOGGER.debug("Permission not found for permissionId ={} ", permissionId);
 		}
 
 		return permission;
@@ -58,13 +58,13 @@ public class PermissionDAOImpl implements PermissionDAO {
 		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONNAME,
 				new Object[] { permissionName },
 				new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
-		LOGGER.debug("PermissionDAOImpl :: findByPermissionName() : Permission list : " + list.size());
+		LOGGER.debug("Permission list ={} ", list.size());
 		permission = DataAccessUtils.singleResult(list);
 
 		if (permission != null) {
-			LOGGER.debug("PermissionDAOImpl :: findByPermissionName() : Found Permission for permissionName: " + permissionName);
+			LOGGER.debug("Found Permission for permissionName ={} ", permissionName);
 		} else {
-			LOGGER.debug("PermissionDAOImpl :: findByPermissionName() : Permission not found for permissionName: " + permissionName);
+			LOGGER.debug("Permission not found for permissionName ={} ", permissionName);
 		}
 
 		return permission;
@@ -100,7 +100,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 		Long id = holder.getKey().longValue();
 		permission.setPermissionId(id);
-		LOGGER.debug("PermissionDAOImpl :: savePermission() : Saved permission - id: " + id);
+		LOGGER.debug("Saved permission - id ={} ", id);
 
 		return id;
 	}

@@ -31,13 +31,13 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 		ArrayList<VoidTransaction> list = (ArrayList<VoidTransaction>) jdbcTemplate.query(
 				Queries.FINDVOIDTRANSACTIONBYAPPLICATIONTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<VoidTransaction>(new VoidTransactionRowMapper()));
-		LOGGER.debug("VoidTransactionDAOImpl :: findByApplicationTransactionId() : VoidTransaction size : "+list.size());
+		LOGGER.debug("VoidTransaction size ={} ",list.size());
 		VoidTransaction voidTransaction = DataAccessUtils.singleResult(list);
 
 		if (voidTransaction != null) {
-			LOGGER.debug("VoidTransactionDAOImpl :: findByApplicationTransactionId() : Found VoidTransaction for transactionId: " + transactionId);
+			LOGGER.debug("Found VoidTransaction for transactionId={} ", transactionId);
 		} else {
-			LOGGER.debug("VoidTransactionDAOImpl :: findByApplicationTransactionId() : VoidTransaction not found for transactionId: " + transactionId);
+			LOGGER.debug("VoidTransaction not found for transactionId ={} ", transactionId);
 		}
 
 		return voidTransaction;

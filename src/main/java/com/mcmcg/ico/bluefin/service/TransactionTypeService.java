@@ -22,13 +22,13 @@ public class TransactionTypeService {
 	private TransactionTypeDAO transactionTypeDAO;
 
 	public List<TransactionType> getTransactionTypes() {
-		LOGGER.info("TransactionTypeService :: getTransactionTypes()");
+		LOGGER.info("get TransactionTypes");
 		return transactionTypeDAO.findAll();
 	}
 
 	public TransactionType getTransactionTypeById(Long transactionTypeId) {
 		TransactionType transactionType = transactionTypeDAO.findByTransactionId(transactionTypeId);
-		LOGGER.info("TransactionTypeService :: getTransactionTypeById() : transactionType : "+transactionType);
+		LOGGER.info("transactionType :={} ",transactionType);
 		if (transactionType == null) {
 			throw new CustomBadRequestException("Invalid transaction type.");
 		}
@@ -37,7 +37,7 @@ public class TransactionTypeService {
 
 	public TransactionType getTransactionTypeByType(String transactionTypeName) {
 		TransactionType transactionType = transactionTypeDAO.findByTransactionType(transactionTypeName);
-		LOGGER.info("TransactionTypeService :: getTransactionTypeByType() : transactionType : "+transactionType);
+		LOGGER.info("transactionType= {} ",transactionType);
 		if (transactionType == null) {
 			throw new CustomBadRequestException("Invalid transaction type.");
 		}

@@ -79,7 +79,7 @@ public class TransactionsRestController {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 
-		LOGGER.info("getTransactions :: servive");
+		LOGGER.info("get Transactions servive");
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());

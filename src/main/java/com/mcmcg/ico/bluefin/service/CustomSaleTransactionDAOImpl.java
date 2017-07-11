@@ -83,7 +83,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * Loads the predicates mapping the elements in the saletransaction entity
 	 */
 	private void loadSaleTransactionMappings() {
-		logger.info("CustomSaleTransactionDAOImpl :: loadSaleTransactionMappings : Loading Predicates");
+		logger.info("Loading Predicates");
 		predicatesHashMapping.put("saleTransactionId", ":prefix.SaleTransactionID = :saleTransactionIdParam1");
 		predicatesHashMapping.put("transactionId",
 				"(:prefix.ApplicationTransactionID = :transactionIdParam1 OR :prefix.ProcessorTransactionID = :transactionIdParam1)");
@@ -119,15 +119,15 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		predicatesHashMapping.put("processorTransactionId",
 				":prefix.ProcessorTransactionID = :processorTransactionIdParam1");
 		
-		logger.debug("CustomSaleTransactionDAOImpl :: loadSaleTransactionMappings : After populate="+predicatesHashMapping);
+		logger.debug("After populate={}", predicatesHashMapping);
 	}
 	
 	@Override
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
-		logger.debug("CustomSaleTransactionDAOImpl :: Executing findTransactionsReport , Search Value {}",search);
+		logger.debug("Executing findTransactionsReport , Search Value {}",search);
 		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,dynamicParametersMap);
-		logger.debug("CustomSaleTransactionDAOImpl :: findTransactionsReport() : Dynamic Query {}", query);
+		logger.debug("Dynamic Query {}", query);
 		
 		Map<String, CustomQuery> queriesMap = createQueries(query, null,dynamicParametersMap);
 		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
@@ -136,10 +136,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (transactionsReportMaxSize > 0) {
 			finalQueryToExecute = finalQueryToExecute + BluefinWebPortalConstants.LIMIT + transactionsReportMaxSize;
 		}
-		logger.debug("CustomSaleTransactionDAOImpl :: findTransactionsReport() : Query to execute="+finalQueryToExecute);
+		logger.debug("Query to execute={}",finalQueryToExecute);
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		List<SaleTransaction> tr = namedJDBCTemplate.query(finalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-		logger.debug("CustomSaleTransactionDAOImpl :: findTransactionsReport() : Total number of rows="+( tr != null ? tr.size() :0 ) );
+		logger.debug("Total number of rows={}", tr != null ? tr.size() :0);
 		return tr;
 	}
 	
@@ -157,7 +157,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search,boolean negate)
 			throws ParseException {
-		logger.debug("CustomSaleTransactionDAOImpl :: Executing findRemittanceSaleRefundTransactionsReport() , Search Value {}",search);
+		logger.debug("Search Value {}",search);
 		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
 		CustomQuery queryObj = new CustomQuery(query);
 		query = queryObj.getFinalQueryToExecute();
@@ -166,21 +166,21 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (transactionsReportMaxSize > 0) {
 			query = query + BluefinWebPortalConstants.LIMIT + transactionsReportMaxSize;
 		}
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactionsReport() : RRR***-Result Data Query to execute:"+query);
+		logger.debug("RRR***-Result Data Query to execute ={}",query);
 		@SuppressWarnings("unchecked")
 		List<RemittanceSale> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceExtractor());
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactionsReport() : Total number of rows="+( tr != null ? tr.size() :0 ));
+		logger.debug("Total number of rows={}", tr != null ? tr.size() : 0);
 		return tr;
 	}
 
 	@Override
 	public PaymentProcessorRemittance findRemittanceSaleRefundTransactionsDetail(String transactionId,
 			TransactionTypeCode transactionType, String processorTransactionType) throws ParseException {
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactionsDetail() : Executing findRemittanceSaleRefundTransactionsDetail, Transaction_Id {} , Transaction Type {} , Processor Transaction Type {}",transactionId,transactionType,processorTransactionType);
+		logger.debug("Executing findRemittanceSaleRefundTransactionsDetail, Transaction_Id {} , Transaction Type {} , Processor Transaction Type {}",transactionId,transactionType,processorTransactionType);
 		String query = getNativeQueryForRemittanceSaleRefundDetail(transactionId, transactionType,processorTransactionType);
 		PaymentProcessorRemittance ppr = null;
 		if (query != null && query.length() > 0) {
-			logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactionsDetail() : Detail Page Query: {}", query);
+			logger.debug("Detail Page Query: {}", query);
 			ppr = fetchPaymentProcessorRemittanceCustomMappingResultSingle(query); 
 		}
 		return ppr;
@@ -191,7 +191,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.info("Fetching Transactions, Search  Value {} , page{} ",search,page); 
 		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,dynamicParametersMap);
-		logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : Query="+(query));
+		logger.debug(" Query={}", query);
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
 		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
 		CustomQuery queryTotal = queriesMap.get("queryTotal");
@@ -203,26 +203,26 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			result.setPageNumber(pageNumber);
 		}
 		String queryTotalFinalQueryToExecute = queryTotal.getFinalQueryToExecute();
-		logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Query to execute:"+queryTotalFinalQueryToExecute);
+		logger.debug("TTT***-Count Query to execute ={}",queryTotalFinalQueryToExecute);
 		// Set the paging for the created select
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		Integer countResult = namedJDBCTemplate.query(queryTotalFinalQueryToExecute, queryTotal.getParametersMap(), rs->{
 				Integer finalCount = null;
 				while (rs.next()) {
 					finalCount = rs.getInt(1);
-					logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : finalCount=" + finalCount);
+					logger.debug("finalCount=" + finalCount);
 					break;
 				}
 				return finalCount;
 		});
-		logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : QueryTotal_Count Result=" + countResult);
+		logger.debug("QueryTotal_Count Result={}", countResult);
 		Page<SaleTransaction> list;
 		if (result != null) {
 			String resultFinalQueryToExecute = result.getFinalQueryToExecute();
-			logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Result Data Query to execute:"+resultFinalQueryToExecute);
-			logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Query Parameter Map-placeholder:"+result.getParametersMap());
+			logger.debug("TTT***-Result Data Query to execute: ={}",resultFinalQueryToExecute);
+			logger.debug("TTT***-Query Parameter Map-placeholder={}",result.getParametersMap());
 			List<SaleTransaction> tr = namedJDBCTemplate.query(resultFinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-			logger.debug("CustomSaleTransactionDAOImpl :: findTransaction() : TTT***-Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
+			logger.debug("TTT***-Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
 			if (tr == null) {
 				tr = new ArrayList<>();
 			}
@@ -235,10 +235,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
 	@Override
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
-		logger.debug("CustomSaleTransactionDAOImpl :: Executing findRemittanceSaleRefundTransactions, Search  Value {} , Page {}, negate {}",search,page,negate); 
+		logger.debug("Search  Value {} , Page {}, negate {}",search,page,negate); 
 		// Creates the query for the total and for the retrieved data
 		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : Query Prepared="+query);
+		logger.debug("Query Prepared={}",query);
 		CustomQuery queryObj = new CustomQuery(query);
 		if ( page != null ) {
 			queryObj.setPagination(true);
@@ -257,8 +257,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			queryForCount = beforeAsktrik + " COUNT(*) " + afterAsktrik;
 		}
 		
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Result Data Query to execute:"+query);
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Query to execute:"+(queryForCount));
+		logger.debug("RRD***-Result Data Query to execute={}",query);
+		logger.debug("RRD***-Count Query to execute = {}",queryForCount);
 		
 		// Brings the data and transform it into a Page value list
 		@SuppressWarnings("unchecked")
@@ -266,10 +266,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (tr == null) {
 			tr = new ArrayList<>();
 		} else {
-			logger.debug("Number of records fetched "+tr+" successfully");
+			logger.debug("Number of records fetched ={}", tr ," successfully");
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
-		logger.debug("CustomSaleTransactionDAOImpl :: findRemittanceSaleRefundTransactions() : RRD***-Count Rows Result {}, Data Query Result {}",countResult,tr.size());
+		logger.debug("RRD***-Count Rows Result {}, Data Query Result {}",countResult,tr.size());
 		return new PageImpl(tr, page, countResult);
 	}
 	
@@ -471,7 +471,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	private List<String> getOriginFromPaymentFrequency(String paymentFrequency) {
-		logger.debug("CustomSaleTransactionDAOImpl :: getOriginFromPaymentFrequency() : Fetching Origins PaymentFrequency{} ",paymentFrequency);
+		logger.debug("Fetching Origins PaymentFrequency{} ",paymentFrequency);
 		return jdbcTemplate.queryForList("SELECT Origin FROM OriginPaymentFrequency_Lookup where PaymentFrequency = lower('"	+ paymentFrequency + "')",String.class);
 	}
 	
@@ -568,7 +568,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					result.append(" ");
 				}
 			}
-			logger.debug("CustomSaleTransactionDAOImpl :: addSort() : result : "+result.toString());
+			logger.debug("result ={} ",result.toString());
 			return result.toString();
 		}
 	}
@@ -577,7 +577,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		CustomQuery queryTotalCustomQuery = new CustomQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
 		CustomQuery resultCustomQuery = new CustomQuery(query);
 		resultCustomQuery.setSort(page != null ? page.getSort() : null);
-		logger.debug("CustomSaleTransactionDAOImpl :: createQueries() : Dynamic Parameters {}", dynamicParametersMap);
+		logger.debug("Dynamic Parameters {}", dynamicParametersMap);
 		// Sets all parameters to the Query result
 		for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
 			if (entry.getKey().contains("amountParam")) {
@@ -730,7 +730,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	private String getPropertyPredicate(String property) {
 		String predicate = predicatesHashMapping.get(property);
 		if (predicate == null) {
-			logger.error("CustomSaleTransactionDAOImpl :: getPropertyPredicate() : Property not found, unable to parse {}", property);
+			logger.error("Property not found, unable to parse {}", property);
 			throw new CustomBadRequestException(String.format("Property not found, unable to parse [%s]", property));
 		}
 		return predicate;

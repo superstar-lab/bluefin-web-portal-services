@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorStatusCode;
 import com.mcmcg.ico.bluefin.model.TransactionType;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorResponseCodeDAO;
@@ -35,7 +34,7 @@ public class PaymentProcessorCodeService {
 	public List<ItemStatusCodeResource> hasResponseCodesAssociated(PaymentProcessor paymentProcessor) {
 		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
-		LOGGER.debug("hasResponseCodesAssociated() : transactionTypes size :{} ",transactionTypes.size());
+		LOGGER.debug("transactionTypes size ={} ",transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
 			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
@@ -48,6 +47,7 @@ public class PaymentProcessorCodeService {
 	public List<ItemStatusCodeResource> hasStatusCodesAssociated(PaymentProcessor paymentProcessor) {
 		List<ItemStatusCodeResource> result = new ArrayList<>();
 		List<TransactionType> transactionTypes = transactionTypeService.getTransactionTypes();
+		LOGGER.debug("transactionTypes: ={} ",transactionTypes.size());
 		for (TransactionType type : transactionTypes) {
 			ItemStatusCodeResource paymentProcessorStatusCodeResource = new ItemStatusCodeResource();
 			paymentProcessorStatusCodeResource.setTransactionType(type.getTransactionTypeName());
@@ -58,7 +58,7 @@ public class PaymentProcessorCodeService {
 	}
 
 	public boolean hasInternalStatusCodesAssociated(List<PaymentProcessorStatusCode> statusCodes) {
-		LOGGER.debug("PaymentProcessorCodeService ::Entering to hasInternalStatusCodesAssociated() : statusCodes size : "+statusCodes.size());
+		LOGGER.debug("statusCodes size ={} ",statusCodes.size());
 		for (PaymentProcessorStatusCode code : statusCodes) {
 			if (code.getInternalStatusCode() != null && !code.getInternalStatusCode().isEmpty()) {
 				return true;
@@ -68,7 +68,7 @@ public class PaymentProcessorCodeService {
 	}
 
 	public void deletePaymentProcessorStatusCode(Long paymentProcessorId) {
-		LOGGER.info("PaymentProcessorCodeService ::Entering to deletePaymentProcessorStatusCode() ");
+		LOGGER.info("Entering to delete Payment Processor Status Code ");
 		paymentProcessorStatusCodeDAO.deletePaymentProcessorStatusCode(paymentProcessorId);
 	}
 }

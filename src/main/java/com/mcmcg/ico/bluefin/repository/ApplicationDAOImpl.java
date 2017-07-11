@@ -26,7 +26,7 @@ public class ApplicationDAOImpl implements ApplicationDAO {
 	public List<Application> findAll() {
 		List<Application> list = jdbcTemplate.query(Queries.FINDALLAPPLICATIONS, new ApplicationRowMapper());
 
-		LOGGER.debug("ApplicationDAOImpl :: findAll() : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows = {} ", list.size());
 
 		return list;
 	}

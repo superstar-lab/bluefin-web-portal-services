@@ -31,13 +31,13 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 		ArrayList<RefundTransaction> list = (ArrayList<RefundTransaction>) jdbcTemplate.query(
 				Queries.FINDREFUNDTRANSACTIONBYAPPLICATIONTRANSACTIONID, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<RefundTransaction>(new RefundTransactionRowMapper()));
-		LOGGER.debug("RefundTransactionDAOImpl :: findByApplicationTransactionId : RefundTransaction size : "+list.size());
+		LOGGER.debug("RefundTransaction size ={} ",list.size());
 		RefundTransaction refundTransaction = DataAccessUtils.singleResult(list);
 
 		if (refundTransaction != null) {
-			LOGGER.debug("RefundTransactionDAOImpl :: findByApplicationTransactionId : Found RefundTransaction for transactionId: " + transactionId);
+			LOGGER.debug("Found RefundTransaction for transactionId ={} ", transactionId);
 		} else {
-			LOGGER.debug("RefundTransactionDAOImpl :: findByApplicationTransactionId : RefundTransaction not found for transactionId: " + transactionId);
+			LOGGER.debug("RefundTransaction not found for transactionId ={} ", transactionId);
 		}
 
 		return refundTransaction;

@@ -108,16 +108,16 @@ public class UserService {
 			throw new CustomNotFoundException("Unable to find user by username provided: " + username);
 		}
 		List<UserRole> userRoles = userRoleDAO.findByUserId(user.getUserId());
-		LOGGER.debug("UserService :: getUser() : userRoles size : "+userRoles.size());
+		LOGGER.debug("userRoles size ={} ",userRoles.size());
 		user.setRoles(userRoles);
 		List<UserLegalEntityApp> userLegalEntityApps = userLegalEntityAppDAO.findByUserId(user.getUserId());
-		LOGGER.debug("UserService :: getUser() : userLegalEntityApps size : "+userLegalEntityApps.size());
+		LOGGER.debug("userLegalEntityApps size :={} ",userLegalEntityApps.size());
 		user.setLegalEntities(userLegalEntityApps);
 		return user;
 	}
 
 	public Iterable<User> getUsers(List<String> search, Integer page, Integer size, String sort) {
-		LOGGER.info("Entering to UserService :: getUser(list) ");
+		LOGGER.info("Entering to get User list ");
 		Map<String,String> filterMap = new HashMap<>(7);
 		if(search != null && !search.isEmpty()) {
 			for(String searchParam:search){
@@ -137,7 +137,7 @@ public class UserService {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
-		LOGGER.info("exiting from UserService :: getUser(list) ");
+		LOGGER.info("exiting from get User list ");
 		return result;
 	}
 
@@ -150,7 +150,7 @@ public class UserService {
 	 */
 	public List<LegalEntityApp> getLegalEntitiesByUser(final String username) {
 		User user = userDAO.findByUsername(username);
-		LOGGER.debug("UserService :: getLegalEntitiesByUser() : user id : "+(user == null ? null : user.getUserId()));
+		LOGGER.debug("user id :={} ", user == null ? null : user.getUserId());
 		List<LegalEntityApp> list = new ArrayList<>();
 		if (user != null) {
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
@@ -175,7 +175,7 @@ public class UserService {
 		newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 		long userId = userDAO.saveUser(newUser);
-		LOGGER.debug("UserService :: registerNewUserAccount() : userid : "+userId);
+		LOGGER.debug("userid ={} ", userId);
 		UserResource newUserResource = new UserResource(getUser(username));
 
 		try{
@@ -210,7 +210,7 @@ public class UserService {
 	public List<LegalEntityApp> getLegalEntityAppsByIds(Set<Long> legalEntityAppsIds) {
 		List<LegalEntityApp> result = legalEntityAppDAO.findAll(new ArrayList<Long>(legalEntityAppsIds));
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("UserService :: getLegalEntityAppsByIds() : LegalEntityApp result size : {}",result.size());
+			LOGGER.debug("LegalEntityApp result size : {}",result.size());
 		}
 		if (result != null && result.size() == legalEntityAppsIds.size()) {
 			return result;
@@ -231,7 +231,7 @@ public class UserService {
 	}
 
 	public boolean existUsername(final String username) {
-		LOGGER.info("UserService :: existUsername()");
+		LOGGER.info("existUsername");
 		return userDAO.findByUsername(username) == null ? false : true;
 	}
 
@@ -246,7 +246,7 @@ public class UserService {
 	public UserResource updateUserProfile(String username, UpdateUserResource userResource) {
 		User user = getUser(username);
 
-		LOGGER.debug("UserService :: updateUserProfile() : user : "+user);
+		LOGGER.debug(" user={} ",user);
 		// Updating fields from existing user
 		user.setFirstName(userResource.getFirstName());
 		user.setLastName(userResource.getLastName());
@@ -264,12 +264,12 @@ public class UserService {
 
 	private void updaUserPrefernce(User user) {
 		long preferenceId = userPreferenceDAO.findPreferenceIdByPreferenceKey(UserPreferenceEnum.USERTIMEZONEPREFRENCE.toString());
-		LOGGER.debug("UserService :: updaUserPrefernce() : preferenceId : "+preferenceId);
+		LOGGER.debug("preferenceId ={} ",preferenceId);
 		/**
 		 * fetching UserPreferenceID from UserPreference_Lookup table based on userId & PreferenceID.
 		 */
 		UserPreference userPreference = userPreferenceDAO.findUserPreferenceIdByPreferenceId(user.getUserId(), preferenceId);
-		LOGGER.debug("UserService :: updaUserPrefernce() : userPreference : "+userPreference);
+		LOGGER.debug("userPreference ={} ",userPreference);
 		
 		if (userPreference != null && userPreference.getUserPrefeenceID() != null) {
 			userPreference.setPreferenceValue(user.getSelectedTimeZone());
@@ -281,7 +281,7 @@ public class UserService {
 	}
 
 	private UserPreference createUserPreference(long preferenceId, Long userId, String selectedTimeZone) {
-		LOGGER.info("UserService :: createUserPreference() ");
+		LOGGER.info("create User Preference ");
 		UserPreference userPreference = new UserPreference();
 		userPreference.setPreferenceKeyID(preferenceId);
 		userPreference.setPreferenceValue(selectedTimeZone);
@@ -300,7 +300,7 @@ public class UserService {
 	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
 		User userToUpdate = getUser(username);
 
-		LOGGER.debug("UserService :: updateUserRoles() : userToUpdate : "+userToUpdate);
+		LOGGER.debug("userToUpdate ={}",userToUpdate);
 		// User wants to clear roles from user
 		if (rolesIds.isEmpty()) {
 			throw new CustomBadRequestException("User MUST have at least one role assign to him.");
@@ -310,7 +310,7 @@ public class UserService {
 		Map<Long, Role> newMapOfRoles = roleService.getRolesByIds(rolesIds).stream()
 				.collect(Collectors.toMap(Role::getRoleId, r -> r));
 
-		LOGGER.debug("UserService :: updateUserRoles() : newMapOfRoles size : "+newMapOfRoles.size());
+		LOGGER.debug("newMapOfRoles size ={} ",newMapOfRoles.size());
 		// Temporal list of roles that we need to keep in the user role list
 		Set<Long> rolesToKeep = new HashSet<>();
 		Set<Long> rolesToRemove = new HashSet<>();
@@ -342,13 +342,13 @@ public class UserService {
 		removeRolesFromUser(rolesToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setLegalEntities(Collections.emptyList());
-		LOGGER.info("UserService :: updateUserRoles() : ready to update user : ");
+		LOGGER.info("ready to update user ");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
 	}
 
 	private void removeRolesFromUser(Set<Long> rolesToRemove) {
-		LOGGER.info("UserService :: removeRolesFromUser() ");
+		LOGGER.info("remove Roles FromUser ");
 		userRoleDAO.deleteUserRoleById(rolesToRemove);
 	}
 
@@ -363,7 +363,7 @@ public class UserService {
 	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
 		User userToUpdate = getUser(username);
 
-		LOGGER.debug("UserService :: updateUserLegalEntities() : userToUpdate : "+userToUpdate);
+		LOGGER.debug("userToUpdate ={} ",userToUpdate);
 		// User wants to clear legal entity apps from user
 		if (legalEntityAppsIds.isEmpty()) {
 			throw new CustomBadRequestException("User MUST have at least one legal entity assign to him.");
@@ -373,7 +373,7 @@ public class UserService {
 		Map<Long, LegalEntityApp> newMapOfLegalEntityApps = getLegalEntityAppsByIds(legalEntityAppsIds).stream()
 				.collect(Collectors.toMap(LegalEntityApp::getLegalEntityAppId, l -> l));
 
-		LOGGER.debug("UserService :: updateUserLegalEntities() : newMapOfLegalEntityApps size : "+newMapOfLegalEntityApps.size());
+		LOGGER.debug("newMapOfLegalEntityApps size ={} ",newMapOfLegalEntityApps.size());
 		// Temporal list of legal entity apps that we need to keep in the user
 		// legal entity app list
 		Set<Long> legalEntityAppsToKeep = new HashSet<>();
@@ -404,13 +404,13 @@ public class UserService {
 		removeLegalEntityFromUser(legalEntityAppsToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
-		LOGGER.debug("UserService :: updateUserLegalEntities() : ready to update user");
+		LOGGER.debug("ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
 	}
 
 	public void removeLegalEntityFromUser(Collection<Long> legalEntityAppsToRemove) {
-		LOGGER.info("UserService :: removeLegalEntityFromUser() ");
+		LOGGER.info("remove LegalEntity From User");
 		userLegalEntityAppDAO.deleteUserLegalEntityAppById(legalEntityAppsToRemove);
 	}
 
@@ -430,7 +430,7 @@ public class UserService {
 		Set<Long> userLegalEntities = getLegalEntitiesByUser(authentication.getName()).stream()
 				.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
 
-		LOGGER.debug("UserService :: hasUserPrivilegesOverLegalEntities() : userLegalEntities size : "+userLegalEntities.size());
+		LOGGER.debug("userLegalEntities size ={} ",userLegalEntities.size());
 		return legalEntitiesToVerify.stream()
 				.filter(verifyLegalEntityId -> !userLegalEntities.contains(verifyLegalEntityId))
 				.collect(Collectors.toSet()).isEmpty();
@@ -445,8 +445,8 @@ public class UserService {
 	 */
 	public boolean hasPermissionToManageAllUsers(Authentication authentication) {
 		Boolean hasPermission = false;
-		LOGGER.debug("UserService :: hasPermissionToManageAllUsers() : authentication : "
-				+(authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size())));
+		LOGGER.debug("authentication ={} "
+				, authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
 		if (authentication != null) {
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
 				String userAuthority = authority.getAuthority();
@@ -458,7 +458,7 @@ public class UserService {
 				}
 			}
 		}
-		LOGGER.debug("UserService :: hasPermissionToManageAllUsers() : hasPermission : "+hasPermission);
+		LOGGER.debug("hasPermission ={} ",hasPermission);
 		return hasPermission;
 	}
 
@@ -475,14 +475,14 @@ public class UserService {
 	 */
 	public boolean belongsToSameLegalEntity(Authentication authentication, final String usernameToUpdate) {
 		final String username = authentication.getName();
-		LOGGER.debug("UserService :: belongsToSameLegalEntity() : username : "+username);
+		LOGGER.debug(" username ={} ",username);
 		if (usernameToUpdate.equals(username)) {
 			return true;
 		}
 
 		// Verify if user that needs to be updated exist
 		User userToUpdate = getUser(usernameToUpdate);
-		LOGGER.debug("UserService :: belongsToSameLegalEntity() : userToUpdate : "+userToUpdate.getUserId());
+		LOGGER.debug("userToUpdate ={} ",userToUpdate.getUserId());
 		
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			return true;
@@ -490,7 +490,7 @@ public class UserService {
 		// Get Legal Entities from consultant user
 		Set<Long> userLegalEntities = getLegalEntitiesByUser(username).stream()
 				.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());
-		LOGGER.debug("UserService :: belongsToSameLegalEntity() : userLegalEntities size : "+userLegalEntities.size());
+		LOGGER.debug("userLegalEntities size ={} ",userLegalEntities.size());
 		// Get Legal Entities from user that will be updated
 		List<LegalEntityApp> list = new ArrayList<>();
 		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(userToUpdate.getUserId())) {
@@ -555,10 +555,10 @@ public class UserService {
 
 	public void userActivation(ActivationResource activationResource) {
 		Boolean activate = activationResource.isActivate();
-		LOGGER.debug("UserService :: userActivation() : activate "+activate);
+		LOGGER.debug("activate ={}",activate);
 		List<String> notFoundUsernames = new ArrayList<>();
 
-		LOGGER.debug("UserService :: userActivation() : activationResource size : "+(activationResource.getUsernames() == null ? null : activationResource.getUsernames().size()));
+		LOGGER.debug("activationResource size ={} ", activationResource.getUsernames() == null ? null : activationResource.getUsernames().size());
 		for (String username : activationResource.getUsernames()) {
 
 			if (username == null) {
@@ -580,7 +580,7 @@ public class UserService {
 
 	private void activateAccount(User userToUpdate, String status) {
 		String username = userToUpdate.getUsername();
-		LOGGER.debug("UserService :: activateAccount() : username "+username);
+		LOGGER.debug("username:= {} ",username);
 		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
 			userToUpdate.setStatus(status);
 			if ("NEW".equals(status)) {
@@ -604,20 +604,20 @@ public class UserService {
 			userToUpdate.setRoles(Collections.emptyList());
 			userToUpdate.setLegalEntities(Collections.emptyList());
 			
-			LOGGER.info("UserService :: activateAccount() : ready to update user ");
+			LOGGER.info("ready to update user ");
 			long userId = userDAO.updateUser(userToUpdate, modifiedBy);
-			LOGGER.debug("UserService :: activateAccount() : userId "+userId);
+			LOGGER.debug("userId ",userId);
 			//TOOD.................Why are you calling below operation again, I have commented this [Matloob]
 		}
 	}
 
 	private boolean isValidOldPassword(final String oldPassword, final String currentUserPassword) {
-		LOGGER.info("Entering to UserService :: isValidOldPassword()");
+		LOGGER.info("is Valid Old Password");
 		if (StringUtils.isEmpty(oldPassword)) {
 			throw new CustomBadRequestException("oldPassword must not be empty");
 		}
 
-		LOGGER.info("Exiting from UserService :: isValidOldPassword()");
+		LOGGER.info("Exiting from is Valid Old Password");
 		return passwordEncoder.matches(oldPassword, currentUserPassword);
 	}
 }

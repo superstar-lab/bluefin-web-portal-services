@@ -41,22 +41,22 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username){
-		LOGGER.info("Entering CustomUserDetailsService :: loadUserByUsername()");
+		LOGGER.info("Entering to load User By Username");
 		User user = userDAO.findByUsername(username);
 
 		return user == null ? null : new SecurityUser(user, getAuthorities(userRoleDAO.findByUserId(user.getUserId())));
 	}
 
 	private Collection<? extends GrantedAuthority> getAuthorities(Collection<UserRole> roles) {
-		LOGGER.info("Entering CustomUserDetailsService :: getAuthorities()");
+		LOGGER.info("Entering to get Authorities");
 		return getGrantedAuthorities(getPermissions(roles));
 	}
 
 	private List<String> getPermissions(Collection<UserRole> roles) {
-		LOGGER.info("Entering CustomUserDetailsService :: getAuthorities()");
+		LOGGER.info("Entering to get Permissions");
 		List<String> permissions = new ArrayList<>();
 		List<RolePermission> collection = new ArrayList<>();
-		LOGGER.debug("Entering CustomUserDetailsService :: getAuthorities() : with role size : "+(roles != null ? roles.size() : 0));
+		LOGGER.debug("Entering with role size ={} ",roles != null ? roles.size() : 0);
 		for (UserRole userRole : roles) {
 			long roleId = userRole.getRoleId();
 			collection.addAll(rolePermissionDAO.findByRoleId(roleId));
@@ -65,18 +65,18 @@ public class CustomUserDetailsService implements UserDetailsService {
 			long permissionId = rolePermission.getPermissionId();
 			permissions.add(permissionDAO.findByPermissionId(permissionId).getPermissionName());
 		}
-		LOGGER.debug("Exit CustomUserDetailsService :: getAuthorities() with permssion :"+permissions);
+		LOGGER.debug("Exit with permssion ={}",permissions);
 		return permissions;
 	}
 
 	private List<GrantedAuthority> getGrantedAuthorities(List<String> permissions) {
-		LOGGER.info("Entering CustomUserDetailsService :: getGrantedAuthorities()");
+		LOGGER.info("Entering to get Granted Authorities");
 		List<GrantedAuthority> authorities = new ArrayList<>();
-		LOGGER.debug("Entering CustomUserDetailsService :: getGrantedAuthorities() with permission size : "+(permissions == null ? null :permissions.size()));
+		LOGGER.debug("Entering with permission size: ={} ",permissions == null ? null :permissions.size());
 		for (String permission : permissions) {
 			authorities.add(new SimpleGrantedAuthority(permission));
 		}
-		LOGGER.info("Entering CustomUserDetailsService :: getGrantedAuthorities() with authorities : "+authorities);
+		LOGGER.info("Exiting with authorities ={} ",authorities);
 		return authorities;
 	}
 }

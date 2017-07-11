@@ -3,8 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Collection;
 
-import javax.persistence.ManyToOne;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,7 +19,6 @@ public class PaymentProcessorResponseCode extends Common implements Serializable
     private String paymentProcessorResponseCodeDescription;
     @JsonIgnore
     private Collection<PaymentProcessorInternalResponseCode> internalResponseCode;
-    @ManyToOne
     @JsonIgnore
     private PaymentProcessor paymentProcessor;
     @JsonIgnore

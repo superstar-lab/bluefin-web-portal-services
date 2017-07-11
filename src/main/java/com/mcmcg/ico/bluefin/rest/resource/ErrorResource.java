@@ -1,14 +1,10 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +17,6 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ErrorResource implements Serializable {
     private static final long serialVersionUID = -998746769406083432L;
-    private static final Logger logger = LoggerFactory.getLogger(ErrorResource.class);
     public static final String REQUEST_HEADER_PROFILE = "profile";
     public static final String REQUEST_HEADER_PROFILE_DEVELOPMENT = "development";
 

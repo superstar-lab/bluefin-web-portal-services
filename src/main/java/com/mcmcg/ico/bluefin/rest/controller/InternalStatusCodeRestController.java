@@ -61,7 +61,7 @@ public class InternalStatusCodeRestController {
             @RequestParam(value = "transactionType", required = false, defaultValue = "ALL") String transactionType,
             @RequestParam(value = "extended", required = false, defaultValue = "false") Boolean extended,
             @ApiIgnore Authentication authentication) throws JsonProcessingException {
-    	LOGGER.debug("Request to fetch internal status code Transaction Type="+transactionType);
+    	LOGGER.debug("Request to fetch internal status code Transaction Type={}",transactionType);
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
@@ -97,7 +97,7 @@ public class InternalStatusCodeRestController {
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.debug("Inside createInternalStatusCodes to Create internal status code for currentLoginUserName = "+currentLoginUserName);
+        LOGGER.debug("Inside createInternalStatusCodes to Create internal status code for currentLoginUserName = {}",currentLoginUserName);
         return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource,currentLoginUserName);
     }
 
@@ -122,7 +122,7 @@ public class InternalStatusCodeRestController {
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.debug("Inside updateInternalStatusCodes to Update internal status code for currentLoginUserName "+currentLoginUserName);
+        LOGGER.debug("Inside updateInternalStatusCodes to Update internal status code for currentLoginUserName ={}",currentLoginUserName);
         return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource,currentLoginUserName);
     }
 

@@ -61,7 +61,7 @@ public class BatchUploadService {
 		BatchUpload batchUpload = batchUploadDAO.findOne(id);
 
 		if (batchUpload == null) {
-			LOGGER.error("BatchUploadService :: getBatchUploadById() : Unable to find batch upload with id = {}", id);
+			LOGGER.error("Unable to find batch upload with id = {}", id);
 			throw new CustomNotFoundException(String.format("Unable to find batch upload with id = [%s]", id));
 		}
 
@@ -71,7 +71,7 @@ public class BatchUploadService {
 	public Iterable<BatchUpload> getAllBatchUploads(Integer page, Integer size, String sort) {
 		Page<BatchUpload> result = batchUploadDAO
 				.findAllByOrderByDateUploadedDesc(QueryDSLUtil.getPageRequest(page, size, sort));
-		LOGGER.debug("BatchUploadService :: getAllBatchUploads() : BatchUpload result : "+result);
+		LOGGER.debug("BatchUpload result ={} ",result);
 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
@@ -84,7 +84,7 @@ public class BatchUploadService {
 		DateTime dateBeforeNoofdays = new DateTime().toDateTime(DateTimeZone.UTC).minusDays(noofdays);
 		Page<BatchUpload> result = batchUploadDAO.findByDateUploadedAfterOrderByDateUploadedDesc(dateBeforeNoofdays,
 				QueryDSLUtil.getPageRequest(page, size, sort));
-		LOGGER.debug("BatchUploadService :: getBatchUploadsFilteredByNoofdays() : BatchUpload result : "+result);
+		LOGGER.debug("BatchUpload result: ={} ",result);
 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
@@ -94,23 +94,23 @@ public class BatchUploadService {
 
 	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines) {
 		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
-		LOGGER.info("BatchUploadService :: createBatchUpload() : Creating new basic Batch Upload");
+		LOGGER.info("Creating new basic Batch Upload");
 		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
-		LOGGER.info("BatchUploadService :: createBatchUpload() : Calling ACF application to process file content");
+		LOGGER.info("Calling ACF application to process file content");
 		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
 				fileStream);
-		LOGGER.debug("BatchUploadService :: createBatchUpload() : ACF response : "+response);
+		LOGGER.debug("ACF response ={} ",response);
 
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.registerModule(new JodaModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			LOGGER.info("BatchUploadService :: createBatchUpload() :Conveting ACF response into BatchUpload object");
+			LOGGER.info("Conveting ACF response into BatchUpload object");
 			return objectMapper.readValue(response, BatchUpload.class);
 		} catch (IOException e) {
-			LOGGER.error("BatchUploadService :: createBatchUpload() : Unable to parse ACF batch process service response.", e);
+			LOGGER.error("Unable to parse ACF batch process service response.", e);
 			throw new CustomException("Unable to parse ACF batch process service response.");
 		}
 	}
@@ -133,7 +133,7 @@ public class BatchUploadService {
 		List<BatchUpload> result;
 		File file;
 		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
-		LOGGER.debug("BatchUploadService :: getBatchUploadsReport() : reportPath : "+reportPath);
+		LOGGER.debug("reportPath ={} ",reportPath);
 
 		// Batch Upload Date/Time (user's local time)
 		// The time zone (for example, "America/Costa_Rica" or
@@ -156,7 +156,7 @@ public class BatchUploadService {
 			file = new File(dir, UUID.randomUUID() + ".csv");
 			file.createNewFile();
 		} catch (Exception e) {
-			LOGGER.error("BatchUploadService :: getBatchUploadsReport() : Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
 			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
 		}
 		// initialize FileWriter object
@@ -169,7 +169,7 @@ public class BatchUploadService {
 			csvFilePrinter.printRecord(FILE_HEADER);
 
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
-			LOGGER.debug("BatchUploadService :: getBatchUploadsReport() : BatchUpload result size : "+result.size());
+			LOGGER.debug("BatchUpload result size ={} ",result.size());
 			// Write a new transaction object list to the CSV file
 			for (BatchUpload batchUpload : result) {
 				List<String> batchUploadDataRecord = new ArrayList<>();
@@ -236,7 +236,7 @@ public class BatchUploadService {
 		List<SaleTransaction> result;
 		File file;
 		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
-		LOGGER.debug("BatchUploadService :: getBatchUploadTransactionsReport() : reportPath : "+reportPath);
+		LOGGER.debug("reportPath: ={}",reportPath);
 
 		if (batchUploadId == null) {
 			result = saleTransactionDAO.findAll();
@@ -250,7 +250,7 @@ public class BatchUploadService {
 			file = new File(dir, UUID.randomUUID() + ".csv");
 			file.createNewFile();
 		} catch (Exception e) {
-			LOGGER.error("BatchUploadService :: getBatchUploadTransactionsReport() : Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
 			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
 		}
 
@@ -270,7 +270,7 @@ public class BatchUploadService {
 			// TransactionDateTime needs to be split into two parts.
 			DateTimeFormatter fmt1 = DateTimeFormat.forPattern("MM/dd/yyyy");
 			DateTimeFormatter fmt2 = DateTimeFormat.forPattern("hh:mm:ss.SSa");
-			LOGGER.debug("BatchUploadService :: getBatchUploadTransactionsReport() : SaleTransaction size : "+result.size());
+			LOGGER.debug("SaleTransaction size ={} ",result.size());
 			// Write a new transaction object list to the CSV file
 			for (SaleTransaction saleTransaction : result) {
 				List<String> saleTransactionDataRecord = new ArrayList<>();

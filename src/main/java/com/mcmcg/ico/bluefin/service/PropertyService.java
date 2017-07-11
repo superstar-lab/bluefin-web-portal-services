@@ -16,7 +16,7 @@ public class PropertyService {
 	private PropertyDAO propertyDAO;
 
 	public String getPropertyValue(String propertyName) {
-		LOGGER.info("Entering to PropertyService :: getPropertyValue()");
+		LOGGER.info("Entering to getPropertyValue");
 		return propertyDAO.getPropertyValue(propertyName);
 	}
 }
