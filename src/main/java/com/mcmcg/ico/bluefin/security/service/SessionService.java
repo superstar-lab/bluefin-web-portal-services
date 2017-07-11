@@ -297,7 +297,7 @@ public class SessionService {
 	public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {
 		LOGGER.info("Entering to session Has Permission To Manage All LegalEntities");
 		Boolean hasPermission = false;
-		LOGGER.debug("authentication size is ={}", (authentication == null ? null : authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
+		LOGGER.debug("authentication size is ={}", authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
 		if (authentication != null) {
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
 				hasPermission = "ADMINISTRATIVE".equals(authority.getAuthority());
