@@ -96,7 +96,7 @@ public class TransactionService {
 	private CustomSaleTransactionDAO customSaleTransactionDAO;
 
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
-		LOGGER.info("Entering to TransactionService :: getTransactionInformation()");
+		LOGGER.info("Entering to get Transaction Information");
 		Transaction result;
 
 		switch (transactionType) {
@@ -117,7 +117,7 @@ public class TransactionService {
 			throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
 		}
 
-		LOGGER.debug("Exiting from TransactionService :: getTransactionInformation() : result : "+result);
+		LOGGER.debug("Exiting from result ={} ",result);
 		return result;
 	}
 
@@ -173,13 +173,13 @@ public class TransactionService {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
-		LOGGER.debug("TransactionService :: getTransactions() : result : "+result);
+		LOGGER.debug("result :={} ",result);
 		return result;
 	}
 
 	public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
 		User user = userDAO.findByUsername(username);
-		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : user : "+(user == null ? null : user.getUserId()));
+		LOGGER.debug("user ={} ", user == null ? null : user.getUserId());
 		List<LegalEntityApp> list = new ArrayList<>();
 		if (user != null) {
 			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
@@ -187,7 +187,7 @@ public class TransactionService {
 				list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 			}
 		}
-		LOGGER.debug("TransactionService :: getLegalEntitiesFromUser() : result list size : "+list.size());
+		LOGGER.debug("result list size={} ",list.size());
 		return list;
 	}
 

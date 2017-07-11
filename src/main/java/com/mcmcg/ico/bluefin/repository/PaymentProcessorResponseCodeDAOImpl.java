@@ -55,15 +55,15 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 								paymentProcessor.getPaymentProcessorId() },
 						new RowMapperResultSetExtractor<PaymentProcessorResponseCode>(
 								new PaymentProcessorResponseCodeRowMapper()));
-		LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor() : PaymentProcessorResponseCode size : "+list.size());
+		LOGGER.debug("PaymentProcessorResponseCode size {} ",list.size());
 		paymentProcessorStatusCodeList = DataAccessUtils.singleResult(list);
 
 		if (paymentProcessorStatusCodeList != null) {
 			LOGGER.debug("Found payment processor statuscode for : "
 					+ paymentProcessorStatusCodeList.getPaymentProcessorResponseCodeValue());
 		} else {
-			LOGGER.debug("Found payment processor statuscode not found for : " + paymentProcessorResponseCode + "/"
-					+ transactionTypeName + "/" + paymentProcessor.getPaymentProcessorId());
+			LOGGER.debug("Found payment processor statuscode not found for ={} ", paymentProcessorResponseCode, "/"
+					,transactionTypeName, "/", paymentProcessor.getPaymentProcessorId());
 		}
 
 		return paymentProcessorStatusCodeList;
@@ -92,7 +92,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	@Override
 	public void deletePaymentProcessorResponseCode(Long paymentProcessorId) {
 			int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRESPONSECODEBYID, new Object[] { paymentProcessorId });
-			LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: deletePaymentProcessorResponseCode() : Deleted payment Processor Response Code by  PaymentProcessorId: " + paymentProcessorId + ", rows affected = " + rows);
+			LOGGER.debug("Deleted payment Processor Response Code by  PaymentProcessorId ={} ", paymentProcessorId, ", rows affected = {}", rows);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 
 		Long id = holder.getKey().longValue();
 		paymentProcessorResponseCode.setPaymentProcessorResponseCodeId(id);
-		LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: PaymentProcessorResponseCode() : Saved Payment Processor Response Code - id: " + id);
+		LOGGER.debug("Saved Payment Processor Response Code - id ={} ", id);
 		return paymentProcessorResponseCode;
 	}
 
@@ -130,7 +130,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		try {
 			PaymentProcessorResponseCode paymentProcessorResponseCode = jdbcTemplate.queryForObject(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYID, new Object[] { paymentProcessorCodeId },
 					new PaymentProcessorResponseCodeRowMapper());
-			LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: findOne() : paymentProcessorResponseCode " + paymentProcessorResponseCode);
+			LOGGER.debug("paymentProcessorResponseCode ={}", paymentProcessorResponseCode);
 			return paymentProcessorResponseCode;
 		} catch (EmptyResultDataAccessException e) {
 			if ( LOGGER.isDebugEnabled() ) {
@@ -154,7 +154,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 								dateModified,paymentProcessorResponseCode.getLastModifiedBy(),paymentProcessorResponseCode.getPaymentProcessorResponseCodeId()
 							 });
 		
-		LOGGER.debug("PaymentProcessorResponseCodeDAOImpl :: update() : Updated Payment Processor Response Code - id: " + paymentProcessorResponseCode.getPaymentProcessorResponseCodeId() + "Number of rows updated - " + rows);
+		LOGGER.debug("Updated Payment Processor Response Code - id ={} ", paymentProcessorResponseCode.getPaymentProcessorResponseCodeId(), "Number of rows updated - {}", rows);
 		return paymentProcessorResponseCode;
 	}
 	

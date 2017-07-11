@@ -24,13 +24,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public SecurityUser loadUserByUsername(String username) {
-		LOGGER.info("Entering UserDetailsServiceImpl :: loadUserByUsername()");
+		LOGGER.info("Entering to load User By Username");
 		User user = this.userDAO.findByUsername(username);
 		LOGGER.debug("User is : {}",user);
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		} else {
-			LOGGER.info("Exit UserDetailsServiceImpl :: loadUserByUsername() : user found");
+			LOGGER.info("Exit from load User By Username : user found");
 			return securityUserFactory.create(user);
 		}
 	}

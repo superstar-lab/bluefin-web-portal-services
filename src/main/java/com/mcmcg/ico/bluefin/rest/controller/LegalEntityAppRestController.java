@@ -50,7 +50,7 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public LegalEntityApp get(@PathVariable Long id) {
-        LOGGER.debug("Getting legal entity by id "+id);
+        LOGGER.debug("Getting legal entity by id ={}",id);
         return legalEntityAppService.getLegalEntityAppById(id);
     }
 

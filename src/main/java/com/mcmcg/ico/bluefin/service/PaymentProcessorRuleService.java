@@ -38,7 +38,7 @@ public class PaymentProcessorRuleService {
      */
     public PaymentProcessorRule createPaymentProcessorRule(final long processorId,
     		PaymentProcessorRule paymentProcessorRule) {
-    	LOGGER.info("Entering to PaymentProcessorRuleService :: createPaymentProcessorRule()");
+    	LOGGER.info("Entering to create Payment Processor Rule");
     	// Verify if payment processor exists
     	PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
 
@@ -56,7 +56,7 @@ public class PaymentProcessorRuleService {
 
     	paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
     	paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
-    	LOGGER.info("PaymentProcessorRuleService :: createPaymentProcessorRule() : ready to save paymentProcessorRule");
+    	LOGGER.info("ready to save payment Processor Rule");
     	return paymentProcessorRuleDAO.save(paymentProcessorRule);
     }
 
@@ -75,13 +75,13 @@ public class PaymentProcessorRuleService {
     public PaymentProcessorRule updatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
             long processorId) {
 
-    	LOGGER.info("Entering to PaymentProcessorRuleService :: updatePaymentProcessorRule() ");
+    	LOGGER.info("Entering to update Payment Processor Rule ");
     	PaymentProcessorRule paymentProcessorRuleToUpdate = getPaymentProcessorRule(
                 paymentProcessorRule.getPaymentProcessorRuleId());
 
         // Verify if processor exists
     	PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-    	LOGGER.debug("PaymentProcessorRuleService :: updatePaymentProcessorRule() : loadedPaymentProcessor : "+loadedPaymentProcessor);
+    	LOGGER.debug("loadedPaymentProcessor ={} ",loadedPaymentProcessor);
        validatePaymentProcessorRule(paymentProcessorRule);
 
         // Update fields
@@ -92,7 +92,7 @@ public class PaymentProcessorRuleService {
         paymentProcessorRuleToUpdate.setPriority(paymentProcessorRule.getPriority());
         paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
 
-        LOGGER.info("PaymentProcessorRuleService :: updatePaymentProcessorRule() : ready to update paymentProcessorRuleToUpdate");
+        LOGGER.info("ready to update paymentProcessorRuleToUpdate");
         return paymentProcessorRuleDAO.updatepaymentProcessorRule(paymentProcessorRuleToUpdate);
     }
 
@@ -102,7 +102,7 @@ public class PaymentProcessorRuleService {
      * @return list of payment processor rules
      */
     public List<PaymentProcessorRule> getPaymentProcessorRules() {
-        LOGGER.info("PaymentProcessorRuleService :: getPaymentProcessorRules() : Getting all payment processor rules");
+        LOGGER.info("Getting all payment processor rules:");
 
           return paymentProcessorRuleDAO.findAll();
    
@@ -116,14 +116,14 @@ public class PaymentProcessorRuleService {
      *             when payment processor rule doesn't exist
      */
     public PaymentProcessorRule getPaymentProcessorRule(final long id) {
-    	LOGGER.info("Entering PaymentProcessorRuleService :: getPaymentProcessorRule() ");
+		LOGGER.info("Entering to get Payment Processor Rule ");
     	PaymentProcessorRule paymentProcessorRule = paymentProcessorRuleDAO.findOne(id);
         if (paymentProcessorRule == null) {
             throw new CustomNotFoundException(
                     String.format("Unable to find payment processor rule with id = [%s]", id));
         }
 
-        LOGGER.debug("Entering PaymentProcessorRuleService :: getPaymentProcessorRule() : paymentProcessorRule : "+paymentProcessorRule);
+        LOGGER.debug("paymentProcessorRule ={} ",paymentProcessorRule);
         return paymentProcessorRule;
     }
 
@@ -138,11 +138,11 @@ public class PaymentProcessorRuleService {
     	// Verify if processor exists
     	PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(id);
 
-    	LOGGER.debug("PaymentProcessorRuleService :: getPaymentProcessorRulesByPaymentProcessorId() : loadedPaymentProcessor : "+loadedPaymentProcessor);
+		LOGGER.debug("loadedPaymentProcessor={} ",loadedPaymentProcessor);
     	List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
     			.findByPaymentProcessor(loadedPaymentProcessor.getPaymentProcessorId());
 
-    	LOGGER.debug("PaymentProcessorRuleService :: getPaymentProcessorRulesByPaymentProcessorId() : paymentProcessorRules : "+paymentProcessorRules);
+    	LOGGER.debug("paymentProcessorRules ={} ",paymentProcessorRules);
     	return paymentProcessorRules == null ? new ArrayList<>(0) : paymentProcessorRules;
     }
 
@@ -157,7 +157,7 @@ public class PaymentProcessorRuleService {
     public void delete(final long id) {
     	PaymentProcessorRule paymentProcessorRule = getPaymentProcessorRule(id);
 
-    	LOGGER.debug("PaymentProcessorRuleService :: delete() : paymentProcessorRule : "+paymentProcessorRule);
+    	LOGGER.debug("paymentProcessorRule ={} ",paymentProcessorRule);
     	paymentProcessorRuleDAO.delete(paymentProcessorRule.getPaymentProcessorRuleId());
     }
 
@@ -175,7 +175,7 @@ public class PaymentProcessorRuleService {
      *            payment processor id
      */
     private void validatePaymentProcessorRule(PaymentProcessorRule newPaymentProcessorRule) {
-    	LOGGER.info("Entering to PaymentProcessorRuleService :: validatePaymentProcessorRule() : ");
+		LOGGER.info("Entering to validate Payment Processor Rule : ");
         validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule);
     }
 

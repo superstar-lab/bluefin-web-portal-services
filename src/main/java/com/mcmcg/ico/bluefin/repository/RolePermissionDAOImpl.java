@@ -40,7 +40,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 				Queries.FINDROLEPERMISSIONBYROLEID, new Object[] { roleId },
 				new RowMapperResultSetExtractor<RolePermission>(new RolePermissionRowMapper()));
 
-		LOGGER.debug("RolePermissionDAOImpl :: findByRoleId() : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows={} ", list.size());
 
 		return list;
 	}
@@ -75,7 +75,7 @@ public class RolePermissionDAOImpl implements RolePermissionDAO {
 
 		Long id = holder.getKey().longValue();
 		rolePermission.setRolePermissionId(id);
-		LOGGER.debug("RolePermissionDAOImpl :: saveRolePermission() : Saved rolePermission - id: " + id);
+		LOGGER.debug("Saved rolePermission - id ={} ", id);
 
 		return id;
 	}

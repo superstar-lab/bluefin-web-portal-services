@@ -49,7 +49,7 @@ public class PaymentProcessorRemittanceService {
 	 */
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType,
 			final String processorTransactionType) {
-		LOGGER.info("Entering to PaymentProcessorRemittanceService :: getTransactionInformation()");
+		LOGGER.info("Entering getTransactionInformation");
 		Transaction result = null;
 
 		try {
@@ -63,12 +63,12 @@ public class PaymentProcessorRemittanceService {
 			throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
 		}
 
-		LOGGER.info("Exit from PaymentProcessorRemittanceService :: getTransactionInformation()");
+		LOGGER.info("Exit from getTransactionInformation");
 		return result;
 	}
 
 	public Transaction getRemittanceSaleResult(String transactionId) {
-		LOGGER.info("Entering to PaymentProcessorRemittanceService :: getRemittanceSaleResult()");
+		LOGGER.info("Entering to get Remittance Sale Result");
 		Transaction result;
 
 		PaymentProcessorRemittance ppr = paymentProcessorRemittanceDAO.findByProcessorTransactionId(transactionId);
@@ -102,7 +102,7 @@ public class PaymentProcessorRemittanceService {
 
 		result = paymentProcessorRemittanceObj;
 
-		LOGGER.info("Exit from PaymentProcessorRemittanceService :: getRemittanceSaleResult()");
+		LOGGER.info("Exit from getRemittanceSaleResult");
 		return result;
 	}
 
@@ -118,7 +118,7 @@ public class PaymentProcessorRemittanceService {
 	 */
 	public Iterable<PaymentProcessorRemittance> getRemittanceSaleRefundVoidTransactions(String search, PageRequest paging,
 			boolean negate) {
-		LOGGER.info("Entering to PaymentProcessorRemittanceService :: getRemittanceSaleRefundVoidTransactions()");
+		LOGGER.info("Entering to get RemittanceSaleRefundVoidTransactions");
 		Page<PaymentProcessorRemittance> result;
 		try {
 			/**
@@ -132,11 +132,11 @@ public class PaymentProcessorRemittanceService {
 		final int page = paging.getPageNumber();
 
 		if (page > result.getTotalPages() && page != 0) {
-			LOGGER.error("PaymentProcessorRemittanceService :: getRemittanceSaleRefundVoidTransactions() : Unable to find the page requested");
+			LOGGER.error("Unable to find the page requested");
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
-		LOGGER.info("Exit from PaymentProcessorRemittanceService :: getRemittanceSaleRefundVoidTransactions()");
+		LOGGER.info("Exit from get RemittanceSaleRefundVoidTransactions");
 		return result;
 	}
 
@@ -148,7 +148,7 @@ public class PaymentProcessorRemittanceService {
 	 * @return processorName
 	 */
 	public String getProcessorNameById(String paymentProcessorId) {
-		LOGGER.info("Entering to PaymentProcessorRemittanceService :: getProcessorNameById()");
+		LOGGER.info("Entering to get ProcessorNameById");
 		return paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(paymentProcessorId))
 				.getProcessorName();
 	}
@@ -161,7 +161,7 @@ public class PaymentProcessorRemittanceService {
 	 * @return reconciliationStatusId
 	 */
 	public String getReconciliationStatusId(String reconciliationStatus) {
-		LOGGER.info("Entering to PaymentProcessorRemittanceService :: getReconciliationStatusId()");
+		LOGGER.info("Entering to get ReconciliationStatusId");
 		return reconciliationStatusDAO.findByReconciliationStatus(reconciliationStatus).getReconciliationStatusId()
 				.toString();
 	}

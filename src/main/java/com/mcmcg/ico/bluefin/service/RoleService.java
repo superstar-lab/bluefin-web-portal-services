@@ -50,7 +50,7 @@ public class RoleService {
 	 * @return list of roles
 	 */
 	public List<Role> getRoles(Authentication authentication) {
-		LOGGER.info("Entering to RoleService :: getRoles()");
+		LOGGER.info("Entering to get Roles");
 		User user = userDAO.findByUsername(authentication.getName());
 
 		if (user == null) {
@@ -75,7 +75,7 @@ public class RoleService {
 			list.add(roleDAO.findByRoleId(roleId));
 		}
 		List<Long> rolesFromUser = list.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
-		LOGGER.info("Exiting from RoleService :: getRoles()");
+		LOGGER.info("Exiting from get Roles");
 		return roleDAO.findAll(rolesFromUser);
 	}
 
@@ -92,7 +92,7 @@ public class RoleService {
 		List<Long> list = new ArrayList<>(rolesIds);
 		List<Role> result = roleDAO.findAll(list);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Exiting from RoleService :: getRolesByIds() : Role result size :{} ",result.size());
+			LOGGER.debug(" Role result size :{} ",result.size());
 		}
 		if (result != null && result.size() == rolesIds.size()) {
 			return result;
@@ -111,7 +111,7 @@ public class RoleService {
 	}
 
 	public Role getRoleByName(String roleName) {
-		LOGGER.info("RoleService :: getRoleByName()");
+		LOGGER.info("get RoleByName");
 		return roleDAO.findByRoleName(roleName);
 	}
 
@@ -127,7 +127,7 @@ public class RoleService {
 	public Role getRoleById(Long id) {
 		Role role = roleDAO.findByRoleId(id);
 
-		LOGGER.info("RoleService :: getRoleById() : role : "+role);
+		LOGGER.info("role :={} ",role);
 		if (role == null) {
 			throw new CustomNotFoundException(String.format("Unable to find role with id = [%s]", id));
 		}

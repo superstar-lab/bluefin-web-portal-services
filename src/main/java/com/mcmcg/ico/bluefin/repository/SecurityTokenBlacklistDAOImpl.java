@@ -39,13 +39,13 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.FINDSECURITYTOKENBLACKLISTBYTOKENID, new Object[] { tokenId },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
-		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByTokenId() : SecurityTokenBlacklist size : "+list.size());
+		LOGGER.debug("SecurityTokenBlacklist size ={} ",list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByTokenId() : Found SecurityTokenBlacklist for tokenId: " + tokenId);
+			LOGGER.debug("Found SecurityTokenBlacklist for tokenId ={} ", tokenId);
 		} else {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByTokenId() : SecurityTokenBlacklist not found for tokenId: " + tokenId);
+			LOGGER.debug("SecurityTokenBlacklist not found for tokenId ={} ", tokenId);
 		}
 
 		return securityTokenBlacklist;
@@ -56,13 +56,13 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.FINDSECURITYTOKENBLACKLISTBYTOKEN, new Object[] { token },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
-		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByToken() : SecurityTokenBlacklist size : "+list.size());
+		LOGGER.debug("SecurityTokenBlacklist of size ={} ",list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByToken() : Found SecurityTokenBlacklist for token: " + token);
+			LOGGER.debug("Found SecurityTokenBlacklist for token={} ", token);
 		} else {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByToken() : SecurityTokenBlacklist not found for token: " + token);
+			LOGGER.debug("SecurityTokenBlacklist not found for token={} ", token);
 		}
 
 		return securityTokenBlacklist;
@@ -73,13 +73,13 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.FINDSECURITYTOKENBLACKLISTBYUSERIDANDTOKEN, new Object[] { userId, token },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
-		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndToken() : SecurityTokenBlacklist size : "+list.size());
+		LOGGER.debug("size of SecurityTokenBlacklist ={} ",list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndToken() : Found SecurityTokenBlacklist for userId/token: " + userId + "/" + token);
+			LOGGER.debug("Found SecurityTokenBlacklist for userId/token ={} ", userId, "/", token);
 		} else {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndToken() : SecurityTokenBlacklist not found for userId/token: " + userId + "/" + token);
+			LOGGER.debug("SSecurityTokenBlacklist not found for userId/token={} ", userId,  "/" , token);
 		}
 
 		return securityTokenBlacklist;
@@ -90,13 +90,13 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		ArrayList<SecurityTokenBlacklist> list = (ArrayList<SecurityTokenBlacklist>) jdbcTemplate.query(
 				Queries.FINDSECURITYTOKENBLACKLISTBYUSERIDANDTYPE, new Object[] { userId, type },
 				new RowMapperResultSetExtractor<SecurityTokenBlacklist>(new SecurityTokenBlacklistRowMapper()));
-		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndType() : SecurityTokenBlacklist size : "+list.size());
+		LOGGER.debug("Token size for security size ={} ",list.size());
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndType() : Found SecurityTokenBlacklist for userId/type: " + userId + "/" + type);
+			LOGGER.debug("Found SecurityTokenBlacklist for userId/type ={} ", userId, "/" , type);
 		} else {
-			LOGGER.debug("SecurityTokenBlacklistDAOImpl :: findByUserIdAndType() : SecurityTokenBlacklist not found for userId/type: " + userId + "/" + type);
+			LOGGER.debug("SecurityTokenBlacklist not found for userId/type: ", userId, "/", type);
 		}
 
 		return securityTokenBlacklist;
@@ -129,7 +129,7 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 
 		Long id = holder.getKey().longValue();
 		securityTokenBlacklist.setTokenId(id);
-		LOGGER.debug("SecurityTokenBlacklistDAOImpl :: saveSecurityTokenBlacklist() : Saved securityTokenBlacklist - id: " + id);
+		LOGGER.debug("Saved securityTokenBlacklist - id ={} ", id);
 
 		return id;
 	}

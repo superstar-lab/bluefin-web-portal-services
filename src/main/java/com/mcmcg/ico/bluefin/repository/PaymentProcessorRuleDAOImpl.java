@@ -52,15 +52,15 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
 
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findPaymentProccessorRulByProcessorId() : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows={} ", list.size());
 		return list;
 	}
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRULES, new Object[] { paymentProcessorId });
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: deletePaymentProcessorRules() : Deleted Payment Processor Rules for PaymentProcessor Id: " + paymentProcessorId
-				+ " rows affected: " + rows);
+		LOGGER.debug("Deleted Payment Processor Rules for PaymentProcessor Id ={} ", paymentProcessorId
+				, " rows affected={} ", rows);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 				.query(Queries.FINDPAYMENTPROCESSORRULEBYCARDTYPE, new Object[] { cardType },
 						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findByCardType() : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows ={}", list.size());
 		return list;
 	}
 
@@ -97,7 +97,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 		Long id = holder.getKey().longValue();
 		paymentProcessorRule.setPaymentProcessorRuleId(id);
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: save() : Saved Payment Processor - id: " + id);
+		LOGGER.debug("Saved Payment Processor - id ={} ", id);
 		return paymentProcessorRule;
 	}
 
@@ -118,17 +118,17 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	public void delete(Long paymentProcessorRuleId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRULEBYID, new Object[] { paymentProcessorRuleId });
 
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: delete() : Deleted Payment Processor Rule by Id: " + paymentProcessorRuleId + ", rows affected = " + rows);
+		LOGGER.debug("Deleted Payment Processor Rule by Id={} ", paymentProcessorRuleId, ", rows affected = {}", rows);
 	}
 
 	@Override
 	public PaymentProcessorRule updatepaymentProcessorRule(PaymentProcessorRule paymentProcessorRuleToUpdate) {
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: updatepaymentProcessorRule() : Updating PaymentProcessorRule##"+(paymentProcessorRuleToUpdate.toString()) );
+		LOGGER.debug("Updating PaymentProcessorRule## = {}", paymentProcessorRuleToUpdate.toString() );
 		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORRULE,
 					new Object[] { 	paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorRuleToUpdate.getCardType().name(), paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(), 
 							paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(), paymentProcessorRuleToUpdate.getPriority(),paymentProcessorRuleToUpdate.getPaymentProcessorRuleId()
 								 });
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: updatepaymentProcessorRule() : Updated PaymentProcessorRule with ID: " + paymentProcessorRuleToUpdate.getPaymentProcessorRuleId() + ", rows affected = " + rows);
+		LOGGER.debug("Updated PaymentProcessorRule with ID ={} ", paymentProcessorRuleToUpdate.getPaymentProcessorRuleId(), ", rows affected ={} ", rows);
 		return paymentProcessorRuleToUpdate;
 	}
 
@@ -141,9 +141,9 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 								new PaymentProcessorRuleRowMapper()));
 
 		if (paymentProcessorRules != null) {
-			LOGGER.info("PaymentProcessorRuleDAOImpl :: findByPaymentProcessor() : Found payment processor statuscode for : ");
+			LOGGER.info("Found payment processor statuscode for : ");
 		} else {
-			LOGGER.debug("PaymentProcessorRuleDAOImpl :: findByPaymentProcessor() : Found payment processor rule not found for payment processor id: " + paymentProcessorId);
+			LOGGER.debug("Found payment processor rule not found for payment processor id ={} ", paymentProcessorId);
 		}
 
 		return paymentProcessorRules;
@@ -155,7 +155,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 				.query(Queries.FINDALLPROCESSORRULES,
 						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
-		LOGGER.debug("PaymentProcessorRuleDAOImpl :: findAll() : paymentProcessorRules size : "+paymentProcessorRules.size());
+		LOGGER.debug("paymentProcessorRules size ={} ",paymentProcessorRules.size());
 
 		return paymentProcessorRules;
 	}

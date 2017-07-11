@@ -31,14 +31,14 @@ public class PropertyDAOImpl implements PropertyDAO {
 		Property property;
 		ArrayList<Property> list = (ArrayList<Property>) jdbcTemplate.query(Queries.FINDPROPERTYBYNAME,
 				new Object[] { name }, new RowMapperResultSetExtractor<Property>(new PropertyRowMapper()));
-		LOGGER.debug("PropertyDAOImpl :: findByName() : Property size : "+list.size());
+		LOGGER.debug("Property size = {}",list.size());
 		property = DataAccessUtils.singleResult(list);
 
 		if (property != null) {
-			LOGGER.debug("PropertyDAOImpl :: findByName() : Found property - name/value: " + property.getApplicationPropertyName() + "/"
-					+ property.getApplicationPropertyValue());
+			LOGGER.debug("Found property - name/value= {}", property.getApplicationPropertyName(), "/"
+					,property.getApplicationPropertyValue());
 		} else {
-			LOGGER.debug("PropertyDAOImpl :: findByName() : Property not found for - name: " + name);
+			LOGGER.debug("Property not found for - name ={} ", name);
 		}
 
 		return property;
@@ -47,7 +47,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 	@Override
 	public String getPropertyValue(String propertyName) {
 		Property property = findByName(propertyName);
-		LOGGER.debug("PropertyDAOImpl :: getPropertyValue() : property " + property);
+		LOGGER.debug("property ={}", property);
 		return property == null ? "" : property.getApplicationPropertyValue();
 	}
 }

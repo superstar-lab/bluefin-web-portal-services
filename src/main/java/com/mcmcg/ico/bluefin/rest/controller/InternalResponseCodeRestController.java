@@ -57,7 +57,7 @@ public class InternalResponseCodeRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        LOGGER.debug("Getting internal response code list of transactionType "+transactionType);
+        LOGGER.debug("Getting internal response code list of transactionType ={} ",transactionType);
         return internalResponseCodeService.getInternalResponseCodesByTransactionType(transactionType);
     }
 
@@ -82,7 +82,7 @@ public class InternalResponseCodeRestController {
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.debug("Creating internal response code for currentLoginUserName "+currentLoginUserName);
+        LOGGER.debug("Creating internal response code for currentLoginUserName ={}",currentLoginUserName);
         return internalResponseCodeService.createInternalResponseCodes(internalResponseCodeResource, currentLoginUserName);
     }
 

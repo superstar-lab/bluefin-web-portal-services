@@ -64,7 +64,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		List<PaymentProcessor> paymentProcessors = jdbcTemplate.query(Queries.FINDALLPAYMENTPROCESSORS,
 				new PaymentProcessorRowMapper());
 
-		LOGGER.debug("PaymentProcessorDAOImpl :: findAll() : Number of rows: " + paymentProcessors.size());
+		LOGGER.debug("Number of rows ={} ", paymentProcessors.size());
 
 		return paymentProcessors;
 	}
@@ -72,7 +72,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	@Override
 	public void delete(PaymentProcessor paymentProcessor) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORBYID, new Object[] { paymentProcessor.getPaymentProcessorId() });
-		LOGGER.debug("PaymentProcessorDAOImpl :: delete() : Deleted payment Processor by Id: " + paymentProcessor.getPaymentProcessorId() + ", rows affected = " + rows);
+		LOGGER.debug("Deleted payment Processor by Id= {}", paymentProcessor.getPaymentProcessorId() + ", rows affected = {}", rows);
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		List<PaymentProcessor> paymentProcessors = namedParameterJdbcTemplate.query(Queries.FINDALLPAYMENTPROCESSORSBYIDS,
 				map, new PaymentProcessorRowMapper());
 
-		LOGGER.debug("PaymentProcessorDAOImpl :: findAll(set) : Number of rows: " + paymentProcessors.size());
+		LOGGER.debug("Number of rows: ", paymentProcessors.size());
 
 		return paymentProcessors;
 	}
@@ -126,7 +126,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 
 		Long id = holder.getKey().longValue();
 		paymentProcessor.setPaymentProcessorId(id);
-		LOGGER.debug("PaymentProcessorDAOImpl :: save() : Saved Payment Processor - id: " + id);
+		LOGGER.debug("Saved Payment Processor - id ={} ", id);
 		return paymentProcessor;
 	}
 
@@ -138,7 +138,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 		if (paymentProcessor.getPaymentProcessorRules() == null) {
 			paymentProcessorMerchantDAO.deletePaymentProcessorRules(paymentProcessor.getPaymentProcessorId());
 		}
-		LOGGER.debug("PaymentProcessorDAOImpl :: update() : Updating Payment Processor, PaymentProcessorId - "+(paymentProcessor.getPaymentProcessorId()));
+		LOGGER.debug("Updating Payment Processor, PaymentProcessorId ={} ", paymentProcessor.getPaymentProcessorId());
 		DateTime utc4 = paymentProcessor.getModifiedDate() != null ? paymentProcessor.getModifiedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
@@ -148,7 +148,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 							paymentProcessor.getRemitTransactionOpenTime(), dateModified, 
 							paymentProcessor.getPaymentProcessorId()
 								 });
-		LOGGER.debug("PaymentProcessorDAOImpl :: update() : Updated PaymentProcessor, No of Rows Updated " + rows);
+		LOGGER.debug("Updated PaymentProcessor, No of Rows Updated ={}", rows);
 		return paymentProcessor;
 	}
 }

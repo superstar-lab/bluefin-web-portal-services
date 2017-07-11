@@ -54,7 +54,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 404, message = "Not found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public BatchUpload get(@PathVariable Long id) {
-        LOGGER.debug("Getting batch upload by id "+id);
+        LOGGER.debug("Getting batch upload by id = {} ",id);
         return batchUploadService.getBatchUploadById(id);
     }
 
@@ -71,7 +71,7 @@ public class BatchUploadRestController {
             @RequestParam(value = "size", required = false, defaultValue = "15") int size,
             @RequestParam(value = "sort", required = false) String sort,
             @RequestParam(value = "noofdays", required = false) Integer noofdays) {
-        LOGGER.debug("Getting all batch uploads size "+size);
+        LOGGER.debug("Getting all batch uploads size={} ",size);
         if (noofdays == null) {
             return batchUploadService.getAllBatchUploads(page, size, sort);
         } else {

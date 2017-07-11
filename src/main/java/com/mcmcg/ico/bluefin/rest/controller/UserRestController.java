@@ -70,7 +70,7 @@ public class UserRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource get(@PathVariable String username, @ApiIgnore Authentication authentication) {
 		validateAuthentication(authentication);
-		LOGGER.debug("getUser with username:: service "+username);
+		LOGGER.debug("service ={}",username);
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
@@ -103,9 +103,9 @@ public class UserRestController {
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 
-		LOGGER.info("getUser :: service");
+		LOGGER.info("get User  service");
 		final String userName = authentication.getName();
-		LOGGER.debug("getUser :: service : userName : "+userName);
+		LOGGER.debug("userName ={} ",userName);
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			// Verifies if the search parameter has allowed
@@ -141,7 +141,7 @@ public class UserRestController {
 			@ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
 		validateAuthentication(authentication);
 
-		LOGGER.debug("createUser :: service : newUser "+newUser);
+		LOGGER.debug("newUser ={}",newUser);
 		// First checks if all required data is given
 		if (errors.hasErrors()) {
 			String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -169,7 +169,7 @@ public class UserRestController {
 			@Valid @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
 		validateAuthentication(authentication);
 		
-		LOGGER.info("updateUserProfile :: service");
+		LOGGER.info("update User Profile service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
@@ -203,7 +203,7 @@ public class UserRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
-		LOGGER.debug("updateUserRoles with username :: service : roles size : "+roles.size());
+		LOGGER.debug("roles size ={}",roles.size());
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated
 		if (!userService.belongsToSameLegalEntity(authentication,
@@ -230,7 +230,7 @@ public class UserRestController {
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 
-		LOGGER.info("updateUserLegalEntities :: service : legalEntities size : "+legalEntities.size());
+		LOGGER.info("legalEntities size ={} ",legalEntities.size());
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated and checks if the Legal Entities given are valid
 		// according with the LegalEntities owned
@@ -261,7 +261,7 @@ public class UserRestController {
 			HttpServletRequest request, @ApiIgnore Authentication authentication) {
 		validateErrors(errors);
 
-		LOGGER.info("updateUserPassword :: service");
+		LOGGER.info("update User Password service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
@@ -272,7 +272,7 @@ public class UserRestController {
 			usernameValue = username;
 		}
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
-		LOGGER.debug("updateUserPassword :: service : token : "+token);
+		LOGGER.debug("token ={} ",token);
 		if (token != null) {
 			userService.updateUserPassword(usernameValue, updatePasswordResource, token);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -296,9 +296,9 @@ public class UserRestController {
 			throw new AccessDeniedException("User does not have sufficient permissions to perform the operation.");
 		}
 
-		LOGGER.info("updateUserActivation :: service");
+		LOGGER.info("update User Activation service:");
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
-		LOGGER.debug("updateUserActivation :: service : token : "+token);
+		LOGGER.debug("token: ={} ",token);
 		if (token != null) {
 			userService.userActivation(activationResource);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -318,7 +318,7 @@ public class UserRestController {
 		LOGGER.info("Inside getVerifiedSearch()");
 		// Searches for the legal entities of a user its user name
 		List<LegalEntityApp> legalEntities = userService.getLegalEntitiesByUser(userName);
-		LOGGER.debug("Inside getVerifiedSearch() : legalEntities size : "+legalEntities.size());
+		LOGGER.debug("legalEntities size: ={} ",legalEntities.size());
 		// Validates if the user has access to the given legal entities,
 		// exception if does not have access
 		return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search);

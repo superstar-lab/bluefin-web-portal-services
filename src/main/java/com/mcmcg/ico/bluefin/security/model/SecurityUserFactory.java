@@ -29,19 +29,19 @@ public class SecurityUserFactory {
 	}
 
 	public Collection<SimpleGrantedAuthority> getRoles(Collection<UserRole> roles) {
-		LOGGER.info("Entering SecurityUserFactory :: getRoles()");
+		LOGGER.info("Entering to get Roles");
 		List<SimpleGrantedAuthority> result = new ArrayList<>();
 		if (roles == null) {
 			return new ArrayList<>();
 		} else {
-			LOGGER.debug("SecurityUserFactory :: getRoles() - user roles is not null with size : "+roles.size());
+			LOGGER.debug("user roles is not null with size ={} ",roles.size());
 			for (UserRole userRole : roles) {
 				long roleId = userRole.getRoleId();
 				result.add(new SimpleGrantedAuthority(roleDAO.findByRoleId(roleId).getRoleName()));
 			}
 		}
-		LOGGER.info("Exit SecurityUserFactory :: getRoles() with result : ");
-		LOGGER.debug("Exit SecurityUserFactory :: getRoles() with result : "+result);
+		LOGGER.info("Exit with result : ");
+		LOGGER.debug("Exit SecurityUserFactory getRoles() with result ={} ",result);
 		return result;
 	}
 }

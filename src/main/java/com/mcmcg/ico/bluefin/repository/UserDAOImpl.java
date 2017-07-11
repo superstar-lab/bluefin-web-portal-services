@@ -58,14 +58,14 @@ public class UserDAOImpl implements UserDAO {
 	public List<User> findAll() {
 		List<User> list = jdbcTemplate.query(Queries.FINDALLUSERS, new UserRowMapper());
 
-		LOGGER.debug("UserDAOImpl :: findAll() : Number of rows: " + list.size());
+		LOGGER.debug("Number  rows ={} ", list.size());
 
 		return list;
 	}
 	
 	public int countUserRecords(String query,Map<String,String> filterMap){
 		Integer count = namedJDBCTemplate.queryForObject(query, filterMap,Integer.class);
-		LOGGER.debug("UserDAOImpl :: countUserRecords() : counts are : " + count);
+		LOGGER.debug("counts are ={} ", count);
 		return count;
 	}
 	
@@ -78,15 +78,15 @@ public class UserDAOImpl implements UserDAO {
 		int offset=pageNumber*pageSize;
 		String query =  queryBuffer.toString();
 		String queryForTotalCount = queryBuffer.replace( queryBuffer.indexOf("SELECT",0)+7,queryBuffer.indexOf("FROM",160)-1, "count(ul.UserID)").toString();
-		LOGGER.debug("UserDAOImpl :: findAllWithDynamicFilter() : Query for result:"+query);
-		LOGGER.debug("UserDAOImpl :: findAllWithDynamicFilter() : Query for count:"+queryForTotalCount);
+		LOGGER.debug("Query for result = {}",query);
+		LOGGER.debug("Query for count ={}",queryForTotalCount);
 		query  =  QueryBuilderHelper.appendLimit(query, offset, pageSize);
 		List<User> searchResultlist = namedJDBCTemplate.query(query, filterMap, new UserRowMapper());
 		
-		LOGGER.debug("UserDAOImpl :: findAllWithDynamicFilter() : Number of rows: " + searchResultlist.size());
+		LOGGER.debug("Number of rows ={} ", searchResultlist.size());
 
 		int countResult = namedJDBCTemplate.queryForObject(queryForTotalCount,filterMap, Integer.class);
-		LOGGER.debug("UserDAOImpl :: findAllWithDynamicFilter() : Search result count:"+countResult);
+		LOGGER.debug("Search result count ={}",countResult);
 		
 		return new PageImpl<>(searchResultlist, pageRequest, countResult);
 	}
@@ -95,13 +95,13 @@ public class UserDAOImpl implements UserDAO {
 	public User findByUserId(long userId) {
 		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.FINDUSERBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<User>(new UserRowMapper()));
-		LOGGER.debug("UserDAOImpl :: findByUserId() : Number of User: " + list.size());
+		LOGGER.debug("Number of User ={} ", list.size());
 		User user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
-			LOGGER.debug("UserDAOImpl :: findByUserId() : Found User for userId: " + userId);
+			LOGGER.debug("Found User for userId ={} ", userId);
 		} else {
-			LOGGER.debug("UserDAOImpl :: findByUserId() : User not found for userId: " + userId);
+			LOGGER.debug("User not found for userId ={} ", userId);
 		}
 
 		return user;
@@ -111,13 +111,13 @@ public class UserDAOImpl implements UserDAO {
 	public User findByUsername(String username) {
 		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.FINDUSERBYUSERNAME,
 				new Object[] { username }, new RowMapperResultSetExtractor<User>(new UserRowMapper()));
-		LOGGER.debug("UserDAOImpl :: findByUsername() : Number of User: " + list.size());
+		LOGGER.debug("Number of User ={} ", list.size());
 		User user = DataAccessUtils.singleResult(list);
 
 		if (user != null) {
-			LOGGER.debug("UserDAOImpl :: findByUsername() : Found User for username: " + username);
+			LOGGER.debug("Found User for username= {} ", username);
 		} else {
-			LOGGER.debug("UserDAOImpl :: findByUsername() : User not found for username: " + username);
+			LOGGER.debug("User not found for username ={} ", username);
 		}
 
 		return user;
@@ -162,7 +162,7 @@ public class UserDAOImpl implements UserDAO {
 
 		Long id = holder.getKey().longValue();
 		user.setUserId(id);
-		LOGGER.debug("UserDAOImpl :: saveUser() :  Saved user - id: " + id);
+		LOGGER.debug("Saved user - id ={} ", id);
 		createUserRoles(user);
 		createLegalEntityApp(user);
 		return user.getUserId();
@@ -173,7 +173,7 @@ public class UserDAOImpl implements UserDAO {
 	 */
 	private void createLegalEntityApp(User user) {
 		if (user.getLegalEntities() != null && !user.getLegalEntities().isEmpty()) {
-			LOGGER.debug("UserDAOImpl :: createLegalEntityApp() : Number of childs LegalEntityApp items associated with User {}"+user.getLegalEntities().size());
+			LOGGER.debug("Number of childs LegalEntityApp items associated with User ={}",user.getLegalEntities().size());
 			// in this case we need to create child items also.
 			legalEntityAppDAO.createLegalEntityApps(user.getLegalEntities());
 		}
@@ -184,7 +184,7 @@ public class UserDAOImpl implements UserDAO {
 	 */
 	private void createUserRoles(User user) {
 		if (user.getRoles() != null && !user.getRoles().isEmpty()) {
-			LOGGER.debug("UserDAOImpl :: createUserRoles() : Number of childs Role items associated with User {}"+user.getRoles().size());
+			LOGGER.debug("Number of childs Role items associated with User ={}",user.getRoles().size());
 			// in this case we need to create child items also.
 			for (UserRole userRole : user.getRoles()) {
 				userRole.setUserId(user.getUserId());
@@ -216,7 +216,7 @@ public class UserDAOImpl implements UserDAO {
 						lastLogin, dateCreated, dateUpdated, user.getEmail(), user.getPassword(), dateModified,
 						modifiedBy, user.getStatus(), user.getUserId() });
 
-		LOGGER.debug("UserDAOImpl :: updateUser() : Updated user with ID: " + user.getUserId() + ", rows affected = " + rows);
+		LOGGER.debug("Updated user with ID ={} ", user.getUserId(), ", rows affected ={} ", rows);
 		
 		createUserRoles(user);
 		createLegalEntityApp(user);
@@ -227,7 +227,7 @@ public class UserDAOImpl implements UserDAO {
 	public Page<User> findAll(BooleanExpression expression, PageRequest pageRequest) {
 		List<User> list = jdbcTemplate.query(Queries.FINDALLUSERS, new UserRowMapper());
 
-		LOGGER.debug("UserDAOImpl :: findAll(pageRequest) :  Number of rows: " + list.size());
+		LOGGER.debug("Number of rows ={} ", list.size());
 
 		int countResult = list.size();
 		int pageNumber = pageRequest.getPageNumber();

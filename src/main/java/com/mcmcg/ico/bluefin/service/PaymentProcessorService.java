@@ -79,12 +79,12 @@ public class PaymentProcessorService {
 		}
 		List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
 				.findPaymentProccessorRulByProcessorId(paymentProcessor.getPaymentProcessorId());
-		LOGGER.debug("PaymentProcessorService :: getPaymentProcessorById() : paymentProcessorRules : "+paymentProcessorRules);
+		LOGGER.debug("paymentProcessorRules ={} ",paymentProcessorRules);
 		paymentProcessor.setPaymentProcessorRules(paymentProcessorRules);
 
 		List<PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
 				.findPaymentProccessorMerchantByProcessorId(paymentProcessor.getPaymentProcessorId());
-		LOGGER.debug("PaymentProcessorService :: getPaymentProcessorById() : paymentProcessorMerchants : "+paymentProcessorMerchants);
+		LOGGER.debug("paymentProcessorMerchants ={} ",paymentProcessorMerchants);
 		paymentProcessor.setPaymentProcessorMerchants(paymentProcessorMerchants);
 		return paymentProcessor;
 	}
@@ -99,7 +99,7 @@ public class PaymentProcessorService {
 		List<PaymentProcessor> result = paymentProcessorDAO.findAll();
 		if (result != null) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : PaymentProcessor result size : {} ",result.size());
+				LOGGER.debug("PaymentProcessor result size : {} ",result.size());
 			}
 			for (PaymentProcessor processor : result) {
 				boolean isReadyToBeActivated = isReadyToBeActivated(processor.getPaymentProcessorId());
@@ -111,14 +111,14 @@ public class PaymentProcessorService {
 				List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
 						.findPaymentProccessorRulByProcessorId(processor.getPaymentProcessorId());
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorRules size : {}",paymentProcessorRules.size());
+					LOGGER.debug("paymentProcessorRules size : {}",paymentProcessorRules.size());
 				}
 				processor.setPaymentProcessorRules(paymentProcessorRules);
 	
 				List<PaymentProcessorMerchant> paymentProcessorMerchants = paymentProcessorMerchantDAO
 						.findPaymentProccessorMerchantByProcessorId(processor.getPaymentProcessorId());
 				if (LOGGER.isDebugEnabled()) {
-					LOGGER.debug("PaymentProcessorService :: getPaymentProcessors() : paymentProcessorMerchants size : {} ",paymentProcessorMerchants.size());
+					LOGGER.debug("paymentProcessorMerchants size : {} ",paymentProcessorMerchants.size());
 				}
 				processor.setPaymentProcessorMerchants(paymentProcessorMerchants);
 			} 
@@ -139,7 +139,7 @@ public class PaymentProcessorService {
 		PaymentProcessor paymentProcessor = paymentProcessorResource.toPaymentProcessor();
 		final String processorName = paymentProcessor.getProcessorName();
 
-		LOGGER.debug("PaymentProcessorService :: createPaymentProcessor() : processorName : "+processorName);
+		LOGGER.debug("processorName ={} ",processorName);
 		if (existPaymentProcessorName(processorName)) {
 			LOGGER.error("Unable to create Payment Processor, this processor already exists: [{}]", processorName);
 			throw new CustomBadRequestException(String
@@ -150,7 +150,7 @@ public class PaymentProcessorService {
 					.format("Unable to create Payment Processor, new processor cannot be active: %s", processorName));
 		}
 
-		LOGGER.info("PaymentProcessorService :: createPaymentProcessor() : ready to save  paymentProcessor : ");
+		LOGGER.info("ready to save  paymentProcessor : ");
 		return paymentProcessorDAO.save(paymentProcessor);
 	}
 
@@ -166,7 +166,7 @@ public class PaymentProcessorService {
 
 		PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
 
-		LOGGER.debug("PaymentProcessorService :: updatePaymentProcessor() : paymentProcessorToUpdate : "+paymentProcessorToUpdate);
+		LOGGER.debug("paymentProcessorToUpdate ={} ",paymentProcessorToUpdate);
 		if (paymentProcessorToUpdate.getIsActive() == 1 && !isReadyToBeActivated(id)) {
 			paymentProcessorToUpdate.setIsActive((short) 0);
 			paymentProcessorDAO.update(paymentProcessorToUpdate);
@@ -182,7 +182,7 @@ public class PaymentProcessorService {
 		paymentProcessorToUpdate.setRemitTransactionOpenTime(paymentProcessorResource.getRemitTransactionOpenTime());
 		paymentProcessorToUpdate.setRemitTransactionCloseTime(paymentProcessorResource.getRemitTransactionCloseTime());
 		paymentProcessorToUpdate.setIsActive(paymentProcessorResource.getIsActive());
-		LOGGER.info("PaymentProcessorService :: updatePaymentProcessor() : ready to update  paymentProcessorToUpdate : ");
+		LOGGER.info("ready to update  paymentProcessorToUpdate  ");
 		paymentProcessorDAO.update(paymentProcessorToUpdate);
 		return paymentProcessorToUpdate;
 	}
@@ -288,7 +288,7 @@ public class PaymentProcessorService {
 				.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId());
 			paymentProcessorMerchantDAO
 				.createPaymentProcessorMerchants(paymentProcessorToUpdate.getPaymentProcessorMerchants());
-			LOGGER.debug("Exiting from PaymentProcessorService :: updatePaymentProcessorMerchants() ");
+			LOGGER.debug("Exiting from updatePaymentProcessorMerchants ");
 		}
 	}
 	/**
@@ -352,7 +352,7 @@ public class PaymentProcessorService {
 	 *             when at least one id does not exist
 	 */
 	public List<PaymentProcessor> getPaymentProcessorsByIds(Set<Long> paymentProcessorIds) {
-		LOGGER.info("Entering to PaymentProcessorService :: getPaymentProcessorsByIds() ");
+		LOGGER.info("Entering to get PaymentProcessorsByIds ");
 		List<PaymentProcessor> result = paymentProcessorDAO.findAll(paymentProcessorIds);
 
 		if (result != null && result.size() == paymentProcessorIds.size()) {
@@ -375,7 +375,7 @@ public class PaymentProcessorService {
 	}
 
 	private boolean existPaymentProcessorName(String processorName) {
-		LOGGER.info("PaymentProcessorService :: existPaymentProcessorName() ");
+		LOGGER.info("existPaymentProcessorName ");
 		return paymentProcessorDAO.getPaymentProcessorByProcessorName(processorName) == null ? false : true;
 	}
 
@@ -456,7 +456,7 @@ public class PaymentProcessorService {
 	}
 
 	private boolean hasCodesAssociated(List<ItemStatusCodeResource> statusCodeItems) {
-		LOGGER.debug("PaymentProcessorService :: hasCodesAssociated() : statusCodeItems size : "+statusCodeItems.size());
+		LOGGER.debug("statusCodeItems size ={} ",statusCodeItems.size());
 		for (ItemStatusCodeResource statusCodeItem : statusCodeItems) {
 			if (!statusCodeItem.getCompleted()) {
 				return false;

@@ -40,7 +40,7 @@ public class RoleRestController {
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public Role get(@PathVariable Long id) {
-        LOGGER.debug("Getting role by id. "+id);
+        LOGGER.debug("Getting role by id ={} ",id);
         return roleService.getRoleById(id);
     }
 

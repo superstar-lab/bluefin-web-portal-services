@@ -31,7 +31,7 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 	public List<ReconciliationStatus> findAll() {
 		List<ReconciliationStatus> list = jdbcTemplate.query(Queries.FINDALLRECONCILIATIONSTATUSES,
 				new ReconciliationStatusRowMapper());
-		LOGGER.debug("ReconciliationStatusDAOImpl :: findAll() : Number of rows: " + ( list != null ? list.size() : 0 ));
+		LOGGER.debug("Number of rows ={} ", ( list != null ? list.size() : 0 ));
 		return list;
 	}
 
@@ -43,9 +43,9 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 		ReconciliationStatus reconciliationStatus = DataAccessUtils.singleResult(list);
 
 		if (reconciliationStatus != null) {
-			LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatusId() : Found ReconciliationStatus for reconciliationStatusId: " + reconciliationStatusId);
+			LOGGER.debug("Found ReconciliationStatus for reconciliationStatusId ={} ", reconciliationStatusId);
 		} else {
-			LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatusId() : ReconciliationStatus not found for reconciliationStatusId: " + reconciliationStatusId);
+			LOGGER.debug("ReconciliationStatus not found for reconciliationStatusId ={} ", reconciliationStatusId);
 		}
 
 		return reconciliationStatus;
@@ -56,13 +56,13 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 		ArrayList<ReconciliationStatus> list = (ArrayList<ReconciliationStatus>) jdbcTemplate.query(
 				Queries.FINDRECONCILIATIONSTATUSBYRECONCILIATIONSTATUS, new Object[] { status },
 				new RowMapperResultSetExtractor<ReconciliationStatus>(new ReconciliationStatusRowMapper()));
-		LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatus() : ReconciliationStatus size : "+list.size());
+		LOGGER.debug("ReconciliationStatus size = {} ",list.size());
 		ReconciliationStatus reconciliationStatus = DataAccessUtils.singleResult(list);
 
 		if (reconciliationStatus != null) {
-			LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatus() : Found ReconciliationStatus for reconciliationStatus: " + status);
+			LOGGER.debug("Found ReconciliationStatus for reconciliationStatus ={} ", status);
 		} else {
-			LOGGER.debug("ReconciliationStatusDAOImpl :: findByReconciliationStatus() : ReconciliationStatus not found for reconciliationStatus: " + status);
+			LOGGER.debug("ReconciliationStatus not found for reconciliationStatus = {} ", status);
 		}
 
 		return reconciliationStatus;

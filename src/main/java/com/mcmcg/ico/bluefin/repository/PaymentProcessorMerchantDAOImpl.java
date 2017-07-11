@@ -47,7 +47,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 				Queries.FINDPAYMENTPROCESSORMERCHANTSBYID, new Object[] { paymentProcessorId },
 				new RowMapperResultSetExtractor<PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
 
-		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: findPaymentProccessorMerchantByProcessorId : Number of rows: " + list.size());
+		LOGGER.debug("Number of rows={} ", list.size());
 		return list;
 	}
 
@@ -55,14 +55,14 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	public void deletPaymentProcessorMerchantByProcID(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTBYPROCID, new Object[] {paymentProcessorId});
 
-		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletPaymentProcessorMerchantByProcID : Deleted Payment Processor Merchant by Payment Processor Id: " + paymentProcessorId + ", rows affected = " + rows);
+		LOGGER.debug("Deleted Payment Processor Merchant by Payment Processor Id={} ", paymentProcessorId , ", rows affected = {}", rows);
 	}
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTS, new Object[] { paymentProcessorId });
-		LOGGER.debug("PaymentProcessorMerchantDAOImpl :: deletePaymentProcessorRules : Deleted Payment Processor Merchants for PaymentProcessor Id: " + paymentProcessorId
-				+ ", rows affected = " + rows);
+		LOGGER.debug("Deleted Payment Processor Merchants for PaymentProcessor Id ={}" , paymentProcessorId
+				,", rows affected = {}", rows);
 	}
 	
 	@Override
