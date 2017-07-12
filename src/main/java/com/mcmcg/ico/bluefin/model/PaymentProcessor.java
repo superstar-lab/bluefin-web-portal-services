@@ -5,8 +5,6 @@ import java.sql.Time;
 import java.util.Collection;
 import java.util.HashSet;
 
-import javax.persistence.Transient;
-
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -46,7 +44,6 @@ public class PaymentProcessor implements Serializable {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private DateTime createdDate;
 
-    @Transient
     private boolean readyToBeActivated;
 
     public PaymentProcessor() {

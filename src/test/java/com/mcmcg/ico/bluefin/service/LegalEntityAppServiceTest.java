@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -201,9 +200,9 @@ public class LegalEntityAppServiceTest {
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is throws a JDBC Connection exception
 	 */
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testFindByUserJDBCConnectionException() {
-		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new JDBCConnectionException("", null));
+		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new DataAccessResourceFailureException("", null));
 
 		legalEntityAppService.getLegalEntities(auth);
 
@@ -257,7 +256,7 @@ public class LegalEntityAppServiceTest {
 	 * but the DB is throws a JDBC Connection exception
 	 */
 	@SuppressWarnings("unchecked")
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testLegalEntityJDBCConnectionException() {
 		// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		// Mockito.when(legalEntityAppDAO.findAll(Mockito.anyCollection()))

@@ -2,7 +2,7 @@ package com.mcmcg.ico.bluefin.rest.controller.exception;
 
 import java.util.UUID;
 
-import org.hibernate.exception.JDBCConnectionException;
+//import org.hibernate.exception.JDBCConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;
@@ -35,7 +35,14 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
         return ErrorResource.buildErrorResource(uniqueErrorId, exception, hasDevelopmentProfileHeader(request));
     }
 
-    @ExceptionHandler({ DataAccessResourceFailureException.class, JDBCConnectionException.class,
+    /**
+     * JDBCConnectionException.class - Associated with hibernate. Now need to put alternative class which uses in case of JDBC connection failure
+     * @param exception
+     * @param request
+     * @return
+     */
+    @ExceptionHandler({ DataAccessResourceFailureException.class,
+    	
             AccessDeniedException.class })
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody public ErrorResource handleForbiddenException(final Exception exception, WebRequest request) {

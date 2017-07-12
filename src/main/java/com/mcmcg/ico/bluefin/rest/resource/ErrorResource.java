@@ -57,7 +57,6 @@ public class ErrorResource implements Serializable {
         em.setTimestamp(Calendar.getInstance().getTimeInMillis());
         em.setMessage(exp.getMessage());
         em.setException(exp.getClass().getName());
-        
         // Enable additional information when development profile is on
         if (hasDevelopmentProfile) {
         	/** After discussion with Matloob, we need to comment below code due to sonar qube scan giving issue 

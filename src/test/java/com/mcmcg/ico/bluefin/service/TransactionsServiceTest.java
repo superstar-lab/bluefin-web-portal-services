@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -109,11 +110,11 @@ public class TransactionsServiceTest {
 
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testGetTransactionInformationDBConnectionFail() {
 
 		Mockito.when(saleTransactionDAO.findByApplicationTransactionId(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		transactionsService.getTransactionInformation(Mockito.anyString(), TransactionTypeCode.SALE);
 

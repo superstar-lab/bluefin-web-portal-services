@@ -19,6 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -216,10 +217,10 @@ public class SessionServiceTest {
 	 * Tests the case for when there is a DB error JDBC Connection Exception
 	 * when trying to find a user by user name
 	 */
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testAuthenticateJDBCConnectionErrorFindUser() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		sessionService.authenticate("omonge", "test");
 
@@ -233,11 +234,11 @@ public class SessionServiceTest {
 	 * Tests the case for when there is a DB error JDBC Connection Exception
 	 * when trying to save login history for a particular user
 	 */
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testAuthenticateJDBCConnectionErrorLoginHistory() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
 		Mockito.when(userLoginHistoryDAO.saveUserLoginHistory(Mockito.any(UserLoginHistory.class)))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		sessionService.authenticate("omonge", "test");
 
@@ -317,10 +318,10 @@ public class SessionServiceTest {
 	/**
 	 * Test a error when loading user by name, JDBC Connection exception
 	 */
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testGenerateTokenLoadUserJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		sessionService.generateToken("omonge");
 
@@ -378,7 +379,7 @@ public class SessionServiceTest {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		sessionService.generateToken("omonge");
 
@@ -436,13 +437,13 @@ public class SessionServiceTest {
 	/**
 	 * Test a error when creating a new token, JDBC Connection exception
 	 */
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testGenerateTokenCreateTokenJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
 				.thenReturn(createValidSecurityUser());
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(tokenUtils.generateToken(Mockito.any(SecurityUser.class)))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		sessionService.generateToken("omonge");
 
@@ -626,10 +627,10 @@ public class SessionServiceTest {
 	 * @throws Exception
 	 */
 
-	// @Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	// @Test(expected = DataAccessResourceFailureException.class)
 	// public void getLoginResponseErrorJDBC() throws Exception {
 	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-	// .thenThrow(new org.hibernate.exception.JDBCConnectionException("",
+	// .thenThrow(new DataAccessResourceFailureException("",
 	// null));
 	//
 	// sessionService.getLoginResponse("omonge");
