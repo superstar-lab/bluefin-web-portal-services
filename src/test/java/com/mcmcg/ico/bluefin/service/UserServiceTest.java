@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +44,6 @@ import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import com.mcmcg.ico.bluefin.util.TestUtilClass;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -158,11 +155,11 @@ public class UserServiceTest {
 
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testFindByUsernameDBConnectionFail() {// 500
 
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.getUserInfomation("mytest");
 
@@ -678,10 +675,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserFindByUsernameJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserProfile("userTest", createValidUpdateResource());
 
@@ -713,10 +710,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserSaveJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
-		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new JDBCConnectionException("", null));
+		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserProfile("userTest", createValidUpdateResource());
 
@@ -792,10 +789,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserRolesFindByUsernameJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserRoles("userTest", createValidRoleIdsList());
 
@@ -831,11 +828,11 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(roleService);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserRolesFindByRoleNameJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(roleService.getRolesByIds(Mockito.anySetOf(Long.class)))
-				.thenThrow(new JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserRoles("userTest", createValidRoleIdsList());
 
@@ -875,11 +872,11 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(roleService);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserRolesSaveJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(roleService.getRolesByIds(Mockito.anySetOf(Long.class))).thenReturn(createValidRoleList());
-		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new JDBCConnectionException("", null));
+		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserRoles("userTest", createValidRoleIdsList());
 
@@ -957,10 +954,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserLegalEntitiesFindByUsernameJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-				.thenThrow(new org.hibernate.exception.JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
 
@@ -996,11 +993,11 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppService);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserLegalEntitiesFindByLegalEntityAppNameJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(legalEntityAppService.getLegalEntityAppsByIds(Mockito.anySetOf(Long.class)))
-				.thenThrow(new JDBCConnectionException("", null));
+				.thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
 
@@ -1041,12 +1038,12 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppService);
 	}
 
-	@Test(expected = org.hibernate.exception.JDBCConnectionException.class)
+	@Test(expected = DataAccessResourceFailureException.class)
 	public void testUpdateUserLegalEntitiesSaveJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		// Mockito.when(legalEntityAppService.getLegalEntityAppsByIds(Mockito.anySetOf(Long.class)))
 		// .thenReturn(createValidLegalEntityAppList());
-		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new JDBCConnectionException("", null));
+		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new DataAccessResourceFailureException("", null));
 
 		userService.updateUserLegalEntities("userTest", createValidLegalEntityIdsList());
 
