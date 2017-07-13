@@ -32,7 +32,7 @@ import com.mcmcg.ico.bluefin.repository.sql.Queries;
 @Repository
 public class BatchUploadDAOImpl implements BatchUploadDAO {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchUploadDAOImpl.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(BatchUploadDAOImpl.class);
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -97,13 +97,17 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
     public static DateTime getItemDate(String date, String pattern) {
         try {
-            return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
+        	if (date != null) {
+        		return DateTimeFormat.forPattern(pattern).parseDateTime(date).withZone(DateTimeZone.UTC);
+            } else {
+            	LOGGER.debug("Date value to parse found null");
+            }
         } catch (Exception e) {
         	if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to convert item date",e);
         	}
-            return null;
         }
+        return null;
     }
 
     @Override
