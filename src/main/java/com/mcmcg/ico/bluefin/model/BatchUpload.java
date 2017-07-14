@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class BatchUpload {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy hh:mm:ss a")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private DateTime dateUploaded;
+    @JsonProperty("UpLoadedBy")
     private String upLoadedBy;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy hh:mm:ss a")

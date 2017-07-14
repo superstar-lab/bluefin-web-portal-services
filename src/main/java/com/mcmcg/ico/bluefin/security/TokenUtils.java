@@ -34,79 +34,87 @@ public class TokenUtils {
 
 	public String getUsernameFromToken(String token) {
 		String username;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
 			username = claims.getSubject();
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get claim from token = {}",token,e);
-        	}
-			return null;
+		} else {
+			username = null;
 		}
+		LOGGER.debug("Returing Username= {} from Token= {}", username, token);
 		return username;
 	}
 
 	public Date getCreatedDateFromToken(String token) {
 		Date created;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			created = new Date((Long) claims.get(BluefinWebPortalConstants.CREATED));
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get date from token = {}",token,e);
-        	}
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
+			Long createdVal = (Long) claims.get(BluefinWebPortalConstants.CREATED);
+			if (createdVal != null) {
+				created = new Date(createdVal);
+			} else {
+				created = null;
+			}
+		} else {
 			created = null;
 		}
+		LOGGER.debug("Returing Created= {} from Token= {}", created, token);
 		return created;
 	}
 
 	public String getTypeFromToken(String token) {
 		String type;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			type = claims.get("type").toString();
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get type from token = {}",token,e);
-        	}
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
+			Object typeObj = claims.get("type");
+			if (typeObj != null) {
+				type = String.valueOf(typeObj);
+			} else {
+				type = null;
+			}
+		} else {
 			type = null;
 		}
+		LOGGER.debug("Returing Type= {} from Token= {}", type, token);
 		return type;
 	}
 
 	public String getUrlFromToken(String token) {
+		final Claims claims = this.getClaimsFromToken(token);
 		String url;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			url = claims.get("url").toString();
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get url from token = {}",token,e);
-        	}
+		if (claims != null) {
+			Object urlObj = claims.get("url");
+			if (urlObj != null) {
+				url = String.valueOf(urlObj);
+			} else {
+				url = null;
+			}
+		} else {
 			url = null;
 		}
+		LOGGER.debug("Returing URL= {} from Token= {}",url,token);
 		return url;
 	}
 
 	public Date getExpirationDateFromToken(String token) {
 		Date expiration;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
 			expiration = claims.getExpiration();
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get expiration from token = {}",token,e);
-        	}
+		} else {
 			expiration = null;
 		}
+		LOGGER.debug("Returing Expiration= {} from Token= {}",expiration,token);
 		return expiration;
 	}
 
 	private Claims getClaimsFromToken(String token) {
 		Claims claims;
 		try {
-			claims = Jwts.parser().setSigningKey(propertyService.getPropertyValue("TOKEN_SECRET_KEY"))
+			String tokenSecKey = propertyService.getPropertyValue("TOKEN_SECRET_KEY");
+			LOGGER.debug("Token= {} , Secret Key= {}",token,tokenSecKey);
+			claims = Jwts.parser().setSigningKey(tokenSecKey)
 					.parseClaimsJws(token).getBody();
+			LOGGER.debug("claims={}",claims);
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get claims from token = {}",token,e);
@@ -197,14 +205,19 @@ public class TokenUtils {
 		String refreshedToken;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
-			refreshedToken = this.generateToken(claims);
+			if (claims != null) {
+				claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
+				refreshedToken = this.generateToken(claims);
+			} else {
+				refreshedToken = null;
+			}
 		} catch (Exception e) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Failed to refresh token {}",token,e);
 			}
 			refreshedToken = null;
 		}
+		LOGGER.info("Returing refreshed Token= {} from Token= {}",refreshedToken,token);
 		return refreshedToken;
 	}
 

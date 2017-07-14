@@ -3,6 +3,7 @@
  */
 package com.mcmcg.ico.bluefin.repository;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -76,7 +77,9 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public PaymentProcessorRule save(PaymentProcessorRule paymentProcessorRule) {
 		KeyHolder holder = new GeneratedKeyHolder();
-
+		if (paymentProcessorRule.hasNoLimit()) {
+			paymentProcessorRule.setMaximumMonthlyAmount(BigDecimal.ZERO);
+		}
 		DateTime utc1 = paymentProcessorRule.getCreatedDate() != null ? paymentProcessorRule.getCreatedDate().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC);
 		
 		DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
@@ -124,6 +127,9 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public PaymentProcessorRule updatepaymentProcessorRule(PaymentProcessorRule paymentProcessorRuleToUpdate) {
 		LOGGER.debug("Updating PaymentProcessorRule## = {}", paymentProcessorRuleToUpdate.toString() );
+		if (paymentProcessorRuleToUpdate.hasNoLimit()) {
+			paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(BigDecimal.ZERO);
+		}
 		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORRULE,
 					new Object[] { 	paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorRuleToUpdate.getCardType().name(), paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(), 
 							paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(), paymentProcessorRuleToUpdate.getPriority(),paymentProcessorRuleToUpdate.getPaymentProcessorRuleId()
