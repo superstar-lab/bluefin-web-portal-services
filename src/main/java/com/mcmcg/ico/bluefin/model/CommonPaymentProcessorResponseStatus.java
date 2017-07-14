@@ -15,6 +15,7 @@ public class CommonPaymentProcessorResponseStatus extends Common {
     private String transactionTypeName;
  
     public CommonPaymentProcessorResponseStatus() {
+    	// Default Constructor
 	}
     
     @JsonProperty("processorId")

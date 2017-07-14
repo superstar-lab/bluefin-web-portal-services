@@ -56,12 +56,5 @@ public class PaymentProcessorRule implements Serializable {
 				+ ", noMaximumMonthlyAmountFlag=" + noMaximumMonthlyAmountFlag + ", priority=" + priority
 				+ ", monthToDateCumulativeAmount=" + monthToDateCumulativeAmount + "]";
 	}
-	
-//	@PreUpdate
-//    @PrePersist
-//    public void beforePersist() {
-//        if (hasNoLimit()) {
-//            this.maximumMonthlyAmount = BigDecimal.ZERO;
-//        }
-//    }
+
 }
