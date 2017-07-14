@@ -34,79 +34,61 @@ public class TokenUtils {
 
 	public String getUsernameFromToken(String token) {
 		String username;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			if (claims != null) {
-				username = claims.getSubject();
-			} else {
-				username = null;
-			}
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get claim from token = {}",token,e);
-        	}
-			return null;
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
+			username = claims.getSubject();
+		} else {
+			username = null;
 		}
-		LOGGER.debug("Returing Username= {} from Token= {}",username,token);
+		LOGGER.debug("Returing Username= {} from Token= {}", username, token);
 		return username;
 	}
 
 	public Date getCreatedDateFromToken(String token) {
 		Date created;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			if (claims != null) {
-				Long createdVal = (Long)claims.get(BluefinWebPortalConstants.CREATED);
-				if (createdVal != null) {
-					created = new Date(createdVal);
-				} else {
-					created = null;
-				}
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
+			Long createdVal = (Long) claims.get(BluefinWebPortalConstants.CREATED);
+			if (createdVal != null) {
+				created = new Date(createdVal);
 			} else {
 				created = null;
 			}
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get date from token = {}",token,e);
-        	}
+		} else {
 			created = null;
 		}
-		LOGGER.debug("Returing Created= {} from Token= {}",created,token);
+		LOGGER.debug("Returing Created= {} from Token= {}", created, token);
 		return created;
 	}
 
 	public String getTypeFromToken(String token) {
 		String type;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			if (claims != null) {
-				type = String.valueOf(claims.get("type"));
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
+			Object typeObj = claims.get("type");
+			if (typeObj != null) {
+				type = String.valueOf(typeObj);
 			} else {
-				type= null;
+				type = null;
 			}
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get type from token = {}",token,e);
-        	}
+		} else {
 			type = null;
 		}
-		LOGGER.debug("Returing Type= {} from Token= {}",type,token);
+		LOGGER.debug("Returing Type= {} from Token= {}", type, token);
 		return type;
 	}
 
 	public String getUrlFromToken(String token) {
+		final Claims claims = this.getClaimsFromToken(token);
 		String url;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			if (claims != null) {
-				url = String.valueOf(claims.get("url"));
+		if (claims != null) {
+			Object urlObj = claims.get("url");
+			if (urlObj != null) {
+				url = String.valueOf(urlObj);
 			} else {
 				url = null;
 			}
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get url from token = {}",token,e);
-        	}
+		} else {
 			url = null;
 		}
 		LOGGER.debug("Returing URL= {} from Token= {}",url,token);
@@ -115,17 +97,10 @@ public class TokenUtils {
 
 	public Date getExpirationDateFromToken(String token) {
 		Date expiration;
-		try {
-			final Claims claims = this.getClaimsFromToken(token);
-			if (claims != null) {
-				expiration = claims.getExpiration();
-			} else {
-				expiration = null;
-			}
-		} catch (Exception e) {
-			if ( LOGGER.isDebugEnabled() ) {
-        		LOGGER.debug("Failed to get expiration from token = {}",token,e);
-        	}
+		final Claims claims = this.getClaimsFromToken(token);
+		if (claims != null) {
+			expiration = claims.getExpiration();
+		} else {
 			expiration = null;
 		}
 		LOGGER.debug("Returing Expiration= {} from Token= {}",expiration,token);
