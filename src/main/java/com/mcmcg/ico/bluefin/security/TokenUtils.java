@@ -36,13 +36,18 @@ public class TokenUtils {
 		String username;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			username = claims.getSubject();
+			if (claims != null) {
+				username = claims.getSubject();
+			} else {
+				username = null;
+			}
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get claim from token = {}",token,e);
         	}
 			return null;
 		}
+		LOGGER.info("Returing Username= {} from Token= {}",username,token);
 		return username;
 	}
 
@@ -50,13 +55,23 @@ public class TokenUtils {
 		Date created;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			created = new Date((Long) claims.get(BluefinWebPortalConstants.CREATED));
+			if (claims != null) {
+				Long createdVal = (Long)claims.get(BluefinWebPortalConstants.CREATED);
+				if (createdVal != null) {
+					created = new Date(createdVal);
+				} else {
+					created = null;
+				}
+			} else {
+				created = null;
+			}
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get date from token = {}",token,e);
         	}
 			created = null;
 		}
+		LOGGER.info("Returing Created= {} from Token= {}",created,token);
 		return created;
 	}
 
@@ -64,13 +79,18 @@ public class TokenUtils {
 		String type;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			type = claims.get("type").toString();
+			if (claims != null) {
+				type = String.valueOf(claims.get("type"));
+			} else {
+				type= null;
+			}
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get type from token = {}",token,e);
         	}
 			type = null;
 		}
+		LOGGER.info("Returing Type= {} from Token= {}",type,token);
 		return type;
 	}
 
@@ -78,13 +98,18 @@ public class TokenUtils {
 		String url;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			url = claims.get("url").toString();
+			if (claims != null) {
+				url = String.valueOf(claims.get("url"));
+			} else {
+				url = null;
+			}
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get url from token = {}",token,e);
         	}
 			url = null;
 		}
+		LOGGER.info("Returing URL= {} from Token= {}",url,token);
 		return url;
 	}
 
@@ -92,21 +117,29 @@ public class TokenUtils {
 		Date expiration;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			expiration = claims.getExpiration();
+			if (claims != null) {
+				expiration = claims.getExpiration();
+			} else {
+				expiration = null;
+			}
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get expiration from token = {}",token,e);
         	}
 			expiration = null;
 		}
+		LOGGER.info("Returing Expiration= {} from Token= {}",expiration,token);
 		return expiration;
 	}
 
 	private Claims getClaimsFromToken(String token) {
 		Claims claims;
 		try {
-			claims = Jwts.parser().setSigningKey(propertyService.getPropertyValue("TOKEN_SECRET_KEY"))
+			String tokenSecKey = propertyService.getPropertyValue("TOKEN_SECRET_KEY");
+			LOGGER.debug("Token= {} , Secret Key= {}",token,tokenSecKey);
+			claims = Jwts.parser().setSigningKey(tokenSecKey)
 					.parseClaimsJws(token).getBody();
+			LOGGER.debug("claims={}",claims);
 		} catch (Exception e) {
 			if ( LOGGER.isDebugEnabled() ) {
         		LOGGER.debug("Failed to get claims from token = {}",token,e);
@@ -197,14 +230,19 @@ public class TokenUtils {
 		String refreshedToken;
 		try {
 			final Claims claims = this.getClaimsFromToken(token);
-			claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
-			refreshedToken = this.generateToken(claims);
+			if (claims != null) {
+				claims.put(BluefinWebPortalConstants.CREATED, this.generateCurrentDate());
+				refreshedToken = this.generateToken(claims);
+			} else {
+				refreshedToken = null;
+			}
 		} catch (Exception e) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Failed to refresh token {}",token,e);
 			}
 			refreshedToken = null;
 		}
+		LOGGER.info("Returing refreshed Token= {} from Token= {}",refreshedToken,token);
 		return refreshedToken;
 	}
 

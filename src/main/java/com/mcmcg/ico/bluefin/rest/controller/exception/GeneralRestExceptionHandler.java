@@ -2,7 +2,6 @@ package com.mcmcg.ico.bluefin.rest.controller.exception;
 
 import java.util.UUID;
 
-//import org.hibernate.exception.JDBCConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessResourceFailureException;

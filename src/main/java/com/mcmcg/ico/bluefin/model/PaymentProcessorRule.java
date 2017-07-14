@@ -2,12 +2,6 @@ package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-
-//import javax.persistence.EnumType;
-//import javax.persistence.Enumerated;
-//import javax.persistence.PrePersist;
-//import javax.persistence.PreUpdate;
-
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -32,7 +26,6 @@ public class PaymentProcessorRule implements Serializable {
     private PaymentProcessor paymentProcessor;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-//    @Enumerated(EnumType.STRING)
     private CardType cardType;
 
     private BigDecimal maximumMonthlyAmount = BigDecimal.ZERO;
