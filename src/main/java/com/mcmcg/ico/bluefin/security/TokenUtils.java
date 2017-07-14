@@ -47,7 +47,7 @@ public class TokenUtils {
         	}
 			return null;
 		}
-		LOGGER.info("Returing Username= {} from Token= {}",username,token);
+		LOGGER.debug("Returing Username= {} from Token= {}",username,token);
 		return username;
 	}
 
@@ -71,7 +71,7 @@ public class TokenUtils {
         	}
 			created = null;
 		}
-		LOGGER.info("Returing Created= {} from Token= {}",created,token);
+		LOGGER.debug("Returing Created= {} from Token= {}",created,token);
 		return created;
 	}
 
@@ -90,7 +90,7 @@ public class TokenUtils {
         	}
 			type = null;
 		}
-		LOGGER.info("Returing Type= {} from Token= {}",type,token);
+		LOGGER.debug("Returing Type= {} from Token= {}",type,token);
 		return type;
 	}
 
@@ -109,7 +109,7 @@ public class TokenUtils {
         	}
 			url = null;
 		}
-		LOGGER.info("Returing URL= {} from Token= {}",url,token);
+		LOGGER.debug("Returing URL= {} from Token= {}",url,token);
 		return url;
 	}
 
@@ -128,7 +128,7 @@ public class TokenUtils {
         	}
 			expiration = null;
 		}
-		LOGGER.info("Returing Expiration= {} from Token= {}",expiration,token);
+		LOGGER.debug("Returing Expiration= {} from Token= {}",expiration,token);
 		return expiration;
 	}
 
