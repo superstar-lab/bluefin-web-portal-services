@@ -63,7 +63,7 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<PaymentProcessor> get() {
-        LOGGER.info("Getting information with the following filters: {}");
+        LOGGER.info("Getting payment processors");
         return paymentProcessorService.getPaymentProcessors();
     }
 
@@ -134,7 +134,7 @@ public class PaymentProcessorRestController {
     public PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
             @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
             @ApiIgnore Errors errors) {
-        LOGGER.debug("Updating payment processors merchants = [{}] from payment processor id = [{}]",
+        LOGGER.debug("Updating payment processors merchants = {} from payment processor id = {}",
                 paymentProcessorMerchants, id);
 
         if (errors.hasErrors()) {

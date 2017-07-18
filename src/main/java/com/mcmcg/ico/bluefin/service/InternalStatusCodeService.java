@@ -301,7 +301,7 @@ public class InternalStatusCodeService {
 	
 	public InternalStatusCode updateInternalStatusCode(UpdateInternalCodeResource internalStatusCodeResource,String currentLoginUserName) {
 		LOGGER.info("Updating InternalStatusCode Record");
-		LOGGER.debug("Requested Data= {} , Child Items=",internalStatusCodeResource, internalStatusCodeResource.getPaymentProcessorCodes() != null ? internalStatusCodeResource.getPaymentProcessorCodes().size() : 0 );
+		LOGGER.debug("Requested Data= {} , Child Items Size= {}",internalStatusCodeResource, internalStatusCodeResource.getPaymentProcessorCodes() != null ? internalStatusCodeResource.getPaymentProcessorCodes().size() : 0 );
 		Long internalStatusCodeIdToModify = internalStatusCodeResource.getInternalCodeId();
 		LOGGER.debug("Internal Status CodeId to modify {}",internalStatusCodeIdToModify);
 		InternalStatusCode internalStatusCode = internalStatusCodeDAO.findOneWithChilds(internalStatusCodeIdToModify);
@@ -454,7 +454,7 @@ public class InternalStatusCodeService {
 		// need to find all payment processor status code ids which used by payment processor internal status code of requested internalStatusCodeId to delete
 		List<Long> paymentProcessorStatusCodeIds = paymentProcessorInternalStatusCodeDAO.findPaymentProcessorStatusCodeIdsForInternalStatusCodeId(internalStatusCodeId);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("deleteInternalStatusCode() : paymentProcessorStatusCodeIds size : {}",paymentProcessorStatusCodeIds.size());
+			LOGGER.debug("deleteing paymentProcessorStatusCodeIds size : {}",paymentProcessorStatusCodeIds.size());
 		}
 		// First delete internal status code and payment processor internal status code
 		internalStatusCodeDAO.delete(internalStatusCodeId);
@@ -468,12 +468,12 @@ public class InternalStatusCodeService {
 	public InternalStatusCode getInternalStatusCode(Long internalStatusCodeId) {
 		InternalStatusCode internalStatusCode = internalStatusCodeDAO.findOne(internalStatusCodeId);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("getInternalStatusCode() : internalStatusCode : {} ",internalStatusCode);
+			LOGGER.debug("InternalStatusCode : {} ",internalStatusCode);
 		}
 		if (internalStatusCode != null) {
 			List<PaymentProcessorInternalStatusCode> list = paymentProcessorInternalStatusCodeDAO.findAllForInternalStatusCodeId(internalStatusCodeId);
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("getInternalStatusCode() : PaymentProcessorInternalStatusCode size : ",list.size());
+				LOGGER.debug("PaymentProcessorInternalStatusCode size : ",list.size());
 			}
 			if (list != null) {
 				internalStatusCode.setPaymentProcessorInternalStatusCodes(list);

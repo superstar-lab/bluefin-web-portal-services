@@ -127,7 +127,7 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 									dateModified, internalStatusCode.getInternalStatusCodeId()
 								 });
 
-		LOGGER.debug("Updated PaymentProcessor, No of Rows Updated ={}", rows , " and Updated InternalStatusCode with ID: =",internalStatusCode.getInternalStatusCodeId());
+		LOGGER.debug("Updated PaymentProcessor, No of Rows Updated ={} and Updated InternalStatusCode with ID: = {}", rows ,internalStatusCode.getInternalStatusCodeId());
 		if (internalStatusCode.getPaymentProcessorInternalStatusCodes() != null && !internalStatusCode.getPaymentProcessorInternalStatusCodes().isEmpty()) {
 			LOGGER.debug("Number of childs items to update ={}" ,internalStatusCode.getPaymentProcessorInternalStatusCodes().size());
 			// in this case we need to create child items also.

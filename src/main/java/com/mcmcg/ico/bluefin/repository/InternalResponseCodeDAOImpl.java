@@ -191,7 +191,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	@Override
 	public InternalResponseCode update(InternalResponseCode internalResponseCode) {
 
-		LOGGER.info("Updating Internal Response Code##");
+		LOGGER.info("Updating Internal Response Code");
 		DateTime utc4 = internalResponseCode.getDateModified() != null ? internalResponseCode.getDateModified().withZone(DateTimeZone.UTC) : DateTime.now(DateTimeZone.UTC); 
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
@@ -200,7 +200,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 					new Object[] { 	internalResponseCode.getInternalResponseCodeValue(), internalResponseCode.getInternalResponseCodeDescription(), internalResponseCode.getLastModifiedBy(), 
 							internalResponseCode.getTransactionTypeName(), dateModified, internalResponseCode.getInternalResponseCodeId() });
 
-		LOGGER.debug("Updated InternalStatusCode with ID: {}", internalResponseCode.getInternalResponseCodeId() + ", rows affected = {}",rows);
+		LOGGER.debug("Updated InternalStatusCode with ID: {} , rows affected = {}", internalResponseCode.getInternalResponseCodeId(),rows);
 		if (internalResponseCode.getPaymentProcessorInternalResponseCodes() != null && !internalResponseCode.getPaymentProcessorInternalResponseCodes().isEmpty()) {
 			LOGGER.debug("Number of childs items to update {}",internalResponseCode.getPaymentProcessorInternalResponseCodes().size());
 			// in this case we need to create child items also.

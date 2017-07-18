@@ -216,7 +216,7 @@ public class UserDAOImpl implements UserDAO {
 						lastLogin, dateCreated, dateUpdated, user.getEmail(), user.getPassword(), dateModified,
 						modifiedBy, user.getStatus(), user.getUserId() });
 
-		LOGGER.debug("Updated user with ID ={} ", user.getUserId(), ", rows affected ={} ", rows);
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
 		
 		createUserRoles(user);
 		createLegalEntityApp(user);

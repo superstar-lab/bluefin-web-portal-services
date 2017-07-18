@@ -48,8 +48,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessorRule get(@PathVariable Long id) {
-        LOGGER.debug("Getting information with the following id: {}", id);
-
+        LOGGER.debug("Getting payment processor rule with the following id: {}", id);
         return paymentProcessorRuleService.getPaymentProcessorRule(id);
     }
 
@@ -63,7 +62,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<PaymentProcessorRule> get() {
-        LOGGER.info("Getting information with the following filters: {}");
+        LOGGER.info("Getting all payment processor rules");
         return paymentProcessorRuleService.getPaymentProcessorRules();
     }
 
@@ -76,7 +75,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public List<CardType> getTransactionTypes() {
-        LOGGER.info("Getting transaction types: {}");
+        LOGGER.info("Getting all transaction types");
         return paymentProcessorRuleService.getTransactionTypes();
     }
 

@@ -35,10 +35,10 @@ public class PropertyDAOImpl implements PropertyDAO {
 		property = DataAccessUtils.singleResult(list);
 
 		if (property != null) {
-			LOGGER.debug("Found property - name/value= {}", property.getApplicationPropertyName(), "/"
-					,property.getApplicationPropertyValue());
+			LOGGER.debug("Found property - name={}/value={}", property.getApplicationPropertyName(), 
+					property.getApplicationPropertyValue());
 		} else {
-			LOGGER.debug("Property not found for - name ={} ", name);
+			LOGGER.debug("Property not found for name ={} ", name);
 		}
 
 		return property;

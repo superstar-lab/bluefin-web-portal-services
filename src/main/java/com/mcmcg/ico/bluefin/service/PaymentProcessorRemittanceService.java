@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
+import com.mcmcg.ico.bluefin.repository.CustomSaleTransactionDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRemittanceDAO;
 import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
@@ -35,7 +36,7 @@ public class PaymentProcessorRemittanceService {
 	private PaymentProcessorDAO paymentProcessorDAO;
 
 	@Autowired
-	CustomSaleTransactionDAO customSaleTransactionDAO;
+	private CustomSaleTransactionDAO customSaleTransactionDAO;
 	
 	/**
 	 * Get transaction information for details page.
@@ -147,7 +148,7 @@ public class PaymentProcessorRemittanceService {
 	 * @return processorName
 	 */
 	public String getProcessorNameById(String paymentProcessorId) {
-		LOGGER.info("Entering to get ProcessorNameById");
+		LOGGER.info("Entering to get ProcessorNameById = {}",paymentProcessorId);
 		return paymentProcessorDAO.findByPaymentProcessorId(Long.parseLong(paymentProcessorId))
 				.getProcessorName();
 	}
@@ -160,7 +161,7 @@ public class PaymentProcessorRemittanceService {
 	 * @return reconciliationStatusId
 	 */
 	public String getReconciliationStatusId(String reconciliationStatus) {
-		LOGGER.info("Entering to get ReconciliationStatusId");
+		LOGGER.info("Entering to get ReconciliationStatus = {}",reconciliationStatus);
 		return reconciliationStatusDAO.findByReconciliationStatus(reconciliationStatus).getReconciliationStatusId()
 				.toString();
 	}

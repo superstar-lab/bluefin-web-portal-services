@@ -77,9 +77,9 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
-			LOGGER.debug("Found SecurityTokenBlacklist for userId/token ={} ", userId, "/", token);
+			LOGGER.debug("Found SecurityTokenBlacklist for userId={}/token={} ", userId, token);
 		} else {
-			LOGGER.debug("SSecurityTokenBlacklist not found for userId/token={} ", userId,  "/" , token);
+			LOGGER.debug("SecurityTokenBlacklist not found for userId={}/token={} ", userId, token);
 		}
 
 		return securityTokenBlacklist;
@@ -94,9 +94,9 @@ public class SecurityTokenBlacklistDAOImpl implements SecurityTokenBlacklistDAO 
 		SecurityTokenBlacklist securityTokenBlacklist = DataAccessUtils.singleResult(list);
 
 		if (securityTokenBlacklist != null) {
-			LOGGER.debug("Found SecurityTokenBlacklist for userId/type ={} ", userId, "/" , type);
+			LOGGER.debug("Found SecurityTokenBlacklist for userId={}/type ={} ", userId,type);
 		} else {
-			LOGGER.debug("SecurityTokenBlacklist not found for userId/type: ", userId, "/", type);
+			LOGGER.debug("SecurityTokenBlacklist not found for userId={}/type={} ", userId,type);
 		}
 
 		return securityTokenBlacklist;

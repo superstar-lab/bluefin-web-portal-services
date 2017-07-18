@@ -110,7 +110,7 @@ public class RoleService {
 	}
 
 	public Role getRoleByName(String roleName) {
-		LOGGER.info("get RoleByName");
+		LOGGER.info("Fetching RoleByName= {}",roleName);
 		return roleDAO.findByRoleName(roleName);
 	}
 

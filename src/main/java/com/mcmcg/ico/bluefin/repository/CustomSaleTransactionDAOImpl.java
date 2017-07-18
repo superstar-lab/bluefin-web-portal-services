@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service;
+package com.mcmcg.ico.bluefin.repository;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -41,9 +41,6 @@ import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.model.RemittanceSale;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
-import com.mcmcg.ico.bluefin.repository.PropertyDAO;
-import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
@@ -203,14 +200,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			result.setPageNumber(pageNumber);
 		}
 		String queryTotalFinalQueryToExecute = queryTotal.getFinalQueryToExecute();
-		logger.debug("TTT***-Count Query to execute ={}",queryTotalFinalQueryToExecute);
+		logger.debug("Count Query to execute ={}",queryTotalFinalQueryToExecute);
 		// Set the paging for the created select
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		Integer countResult = namedJDBCTemplate.query(queryTotalFinalQueryToExecute, queryTotal.getParametersMap(), rs->{
 				Integer finalCount = null;
 				while (rs.next()) {
 					finalCount = rs.getInt(1);
-					logger.debug("finalCount=" + finalCount);
+					logger.debug("finalCount= {}", finalCount);
 					break;
 				}
 				return finalCount;
@@ -219,10 +216,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		Page<SaleTransaction> list;
 		if (result != null) {
 			String resultFinalQueryToExecute = result.getFinalQueryToExecute();
-			logger.debug("TTT***-Result Data Query to execute: ={}",resultFinalQueryToExecute);
-			logger.debug("TTT***-Query Parameter Map-placeholder={}",result.getParametersMap());
+			logger.debug("Result Data Query to execute: ={}",resultFinalQueryToExecute);
+			logger.debug("Query Parameter Map-placeholder={}",result.getParametersMap());
 			List<SaleTransaction> tr = namedJDBCTemplate.query(resultFinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-			logger.debug("TTT***-Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
+			logger.debug("Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
 			if (tr == null) {
 				tr = new ArrayList<>();
 			}
@@ -257,8 +254,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			queryForCount = beforeAsktrik + " COUNT(*) " + afterAsktrik;
 		}
 		
-		logger.debug("RRD***-Result Data Query to execute={}",query);
-		logger.debug("RRD***-Count Query to execute = {}",queryForCount);
+		logger.debug("Result Data Query to execute={}",query);
+		logger.debug("Count Query to execute = {}",queryForCount);
 		
 		// Brings the data and transform it into a Page value list
 		@SuppressWarnings("unchecked")
@@ -266,10 +263,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (tr == null) {
 			tr = new ArrayList<>();
 		} else {
-			logger.debug("Number of records fetched ={}", tr ," successfully");
+			logger.debug("Number of records fetched ={} successfully", tr.size());
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
-		logger.debug("RRD***-Count Rows Result {}, Data Query Result {}",countResult,tr.size());
+		logger.debug("Count Rows Result {}, Data Query Result {}",countResult,tr.size());
 		return new PageImpl(tr, page, countResult);
 	}
 	
@@ -1146,7 +1143,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
 		querySbPart1.append("AND (ppr.TransactionType = 'REFUND') ");
 		querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
-		logger.debug("Query (part 1): {} " , querySbPart1.toString());
+		logger.debug("Query (part 1): {} " , querySbPart1);
 	}
 	
 	private StringBuilder appendSaleWhereCondQuery(String remittanceCreationDateBegin,String statusId){
@@ -1168,7 +1165,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
 		querySbPart2.append("AND REFUND.InternalStatusCode = 1 ");
 		querySbPart2.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
-		logger.debug("query (part 2): {}" , querySbPart2.toString());
+		logger.debug("query (part 2): {}" , querySbPart2);
 		return querySbPart2;
 	}
 	

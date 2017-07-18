@@ -89,7 +89,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
-        LOGGER.debug("Uploading new ACF file "+request.getFileMap());
+        LOGGER.debug("Uploading new ACF file {}",request.getFileMap());
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }

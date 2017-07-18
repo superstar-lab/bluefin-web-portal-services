@@ -61,7 +61,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		if (paymentProcessorStatusCodeList != null) {
 			LOGGER.debug("Found payment processor statuscode for ={} ", paymentProcessorStatusCodeList.getPaymentProcessorStatusCodeValue());
 		} else {
-			LOGGER.debug("Found payment processor statuscode not found for ={} ", paymentProcessorStatusCode, "/"
+			LOGGER.debug("Found payment processor statuscode not found for ={} {} Transaction type={} {} PaymentProcessorId={} ", paymentProcessorStatusCode, "/"
 					,transactionTypeName, "/", paymentProcessor.getPaymentProcessorId());
 		}
 
@@ -81,10 +81,8 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 		if (list != null) {
 			LOGGER.info("Found payment processor statuscode for : ");
 		} else {
-			LOGGER.debug("Found payment processor statuscode not found for ={} ", transactionTypeName , "/"
-					, paymentProcessor.getPaymentProcessorId());
+			LOGGER.debug("Found payment processor statuscode not found for transactionType={} , PaymentProcessorId={} ", transactionTypeName , paymentProcessor.getPaymentProcessorId());
 		}
-
 		return list;
 	}
 
@@ -104,7 +102,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 	@Override
 	public void deletePaymentProcessorStatusCode(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORSTATUSCODEBYID, new Object[] { paymentProcessorId });
-		LOGGER.debug("Deleted payment Processor Status Code by  PaymentProcessorId ={}", paymentProcessorId, ", rows affected = {}", rows);
+		LOGGER.debug("Deleted payment Processor Status Code by  PaymentProcessorId ={} , rows affected = {}", paymentProcessorId, rows);
 	}
 
 	@Override
@@ -150,7 +148,7 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 								dateModified,paymentProcessorStatusCode.getLastModifiedBy(),paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()
 							 });
 		
-		LOGGER.debug("Updated Payment Processor Status Code - id ={} ", paymentProcessorStatusCode.getPaymentProcessorStatusCodeId()+" and affected rows are : "+rows);
+		LOGGER.debug("Updated Payment Processor Status Code - id ={}  and affected rows are : {}", paymentProcessorStatusCode.getPaymentProcessorStatusCodeId(),rows);
 		return paymentProcessorStatusCode;
 	}
 

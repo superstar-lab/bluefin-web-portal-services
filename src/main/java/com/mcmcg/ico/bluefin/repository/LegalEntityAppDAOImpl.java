@@ -61,7 +61,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 			legalEntityApp = jdbcTemplate.queryForObject(Queries.FINDBYLEGALENTITYAPPID, new Object[] { legalEntityAppId },
 					new LegalEntityAppRowMapper());
 			if ( LOGGER.isDebugEnabled() ) {
-				LOGGER.debug("legalEntityApp: ={}" + legalEntityApp);
+				LOGGER.debug("legalEntityApp: ={}", legalEntityApp);
 			}
 			return legalEntityApp;
 		} catch (EmptyResultDataAccessException e) {

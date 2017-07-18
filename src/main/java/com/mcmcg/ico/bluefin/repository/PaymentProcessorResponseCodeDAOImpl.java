@@ -47,7 +47,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	@Override
 	public PaymentProcessorResponseCode findByPaymentProcessorResponseCodeAndTransactionTypeNameAndPaymentProcessor(
 			String paymentProcessorResponseCode, String transactionTypeName, PaymentProcessor paymentProcessor) {
-		PaymentProcessorResponseCode paymentProcessorStatusCodeList;
+		PaymentProcessorResponseCode paymentProcessorResponseCodeList;
 
 		ArrayList<PaymentProcessorResponseCode> list = (ArrayList<PaymentProcessorResponseCode>) jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRESPONSECODEBYCODEID,
@@ -56,18 +56,15 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 						new RowMapperResultSetExtractor<PaymentProcessorResponseCode>(
 								new PaymentProcessorResponseCodeRowMapper()));
 		LOGGER.debug("PaymentProcessorResponseCode size {} ",list.size());
-		paymentProcessorStatusCodeList = DataAccessUtils.singleResult(list);
+		paymentProcessorResponseCodeList = DataAccessUtils.singleResult(list);
 
-		if (paymentProcessorStatusCodeList != null) {
-			LOGGER.debug("Found payment processor statuscode for : "
-					+ paymentProcessorStatusCodeList.getPaymentProcessorResponseCodeValue());
+		if (paymentProcessorResponseCodeList != null) {
+			LOGGER.debug("Found payment processor response code for : "
+					,paymentProcessorResponseCodeList.getPaymentProcessorResponseCodeValue());
 		} else {
-			LOGGER.debug("Found payment processor statuscode not found for ={} ", paymentProcessorResponseCode, "/"
-					,transactionTypeName, "/", paymentProcessor.getPaymentProcessorId());
+			LOGGER.debug("Found payment processor response code not found for paymentProcessorResponseCode={} / Transaction type={} / PaymentProcessorId={} ", paymentProcessorResponseCode,transactionTypeName,paymentProcessor.getPaymentProcessorId());
 		}
-
-		return paymentProcessorStatusCodeList;
-	
+		return paymentProcessorResponseCodeList;
 	}
 
 	@Override
@@ -82,10 +79,8 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 		if (list != null) {
 			LOGGER.debug("Found payment processor statuscode for : ");
 		} else {
-			LOGGER.debug("Found payment processor ={} statuscode not found for transaction type = {}: ", transactionTypeName ,
-					paymentProcessor.getPaymentProcessorId());
+			LOGGER.debug("Found payment processor ={} statuscode not found for transaction type = {}: ", paymentProcessor.getPaymentProcessorId(),transactionTypeName);
 		}
-
 		return list;
 	}
 
