@@ -165,7 +165,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		logger.debug("RRR***-Result Data Query to execute ={}",query);
 		@SuppressWarnings("unchecked")
-		List<RemittanceSale> tr = jdbcTemplate.query(query,new PaymentProcessorRemittanceExtractor());
+		List<RemittanceSale> tr = jdbcTemplate.query(query,new CustomSalePaymentProcessorRemittanceExtractor());
 		logger.debug("Total number of rows={}", tr != null ? tr.size() : 0);
 		return tr;
 	}
@@ -1456,7 +1456,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 }
 
-class PaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<RemittanceSale>> {
+class CustomSalePaymentProcessorRemittanceExtractor implements ResultSetExtractor<List<RemittanceSale>> {
 
 	@Override
 	public List<RemittanceSale> extractData(ResultSet rs) throws SQLException {
