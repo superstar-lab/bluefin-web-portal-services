@@ -107,10 +107,10 @@ public class UserService {
 			throw new CustomNotFoundException("Unable to find user by username provided: " + username);
 		}
 		List<UserRole> userRoles = userRoleDAO.findByUserId(user.getUserId());
-		LOGGER.debug("userRoles size ={} ",userRoles.size());
+		LOGGER.debug("userRoles size ={} ",userRoles != null ? userRoles.size() : 0);
 		user.setRoles(userRoles);
 		List<UserLegalEntityApp> userLegalEntityApps = userLegalEntityAppDAO.findByUserId(user.getUserId());
-		LOGGER.debug("userLegalEntityApps size :={} ",userLegalEntityApps.size());
+		LOGGER.debug("userLegalEntityApps size :={} ",userLegalEntityApps != null ? userLegalEntityApps.size() : 0);
 		user.setLegalEntities(userLegalEntityApps);
 		return user;
 	}
@@ -364,7 +364,7 @@ public class UserService {
 
 		LOGGER.debug("userToUpdate ={} ",userToUpdate);
 		// User wants to clear legal entity apps from user
-		if (legalEntityAppsIds.isEmpty()) {
+		if (legalEntityAppsIds == null || legalEntityAppsIds.isEmpty()) {
 			throw new CustomBadRequestException("User MUST have at least one legal entity assign to him.");
 		}
 
@@ -492,10 +492,9 @@ public class UserService {
 		LOGGER.debug("userLegalEntities size ={} ",userLegalEntities.size());
 		// Get Legal Entities from user that will be updated
 		List<LegalEntityApp> list = new ArrayList<>();
-		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(userToUpdate.getUserId())) {
+		for (UserLegalEntityApp userLegalEntityApp : userToUpdate.getLegalEntities()) {
 			long legalEntityAppId = userLegalEntityApp.getUserLegalEntityAppId();
 			list.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
-
 		}
 		Set<Long> legalEntitiesToVerify = list.stream()
 				.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toSet());

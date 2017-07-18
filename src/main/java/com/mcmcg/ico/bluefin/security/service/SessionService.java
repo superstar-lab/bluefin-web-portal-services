@@ -3,6 +3,7 @@ package com.mcmcg.ico.bluefin.security.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,10 +35,8 @@ import com.mcmcg.ico.bluefin.repository.PermissionDAO;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
-import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
-import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
@@ -82,11 +81,7 @@ public class SessionService {
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
-	private UserRoleDAO userRoleDAO;
-	@Autowired
 	private LegalEntityAppDAO legalEntityAppDAO;
-	@Autowired
-	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
 
@@ -215,12 +210,14 @@ public class SessionService {
 		
 		Set<Role> roleSet = new HashSet<>();
 		Set<Permission> permissionSet = new HashSet<>();
-		LOGGER.debug("user roles are ={}",userRoleDAO.findByUserId(user.getUserId()).size());
-		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
+		Collection<UserRole> userRoles = user.getRoles();
+		LOGGER.debug("user roles are ={}", userRoles != null ? userRoles.size() : 0);
+		for (UserRole userRole : userRoles) {
 			long roleId = userRole.getRoleId();
 			roleSet.add(roleDAO.findByRoleId(roleId));
-			LOGGER.debug("user rolePermission are ={}",rolePermissionDAO.findByRoleId(roleId).size());
-			for (RolePermission rolePermission : rolePermissionDAO.findByRoleId(roleId)) {
+			List<RolePermission> userRolePermissions = rolePermissionDAO.findByRoleId(roleId);
+			LOGGER.debug("user rolePermission are ={}", userRolePermissions != null ? userRolePermissions.size() : 0 );
+			for (RolePermission rolePermission : userRolePermissions) {
 				long permissionId = rolePermission.getPermissionId();
 				permissionSet.add(permissionDAO.findByPermissionId(permissionId));
 			}
@@ -229,8 +226,9 @@ public class SessionService {
 		response.setPermissions(permissionSet);
 
 		Set<LegalEntityApp> legalEntityAppSet = new HashSet<>();
-		LOGGER.debug("user userLegalEntityApp size ={}",userLegalEntityAppDAO.findByUserId(user.getUserId()).size());
-		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+		Collection<UserLegalEntityApp> userLegalEntityApps = user.getLegalEntities();
+		LOGGER.debug("user userLegalEntityApp size ={}",userLegalEntityApps != null ? userLegalEntityApps.size() : 0);
+		for (UserLegalEntityApp userLegalEntityApp : userLegalEntityApps) {
 			long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
 			legalEntityAppSet.add(legalEntityAppDAO.findByLegalEntityAppId(legalEntityAppId));
 		}

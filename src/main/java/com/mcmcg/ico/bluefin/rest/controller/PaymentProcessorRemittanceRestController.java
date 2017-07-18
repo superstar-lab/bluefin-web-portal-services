@@ -48,7 +48,7 @@ public class PaymentProcessorRemittanceRestController {
 	public Transaction get(@PathVariable("transactionId") String transactionId,
 			@RequestParam(value = "transactionType", required = false, defaultValue = "SALE") String transactionType,
 			@RequestParam(value = "processorTransactionType", required = true, defaultValue = "BlueFin") String processorTransactionType) {
-		LOGGER.debug("Getting transaction information by id = [{}], transactionType = [{}] and processorTransactionType = [{}] ", transactionId,
+		LOGGER.debug("Getting transaction information by id = {}, transactionType = {} and processorTransactionType = {} ", transactionId,
 				transactionType, processorTransactionType);
 
 		return paymentProcessorRemittanceService.getTransactionInformation(transactionId,

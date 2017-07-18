@@ -60,8 +60,8 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRULES, new Object[] { paymentProcessorId });
-		LOGGER.debug("Deleted Payment Processor Rules for PaymentProcessor Id ={} ", paymentProcessorId
-				, " rows affected={} ", rows);
+		LOGGER.debug("Deleted Payment Processor Rules for PaymentProcessor Id ={} , rows affected={} ", paymentProcessorId
+				, rows);
 	}
 
 	@Override
@@ -121,12 +121,12 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	public void delete(Long paymentProcessorRuleId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORRULEBYID, new Object[] { paymentProcessorRuleId });
 
-		LOGGER.debug("Deleted Payment Processor Rule by Id={} ", paymentProcessorRuleId, ", rows affected = {}", rows);
+		LOGGER.debug("Deleted Payment Processor Rule by Id={} , rows affected = {}", paymentProcessorRuleId, rows);
 	}
 
 	@Override
 	public PaymentProcessorRule updatepaymentProcessorRule(PaymentProcessorRule paymentProcessorRuleToUpdate) {
-		LOGGER.debug("Updating PaymentProcessorRule## = {}", paymentProcessorRuleToUpdate.toString() );
+		LOGGER.debug("Updating PaymentProcessorRule = {}", paymentProcessorRuleToUpdate );
 		if (paymentProcessorRuleToUpdate.hasNoLimit()) {
 			paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(BigDecimal.ZERO);
 		}
@@ -134,7 +134,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 					new Object[] { 	paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorRuleToUpdate.getCardType().name(), paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(), 
 							paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(), paymentProcessorRuleToUpdate.getPriority(),paymentProcessorRuleToUpdate.getPaymentProcessorRuleId()
 								 });
-		LOGGER.debug("Updated PaymentProcessorRule with ID ={} ", paymentProcessorRuleToUpdate.getPaymentProcessorRuleId(), ", rows affected ={} ", rows);
+		LOGGER.debug("Updated PaymentProcessorRule with ID ={} , rows affected ={} ", paymentProcessorRuleToUpdate.getPaymentProcessorRuleId(), rows);
 		return paymentProcessorRuleToUpdate;
 	}
 

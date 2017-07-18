@@ -336,8 +336,6 @@ public class PaymentProcessorService {
 			 * on PaymentProcessorInternalRespnseCode.
 			 */
 			paymentProcessorDAO.delete(paymentProcessorToDelete);
-		} else {
-			// throw exception
 		}
 	}
 

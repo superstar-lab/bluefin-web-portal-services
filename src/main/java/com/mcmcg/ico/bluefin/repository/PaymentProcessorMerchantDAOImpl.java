@@ -55,14 +55,14 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	public void deletPaymentProcessorMerchantByProcID(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTBYPROCID, new Object[] {paymentProcessorId});
 
-		LOGGER.debug("Deleted Payment Processor Merchant by Payment Processor Id={} ", paymentProcessorId , ", rows affected = {}", rows);
+		LOGGER.debug("Deleted Payment Processor Merchant by Payment Processor Id={} , rows affected = {}", paymentProcessorId , rows);
 	}
 
 	@Override
 	public void deletePaymentProcessorRules(Long paymentProcessorId) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORMERCHANTS, new Object[] { paymentProcessorId });
-		LOGGER.debug("Deleted Payment Processor Merchants for PaymentProcessor Id ={}" , paymentProcessorId
-				,", rows affected = {}", rows);
+		LOGGER.debug("Deleted Payment Processor Merchants for PaymentProcessor Id ={} , rows affected = {}" , paymentProcessorId
+				, rows);
 	}
 	
 	@Override

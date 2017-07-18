@@ -42,7 +42,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		List<PaymentProcessorInternalStatusCode> list = jdbcTemplate.query( Queries.FINDALLPAYMENTPROCESSORINTERNALSTATUSCODEFORINTERNALSTATUSCODEID, new Object[] {internalStatusCodeId},
 				new PaymentProcessorInternalStatusCodeRowMapper());
 		if (logger.isDebugEnabled()) {
-			logger.debug("PaymentProcessorInternalStatusCode list size : "+list.size());
+			logger.debug("PaymentProcessorInternalStatusCode list size : {}",list.size());
 		}
 		return list;
 	}
@@ -112,11 +112,11 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		}
 		Map<Long,List<Long>> idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode = fetchInternalStatusCodeIdsUsedForPaymentProcessor(paymentProcessorId);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Number of Internal Status Code Ids="+ ( idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() ) + " for paymentprocessid="+paymentProcessorId );
+			logger.debug("Number of Internal Status Code Ids= {} for paymentprocessid= {}", idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.size() , paymentProcessorId );
 		}
 		Set<Entry<Long,List<Long>>> allEntries = idsOfInternalStatusCodeAndPaymentProcessorInternalStatusCode.entrySet();
 		if (logger.isDebugEnabled()) {
-			logger.debug("allEntries size : "+allEntries.size()); 
+			logger.debug("allEntries size : {}",allEntries.size()); 
 		}
 		List<Long> paymentProcessorInternalStatusCodeIds = new ArrayList<>();
 		List<Long> internalStatusCodeIds = new ArrayList<>();

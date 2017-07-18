@@ -72,7 +72,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 	@Override
 	public void delete(PaymentProcessor paymentProcessor) {
 		int rows = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORBYID, new Object[] { paymentProcessor.getPaymentProcessorId() });
-		LOGGER.debug("Deleted payment Processor by Id= {}", paymentProcessor.getPaymentProcessorId() + ", rows affected = {}", rows);
+		LOGGER.debug("Deleted payment Processor by Id= {} , rows affected = {}", paymentProcessor.getPaymentProcessorId(), rows);
 	}
 
 	@Override

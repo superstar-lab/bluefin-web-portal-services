@@ -32,7 +32,7 @@ public class ApplicationRestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/ping", produces = "application/json")
 	public ResponseEntity<String> ping(@RequestParam(value = "param", required = false) String param) {
-		LOGGER.debug("Status of the application endpoint. Param = [{}]", param);
+		LOGGER.debug("Status of the application endpoint. Param = {}", param);
 
 		return new ResponseEntity<>("{ \"status\" : \"UP\" }", HttpStatus.OK);
 	}

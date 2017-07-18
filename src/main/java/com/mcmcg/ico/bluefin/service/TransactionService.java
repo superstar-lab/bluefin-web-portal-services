@@ -35,6 +35,7 @@ import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.repository.CustomSaleTransactionDAO;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRemittanceDAO;

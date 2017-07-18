@@ -22,7 +22,6 @@ import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.RemittanceSale;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
-import com.mcmcg.ico.bluefin.service.CustomSaleTransactionDAO;
 
 @Repository
 public class PaymentProcessorRemittanceDAOImpl implements PaymentProcessorRemittanceDAO {

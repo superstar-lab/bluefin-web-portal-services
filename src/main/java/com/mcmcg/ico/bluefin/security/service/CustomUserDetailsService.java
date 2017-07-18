@@ -71,7 +71,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private List<GrantedAuthority> getGrantedAuthorities(List<String> permissions) {
 		LOGGER.info("Entering to get Granted Authorities");
 		List<GrantedAuthority> authorities = new ArrayList<>();
-		LOGGER.debug("Entering with permission size: ={} ",permissions == null ? null :permissions.size());
+		LOGGER.debug("Entering with permission size: ={} ",permissions == null ? 0 :permissions.size());
 		for (String permission : permissions) {
 			authorities.add(new SimpleGrantedAuthority(permission));
 		}

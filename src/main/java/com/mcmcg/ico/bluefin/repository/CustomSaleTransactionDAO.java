@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service;
+package com.mcmcg.ico.bluefin.repository;
 
 import java.text.ParseException;
 import java.util.List;
