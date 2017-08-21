@@ -631,7 +631,7 @@ public class UserServiceTest {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		// Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenReturn(createValidUser());
 
-		UserResource result = userService.updateUserProfile("userTest", user);
+		UserResource result = userService.updateUserProfile("userTest", user, null);
 
 		Assert.assertEquals("test@email.com", result.getEmail());
 		Assert.assertEquals("test", result.getFirstName());
@@ -648,7 +648,7 @@ public class UserServiceTest {
 		expectedEx.expect(CustomBadRequestException.class);
 		expectedEx.expectMessage("Unable to find user by username provided: userTest");
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verifyNoMoreInteractions(userDAO);
@@ -659,7 +659,7 @@ public class UserServiceTest {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new org.springframework.transaction.CannotCreateTransactionException(""));
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verifyNoMoreInteractions(userDAO);
@@ -669,7 +669,7 @@ public class UserServiceTest {
 	public void testUpdateUserFindByUsernameDataAccessResourceFailureException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new DataAccessResourceFailureException(""));
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verifyNoMoreInteractions(userDAO);
@@ -680,7 +680,7 @@ public class UserServiceTest {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
 				.thenThrow(new DataAccessResourceFailureException("", null));
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verifyNoMoreInteractions(userDAO);
@@ -691,7 +691,7 @@ public class UserServiceTest {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new CannotCreateTransactionException(""));
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userDAO, Mockito.times(1)).saveUser(Mockito.any(User.class));
@@ -703,7 +703,7 @@ public class UserServiceTest {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new DataAccessResourceFailureException(""));
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userDAO, Mockito.times(1)).saveUser(Mockito.any(User.class));
@@ -715,7 +715,7 @@ public class UserServiceTest {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
 		Mockito.when(userDAO.saveUser(Mockito.any(User.class))).thenThrow(new DataAccessResourceFailureException("", null));
 
-		userService.updateUserProfile("userTest", createValidUpdateResource());
+		userService.updateUserProfile("userTest", createValidUpdateResource(), null);
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userDAO, Mockito.times(1)).saveUser(Mockito.any(User.class));
