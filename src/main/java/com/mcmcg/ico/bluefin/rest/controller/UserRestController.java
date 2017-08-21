@@ -187,7 +187,7 @@ public class UserRestController {
 		validateErrors(errors);
 
 		LOGGER.debug("Updating account for user: {}", usernameValue);
-		return userService.updateUserProfile("me".equals(usernameValue) ? authentication.getName() : usernameValue, userToUpdate);
+		return userService.updateUserProfile("me".equals(usernameValue) ? authentication.getName() : usernameValue, userToUpdate, authentication.getName());
 	}
 
 	@ApiOperation(value = "updateUserRoles", nickname = "updateUserRoles")

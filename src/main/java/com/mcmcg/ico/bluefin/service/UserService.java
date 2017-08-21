@@ -242,7 +242,7 @@ public class UserService {
 	 * @return userResource with all the user information
 	 * @throws CustomNotFoundException
 	 */
-	public UserResource updateUserProfile(String username, UpdateUserResource userResource) {
+	public UserResource updateUserProfile(String username, UpdateUserResource userResource, String loginUserName) {
 		User user = getUser(username);
 
 		LOGGER.debug(" user={} ",user);
@@ -256,7 +256,9 @@ public class UserService {
 		//We are setting empty collectionn object not  to update roles in case of password update
 		user.setRoles(Collections.emptyList());
 		user.setLegalEntities(Collections.emptyList());
-		updaUserPrefernce(user);
+		if (StringUtils.equals(username, loginUserName)) {
+			updaUserPrefernce(user);
+		}
 		userDAO.updateUser(user, modifiedBy);
 		return new UserResource(user);
 	}
