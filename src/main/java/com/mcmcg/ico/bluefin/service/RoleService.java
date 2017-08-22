@@ -67,7 +67,7 @@ public class RoleService {
 			List<Role> roleList = roleDAO.findAll();
 			for (Role role : roleList) {
 				List<Permission> permissionList = permissionDAO.findByRoleId(role.getRoleId());
-				role.setPermissionSet(permissionList);
+				role.setPermissions(permissionList);
 			}
 			return roleList;
 		}

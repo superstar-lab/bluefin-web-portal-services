@@ -14,7 +14,7 @@ public class Role extends Common implements Serializable {
 	private Long roleId;
 	private String roleName;
 	private String description;
-	private List<Permission> permissionSet;
+	private List<Permission> permissions;
 
 	public Role() {
 		// Default Constructor
