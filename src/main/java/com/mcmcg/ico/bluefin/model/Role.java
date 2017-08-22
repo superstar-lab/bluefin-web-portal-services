@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Set;
 
 import lombok.Data;
 
@@ -13,6 +14,7 @@ public class Role extends Common implements Serializable {
 	private Long roleId;
 	private String roleName;
 	private String description;
+	private Set<Permission> permissionSet;
 
 	public Role() {
 		// Default Constructor

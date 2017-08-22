@@ -62,10 +62,11 @@ public class RoleService {
 			return roleDAO.findAll();
 		}
 
-		// MANAGE_ALL_USERS needs to return all roles
+		/*As per existing code before ORM.
+		 *MANAGE_ALL_USERS needs to return all roles
 		if (userService.hasPermissionToManageAllUsers(authentication)) {
 			return roleDAO.findAll();
-		}
+		}*/
 
 		// Roles that belongs to a user
 		List<Role> list = new ArrayList<>();
