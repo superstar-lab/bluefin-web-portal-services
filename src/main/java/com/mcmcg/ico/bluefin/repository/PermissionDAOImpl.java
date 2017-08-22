@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -23,7 +24,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.Permission;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAOImpl.PaymentProcessorInternalStatusCodeRowMapper;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
@@ -103,6 +106,13 @@ public class PermissionDAOImpl implements PermissionDAO {
 		LOGGER.debug("Saved permission - id ={} ", id);
 
 		return id;
+	}
+
+	@Override
+	public List<Permission> findByRoleId(Long roleId) {
+		List<Permission> list = jdbcTemplate.query( Queries.FINDPERMISSIONBYROLEID, new Object[] {roleId},
+				new PermissionRowMapper());
+		return list;
 	}
 }
 

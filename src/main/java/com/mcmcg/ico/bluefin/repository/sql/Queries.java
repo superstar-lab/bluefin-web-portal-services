@@ -157,6 +157,7 @@ public class Queries {
 	public static final String ISPROCESSORRESPONSECODEMAPPED = "SELECT count(PPRCL.PaymentProcessorResponseCodeID) FROM PaymentProcessor_InternalResponseCode PPIRC join PaymentProcessorResponseCode_Lookup  PPRCL ON PPIRC.PaymentProcessorResponseCodeID=PPRCL.PaymentProcessorResponseCodeID WHERE PPRCL.TransactionType=? AND PPRCL.PaymentProcessorID=?";
 	public static final String ISPROCESSORSTATUSCODEMAPPED = "SELECT count(PPSCL.PaymentProcessorStatusCodeID) FROM PaymentProcessor_InternalStatusCode PPISC join PaymentProcessorStatusCode_Lookup  PPSCL ON PPISC.PaymentProcessorStatusCodeID=PPSCL.PaymentProcessorStatusCodeID WHERE PPSCL.TransactionType=? AND PPSCL.PaymentProcessorID=?";
 	public static final String FINDALLROLESANDASSOCIATEDPERMISSIONS = "SELECT rl.RoleName,rl.RoleID,pl.PermissionID,pl.PermissionName,rl.Description,rl.DateCreated, rl.DatedModified, rl.ModifiedBy FROM Role_Lookup rl, Permission_Lookup pl,Role_Permission rp where rl.RoleID=rp.RoleID and pl.PermissionID=rp.PermissionID";
+	public static final String FINDPERMISSIONBYROLEID = "SELECT pl.PermissionID,pl.PermissionName,pl.Description,pl.DateCreated,pl.DatedModified, pl.ModifiedBy FROM Role_Permission rp,Permission_Lookup pl where rp.PermissionID= pl.PermissionID and RoleID=?";
 	private Queries(){
 		// Default Constructor
 	}

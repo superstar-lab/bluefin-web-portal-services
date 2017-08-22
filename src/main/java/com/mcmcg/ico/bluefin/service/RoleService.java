@@ -12,9 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
+import com.mcmcg.ico.bluefin.repository.PermissionDAO;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
@@ -37,6 +39,9 @@ public class RoleService {
 	private UserService userService;
 	@Autowired
 	private UserRoleDAO userRoleDAO;
+	
+	@Autowired
+	private PermissionDAO permissionDAO;
 
 	public List<Role> getRoles() {
 		return roleDAO.findAll();
@@ -59,7 +64,12 @@ public class RoleService {
 		}
 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-			return roleDAO.findAll();
+			List<Role> roleList = roleDAO.findAll();
+			for (Role role : roleList) {
+				List<Permission> permissionList = permissionDAO.findByRoleId(role.getRoleId());
+				role.setPermissionSet(permissionList);
+			}
+			return roleList;
 		}
 
 		/*As per existing code before ORM.

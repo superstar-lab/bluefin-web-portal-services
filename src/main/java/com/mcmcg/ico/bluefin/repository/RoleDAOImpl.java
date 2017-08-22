@@ -7,10 +7,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -29,7 +27,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
-import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -43,7 +40,7 @@ public class RoleDAOImpl implements RoleDAO {
 
 	@Override
 	public List<Role> findAll() {
-		List<Role> list = jdbcTemplate.query(Queries.FINDALLROLESANDASSOCIATEDPERMISSIONS, new RoleRowMapper());
+		List<Role> list = jdbcTemplate.query(Queries.FINDALLROLES, new RoleRowMapper());
 
 		LOGGER.debug("Number of rows = {} ", list.size());
 
@@ -133,39 +130,22 @@ class RoleRowMapper implements RowMapper<Role> {
 
 	@Override
 	public Role mapRow(ResultSet rs, int row) throws SQLException {
-		Set<Long> roleIds = new HashSet<>();
 		Role role = new Role();
-		Set<Permission> permissionSet = new HashSet<>();
-		if (!roleIds.contains(rs.getLong("RoleID"))) {
-			role.setRoleId(rs.getLong("RoleID"));
-			role.setRoleName(rs.getString("RoleName"));
-			role.setDescription(rs.getString("Description"));
-			Timestamp ts;
-			if (rs.getString("DateCreated") != null) {
-				ts = Timestamp.valueOf(rs.getString("DateCreated"));
-				role.setDateCreated(new DateTime(ts));
-			}
-			
-			if (rs.getString("DatedModified") != null) {
-
-				ts = Timestamp.valueOf(rs.getString("DatedModified"));
-				role.setDateModified(new DateTime(ts));
-			}
-			role.setModifiedBy(rs.getString("ModifiedBy"));
-			//Setting Permission
-			Permission permission = new Permission();
-			permission.setPermissionId(rs.getLong("PermissionID"));
-			permission.setPermissionName(rs.getString("PermissionName"));
-			permissionSet.add(permission);
-		} else {
-			Permission permission = new Permission();
-			permission.setPermissionId(rs.getLong("PermissionID"));
-			permission.setPermissionName(rs.getString("PermissionName"));
-			permissionSet.add(permission);
+		role.setRoleId(rs.getLong("RoleID"));
+		role.setRoleName(rs.getString("RoleName"));
+		role.setDescription(rs.getString("Description"));
+		Timestamp ts;
+		if (rs.getString("DateCreated") != null) {
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			role.setDateCreated(new DateTime(ts));
 		}
-		role.setPermissionSet(permissionSet);
-		roleIds.add(rs.getLong("RoleID"));
 		
+		if (rs.getString("DatedModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			role.setDateModified(new DateTime(ts));
+		}
+		role.setModifiedBy(rs.getString("ModifiedBy"));
 
 		return role;
 	}
