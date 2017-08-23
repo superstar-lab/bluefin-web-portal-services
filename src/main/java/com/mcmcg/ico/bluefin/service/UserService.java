@@ -609,6 +609,23 @@ public class UserService {
 			LOGGER.debug("userId ",userId);
 			//TOOD.................Why are you calling below operation again, I have commented this [Matloob]
 		}
+		else {
+			// Send email
+			if("INACTIVE".equalsIgnoreCase(status)) {
+				String content = "Your account has been deactivated. \n\n"
+						+ "Please feel free to contact your system administratior. \n\n";
+				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
+			}
+			else {
+				final String link = "/api/users/" + username + "/password";
+				final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
+				String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
+						+ "Username: " + username + "\n\n To create your password, use the link below: \n\n"
+						+ propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
+						+ token;
+				emailService.sendEmail(userToUpdate.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
+			}
+		}
 	}
 
 	private boolean isValidOldPassword(final String oldPassword, final String currentUserPassword) {
