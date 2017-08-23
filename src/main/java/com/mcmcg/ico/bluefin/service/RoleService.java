@@ -63,13 +63,10 @@ public class RoleService {
 			return new ArrayList<>(0);
 		}
 
+		List<Role> roleList;
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-			List<Role> roleList = roleDAO.findAll();
-			for (Role role : roleList) {
-				List<Permission> permissionList = permissionDAO.findByRoleId(role.getRoleId());
-				role.setPermissions(permissionList);
-			}
-			return roleList;
+			roleList = roleDAO.findAll();
+			
 		}
 
 		/*As per existing code before ORM.
@@ -79,14 +76,23 @@ public class RoleService {
 		}*/
 
 		// Roles that belongs to a user
-		List<Role> list = new ArrayList<>();
-		for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
-			long roleId = userRole.getRoleId();
-			list.add(roleDAO.findByRoleId(roleId));
+		else {
+			List<Role> list = new ArrayList<>();
+			for (UserRole userRole : userRoleDAO.findByUserId(user.getUserId())) {
+				long roleId = userRole.getRoleId();
+				list.add(roleDAO.findByRoleId(roleId));
+			}
+			List<Long> rolesFromUser = list.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
+			LOGGER.info("Exiting from get Roles");
+			roleList = roleDAO.findAll(rolesFromUser);
 		}
-		List<Long> rolesFromUser = list.stream().map(userRole -> userRole.getRoleId()).collect(Collectors.toList());
-		LOGGER.info("Exiting from get Roles");
-		return roleDAO.findAll(rolesFromUser);
+
+		for (Role role : roleList) {
+			List<Permission> permissionList = permissionDAO.findByRoleId(role.getRoleId());
+			role.setPermissions(permissionList);
+		}
+		
+		return roleList;
 	}
 
 	/**
