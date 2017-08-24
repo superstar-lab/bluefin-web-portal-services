@@ -637,4 +637,8 @@ public class UserService {
 		LOGGER.info("Exiting from is Valid Old Password");
 		return passwordEncoder.matches(oldPassword, currentUserPassword);
 	}
+	
+	public User findByUsername(String userName){
+		return userDAO.findByUsername(userName);
+	}
 }

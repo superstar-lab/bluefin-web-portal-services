@@ -36,6 +36,7 @@ import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
+import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.UserService;
@@ -58,7 +59,9 @@ public class UserRestController {
 	private SessionService sessionService;
 	@Autowired
 	private PropertyService propertyService;
-
+	@Autowired
+	private TokenUtils tokenUtils;
+	
 	@ApiOperation(value = "getUser", nickname = "getUser")
 	@RequestMapping(method = RequestMethod.GET, value = "/{username:.*}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -275,6 +278,11 @@ public class UserRestController {
 		LOGGER.debug("token ={} ",token);
 		if (token != null) {
 			userService.updateUserPassword(usernameValue, updatePasswordResource, token);
+			User user = userService.findByUsername(usernameValue);
+			if ( user != null ) {
+				// After activation of user marked token as black list token
+				tokenUtils.sendTokenToBlacklist(token, usernameValue);
+			}
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
