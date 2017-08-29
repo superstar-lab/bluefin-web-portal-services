@@ -86,7 +86,7 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 	
 	@Override
 	public List<Long> findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(Long internalResponseCode) {
-		return jdbcTemplate.queryForList(Queries.FINDPAYMENTPROCESSORINTERNALRESPONSECODEIDSBYINTERNALRESPONSECODE, new Object[]{internalResponseCode},
+		return jdbcTemplate.queryForList(Queries.FINDPAYMENTPROCESSORRESPONSECODEIDSBYINTERNALRESPONSECODE, new Object[]{internalResponseCode},
 				Long.class);
 	}
 	

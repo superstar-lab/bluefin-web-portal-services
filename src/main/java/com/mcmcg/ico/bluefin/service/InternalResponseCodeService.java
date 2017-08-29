@@ -452,7 +452,7 @@ public class InternalResponseCodeService {
 					String.format("Unable to find internal response code with id = [%s]", internalResponseCodeId));
 		}
 		List<Long > paymentProcessorResponseCodeIds = paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(internalResponseCodeId);
-		LOGGER.info("paymentProcessorResponseCodeIds size : {} ", paymentProcessorResponseCodeIds != null ? paymentProcessorResponseCodeIds.size() : 0);
+		LOGGER.info("PaymentProcessorResponseCodeIds size : {} ", paymentProcessorResponseCodeIds != null ? paymentProcessorResponseCodeIds.size() : 0);
 		// we need fetch records before deleting parent and childs
 		Set<Long> allInternalResponseCodeIds = paymentProcessorInternalResponseCodeDAO.fetchInternalResponseCodeIdsMappedForPaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);
 		LOGGER.info("Mapped InternalResponseCodeIds={} , InternalResponseCodeIds_Size={}",allInternalResponseCodeIds, allInternalResponseCodeIds != null ? allInternalResponseCodeIds.size() : 0);

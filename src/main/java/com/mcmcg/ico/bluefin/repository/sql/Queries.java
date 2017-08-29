@@ -133,7 +133,7 @@ public class Queries {
 	public static final String DELETEPAYMENTPROCESSORPAYMENTPROCESSORRESPONSECODEID = "DELETE FROM PaymentProcessor_InternalResponseCode WHERE PaymentProcessorResponseCodeID = ?";
 	public static final String PAYMENTPROCESSORINTERNALRESPONSECODEID = "SELECT * FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID = ?";
 	public static final String DELETEPAYMENTPROCESSORINTERNALRESPONSECODE = "DELETE FROM PaymentProcessor_InternalResponseCode where InternalResponseCodeId = ?";
-	public static final String FINDPAYMENTPROCESSORINTERNALRESPONSECODEIDSBYINTERNALRESPONSECODE = "SELECT PaymentProcessorInternalResponseCodeID FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
+	public static final String FINDPAYMENTPROCESSORRESPONSECODEIDSBYINTERNALRESPONSECODE = "SELECT PaymentProcessorResponseCodeID FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
 	public static final String DELETEPAYMENTPROCESSORRESPONSECODEIDS = "DELETE FROM PaymentProcessorResponseCode_Lookup where PaymentProcessorResponseCodeID IN (:ids)";
 	public static final String SAVEPAYMENTPROCESSORMARCHENT = "INSERT INTO PaymentProcessor_Merchant (paymentProcessorId,TestOrProd,MerchantID,DateCreated,DatedModified,LegalEntityAppID) values (?, ?, ?, ?, ?, ?)";
 	public static final String FETCHINTERNALSTATUSCODEUSEDFORPAYMENTPROCESSOR = " select InternalStatusCodeId,PaymentProcessorInternalStatusCodeID from PaymentProcessor_InternalStatusCode where PaymentProcessorStatusCodeID in (  select PaymentProcessorStatusCodeID from PaymentProcessorStatusCode_Lookup where PaymentProcessorID = ? ) ";
