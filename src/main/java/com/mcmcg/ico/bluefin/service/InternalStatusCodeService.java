@@ -456,11 +456,19 @@ public class InternalStatusCodeService {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("deleteing paymentProcessorStatusCodeIds size : {}",paymentProcessorStatusCodeIds.size());
 		}
+		// We need fetch mapped internal status code ids before deleting records.
+		Set<Long> allInternalStatusCodeIds = paymentProcessorInternalStatusCodeDAO.fetchInternalStatusCodeIdsMappedForPaymentProcessorStatusCodeIds(paymentProcessorStatusCodeIds);
+		LOGGER.info("Mapped InternalStatusCodeIds={} , InternalStatusCodeIds_Size={}",allInternalStatusCodeIds, allInternalStatusCodeIds != null ? allInternalStatusCodeIds.size() : 0);
 		// First delete internal status code and payment processor internal status code
 		internalStatusCodeDAO.delete(internalStatusCodeId);
 		// Second delete all payment processor status code which were in used by deleted internal status code
-		if(paymentProcessorStatusCodeIds != null){
-			paymentProcessorInternalStatusCodeDAO.deletePaymentProcessorStatusCodeIds(paymentProcessorStatusCodeIds);
+		if(paymentProcessorStatusCodeIds != null && !paymentProcessorStatusCodeIds.isEmpty()){
+			if (allInternalStatusCodeIds != null && allInternalStatusCodeIds.size() == 1 && allInternalStatusCodeIds.contains(internalStatusCodeId)) {
+				// it means paymentProcessorStatusCodeIds not mapped or mapped with only 1 internal status codeid
+				paymentProcessorInternalStatusCodeDAO.deletePaymentProcessorStatusCodeIds(paymentProcessorStatusCodeIds);
+			} else {
+				LOGGER.info("Invalid case, multiple mapping for PaymentProcessorStatusCodeIds={} with InternalStatusCodeIds={} which found other than request to delete internalStatusCodeId={}",paymentProcessorStatusCodeIds,allInternalStatusCodeIds,internalStatusCodeId);
+			}
 		}
 		
 	}

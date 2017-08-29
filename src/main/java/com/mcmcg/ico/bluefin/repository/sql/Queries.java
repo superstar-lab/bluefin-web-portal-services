@@ -134,7 +134,7 @@ public class Queries {
 	public static final String PAYMENTPROCESSORINTERNALRESPONSECODEID = "SELECT * FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID = ?";
 	public static final String DELETEPAYMENTPROCESSORINTERNALRESPONSECODE = "DELETE FROM PaymentProcessor_InternalResponseCode where InternalResponseCodeId = ?";
 	public static final String FINDPAYMENTPROCESSORINTERNALRESPONSECODEIDSBYINTERNALRESPONSECODE = "SELECT PaymentProcessorInternalResponseCodeID FROM PaymentProcessor_InternalResponseCode WHERE InternalResponseCodeID=?";
-	public static final String DELETEPAYMENTPROCESSORRESPONSECODEIDS = "DELETE FROM PaymentProcessor_InternalResponseCode where PaymentProcessorInternalResponseCodeID IN (:ids)";
+	public static final String DELETEPAYMENTPROCESSORRESPONSECODEIDS = "DELETE FROM PaymentProcessorResponseCode_Lookup where PaymentProcessorResponseCodeID IN (:ids)";
 	public static final String SAVEPAYMENTPROCESSORMARCHENT = "INSERT INTO PaymentProcessor_Merchant (paymentProcessorId,TestOrProd,MerchantID,DateCreated,DatedModified,LegalEntityAppID) values (?, ?, ?, ?, ?, ?)";
 	public static final String FETCHINTERNALSTATUSCODEUSEDFORPAYMENTPROCESSOR = " select InternalStatusCodeId,PaymentProcessorInternalStatusCodeID from PaymentProcessor_InternalStatusCode where PaymentProcessorStatusCodeID in (  select PaymentProcessorStatusCodeID from PaymentProcessorStatusCode_Lookup where PaymentProcessorID = ? ) ";
 
@@ -158,6 +158,8 @@ public class Queries {
 	public static final String ISPROCESSORSTATUSCODEMAPPED = "SELECT count(PPSCL.PaymentProcessorStatusCodeID) FROM PaymentProcessor_InternalStatusCode PPISC join PaymentProcessorStatusCode_Lookup  PPSCL ON PPISC.PaymentProcessorStatusCodeID=PPSCL.PaymentProcessorStatusCodeID WHERE PPSCL.TransactionType=? AND PPSCL.PaymentProcessorID=?";
 	public static final String FINDALLROLESANDASSOCIATEDPERMISSIONS = "SELECT rl.RoleName,rl.RoleID,pl.PermissionID,pl.PermissionName,rl.Description,rl.DateCreated, rl.DatedModified, rl.ModifiedBy FROM Role_Lookup rl, Permission_Lookup pl,Role_Permission rp where rl.RoleID=rp.RoleID and pl.PermissionID=rp.PermissionID";
 	public static final String FINDPERMISSIONBYROLEID = "SELECT pl.PermissionID,pl.PermissionName,pl.Description,pl.DateCreated,pl.DatedModified, pl.ModifiedBy FROM Role_Permission rp,Permission_Lookup pl where rp.PermissionID= pl.PermissionID and RoleID=?";
+	public static final String INTERNALSTATUSCODEIDSMAPPEDWITHPAYMENTPROCESSORSTATUSCODEIDS = "SELECT InternalStatusCodeID FROM PaymentProcessor_InternalStatusCode where PaymentProcessorStatusCodeID IN (:ids)";
+	public static final String INTERNALRESPONSECODEIDSMAPPEDWITHPAYMENTPROCESSORRESPONSECODEIDS = "SELECT InternalResponseCodeID FROM PaymentProcessor_InternalResponseCode where PaymentProcessorResponseCodeID IN (:ids)";
 	private Queries(){
 		// Default Constructor
 	}

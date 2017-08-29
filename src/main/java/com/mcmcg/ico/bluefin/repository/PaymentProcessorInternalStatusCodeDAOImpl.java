@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -102,7 +103,7 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 	public void delete(Long internalStatusCodeId) {
 		logger.debug(" Deleting child items for internalStatusCodeId {}",internalStatusCodeId);
 		int noOfRowsDeleted = jdbcTemplate.update(Queries.DELETEPAYMENTPROCESSORINTERNALSTATUSCODE, internalStatusCodeId);
-		logger.debug("Number of childs items deleted {} internalStatusCodeId {}",noOfRowsDeleted,internalStatusCodeId);
+		logger.info("Number of childs items deleted = {} for internalStatusCodeId={}",noOfRowsDeleted,internalStatusCodeId);
 	}
 
 	@Override
@@ -207,4 +208,20 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 		executeQueryToDeleteRecords(Queries.DELETEPAYMENTPROCESSORSTATUSCODEIDS,valuesToDelete);
 	}
 	
+	@Override
+	public Set<Long> fetchInternalStatusCodeIdsMappedForPaymentProcessorStatusCodeIds(List<Long> paymentProcessorStatusCodeIds){
+		if (paymentProcessorStatusCodeIds != null && !paymentProcessorStatusCodeIds.isEmpty()) {
+			Map<String, List<Long>> valuesToCheck = new HashMap<>();
+			valuesToCheck.put("ids", paymentProcessorStatusCodeIds);
+			NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
+			List<Long> idsFetched = namedJDBCTemplate.queryForList(Queries.INTERNALSTATUSCODEIDSMAPPEDWITHPAYMENTPROCESSORSTATUSCODEIDS,valuesToCheck,Long.class);
+			if (idsFetched != null && !idsFetched.isEmpty()) {
+				// Need to return only unique ids
+				Set<Long> idsFetchedAndReturnedUnique = new HashSet<Long>();
+				idsFetchedAndReturnedUnique.addAll(idsFetched);
+				return idsFetchedAndReturnedUnique;
+			}
+		}
+		return null;
+	}
 }

@@ -159,9 +159,7 @@ public class InternalResponseCodeDAOImpl implements InternalResponseCodeDAO {
 	public void delete(InternalResponseCode internalResponseCode) {
 		paymentProcessorInternalResponseCodeDAO.deleteByInternalResponseCode(internalResponseCode.getInternalResponseCodeId());
 		int rows = jdbcTemplate.update(Queries.DELETEINTERNALRESPONSECODE, new Object[] { internalResponseCode.getInternalResponseCodeId() });
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Deleted InternalResponseCode with InternalResponseCodeid: {} , rows affected = {} ", internalResponseCode .getInternalResponseCodeId(), rows);
-		}
+		LOGGER.info("Number of InternalResponseCode deleted = {}",rows);
 	}
 
 	@Override

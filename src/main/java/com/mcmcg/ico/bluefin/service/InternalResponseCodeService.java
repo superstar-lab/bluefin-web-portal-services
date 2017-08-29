@@ -444,18 +444,26 @@ public class InternalResponseCodeService {
 			}
 		}
 	}
-	public void deleteInternalResponseCode(Long id) {
-		InternalResponseCode internalResponseCodeToDelete = internalResponseCodeDAO.findOne(id);
+	public void deleteInternalResponseCode(Long internalResponseCodeId) {
+		InternalResponseCode internalResponseCodeToDelete = internalResponseCodeDAO.findOne(internalResponseCodeId);
 
 		if (internalResponseCodeToDelete == null) {
 			throw new CustomNotFoundException(
-					String.format("Unable to find internal response code with id = [%s]", id));
+					String.format("Unable to find internal response code with id = [%s]", internalResponseCodeId));
 		}
-		List<Long > paymentProcessorResponseCodeIds = paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(id);
+		List<Long > paymentProcessorResponseCodeIds = paymentProcessorInternalResponseCodeDAO.findPaymentProcessorInternalResponseCodeIdsByInternalResponseCode(internalResponseCodeId);
 		LOGGER.info("paymentProcessorResponseCodeIds size : {} ", paymentProcessorResponseCodeIds != null ? paymentProcessorResponseCodeIds.size() : 0);
+		// we need fetch records before deleting parent and childs
+		Set<Long> allInternalResponseCodeIds = paymentProcessorInternalResponseCodeDAO.fetchInternalResponseCodeIdsMappedForPaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);
+		LOGGER.info("Mapped InternalResponseCodeIds={} , InternalResponseCodeIds_Size={}",allInternalResponseCodeIds, allInternalResponseCodeIds != null ? allInternalResponseCodeIds.size() : 0);
 		internalResponseCodeDAO.delete(internalResponseCodeToDelete);
 		if(paymentProcessorResponseCodeIds != null && !paymentProcessorResponseCodeIds.isEmpty()){
-			paymentProcessorInternalResponseCodeDAO.deletePaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);
+			if (allInternalResponseCodeIds != null && allInternalResponseCodeIds.size() == 1 && allInternalResponseCodeIds.contains(internalResponseCodeId)) {
+				// it means paymentProcessorResponseCodeIds not mapped or mapped with only 1 internal response codeid
+				paymentProcessorInternalResponseCodeDAO.deletePaymentProcessorResponseCodeIds(paymentProcessorResponseCodeIds);
+			} else {
+				LOGGER.info("Invalid case, multiple mapping for PaymentProcessorResponseCodeIds={} with InternalResponseCodeIds={} which found other than request to delete InternalResponseCodeId={}",paymentProcessorResponseCodeIds,allInternalResponseCodeIds,internalResponseCodeId);
+			}
 		}
 		
 	}

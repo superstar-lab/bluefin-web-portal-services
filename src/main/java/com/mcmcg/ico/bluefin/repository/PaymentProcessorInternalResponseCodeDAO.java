@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface PaymentProcessorInternalResponseCodeDAO {
 
@@ -27,5 +28,6 @@ public interface PaymentProcessorInternalResponseCodeDAO {
 	
 	public void deleteInternalResponseCodeIds(List<Long> internalStatusCodeIds);
 	
+	public Set<Long> fetchInternalResponseCodeIdsMappedForPaymentProcessorResponseCodeIds(List<Long> paymentProcessorResponseCodeIds);
 }
 
