@@ -66,6 +66,6 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
     }
     
     private boolean checkAccountLockAndTokenURL(UserDetails userDetails,String url,String tokenUrl){
-    	return userDetails.isAccountNonLocked() && url !=null && url.contains(tokenUrl);
+    	return userDetails.isAccountNonLocked() && url !=null && org.apache.commons.lang3.StringUtils.containsIgnoreCase(url, tokenUrl);
     }
 }
