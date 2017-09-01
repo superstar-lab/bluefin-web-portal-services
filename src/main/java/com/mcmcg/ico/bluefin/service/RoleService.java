@@ -22,7 +22,6 @@ import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.security.service.SessionService;
 
 @Service
 @Transactional
@@ -31,8 +30,6 @@ public class RoleService {
 
 	@Autowired
 	private RoleDAO roleDAO;
-	@Autowired
-	private SessionService sessionService;
 	@Autowired
 	private UserDAO userDAO;
 	@Autowired
@@ -64,16 +61,17 @@ public class RoleService {
 		}
 
 		List<Role> roleList;
+		/*
+		 * this condition check only for role ADMINISTRATIVE 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			roleList = roleDAO.findAll();
 			
-		}
-
-		/*As per existing code before ORM.
-		 *MANAGE_ALL_USERS needs to return all roles
-		if (userService.hasPermissionToManageAllUsers(authentication)) {
-			return roleDAO.findAll();
 		}*/
+
+		//this condition check for role ADMINISTRATIVE as well as MANAGE_ALL_USERS
+		if (userService.hasPermissionToManageAllUsers(authentication)) {
+			roleList = roleDAO.findAll();
+		}
 
 		// Roles that belongs to a user
 		else {

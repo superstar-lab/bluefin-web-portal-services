@@ -424,7 +424,8 @@ public class UserService {
 	 * @param userName
 	 */
 	public boolean hasUserPrivilegesOverLegalEntities(Authentication authentication, Set<Long> legalEntitiesToVerify) {
-		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		//if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		if (hasPermissionToManageAllUsers(authentication)) {
 			return true;
 		}
 		// Get Legal Entities from user name
@@ -485,7 +486,8 @@ public class UserService {
 		User userToUpdate = getUser(usernameToUpdate);
 		LOGGER.debug("userToUpdate ={} ",userToUpdate.getUserId());
 		
-		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		//if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		if (hasPermissionToManageAllUsers(authentication)) {
 			return true;
 		}
 		// Get Legal Entities from consultant user
