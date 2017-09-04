@@ -37,7 +37,6 @@ import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
-import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.UserService;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
@@ -55,8 +54,6 @@ public class UserRestController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRestController.class);
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private SessionService sessionService;
 	@Autowired
 	private PropertyService propertyService;
 	@Autowired
@@ -110,7 +107,8 @@ public class UserRestController {
 		final String userName = authentication.getName();
 		LOGGER.debug("userName ={} ",userName);
 		String searchValue;
-		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		//if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			// Verifies if the search parameter has allowed
 			// legal entities for the consultant user
 			searchValue = getVerifiedSearch(userName, search);
