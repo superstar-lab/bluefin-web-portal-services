@@ -146,6 +146,9 @@ public class RoleService {
 			throw new CustomNotFoundException(String.format("Unable to find role with id = [%s]", id));
 		}
 
+		List<Permission> permissionList = permissionDAO.findByRoleId(role.getRoleId());
+		role.setPermissions(permissionList);
+		
 		return role;
 	}
 }
