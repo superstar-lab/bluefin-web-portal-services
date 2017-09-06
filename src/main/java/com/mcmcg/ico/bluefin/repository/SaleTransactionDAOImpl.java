@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -88,7 +89,7 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setPostalCode(rs.getString("PostalCode"));
 		saleTransaction.setCountry(rs.getString("Country"));
 		saleTransaction.setCardNumberFirst6Char(rs.getString("CardNumberFirst6Char"));
-		saleTransaction.setCardNumberLast4Char("XXXX-XXXX-XXXX-"+rs.getString("CardNumberLast4Char"));
+		saleTransaction.setCardNumberLast4Char(BluefinWebPortalConstants.CARDMASK+rs.getString("CardNumberLast4Char"));
 		saleTransaction.setCardType(rs.getString("CardType"));
 		try {
 			saleTransaction.setExpiryDate(rs.getTimestamp("ExpiryDate"));

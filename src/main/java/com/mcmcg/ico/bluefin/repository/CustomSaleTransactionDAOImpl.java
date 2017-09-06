@@ -964,7 +964,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				record.setTransactionDateTime(new DateTime(ts));
 			}
 			record.setCardNumberFirst6Char(rs.getString("CardNumberFirst6Char"));
-			record.setCardNumberLast4Char(rs.getString("CardNumberLast4Char"));
+			record.setCardNumberLast4Char(BluefinWebPortalConstants.CARDMASK+rs.getString("CardNumberLast4Char"));
 			
 			record.setCardType(rs.getString("CardType"));
 			record.setChargeAmount(rs.getBigDecimal("ChargeAmount"));
