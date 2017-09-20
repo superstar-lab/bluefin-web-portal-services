@@ -253,6 +253,9 @@ public class UserService {
 		user.setDateUpdated(new DateTime());
 		String modifiedBy = null;
 		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
+		//backup user's role and legalEntities, will set these roles and legalEntities in api response.
+		Collection<UserRole> userRoleList= user.getRoles();
+		Collection<UserLegalEntityApp> userLegalEntities = user.getLegalEntities();
 		//We are setting empty collectionn object not  to update roles in case of password update
 		user.setRoles(Collections.emptyList());
 		user.setLegalEntities(Collections.emptyList());
@@ -260,6 +263,9 @@ public class UserService {
 			updaUserPrefernce(user);
 		}
 		userDAO.updateUser(user, modifiedBy);
+		//set user role and legalEntities in API response.
+		user.setRoles(userRoleList);
+		user.setLegalEntities(userLegalEntities);
 		return new UserResource(user);
 	}
 
