@@ -160,6 +160,8 @@ public class Queries {
 	public static final String FINDPERMISSIONBYROLEID = "SELECT pl.PermissionID,pl.PermissionName,pl.Description,pl.DateCreated,pl.DatedModified, pl.ModifiedBy FROM Role_Permission rp,Permission_Lookup pl where rp.PermissionID= pl.PermissionID and RoleID=?";
 	public static final String INTERNALSTATUSCODEIDSMAPPEDWITHPAYMENTPROCESSORSTATUSCODEIDS = "SELECT InternalStatusCodeID FROM PaymentProcessor_InternalStatusCode where PaymentProcessorStatusCodeID IN (:ids)";
 	public static final String INTERNALRESPONSECODEIDSMAPPEDWITHPAYMENTPROCESSORRESPONSECODEIDS = "SELECT InternalResponseCodeID FROM PaymentProcessor_InternalResponseCode where PaymentProcessorResponseCodeID IN (:ids)";
+	public static final String FINDALLPROPERTY = "SELECT ApplicationpropertyID, ApplicationPropertyName, ApplicationPropertyValue, DataType, Description, DateCreated, DateModified, ModifiedBy FROM ApplicationProperty_Lookup";
+	
 	private Queries(){
 		// Default Constructor
 	}

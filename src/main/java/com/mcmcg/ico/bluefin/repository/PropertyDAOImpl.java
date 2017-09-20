@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -49,6 +50,26 @@ public class PropertyDAOImpl implements PropertyDAO {
 		Property property = findByName(propertyName);
 		LOGGER.debug("property ={}", property);
 		return property == null ? "" : property.getApplicationPropertyValue();
+	}
+
+	@Override
+	public List<Property> findAll() {
+		ArrayList<Property> propertylist = (ArrayList<Property>) jdbcTemplate.query(Queries.FINDALLPROPERTY, new RowMapperResultSetExtractor<Property>(new PropertyRowMapper()));
+		LOGGER.debug("Property size = {}",propertylist.size());
+		if (propertylist.isEmpty()) {
+			LOGGER.debug("Property not found");
+		} else {
+			LOGGER.debug("Found property - name={}");
+		}
+
+		return propertylist;
+	}
+
+	@Override
+	public List<Property> getAllProperty() {
+		List<Property> propertylist = findAll();
+		LOGGER.debug("property ={}", propertylist.size());
+		return propertylist;
 	}
 }
 
