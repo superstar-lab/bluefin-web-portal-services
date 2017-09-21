@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mcmcg.ico.bluefin.model.Property;
+import com.mcmcg.ico.bluefin.model.ApplicationProperty;
 import com.mcmcg.ico.bluefin.repository.PropertyDAO;
 
 @Service
@@ -23,8 +23,13 @@ public class PropertyService {
 		return propertyDAO.getPropertyValue(propertyName);
 	}
 	
-	public List<Property> getAllProperty() {
+	public List<ApplicationProperty> getAllProperty() {
 		LOGGER.debug("Entering to getAllProperties");
 		return propertyDAO.getAllProperty();
+	}
+	
+	public ApplicationProperty saveOrUpdateProperty(ApplicationProperty applicationProperty) {
+		LOGGER.debug("Entering to saveOrUpdateProperty");
+		return propertyDAO.saveOrUpdateProperty(applicationProperty);
 	}
 }
