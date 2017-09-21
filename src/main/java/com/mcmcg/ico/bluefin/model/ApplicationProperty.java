@@ -19,6 +19,8 @@ public class ApplicationProperty extends Common {
 	private String applicationDescription;
 	@JsonProperty("modifiedBy")
 	private String modifiedByUser;
+	@JsonProperty("requestStatus")
+	private String requestStatus;
 
 	public ApplicationProperty() {
 		// Default Constructor
