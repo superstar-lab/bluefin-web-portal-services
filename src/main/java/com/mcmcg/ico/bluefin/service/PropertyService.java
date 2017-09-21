@@ -28,8 +28,18 @@ public class PropertyService {
 		return propertyDAO.getAllProperty();
 	}
 	
-	public ApplicationProperty saveOrUpdateProperty(ApplicationProperty applicationProperty) {
-		LOGGER.debug("Entering to saveOrUpdateProperty");
-		return propertyDAO.saveOrUpdateProperty(applicationProperty);
+	public ApplicationProperty updateProperty(ApplicationProperty applicationProperty) {
+		LOGGER.debug("Entering to updateProperty");
+		return propertyDAO.updateProperty(applicationProperty);
+	}
+
+	public ApplicationProperty saveApplicationProperty(ApplicationProperty applicationProperty) {
+		LOGGER.debug("Entering to saveProperty");
+		return propertyDAO.saveApplicationProperty(applicationProperty);
+	}
+
+	public String deleteApplicationProperty(String applicationPropertyId) {
+		LOGGER.debug("Entering to deleteProperty");
+		return propertyDAO.deleteApplicationProperty(applicationPropertyId);
 	}
 }
