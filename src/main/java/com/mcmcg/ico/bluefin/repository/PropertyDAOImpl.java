@@ -96,13 +96,12 @@ public class PropertyDAOImpl implements PropertyDAO {
 
 		if (noOfRecordsUpdated>0) {
 			LOGGER.debug("Property updated successfully");
-			applicationProperty.setRequestStatus("success");
+			return applicationProperty;
 		} else {
 			LOGGER.debug("Property not updated");
-			applicationProperty.setRequestStatus("failure");
 		}
 		
-		return applicationProperty;
+		return null;
 	}
 
 	@Override
@@ -131,13 +130,12 @@ public class PropertyDAOImpl implements PropertyDAO {
 		
 		if(noOfRecordsInserted>0){
 			LOGGER.debug("Property inserted successfully");
-			applicationProperty.setRequestStatus("success");;
+			return applicationProperty;
 		}
 		else {
 			LOGGER.debug("Property not inserted");
-			applicationProperty.setRequestStatus("failure");
 		}
-		return applicationProperty;
+		return null;
 	}
 
 	@Override
