@@ -89,6 +89,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String internalStatusCodesApiBaseURL = apiBaseURL + "/internal-status-codes";
         final String reportsApiBaseURL = apiBaseURL + "/reports";
         final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
+        final String applicationPropertyApiBaseURL = apiBaseURL + "/applicationProperties";
 
         // @formatter:off
 		httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)
@@ -236,6 +237,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, batchUploadApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", batchUploadApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.hasAuthority(BluefinWebPortalConstants.BATCHREPORTING)
 
+				// Application Property Lookup
+				.antMatchers(HttpMethod.GET, applicationPropertyApiBaseURL)
+				.permitAll()
+				.antMatchers(HttpMethod.POST, applicationPropertyApiBaseURL)
+				.permitAll()
+				.antMatchers(HttpMethod.PUT, applicationPropertyApiBaseURL)
+				.permitAll()
+				.antMatchers(HttpMethod.DELETE, applicationPropertyApiBaseURL)
+				.permitAll()
+		
 				.and().authorizeRequests().anyRequest().authenticated();
 		// @formatter:on
 

@@ -28,9 +28,9 @@ public class PropertyService {
 		return propertyDAO.getAllProperty();
 	}
 	
-	public ApplicationProperty updateProperty(ApplicationProperty applicationProperty) {
+	public ApplicationProperty updateProperty(ApplicationProperty applicationProperty, String modifiedBy) {
 		LOGGER.debug("Entering to updateProperty");
-		return propertyDAO.updateProperty(applicationProperty);
+		return propertyDAO.updateProperty(applicationProperty, modifiedBy);
 	}
 
 	public ApplicationProperty saveApplicationProperty(ApplicationProperty applicationProperty) {

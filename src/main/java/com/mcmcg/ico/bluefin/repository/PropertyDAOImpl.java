@@ -23,6 +23,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.ApplicationProperty;
 import com.mcmcg.ico.bluefin.model.Property;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -81,7 +82,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 	}
 
 	@Override
-	public ApplicationProperty update(ApplicationProperty applicationProperty) {
+	public ApplicationProperty update(ApplicationProperty applicationProperty, String modifiedBy) {
 		/**java.util.Date dt = new java.util.Date();
 		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
 		String currentTime = sdf.format(dt);*/
@@ -90,8 +91,8 @@ public class PropertyDAOImpl implements PropertyDAO {
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc1));
 
 		long noOfRecordsUpdated = jdbcTemplate.update(Queries.UPDATEAPPLICATIONPROPERTY,
-				applicationProperty.getPropertyName(),applicationProperty.getPropertyValue(),applicationProperty.getApplicationDataType(),
-				applicationProperty.getApplicationDescription(),applicationProperty.getModifiedByUser(),dateModified,applicationProperty.getPropertyId());
+				applicationProperty.getPropertyName(),applicationProperty.getPropertyValue(),
+				applicationProperty.getApplicationDescription(),modifiedBy,dateModified,applicationProperty.getPropertyId());
 		LOGGER.info("Number of updated ApplicationProperty = {}", noOfRecordsUpdated);
 
 		if (noOfRecordsUpdated>0) {
@@ -105,8 +106,8 @@ public class PropertyDAOImpl implements PropertyDAO {
 	}
 
 	@Override
-	public ApplicationProperty updateProperty(ApplicationProperty applicationProperty) {
-		ApplicationProperty propertyUpdate = update(applicationProperty);
+	public ApplicationProperty updateProperty(ApplicationProperty applicationProperty, String modifiedBy) {
+		ApplicationProperty propertyUpdate = update(applicationProperty, modifiedBy);
 		LOGGER.debug("property ={}", propertyUpdate==null ? null : propertyUpdate.getPropertyName());
 		return applicationProperty;
 	}
@@ -119,9 +120,9 @@ public class PropertyDAOImpl implements PropertyDAO {
 					Statement.RETURN_GENERATED_KEYS);
 			ps.setString(1, applicationProperty.getPropertyName()); 
 			ps.setString(2, applicationProperty.getPropertyValue()); 
-			ps.setString(3, applicationProperty.getApplicationDataType()); 
+			ps.setString(3, BluefinWebPortalConstants.VARCHAR); 
 			ps.setString(4, applicationProperty.getApplicationDescription()); 
-			ps.setString(5, applicationProperty.getModifiedByUser());
+			ps.setString(5, "Name of the person in charge of applying the changes in the db");
 			return ps;
 		}, holder);
 		long noOfRecordsInserted = holder.getKey().longValue();

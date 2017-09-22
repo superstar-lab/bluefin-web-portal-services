@@ -6,12 +6,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.ApplicationProperty;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
@@ -21,6 +24,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
 @RequestMapping(value = "/api/applicationProperties")
@@ -55,13 +59,16 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ApplicationProperty insertOrUpdateProperties(@RequestBody ApplicationProperty applicationProperty) {
-		LOGGER.debug("update application properties endpoint");
+	public ApplicationProperty updateProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
+		if (authentication == null) {
+			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+		}
+		LOGGER.debug("update application properties endpoint ={} ", authentication.getName());
 
 		if(applicationProperty.getPropertyId()==null) {
 			throw new CustomException("Applicaton id cann't be null for update operation");
 		}
-		return propertyService.updateProperty(applicationProperty);
+		return propertyService.updateProperty(applicationProperty, authentication.getName());
 	}
 	
 	@ApiOperation(value = "insertApplicationProperties", nickname = "insertApplicationProperties")
