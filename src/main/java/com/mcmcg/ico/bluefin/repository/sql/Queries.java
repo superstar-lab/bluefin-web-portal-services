@@ -161,7 +161,7 @@ public class Queries {
 	public static final String INTERNALSTATUSCODEIDSMAPPEDWITHPAYMENTPROCESSORSTATUSCODEIDS = "SELECT InternalStatusCodeID FROM PaymentProcessor_InternalStatusCode where PaymentProcessorStatusCodeID IN (:ids)";
 	public static final String INTERNALRESPONSECODEIDSMAPPEDWITHPAYMENTPROCESSORRESPONSECODEIDS = "SELECT InternalResponseCodeID FROM PaymentProcessor_InternalResponseCode where PaymentProcessorResponseCodeID IN (:ids)";
 	public static final String FINDALLPROPERTY = "SELECT ApplicationpropertyID, ApplicationPropertyName, ApplicationPropertyValue, DataType, Description, DateCreated, DateModified, ModifiedBy FROM ApplicationProperty_Lookup";
-	public static final String UPDATEAPPLICATIONPROPERTY = "UPDATE ApplicationProperty_Lookup SET ApplicationPropertyName=?, ApplicationPropertyValue=?, DataType=?, Description=?, ModifiedBy=?, DateModified=? WHERE ApplicationpropertyID=?";
+	public static final String UPDATEAPPLICATIONPROPERTY = "UPDATE ApplicationProperty_Lookup SET ApplicationPropertyName=?, ApplicationPropertyValue=?, Description=?, ModifiedBy=?, DateModified=? WHERE ApplicationpropertyID=?";
 	public static final String INSERTAPPLICATIONPROPERTY = "INSERT INTO ApplicationProperty_Lookup (ApplicationPropertyName, ApplicationPropertyValue, DataType, Description, ModifiedBy) VALUES (?,?,?,?,?)";
 	public static final String DELETEAPPLICATIONPROPERTY = "DELETE FROM ApplicationProperty_Lookup where ApplicationpropertyID=?";
 

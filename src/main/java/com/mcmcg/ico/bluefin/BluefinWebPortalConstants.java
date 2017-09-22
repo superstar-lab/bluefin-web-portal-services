@@ -115,6 +115,7 @@ public class BluefinWebPortalConstants {
 	public static final String UNION = " UNION ";
 	public static final String SALEVOIDREFUNDCONST = "0 AS SaleIsVoided,0 AS SaleIsRefunded,";
 	public static final String CARDMASK = "XXXX-XXXX-XXXX-";
+	public static final String VARCHAR = "VARCHAR";
 	
 	private BluefinWebPortalConstants(){
 		
