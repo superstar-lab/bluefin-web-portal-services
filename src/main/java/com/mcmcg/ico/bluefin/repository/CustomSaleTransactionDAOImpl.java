@@ -904,6 +904,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setSaleApplicationTransactionId(rs.getString(BluefinWebPortalConstants.SALEAPPLICATIONTRANSACTIONID));
 			record.setSaleMerchantId(rs.getString(BluefinWebPortalConstants.SALEMERCHANTID));
 			record.setSaleProcessor(rs.getString(BluefinWebPortalConstants.SALEPROCESSOR));
+			record.setSaleProcessorName(record.getSaleProcessor());
 			record.setSaleApplication(rs.getString(BluefinWebPortalConstants.SALEAPPLICATION));
 			record.setSaleOrigin(rs.getString(BluefinWebPortalConstants.SALEORIGIN));
 			record.setSaleProcessorTransactionId(rs.getString(BluefinWebPortalConstants.SALEPROCESSORTRANSACTIONID));
