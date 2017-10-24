@@ -9,3 +9,5 @@ logs/*
 Servers/*
 /target/
 test-output/
+/.apt_generated/
+/.factorypath
