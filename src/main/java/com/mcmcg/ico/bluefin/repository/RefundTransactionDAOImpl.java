@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.model.RefundTransaction;
+import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
@@ -36,6 +37,26 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 
 		if (refundTransaction != null) {
 			LOGGER.debug("Found RefundTransaction for transactionId ={} ", transactionId);
+			String saleTransactionId = refundTransaction.getSaleTransactionId();
+			if (saleTransactionId != null) {
+				saleTransactionId = saleTransactionId.trim();
+				if (saleTransactionId.length() > 0) {
+					ArrayList<SaleTransaction> saleTransactions = (ArrayList<SaleTransaction>) jdbcTemplate.query(
+							Queries.FINDSALETRANSACTIONBYSALETRANSACTIONID, new Object[] { saleTransactionId },
+							new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+					LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
+					SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
+
+					if (saleTransaction != null) {
+						LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
+						refundTransaction.setSaleTransaction(saleTransaction);
+					} else {
+						LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);
+					}
+				}
+			} else {
+				LOGGER.debug("SaleTransactionId found invalid");
+			}
 		} else {
 			LOGGER.debug("RefundTransaction not found for transactionId ={} ", transactionId);
 		}

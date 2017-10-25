@@ -27,6 +27,8 @@ public class RefundTransaction extends CommonTransaction implements Serializable
 	private DateTime reconciliationDate = new DateTime();
 	private Long etlRunId;
 	private String transactionType;
+	private SaleTransaction saleTransaction;
+	
 	public RefundTransaction() {
 		// Default Constructor
 	}
