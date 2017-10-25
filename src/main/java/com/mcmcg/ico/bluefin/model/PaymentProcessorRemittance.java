@@ -462,7 +462,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	public void setTransactionAmount(BigDecimal transactionAmount) {
 		this.transactionAmount = transactionAmount;
 	}
-	@Override
+	
 	public String getTransactionType() {
 		return transactionType;
 	}

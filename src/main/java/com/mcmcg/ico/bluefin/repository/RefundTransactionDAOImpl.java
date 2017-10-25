@@ -88,6 +88,7 @@ class RefundTransactionRowMapper implements RowMapper<RefundTransaction> {
 			refundTransaction.setReconciliationDate(new DateTime(ts));
 		}
 		refundTransaction.setEtlRunId(rs.getLong("ETL_RUNID"));
+		refundTransaction.setTransactionType(rs.getString("TransactionType"));
 
 		return refundTransaction;
 	}

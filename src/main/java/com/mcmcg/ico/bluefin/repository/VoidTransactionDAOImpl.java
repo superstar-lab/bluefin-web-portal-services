@@ -74,6 +74,7 @@ class VoidTransactionRowMapper implements RowMapper<VoidTransaction> {
 		voidTransaction.setPaymentProcessorInternalResponseCodeId(rs.getLong("PaymentProcessorInternalResponseCodeID"));
 		Timestamp ts = Timestamp.valueOf(rs.getString("DateCreated"));
 		voidTransaction.setDateCreated(new DateTime(ts));
+		voidTransaction.setTransactionType(rs.getString("TransactionType"));
 		return voidTransaction;
 	}
 }

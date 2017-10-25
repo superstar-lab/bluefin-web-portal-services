@@ -4,7 +4,6 @@ import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
 import lombok.Data;
 @Data
@@ -56,8 +55,8 @@ public class CommonTransaction implements Transaction {
 		return applicationTransactionId;
 	}
 	
-	@Override
+	/*@Override
 	public String getTransactionType() {
 		return TransactionTypeCode.VOID.toString();
-	}
+	}*/
 }

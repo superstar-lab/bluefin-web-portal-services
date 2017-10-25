@@ -26,7 +26,7 @@ public class RefundTransaction extends CommonTransaction implements Serializable
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime reconciliationDate = new DateTime();
 	private Long etlRunId;
-
+	private String transactionType;
 	public RefundTransaction() {
 		// Default Constructor
 	}

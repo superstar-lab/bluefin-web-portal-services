@@ -13,7 +13,7 @@ public class VoidTransaction extends CommonTransaction implements Serializable {
 	private String saleTransactionId;
 	private String approvalCode;
 	private String processor;
-
+	private String transactionType;
 	public VoidTransaction() {
 		// Default Constructor
 	}

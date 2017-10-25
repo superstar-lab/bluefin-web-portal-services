@@ -9,7 +9,5 @@ public interface Transaction {
 
 	public String getMerchantId();
 
-	public String getTransactionType();
-
 	public DateTime getTransactionDateTime();
 }
