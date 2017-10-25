@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.VoidTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -36,6 +37,26 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 
 		if (voidTransaction != null) {
 			LOGGER.debug("Found VoidTransaction for transactionId={} ", transactionId);
+			String saleTransactionId = voidTransaction.getSaleTransactionId();
+			if (saleTransactionId != null) {
+				saleTransactionId = saleTransactionId.trim();
+				if (saleTransactionId.length() > 0) {
+					ArrayList<SaleTransaction> saleTransactions = (ArrayList<SaleTransaction>) jdbcTemplate.query(
+							Queries.FINDSALETRANSACTIONBYSALETRANSACTIONID, new Object[] { saleTransactionId },
+							new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+					LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
+					SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
+
+					if (saleTransaction != null) {
+						LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
+						voidTransaction.setSaleTransaction(saleTransaction);
+					} else {
+						LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);
+					}
+				}
+			} else {
+				LOGGER.debug("SaleTransactionId found invalid");
+			}
 		} else {
 			LOGGER.debug("VoidTransaction not found for transactionId ={} ", transactionId);
 		}
