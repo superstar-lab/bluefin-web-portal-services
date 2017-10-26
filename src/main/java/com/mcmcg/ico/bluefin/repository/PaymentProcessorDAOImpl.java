@@ -145,7 +145,7 @@ public class PaymentProcessorDAOImpl implements PaymentProcessorDAO {
 //UPDATE PaymentProcessor_Lookup SET ProcessorName=?,IsActive=?,RemitTransactionOpenTime=?,RemitTransactionCloseTime=?,DatedModified=? WHERE PaymentProcessorID=?		
 		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSOR,
 					new Object[] { 	paymentProcessor.getProcessorName(), paymentProcessor.getIsActive(), paymentProcessor.getRemitTransactionOpenTime(),
-							paymentProcessor.getRemitTransactionOpenTime(), dateModified, 
+							paymentProcessor.getRemitTransactionCloseTime(), dateModified, 
 							paymentProcessor.getPaymentProcessorId()
 								 });
 		LOGGER.debug("Updated PaymentProcessor, No of Rows Updated ={}", rows);
