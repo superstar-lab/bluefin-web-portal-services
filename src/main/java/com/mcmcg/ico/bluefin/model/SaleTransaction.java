@@ -124,11 +124,11 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 	private String paymentProcessorStatusCodeDescription;
 
 	@JsonView({Views.Extend.class, Views.Summary.class})
-	@JsonProperty("paymentProcessorResponseCode")
+	@JsonProperty("processorResponseCode")
 	private String paymentProcessorResponseCode;
 
 	@JsonView({Views.Extend.class, Views.Summary.class})
-	@JsonProperty("paymentProcessorResponseCodeDescription")
+	@JsonProperty("processorResponseCodeDescription")
 	private String paymentProcessorResponseCodeDescription;
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
