@@ -142,6 +142,7 @@ Visa Debit Card
 Mastercard Debit
 5100057924108390
 5326760507185572-working with Jetpay-decline with .01
+
 ***************************Other Misc
 	keytool -importcert -alias  phxiodpsgwd01 -file phxiodpsgwd01.cer -v -keystore cacerts 
 	
@@ -153,8 +154,8 @@ Mastercard Debit
 
 	$ git checkout email
 	
-// git command to override a branch to another
-
+***************************git command to override a branch to another
+Steps
 $ git checkout email
 $ git tag old-email-branch # This is optional
 $ git reset --hard staging
