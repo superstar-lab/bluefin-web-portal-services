@@ -150,3 +150,15 @@ Mastercard Debit
 	
 	https://secure.payscout.com/merchants/login.php?cookie_check=1&auth_error=0
 	MCMtest/Pays123!
+
+	$ git checkout email
+	
+// git command to override a branch to another
+
+$ git checkout email
+$ git tag old-email-branch # This is optional
+$ git reset --hard staging
+$
+$ # Using a custom commit message for the merge below
+$ git merge -m 'Merge -s our where _ours_ is the branch staging' -s ours origin/email
+$ git push origin email
