@@ -117,17 +117,17 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 	@JsonIgnore
 	private Short tokenized;
 
-	@JsonView(Views.Extend.class)
+	@JsonView({Views.Extend.class, Views.Summary.class})
 	private String paymentProcessorStatusCode;
 
-	@JsonView(Views.Extend.class)
+	@JsonView({Views.Extend.class, Views.Summary.class})
 	private String paymentProcessorStatusCodeDescription;
 
-	@JsonView(Views.Extend.class)
+	@JsonView({Views.Extend.class, Views.Summary.class})
 	@JsonProperty("paymentProcessorResponseCode")
 	private String paymentProcessorResponseCode;
 
-	@JsonView(Views.Extend.class)
+	@JsonView({Views.Extend.class, Views.Summary.class})
 	@JsonProperty("paymentProcessorResponseCodeDescription")
 	private String paymentProcessorResponseCodeDescription;
 
