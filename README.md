@@ -98,6 +98,7 @@ https://bluefin-dev.mcmcg.com/StatusCodeMappingService/
 https://bluefin-dev.mcmcg.com/bluefin-batch-process-services/
 https://bluefin-dev.mcmcg.com/bluefin-bindb-services/
 https://bluefin-dev.mcmcg.com/bluefin-card-vault-service/
+https://bluefin-dev.mcmcg.com/bluefin-etl-service/
 
 https://bluefin-qa.mcmcg.com/bluefin-wp-services/
 https://bluefin-qa.mcmcg.com/bluefin-client-registration-service/
@@ -113,6 +114,7 @@ https://bluefin-qa.mcmcg.com/StatusCodeMappingService/
 https://bluefin-qa.mcmcg.com/bluefin-batch-process-services/
 https://bluefin-qa.mcmcg.com/bluefin-bindb-services/
 https://bluefin-qa.mcmcg.com/bluefin-card-vault-service/
+https://bluefin-qa.mcmcg.com/bluefin-etl-service/
 
 *********************************************************
 **********************	TEST-CC/DC  **********************
