@@ -266,7 +266,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			logger.debug("Number of records fetched ={} successfully", tr.size());
 		}
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
-		logger.debug("Count Rows Result {}, Data Query Result {}",countResult,tr.size());
+		logger.info("Count Rows Result {}, Data Query Result {}",countResult,tr.size());
 		return new PageImpl(tr, page, countResult);
 	}
 	
