@@ -1155,7 +1155,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
 		querySbPart2.append("AND SALE.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
 				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
-		querySbPart2.append("AND SALE.InternalStatusCode = 1 ");
+		querySbPart2.append("AND SALE.InternalStatusCode = '1' ");
 		querySbPart2.append("AND (SALE.TransactionType = 'SALE') ");
 		querySbPart2.append("AND SALE.ReconciliationStatusID = " + statusId + " ");
 		querySbPart2.append(BluefinWebPortalConstants.UNION);
@@ -1164,7 +1164,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
 		querySbPart2.append("AND REFUND.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
 				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
-		querySbPart2.append("AND REFUND.InternalStatusCode = 1 ");
+		querySbPart2.append("AND REFUND.InternalStatusCode = '1' ");
 		querySbPart2.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
 		logger.debug("query (part 2): {}" , querySbPart2);
 		return querySbPart2;
