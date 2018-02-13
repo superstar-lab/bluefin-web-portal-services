@@ -5,7 +5,7 @@
 
 	<groupId>com.mcmcg.gbs.bluefin</groupId>
 	<artifactId>bluefin-web-portal-services</artifactId>
-	<version>4.0.0-SNAPSHOT</version>
+	<version>4.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<name>bluefin-web-portal-services</name>
