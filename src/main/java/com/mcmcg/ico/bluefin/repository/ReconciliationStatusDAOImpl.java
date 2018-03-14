@@ -10,12 +10,14 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -24,6 +26,7 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReconciliationStatusDAOImpl.class);
 
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
