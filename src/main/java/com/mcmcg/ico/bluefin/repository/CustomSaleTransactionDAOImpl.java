@@ -40,6 +40,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
 import com.mcmcg.ico.bluefin.model.BinDBDetails;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
@@ -77,11 +78,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	@Autowired
 	private PropertyDAO propertyDAO;
+	
 	@Autowired
-	private BinDBDAO binDBDAO;
-	
+	private TransationBinDBDetailsService transationBinDBDetailsService;
 	private Set<String> refundOrVoidTypeAttributesFilterNames = new HashSet<>();
-	
 	
 	public CustomSaleTransactionDAOImpl(){
 		loadSaleTransactionMappings();
@@ -225,14 +225,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				return finalCount;
 		});
 		logger.debug("QueryTotal_Count Result={}", countResult);
-		List<BinDBDetails> binDBDetailsList = new ArrayList<BinDBDetails>();
-		for (int i = 0 ; i < 5;i++) {
-			binDBDetailsList.add(new BinDBDetails());
-		}
-		
 		Page<SaleTransaction> list;
-		List<String> filteredAndUniqueCardNumberFirst6Char = new ArrayList<>();
-		List<BinDBDetails> contentBinDBs = null;
 		if (result != null) {
 			String resultFinalQueryToExecute = result.getFinalQueryToExecute();
 			logger.debug("Result Data Query to execute: ={}",resultFinalQueryToExecute);
@@ -242,26 +235,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			if (tr == null) {
 				tr = new ArrayList<>();
 			}
-			if (tr != null && !tr.isEmpty()) {
-				filteredAndUniqueCardNumberFirst6Char = tr.stream().filter(getUniqueTransactionsForBin(SaleTransaction::getCardNumberFirst6Char)).map(SaleTransaction::getCardNumberFirst6Char)
-			              .collect(Collectors.toList());
-				if (filteredAndUniqueCardNumberFirst6Char != null && !filteredAndUniqueCardNumberFirst6Char.isEmpty()) {
-					logger.info("Unique card numbers={}",filteredAndUniqueCardNumberFirst6Char.size());
-					logger.info(filteredAndUniqueCardNumberFirst6Char.toString());
-					contentBinDBs = binDBDAO.fetchDetailsForCardNumbers(filteredAndUniqueCardNumberFirst6Char);
-				}
-			}
-			list = new TransactionPageImpl(tr,page,countResult,contentBinDBs); 
+			list = new TransactionPageImpl(tr,page,countResult,transationBinDBDetailsService.resetTransactions(tr)); 
 		} else {
-			list = new TransactionPageImpl( new ArrayList<>(),page,countResult,contentBinDBs);
+			list = new TransactionPageImpl( new ArrayList<>(),page,countResult,null);
 		} 
 		return list;
 	}
 
-	public <T> Predicate<T> getUniqueTransactionsForBin(Function<? super T, ?> keyExtractor){
-		Set<Object> seen = ConcurrentHashMap.newKeySet();
-		return t -> seen.add(keyExtractor.apply(t));
-	}
 	
 	@Override
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
