@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 
 @SpringBootApplication
@@ -43,9 +44,15 @@ public class BluefinServicesApplication {
 		return lookup.getDataSource(bindbJndiName);
 	}
 	
-	@Bean(name = BluefinWebPortalConstants.BLUEFIN_BIN_DB_JDBC_TEMPLATE)
+	/*@Bean(name = BluefinWebPortalConstants.BLUEFIN_BIN_DB_JDBC_TEMPLATE)
 	JdbcTemplate binJdbcTemplate(@Qualifier(BluefinWebPortalConstants.BLUEFIN_BIN_DB_DATA_SOURCE)  DataSource binDBDataSource){
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(binDBDataSource);
 		return jdbcTemplate;
+	}*/
+	
+	@Bean(name = BluefinWebPortalConstants.BLUEFIN_BIN_DB_JDBC_TEMPLATE)
+	NamedParameterJdbcTemplate binNamedJdbcTemplate(@Qualifier(BluefinWebPortalConstants.BLUEFIN_BIN_DB_DATA_SOURCE)  DataSource binDBDataSource){
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(binDBDataSource);
+		return namedParameterJdbcTemplate;
 	}
 }

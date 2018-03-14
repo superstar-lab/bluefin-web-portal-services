@@ -1,43 +1,28 @@
 package com.mcmcg.ico.bluefin.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties({"countryIso","country2Iso","country3Iso"})
 public class BinDBDetails {
 	
-	@JsonView({ Views.Extend.class, Views.Summary.class })
 	private Long binDBId;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String bin;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String brand;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String bank;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String type;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String level;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String isocountry;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String info;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    @JsonProperty("country_iso")
+	private String bin;
+	private String brand;
+	private String bank;
+	private String type;
+	private String level;
+	private String isocountry;
+	private String info;
+	private String www;
+	private String phone;
     private String countryIso;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    @JsonProperty("country2_iso")
-    private String country2Iso;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    @JsonProperty("country3_iso")
+	private String country2Iso;
 	private String country3Iso;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String www;
-	@JsonView({ Views.Extend.class, Views.Summary.class })
-    private String phone;
 
 	public BinDBDetails(){
 		this.binDBId = null;
