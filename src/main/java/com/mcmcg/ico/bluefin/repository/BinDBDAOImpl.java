@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -26,11 +27,22 @@ public class BinDBDAOImpl implements BinDBDAO {
     private NamedParameterJdbcTemplate jdbcTemplate;
 	
 	@Override
-	public List<BinDBDetails> fetchDetailsForCardNumbers(List<String> cardNumbers) {
+	public List<BinDBDetails> fetchBinDBDetailsForCardNumbers(List<String> cardNumbers) {
 		LOGGER.info("Fetching all records of bin db count");
 		Map<String,List<String>> cardNumbersMap = new HashMap<>();
 		cardNumbersMap.put("bins", cardNumbers);
-		return jdbcTemplate.query(Queries.FETCHBINDBFORBINS, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
+		return jdbcTemplate.query(Queries.FETCHBINDBFORBINS_MULTIPLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
+	}
+	
+	@Override
+	public BinDBDetails fetchBinDBDetailForCardNumber(String cardFirst6Char){
+		Map<String,String> cardNumbersMap = new HashMap<>();
+		cardNumbersMap.put("bin", cardFirst6Char);
+		List<BinDBDetails> allRecords = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_SINGLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
+		if (allRecords != null && !allRecords.isEmpty()) {
+			return DataAccessUtils.singleResult(allRecords);
+		}
+		return null;
 	}
 
 }

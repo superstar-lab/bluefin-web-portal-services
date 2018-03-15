@@ -6,5 +6,7 @@ import com.mcmcg.ico.bluefin.model.BinDBDetails;
 
 public interface BinDBDAO {
 
-	public List<BinDBDetails> fetchDetailsForCardNumbers(List<String> cardNumbers);
+	public List<BinDBDetails> fetchBinDBDetailsForCardNumbers(List<String> cardNumbers);
+	
+	public BinDBDetails fetchBinDBDetailForCardNumber(String cardFirst6Char);
 }

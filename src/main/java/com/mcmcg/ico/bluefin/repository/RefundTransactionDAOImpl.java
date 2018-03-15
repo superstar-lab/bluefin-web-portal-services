@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
 import com.mcmcg.ico.bluefin.model.RefundTransaction;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -30,6 +31,9 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
+	private TransationBinDBDetailsService transationBinDBDetailsService;
+	
 	@Override
 	public RefundTransaction findByApplicationTransactionId(String transactionId) {
 		ArrayList<RefundTransaction> list = (ArrayList<RefundTransaction>) jdbcTemplate.query(
@@ -52,6 +56,8 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 
 					if (saleTransaction != null) {
 						LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
+						saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
+						refundTransaction.setBinDBDetails(saleTransaction.getBinDBDetails());
 						refundTransaction.setSaleTransaction(saleTransaction);
 					} else {
 						LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);

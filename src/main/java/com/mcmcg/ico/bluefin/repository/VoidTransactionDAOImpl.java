@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.VoidTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -29,7 +30,9 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-
+	@Autowired
+	private TransationBinDBDetailsService transationBinDBDetailsService;
+	
 	@Override
 	public VoidTransaction findByApplicationTransactionId(String transactionId) {
 		ArrayList<VoidTransaction> list = (ArrayList<VoidTransaction>) jdbcTemplate.query(
@@ -49,9 +52,10 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 							new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
 					LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
 					SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
-
 					if (saleTransaction != null) {
 						LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
+						saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
+						voidTransaction.setBinDBDetails(saleTransaction.getBinDBDetails());
 						voidTransaction.setSaleTransaction(saleTransaction);
 					} else {
 						LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);

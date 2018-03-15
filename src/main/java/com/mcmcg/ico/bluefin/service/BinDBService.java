@@ -18,9 +18,13 @@ public class BinDBService {
 	@Autowired
 	private BinDBDAO binDBDAO;
 	
-	public List<BinDBDetails> fetchDetailsForCardNumbers(List<String> cardNumbers) {
+	public List<BinDBDetails> fetchBinDBDetailsForCardNumbers(List<String> cardNumbers) {
 		LOGGER.info("fetchDetailsForCardNumbers");
-		return binDBDAO.fetchDetailsForCardNumbers(cardNumbers);
+		return binDBDAO.fetchBinDBDetailsForCardNumbers(cardNumbers);
+	}
+	
+	public BinDBDetails fetchBinDBDetailForCardNumber(String cardFirst6Char){
+		return binDBDAO.fetchBinDBDetailForCardNumber(cardFirst6Char);
 	}
 	
 }

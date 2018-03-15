@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties({"countryIso","country2Iso","country3Iso"})
+@JsonIgnoreProperties({"countryIso","country2Iso","country3Iso","self"})
 public class BinDBDetails {
 	
 	private Long binDBId;
@@ -23,7 +23,7 @@ public class BinDBDetails {
     private String countryIso;
 	private String country2Iso;
 	private String country3Iso;
-
+	private BinDBDetails self;
 	public BinDBDetails(){
 		this.binDBId = null;
 		this.bin = "";
@@ -38,5 +38,10 @@ public class BinDBDetails {
 		this.country3Iso = "";
 		this.www = "";
 		this.phone = "";
+		this.self = null;
+	}
+	
+	public BinDBDetails getSelf(){
+		return this;
 	}
 }

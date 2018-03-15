@@ -149,6 +149,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		List<SaleTransaction> tr = namedJDBCTemplate.query(finalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 		logger.debug("Total number of rows={}", tr != null ? tr.size() :0);
+		transationBinDBDetailsService.setBinDBDetailsForTransactions(tr);
 		return tr;
 	}
 	
@@ -235,7 +236,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			if (tr == null) {
 				tr = new ArrayList<>();
 			}
-			list = new TransactionPageImpl(tr,page,countResult,transationBinDBDetailsService.resetTransactions(tr)); 
+			list = new TransactionPageImpl(tr,page,countResult,transationBinDBDetailsService.fetchBinDBDetailsForTransactions(tr)); 
 		} else {
 			list = new TransactionPageImpl( new ArrayList<>(),page,countResult,null);
 		} 
