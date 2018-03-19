@@ -31,7 +31,11 @@ public class BinDBDAOImpl implements BinDBDAO {
 		LOGGER.info("Fetching all records of bin db count");
 		Map<String,List<String>> cardNumbersMap = new HashMap<>();
 		cardNumbersMap.put("bins", cardNumbers);
-		return jdbcTemplate.query(Queries.FETCHBINDBFORBINS_MULTIPLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
+		List<BinDBDetails> binDBDetails = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_MULTIPLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
+		if (binDBDetails != null && !binDBDetails.isEmpty()) {
+			binDBDetails.forEach(binObj -> binObj.updateNullValuesToBlank());
+		}
+		return binDBDetails;
 	}
 	
 	@Override
@@ -40,7 +44,11 @@ public class BinDBDAOImpl implements BinDBDAO {
 		cardNumbersMap.put("bin", cardFirst6Char);
 		List<BinDBDetails> allRecords = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_SINGLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
 		if (allRecords != null && !allRecords.isEmpty()) {
-			return DataAccessUtils.singleResult(allRecords);
+			BinDBDetails binDBDetails = DataAccessUtils.singleResult(allRecords);
+			if (binDBDetails != null) {
+				binDBDetails.updateNullValuesToBlank();
+				return binDBDetails;
+			}
 		}
 		return null;
 	}

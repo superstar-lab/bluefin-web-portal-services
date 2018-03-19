@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,5 +45,33 @@ public class BinDBDetails {
 	
 	public BinDBDetails getSelf(){
 		return this;
+	}
+	
+	/**
+	 * This method update blank and NULL values to "" (Without any space - Blank)
+	 * Bin , Type value can not null in database table.
+	 */
+	public void updateNullValuesToBlank() {
+		if (StringUtils.isBlank(this.brand) || StringUtils.equalsIgnoreCase("NULL",this.brand)) {
+			this.brand = "";
+		}
+		if (StringUtils.isBlank(this.bank) || StringUtils.equalsIgnoreCase("NULL",this.bank)) {
+			this.bank = "";
+		}
+		if (StringUtils.isBlank(this.level) || StringUtils.equalsIgnoreCase("NULL",this.level)) {
+			this.level = "";
+		}
+		if (StringUtils.isBlank(this.isocountry) || StringUtils.equalsIgnoreCase("NULL",this.isocountry)) {
+			this.isocountry = "";
+		}
+		if (StringUtils.isBlank(this.info) || StringUtils.equalsIgnoreCase("NULL",this.info)) {
+			this.info = "";
+		}
+		if (StringUtils.isBlank(this.www) || StringUtils.equalsIgnoreCase("NULL",this.www)) {
+			this.www = "";
+		}
+		if (StringUtils.isBlank(this.phone) || StringUtils.equalsIgnoreCase("NULL",this.phone)) {
+			this.phone = "";
+		}
 	}
 }
