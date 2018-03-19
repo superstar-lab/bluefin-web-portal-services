@@ -117,6 +117,12 @@ public class BluefinWebPortalConstants {
 	public static final String CARDMASK = "XXXX-XXXX-XXXX-";
 	public static final String VARCHAR = "VARCHAR";
 	
+	public static final String BLUEFIN_WEB_PORTAL_DATA_SOURCE = "bluefinDataSource";
+	public static final String BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE = "bluefinJdbcTemplate";
+	public static final String BLUEFIN_BIN_DB_DATA_SOURCE = "binDBDataSource";
+	public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
+	//public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
+	
 	private BluefinWebPortalConstants(){
 		
 	}

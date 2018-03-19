@@ -15,14 +15,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -35,6 +40,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
+import com.mcmcg.ico.bluefin.model.BinDBDetails;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
@@ -43,6 +50,7 @@ import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.rest.resource.TransactionPageImpl;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
 import lombok.Data;
@@ -56,6 +64,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	private static final String LOE = " <= ";
 	private static final String GOE = " >= ";
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
@@ -69,6 +78,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	@Autowired
 	private PropertyDAO propertyDAO;
+	
+	@Autowired
+	private TransationBinDBDetailsService transationBinDBDetailsService;
 	private Set<String> refundOrVoidTypeAttributesFilterNames = new HashSet<>();
 	
 	public CustomSaleTransactionDAOImpl(){
@@ -137,6 +149,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		List<SaleTransaction> tr = namedJDBCTemplate.query(finalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
 		logger.debug("Total number of rows={}", tr != null ? tr.size() :0);
+		transationBinDBDetailsService.setBinDBDetailsForTransactions(tr);
 		return tr;
 	}
 	
@@ -223,13 +236,14 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			if (tr == null) {
 				tr = new ArrayList<>();
 			}
-			list = new PageImpl(tr,page,countResult); 
+			list = new TransactionPageImpl(tr,page,countResult,transationBinDBDetailsService.fetchBinDBDetailsForTransactions(tr)); 
 		} else {
-			list = new PageImpl( new ArrayList<>(),page,countResult);
+			list = new TransactionPageImpl( new ArrayList<>(),page,countResult,null);
 		} 
 		return list;
 	}
 
+	
 	@Override
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
 		logger.debug("Search  Value {} , Page {}, negate {}",search,page,negate); 
@@ -1570,4 +1584,6 @@ class CustomSalePaymentProcessorRemittanceExtractor implements ResultSetExtracto
 
 		return list;
 	}
+	
+	
 }
