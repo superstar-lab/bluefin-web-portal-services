@@ -33,6 +33,7 @@ public class UserLegalEntityAppDAOImpl implements UserLegalEntityAppDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
 
