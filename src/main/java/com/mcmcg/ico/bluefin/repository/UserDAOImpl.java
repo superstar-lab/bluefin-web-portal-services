@@ -53,6 +53,7 @@ public class UserDAOImpl implements UserDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
 

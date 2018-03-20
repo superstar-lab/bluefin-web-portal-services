@@ -55,4 +55,11 @@ public class BluefinServicesApplication {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(binDBDataSource);
 		return namedParameterJdbcTemplate;
 	}
+	
+	@Primary()
+	@Bean(name = BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
+	NamedParameterJdbcTemplate bluefinNamedJdbcTemplate(@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_DATA_SOURCE)  DataSource bluefinJdbcTemplate){
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(bluefinJdbcTemplate);
+		return namedParameterJdbcTemplate;
+	}
 }

@@ -40,8 +40,10 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
+	
 	@Override
 	public void saveRoles(
 			Collection<UserRole> userRoles) {
