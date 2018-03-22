@@ -243,7 +243,7 @@ public class BatchUploadService {
 		} else {
 			result = saleTransactionDAO.findByBatchUploadId(batchUploadId);
 		}
-
+		
 		try {
 			File dir = new File(reportPath);
 			dir.mkdirs();

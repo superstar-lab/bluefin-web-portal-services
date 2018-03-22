@@ -4,6 +4,9 @@ import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.mcmcg.ico.bluefin.rest.resource.Views;
 
 import lombok.Data;
 @Data
@@ -30,7 +33,11 @@ public class CommonTransaction implements Transaction {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime dateCreated = new DateTime();
-	
+	@JsonView({ Views.Summary.class })
+	private Long binDBId;
+	@JsonProperty("bindb-detail")
+	@JsonView({ Views.Extend.class })
+	private BinDBDetails binDBDetails = new BinDBDetails();
 	public CommonTransaction() {
 		// Default Constructor
 	}

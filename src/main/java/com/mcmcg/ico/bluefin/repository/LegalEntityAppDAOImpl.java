@@ -18,6 +18,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,6 +39,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
 	private final DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 

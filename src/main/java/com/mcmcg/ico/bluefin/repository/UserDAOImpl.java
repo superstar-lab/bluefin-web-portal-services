@@ -16,6 +16,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -48,9 +49,11 @@ public class UserDAOImpl implements UserDAO {
 	@Autowired
 	private LegalEntityAppDAO legalEntityAppDAO;
 
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
 

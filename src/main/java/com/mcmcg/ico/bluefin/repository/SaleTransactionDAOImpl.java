@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -17,6 +18,7 @@ import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
@@ -25,8 +27,12 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SaleTransactionDAOImpl.class);
 
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
+	
+	@Autowired
+	private TransationBinDBDetailsService transationBinDBDetailsService;
 	
 	@Override
 	public List<SaleTransaction> findAll() {
@@ -55,7 +61,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 		return list;
 	}
 	
-	public SaleTransaction findTransaction(String queryToExecute,String transactionId){
+	private SaleTransaction findTransaction(String queryToExecute,String transactionId){
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				queryToExecute, new Object[] { transactionId },
 				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
@@ -64,6 +70,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 
 		if (saleTransaction != null) {
 			LOGGER.debug("Record found for transactionId: {}", transactionId);
+			saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
 		} else {
 			LOGGER.debug("Record not found for transactionId: {} ", transactionId);
 		}

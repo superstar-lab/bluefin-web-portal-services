@@ -164,6 +164,9 @@ public class Queries {
 	public static final String INSERTAPPLICATIONPROPERTY = "INSERT INTO ApplicationProperty_Lookup (ApplicationPropertyName, ApplicationPropertyValue, DataType, Description, ModifiedBy) VALUES (?,?,?,?,?)";
 	public static final String DELETEAPPLICATIONPROPERTY = "DELETE FROM ApplicationProperty_Lookup where ApplicationpropertyID=?";
 
+	private static final String FETCHBINDBFORBINS = "Select BinDBID as binDBId, BIN as bin , Brand as brand, Bank as bank ,  Type as type, Level as level, ISOCountry as isocountry,Info as info,WWW as www, Phone as phone,	CountryISO as countryIso, Country2ISO as country2Iso , Country3ISO as country3Iso from BinDB_Lookup";
+	public static final String FETCHBINDBFORBINS_MULTIPLE = FETCHBINDBFORBINS + " where BIN in (:bins) ";
+	public static final String FETCHBINDBFORBINS_SINGLE = FETCHBINDBFORBINS + " where BIN = :bin ";
 	private Queries(){
 		// Default Constructor
 	}

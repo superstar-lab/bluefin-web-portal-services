@@ -18,6 +18,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -35,11 +36,14 @@ public class UserRoleDAOImpl implements UserRoleDAO {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserRoleDAOImpl.class);
 	private final DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
+	
 	@Override
 	public void saveRoles(
 			Collection<UserRole> userRoles) {

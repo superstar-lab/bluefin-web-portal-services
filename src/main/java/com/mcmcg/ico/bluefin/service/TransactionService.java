@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.mcmcg.ico.bluefin.model.BinDBDetails;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentFrequency;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
@@ -65,7 +66,8 @@ public class TransactionService {
 			"Payment Processor Response Code Description", "Internal Status Code", "Internal Status Description",
 			"Internal Response Code", "Internal Response Description", "PaymentProcessorInternalStatusCodeID",
 			"PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk", "Invoice Number",
-			"User Defined Field 1", "User Defined Field 2", "User Defined Field 3", "Batch Upload ID" };
+			"User Defined Field 1", "User Defined Field 2", "User Defined Field 3", "Batch Upload ID",
+			"BIN","Brand","Bank","Type","Level","ISO Country","WWW","Phone","Info"};
 
 	private static final Object[] REMITTANCE_FILE_HEADER = { "#", "Bluefin Transaction ID", "Payment Processor",
 			"Status", "Amount Difference", "Transaction Type", "Bluefin Account Number", "Bluefin Amount",
@@ -99,7 +101,6 @@ public class TransactionService {
 	public Transaction getTransactionInformation(final String transactionId, TransactionTypeCode transactionType) {
 		LOGGER.info("Entering to get Transaction Information");
 		Transaction result;
-
 		switch (transactionType) {
 		case VOID:
 			result = voidTransactionDAO.findByApplicationTransactionId(transactionId);
@@ -113,7 +114,7 @@ public class TransactionService {
 		default:
 			result = saleTransactionDAO.findByApplicationTransactionId(transactionId);
 		}
-
+		
 		if (result == null) {
 			throw new CustomNotFoundException("Transaction not found with id = [" + transactionId + "]");
 		}
@@ -320,8 +321,22 @@ public class TransactionService {
 		transactionDataRecord.add(transaction.getUserDefinedField3());
 		transactionDataRecord
 				.add(transaction.getBatchUploadId() == null ? " " : transaction.getBatchUploadId().toString());
+		BinDBDetails binDBDetails = transaction.getBinDBDetails();
+		if (binDBDetails == null) {
+			binDBDetails = new BinDBDetails();
+		}
+		transactionDataRecord.add(binDBDetails.getBin());
+		transactionDataRecord.add(binDBDetails.getBrand());
+		transactionDataRecord.add(binDBDetails.getBank());
+		transactionDataRecord.add(binDBDetails.getType());
+		transactionDataRecord.add(binDBDetails.getLevel());
+		transactionDataRecord.add(binDBDetails.getIsocountry());
+		transactionDataRecord.add(binDBDetails.getWww());
+		transactionDataRecord.add(binDBDetails.getPhone());
+		transactionDataRecord.add(binDBDetails.getInfo());
 		return transactionDataRecord;
 	}
+	
 	/**
 	 * Create CSV file for remittance.
 	 * 

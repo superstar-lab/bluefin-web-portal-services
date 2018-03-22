@@ -15,6 +15,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,9 +25,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
 import com.mcmcg.ico.bluefin.model.Permission;
-import com.mcmcg.ico.bluefin.repository.PaymentProcessorInternalStatusCodeDAOImpl.PaymentProcessorInternalStatusCodeRowMapper;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 
 @Repository
@@ -34,6 +33,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PermissionDAOImpl.class);
 
+	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
