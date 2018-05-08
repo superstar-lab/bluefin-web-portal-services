@@ -24,4 +24,6 @@ public interface UserDAO {
 	
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
 	
+	int updateUserLastLogin(User user);
+	
 }

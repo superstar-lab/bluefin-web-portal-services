@@ -111,6 +111,7 @@ public class SessionService {
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 
+		updateLastLoginInfo(user);
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
@@ -321,5 +322,13 @@ public class SessionService {
 
 		LOGGER.info("Exit from validate Token");
 		return true;
+	}
+	
+	private void updateLastLoginInfo(User user) {
+		LOGGER.debug("updateLastLoginInfo value is ={} ",user);
+		if (user != null) {
+			userDAO.updateUserLastLogin(user);
+		}
+		LOGGER.info("Exit from updateLastLoginInfo");
 	}
 }
