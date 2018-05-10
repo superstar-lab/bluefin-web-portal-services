@@ -111,7 +111,7 @@ public class SessionService {
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 
-		updateLastLoginInfo(user);
+		//updateLastLoginInfo(user);
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
