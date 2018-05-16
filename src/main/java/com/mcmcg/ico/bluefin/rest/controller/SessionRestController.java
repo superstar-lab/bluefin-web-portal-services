@@ -65,7 +65,6 @@ public class SessionRestController {
             throw new CustomBadRequestException(errorDescription);
         }
 
-        System.out.println("hello");
         LOGGER.debug("Authenticating user: {}", authenticationRequest.getUsername());
         Authentication authentication = sessionService.authenticate(authenticationRequest.getUsername(),
                 authenticationRequest.getPassword());
