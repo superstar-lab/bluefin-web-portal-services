@@ -167,6 +167,8 @@ public class Queries {
 	private static final String FETCHBINDBFORBINS = "Select BinDBID as binDBId, BIN as bin , Brand as brand, Bank as bank ,  Type as type, Level as level, ISOCountry as isocountry,Info as info,WWW as www, Phone as phone,	CountryISO as countryIso, Country2ISO as country2Iso , Country3ISO as country3Iso from BinDB_Lookup";
 	public static final String FETCHBINDBFORBINS_MULTIPLE = FETCHBINDBFORBINS + " where BIN in (:bins) ";
 	public static final String FETCHBINDBFORBINS_SINGLE = FETCHBINDBFORBINS + " where BIN = :bin ";
+	public static final String UPDATEUSERLASTLOGIN = "UPDATE User_Lookup SET LastLogin = ? WHERE UserID = ?";
+	
 	private Queries(){
 		// Default Constructor
 	}
