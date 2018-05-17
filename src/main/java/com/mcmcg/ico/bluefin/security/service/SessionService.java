@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
@@ -85,6 +86,7 @@ public class SessionService {
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
 
+	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
 		LOGGER.info("Entering to authenticate");
 		User user = userDAO.findByUsername(username);
