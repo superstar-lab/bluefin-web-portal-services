@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
@@ -272,6 +273,65 @@ public class UserDAOImpl implements UserDAO {
 		return rows;
 	
 	}
+	
+	@Override
+	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId) {
+		
+		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID, new Object[] { userId },
+				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
+		
+		LOGGER.debug("Number of User ={} ", userList.size());
+
+		if (userList.size()>0) {
+			LOGGER.debug("Found User Password History for userId ={} ", userId);
+		} else {
+			LOGGER.debug("User Password History not found for userId ={} ", userId);
+		}
+
+		return userList;
+	}
+	
+	@Override
+	public long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword ) {
+
+		KeyHolder holder = new GeneratedKeyHolder();
+		jdbcTemplate.update(connection->{
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPASSWORDHISTORY,
+					Statement.RETURN_GENERATED_KEYS);
+			ps.setLong(1, user.getUserId()); 
+			ps.setString(2, userPreviousPasword); 
+			ps.setString(3, modifiedBy);
+			return ps;
+		}, holder);
+		long noOfRecordsInserted = holder.getKey().longValue();
+		LOGGER.debug("Saved Password History - id ={} ", noOfRecordsInserted);
+		
+		if(noOfRecordsInserted>0){
+			LOGGER.debug("Password history inserted successfully");
+			return noOfRecordsInserted;
+		}
+		else {
+			LOGGER.debug("Password history not inserted");
+		}
+		return 0;
+		
+		
+		/*int rows = jdbcTemplate.update(Queries.SAVEPASSWORDHISTORY,
+				new Object[] {user.getUserId(), user.getPassword(), modifiedBy});
+
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
+
+		return rows;*/
+	}
+
+	@Override
+	public void deletePasswordHistory(long userId) {
+		//jdbcTemplate.update(Queries.DELETEPASSWORDHISTORY, userId);
+		int rows = jdbcTemplate.update(Queries.DELETEPASSWORDHISTORY,
+				new Object[] {userId});
+		
+		LOGGER.debug("delete user with ID ={} , rows affected ={} ", userId, rows);
+	}
 }
 
 class UserRowMapper implements RowMapper<User> {
@@ -316,4 +376,26 @@ class UserRowMapper implements RowMapper<User> {
 	}
 	
 	
+}
+
+class PasswordHistoryRowMapper implements RowMapper<UserPasswordHistory> {
+
+	@Override
+	public UserPasswordHistory mapRow(ResultSet rs, int row) throws SQLException {
+		UserPasswordHistory userPasswordHistory = new UserPasswordHistory();
+		Timestamp ts;
+		userPasswordHistory.setPasswordHistoryID(rs.getLong("PasswordHistoryID"));
+		userPasswordHistory.setUserId(rs.getLong("UserID"));
+		userPasswordHistory.setPreviousPassword(rs.getString("UserOldPassword"));
+		userPasswordHistory.setModifiedBy(rs.getString("ModifiedBy"));
+		
+		if (rs.getString("DateCreated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			userPasswordHistory.setDateCreated(new DateTime(ts));
+		}
+		
+		return userPasswordHistory;
+		
+	}
 }

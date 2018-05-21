@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mysema.query.types.expr.BooleanExpression;
 
 public interface UserDAO {
@@ -25,5 +27,11 @@ public interface UserDAO {
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
 	
 	int updateUserLastLogin(User user);
+	
+	ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId);
+	
+	long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword);
+	
+	void deletePasswordHistory(long userId);
 	
 }

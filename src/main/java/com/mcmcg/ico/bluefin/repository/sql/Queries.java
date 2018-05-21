@@ -168,6 +168,10 @@ public class Queries {
 	public static final String FETCHBINDBFORBINS_MULTIPLE = FETCHBINDBFORBINS + " where BIN in (:bins) ";
 	public static final String FETCHBINDBFORBINS_SINGLE = FETCHBINDBFORBINS + " where BIN = :bin ";
 	public static final String UPDATEUSERLASTLOGIN = "UPDATE User_Lookup SET LastLogin = ? WHERE UserID = ?";
+	public static final String FINDUSERPASSWORDHISTORYBYUSERID = "SELECT PasswordHistoryID, UserID, UserOldPassword, ModifiedBy, DateCreated FROM Password_History WHERE UserID = ? order by DateCreated desc Limit 3";
+	public static final String SAVEPASSWORDHISTORY = "INSERT INTO Password_History(UserID, UserOldPassword, ModifiedBy) VALUES (?,?,?)";
+	public static final String DELETEPASSWORDHISTORY = "DELETE FROM Password_History WHERE PasswordHistoryID = ?";
+	
 	
 	private Queries(){
 		// Default Constructor
