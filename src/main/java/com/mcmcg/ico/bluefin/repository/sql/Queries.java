@@ -169,6 +169,7 @@ public class Queries {
 	public static final String FETCHBINDBFORBINS_SINGLE = FETCHBINDBFORBINS + " where BIN = :bin ";
 	public static final String UPDATE_USER_LOOKUP_WITH_STATUS = "UPDATE User_Lookup SET WrongPasswordCounter = ?, Status = ?, AccountLockedOn = ?  WHERE UserID = ?";
 	public static final String UPDATE_USER_LOOKUP = "UPDATE User_Lookup SET WrongPasswordCounter = ? WHERE UserID = ?";
+	public static final String UPDATEUSERLASTLOGIN = "UPDATE User_Lookup SET LastLogin = ? WHERE UserID = ?";
 	private Queries(){
 		// Default Constructor
 	}

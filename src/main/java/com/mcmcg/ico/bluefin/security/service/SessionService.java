@@ -23,6 +23,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
@@ -93,6 +94,7 @@ public class SessionService {
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
 
+	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
 		LOGGER.info("Entering to authenticate");
 		User user = userDAO.findByUsername(username);
@@ -128,6 +130,7 @@ public class SessionService {
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 
+		updateLastLoginInfo(user);
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
@@ -363,5 +366,12 @@ public class SessionService {
 			LOGGER.error(e.getMessage(),e);
 		}
 		LOGGER.info("Exit from updateUserLookUp");
+	}
+	private void updateLastLoginInfo(User user) {
+		LOGGER.debug("updateLastLoginInfo value is ={} ",user);
+		if (user != null) {
+			userDAO.updateUserLastLogin(user);
+		}
+		LOGGER.info("Exit from updateLastLoginInfo");
 	}
 }

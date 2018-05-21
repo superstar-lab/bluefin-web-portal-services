@@ -35,5 +35,7 @@ public interface UserDAO {
 	 * @throws ApplicationGenericException
 	 */
 	public int updateUserLookUp(Integer wrongPasswordCounter, String status, Long userId, Timestamp accountLockedOn) throws ApplicationGenericException;
+
+	int updateUserLastLogin(User user);
 	
 }
