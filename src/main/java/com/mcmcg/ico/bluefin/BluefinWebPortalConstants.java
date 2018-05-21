@@ -123,6 +123,7 @@ public class BluefinWebPortalConstants {
 	public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
 	public static final String BLUEFIN_NAMED_JDBC_TEMPLATE = "bluefinNamedJdbcTemplate";
 	//public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
+	public static final String WRONG_PASSWORD_MAX_LIMIT = "WRONG_PASSWORD_MAX_LIMIT";
 	
 	private BluefinWebPortalConstants(){
 		

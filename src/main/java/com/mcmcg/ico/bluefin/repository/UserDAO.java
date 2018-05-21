@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -7,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mysema.query.types.expr.BooleanExpression;
 
 public interface UserDAO {
@@ -23,5 +25,15 @@ public interface UserDAO {
 	int updateUser(User user, String modifiedBy);
 	
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
+	
+	/**
+	 * 
+	 * @param wrongPasswordCounter
+	 * @param status
+	 * @param userId
+	 * @return
+	 * @throws ApplicationGenericException
+	 */
+	public int updateUserLookUp(Integer wrongPasswordCounter, String status, Long userId, Timestamp accountLockedOn) throws ApplicationGenericException;
 	
 }

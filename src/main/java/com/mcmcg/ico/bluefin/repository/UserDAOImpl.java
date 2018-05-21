@@ -33,6 +33,7 @@ import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -250,6 +251,33 @@ public class UserDAOImpl implements UserDAO {
 
 		return new PageImpl<>(onePage, pageRequest, countResult);
 	}
+	
+	@Override
+	public int updateUserLookUp(Integer wrongPasswordCounter, String status, Long userId, Timestamp accountLockedOn) 
+			throws ApplicationGenericException{
+		
+		int rows = 0;
+		
+		try {
+			if(status == null) {
+				rows = jdbcTemplate.update(Queries.UPDATE_USER_LOOKUP, 
+								wrongPasswordCounter,
+								userId
+						);
+			} else {
+				rows = jdbcTemplate.update(Queries.UPDATE_USER_LOOKUP_WITH_STATUS, 
+								wrongPasswordCounter,
+								status,
+								accountLockedOn,
+								userId
+						);
+			}
+		} catch(Exception e) {
+			LOGGER.error(e.getMessage(),e);
+			throw new ApplicationGenericException(e.getMessage(),e);
+		}
+		return rows;
+	}
 }
 
 class UserRowMapper implements RowMapper<User> {
@@ -289,6 +317,7 @@ class UserRowMapper implements RowMapper<User> {
 		user.setPassword(rs.getString("UserPassword"));
 		user.setModifiedBy(rs.getString("ModifiedBy"));
 		user.setStatus(rs.getString("Status"));
+		user.setWrongPasswordCounter(rs.getInt("WrongPasswordCounter"));
 
 		return user;
 	}

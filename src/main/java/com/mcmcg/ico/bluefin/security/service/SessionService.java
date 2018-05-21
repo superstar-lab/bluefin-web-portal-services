@@ -1,13 +1,18 @@
 package com.mcmcg.ico.bluefin.security.service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.enums.UserStatus;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
@@ -37,6 +44,7 @@ import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
@@ -91,6 +99,7 @@ public class SessionService {
 		UserLoginHistory userLoginHistory = new UserLoginHistory();
 		userLoginHistory.setUsername(username);
 		userLoginHistory.setPassword(passwordEncoder.encode(password));
+		Integer wrongPasswordCounterNextVal;
 
 		LOGGER.debug("user is ={} ",user);
 		if (user == null) {
@@ -106,8 +115,16 @@ public class SessionService {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account was deactivated.");
 		}
+		if (UserStatus.LOCKED.getStatus().equalsIgnoreCase(user.getStatus())) {
+			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_IS_LOCKED.getValue());
+			throw new AccessDeniedException("Account is Locked.");
+		}
 		if (!passwordEncoder.matches(password, user.getPassword())) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
+			
+			wrongPasswordCounterNextVal = user.getWrongPasswordCounter() + 1;
+			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
+			updateUserLookUp(wrongPasswordCounterNextVal, user.getUserId());
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 
@@ -321,5 +338,30 @@ public class SessionService {
 
 		LOGGER.info("Exit from validate Token");
 		return true;
+	}
+	
+	private void updateUserLookUp(Integer wrongPasswordCounter, Long userId) {
+		LOGGER.debug("WrongPasswordCounter : "+wrongPasswordCounter+" for User Id : "+userId);
+		String status = null;
+		DateTime currentDate = null;
+		DateTimeFormatter dtf = null;
+		Timestamp accountLockedTime = null;
+		
+		try {
+			if (wrongPasswordCounter >= Integer.parseInt(propertyService.getPropertyValue(BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT))) {
+				status = UserStatus.LOCKED.getStatus();
+				
+				currentDate = new DateTime().toDateTime(DateTimeZone.UTC);
+				dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
+				accountLockedTime = Timestamp.valueOf(dtf.print(currentDate));
+			}
+				
+			userDAO.updateUserLookUp(wrongPasswordCounter, status, userId, accountLockedTime);
+		} catch (ApplicationGenericException e) {
+			LOGGER.error(e.getMessage(),e);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage(),e);
+		}
+		LOGGER.info("Exit from updateUserLookUp");
 	}
 }
