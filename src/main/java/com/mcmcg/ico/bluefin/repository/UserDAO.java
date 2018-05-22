@@ -32,6 +32,6 @@ public interface UserDAO {
 	
 	long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword);
 	
-	void deletePasswordHistory(long userId);
+	void updatePasswordHistory(long historyId, String modifiedBy, String previousPassword);
 	
 }

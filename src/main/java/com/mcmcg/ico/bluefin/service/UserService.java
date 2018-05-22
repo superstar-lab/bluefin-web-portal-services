@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -78,6 +79,8 @@ public class UserService {
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
+	@Value("${last.password.count}")
+    private int lastPasswordCount;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
@@ -551,10 +554,11 @@ public class UserService {
 		}
 		
 		if (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch) {
-			throw new CustomBadRequestException("Your new password should be different from your last 4 password");
+			throw new CustomBadRequestException("Your new password should be different from your last 4 passwords");
 		}
-		setStatus(tokenType,userToUpdate);
+		
 		String userPreviousPasword = userToUpdate.getPassword();
+		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
 		String modifiedBy = null;
@@ -563,10 +567,12 @@ public class UserService {
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("Ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
-		if(passwordHistoryList.size()>=3) {
-			userDAO.deletePasswordHistory(passwordHistoryList.get(2).getPasswordHistoryID());
+		if(passwordHistoryList.size()<lastPasswordCount-1) {
+			userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
 		}
-		userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
+		else {
+			userDAO.updatePasswordHistory(passwordHistoryList.get(2).getPasswordHistoryID(),username,userPreviousPasword);
+		}
 		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
