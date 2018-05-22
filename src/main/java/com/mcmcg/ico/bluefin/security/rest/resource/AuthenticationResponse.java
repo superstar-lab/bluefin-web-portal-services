@@ -22,6 +22,8 @@ public class AuthenticationResponse implements Serializable {
 	private Set<LegalEntityApp> legalEntityApps;
 	private String selectedTimeZone;
 	private String email;
+	private String warn;
+	private int changePasswordWithIn;
 	
 	public AuthenticationResponse() {
 		// Default Constructor

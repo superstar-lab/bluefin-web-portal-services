@@ -8,9 +8,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Days;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,6 +32,7 @@ import com.mcmcg.ico.bluefin.model.RolePermission;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory.MessageCode;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
@@ -85,6 +89,10 @@ public class SessionService {
 	private LegalEntityAppDAO legalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
+	@Value("${password.expire.after}")
+    private int passwordExpireAfter;
+	@Value("${password.warn.with.in}")
+    private int passwordWarnWithIn;
 
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
@@ -238,6 +246,27 @@ public class SessionService {
 		response.setLegalEntityApps(legalEntityAppSet);
 		String selectedTimeZone = userPreferenceDAO.getSelectedTimeZone(user.getUserId()); 
 		response.setSelectedTimeZone(selectedTimeZone);
+		
+		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
+		DateTime dateModified = new DateTime(DateTimeZone.UTC);
+		DateTime currentDateTime = new DateTime(DateTimeZone.UTC);
+		if(passwordHistoryList.size()<=0) {
+			dateModified = user.getDateCreated();
+		}else {
+			dateModified = passwordHistoryList.get(0).getDateModified();
+		}
+		int daysDiff = Days.daysBetween(dateModified, currentDateTime).getDays();
+		if(daysDiff>(passwordExpireAfter-passwordWarnWithIn) && daysDiff<=passwordExpireAfter) {
+			response.setWarn("Your password is about to expire, Please change your password");
+			response.setChangePasswordWithIn(daysDiff);
+		}
+		else if(daysDiff>passwordExpireAfter) {
+			response.setWarn("Your password has been expired");
+			response.setChangePasswordWithIn(0);
+		}
+		else {
+			response.setChangePasswordWithIn(-1);
+		}
 		LOGGER.debug("Exit with response ={} ",response);
 		return response;
 	}
