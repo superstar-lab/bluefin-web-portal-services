@@ -621,7 +621,7 @@ public class UserService {
 
 				// Send email
 				final String link = "/api/users/" + username + "/password";
-				final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
+				final String token = sessionService.generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
 				String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
 						+ "Username: " + username + "\n\n To create your password, use the link below: \n\n"
 						+ propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
@@ -651,7 +651,7 @@ public class UserService {
 			}
 			else {
 				final String link = "/api/users/" + username + "/password";
-				final String token = sessionService.generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
+				final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
 				String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
 						+ "Username: " + username + "\n\n To create your password, use the link below: \n\n"
 						+ propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
