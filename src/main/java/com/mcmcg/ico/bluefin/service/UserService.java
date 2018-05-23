@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +30,7 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserPreference;
 import com.mcmcg.ico.bluefin.model.UserPreferenceEnum;
 import com.mcmcg.ico.bluefin.model.UserRole;
@@ -77,6 +79,8 @@ public class UserService {
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
+	@Value("${last.password.count}")
+    private int lastPasswordCount;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
@@ -539,6 +543,21 @@ public class UserService {
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
+		
+		boolean isPasswordMatch = false;
+		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		for(UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			if(passwordEncoder.matches(updatePasswordResource.getNewPassword(), userPasswordHistory.getPreviousPassword())) {
+				isPasswordMatch = true;
+				break;
+			}
+		}
+		
+		if (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch) {
+			throw new CustomBadRequestException("Your new password should be different from your last 4 passwords");
+		}
+		
+		String userPreviousPasword = userToUpdate.getPassword();
 		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
@@ -548,6 +567,12 @@ public class UserService {
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("Ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
+		if(passwordHistoryList.size()<lastPasswordCount-1) {
+			userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
+		}
+		else {
+			userDAO.updatePasswordHistory(passwordHistoryList.get(2).getPasswordHistoryID(),username,userPreviousPasword);
+		}
 		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
@@ -648,5 +673,13 @@ public class UserService {
 	
 	public User findByUsername(String userName){
 		return userDAO.findByUsername(userName);
+	}
+	
+	public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId) {
+		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId);
+		if (userList.size()<0) {
+			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
+		}
+		return userList;
 	}
 }

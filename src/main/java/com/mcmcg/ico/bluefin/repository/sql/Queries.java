@@ -167,6 +167,11 @@ public class Queries {
 	private static final String FETCHBINDBFORBINS = "Select BinDBID as binDBId, BIN as bin , Brand as brand, Bank as bank ,  Type as type, Level as level, ISOCountry as isocountry,Info as info,WWW as www, Phone as phone,	CountryISO as countryIso, Country2ISO as country2Iso , Country3ISO as country3Iso from BinDB_Lookup";
 	public static final String FETCHBINDBFORBINS_MULTIPLE = FETCHBINDBFORBINS + " where BIN in (:bins) ";
 	public static final String FETCHBINDBFORBINS_SINGLE = FETCHBINDBFORBINS + " where BIN = :bin ";
+	public static final String UPDATEUSERLASTLOGIN = "UPDATE User_Lookup SET LastLogin = ? WHERE UserID = ?";
+	public static final String FINDUSERPASSWORDHISTORYBYUSERID = "SELECT PasswordHistoryID, UserID, UserOldPassword, ModifiedBy, DateCreated, DatedModified FROM Password_History WHERE UserID = ? order by DatedModified desc";
+	public static final String SAVEPASSWORDHISTORY = "INSERT INTO Password_History(UserID, UserOldPassword, ModifiedBy, DatedModified) VALUES (?,?,?,?)";
+	public static final String UPDATEPASSWORDHISTORY = "UPDATE Password_History SET UserOldPassword = ?, ModifiedBy = ?, DatedModified = ? where PasswordHistoryID = ?;";
+
 	private Queries(){
 		// Default Constructor
 	}

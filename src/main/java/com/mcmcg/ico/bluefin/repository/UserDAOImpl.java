@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
 import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
@@ -250,6 +251,94 @@ public class UserDAOImpl implements UserDAO {
 
 		return new PageImpl<>(onePage, pageRequest, countResult);
 	}
+
+	@Override
+	public int updateUserLastLogin(User user) {
+
+		// The Java class uses Joda DateTime, which isn't supported by
+		// PreparedStatement.
+		// Convert Joda DateTime to UTC (the format for the database).
+		// Remove the 'T' and 'Z' from the format, because it's not in the
+		// database.
+		// Convert this string to Timestamp, which is supported by
+		// PreparedStatement.
+		DateTime utc1 = new DateTime(DateTimeZone.UTC);
+		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
+
+		int rows = jdbcTemplate.update(Queries.UPDATEUSERLASTLOGIN,
+				new Object[] {lastLogin, user.getUserId()});
+
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
+
+		return rows;
+	
+	}
+	
+	@Override
+	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId) {
+		
+		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID, new Object[] { userId },
+				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
+		
+		LOGGER.debug("Number of User ={} ", userList.size());
+
+		if (userList.size()>0) {
+			LOGGER.debug("Found User Password History for userId ={} ", userId);
+		} else {
+			LOGGER.debug("User Password History not found for userId ={} ", userId);
+		}
+
+		return userList;
+	}
+	
+	@Override
+	public long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword ) {
+
+		DateTime utc = new DateTime(DateTimeZone.UTC);
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc));
+		
+		KeyHolder holder = new GeneratedKeyHolder();
+		jdbcTemplate.update(connection->{
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPASSWORDHISTORY,
+					Statement.RETURN_GENERATED_KEYS);
+			ps.setLong(1, user.getUserId()); 
+			ps.setString(2, userPreviousPasword); 
+			ps.setString(3, modifiedBy);
+			ps.setTimestamp(4, dateModified);
+			return ps;
+		}, holder);
+		long noOfRecordsInserted = holder.getKey().longValue();
+		LOGGER.debug("Saved Password History - id ={} ", noOfRecordsInserted);
+		
+		if(noOfRecordsInserted>0){
+			LOGGER.debug("Password history inserted successfully");
+			return noOfRecordsInserted;
+		}
+		else {
+			LOGGER.debug("Password history not inserted");
+		}
+		return 0;
+		
+		
+		/*int rows = jdbcTemplate.update(Queries.SAVEPASSWORDHISTORY,
+				new Object[] {user.getUserId(), user.getPassword(), modifiedBy});
+
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
+
+		return rows;*/
+	}
+
+	@Override
+	public void updatePasswordHistory(long historyId, String modifiedBy, String previousPassword) {
+
+		DateTime utc = new DateTime(DateTimeZone.UTC);
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc));
+		
+		int rows = jdbcTemplate.update(Queries.UPDATEPASSWORDHISTORY,
+				new Object[] {previousPassword, modifiedBy, dateModified, historyId});
+		
+		LOGGER.debug("update password history with ID ={} , rows affected ={} ", historyId, rows);
+	}
 }
 
 class UserRowMapper implements RowMapper<User> {
@@ -294,4 +383,30 @@ class UserRowMapper implements RowMapper<User> {
 	}
 	
 	
+}
+
+class PasswordHistoryRowMapper implements RowMapper<UserPasswordHistory> {
+
+	@Override
+	public UserPasswordHistory mapRow(ResultSet rs, int row) throws SQLException {
+		UserPasswordHistory userPasswordHistory = new UserPasswordHistory();
+		Timestamp ts;
+		userPasswordHistory.setPasswordHistoryID(rs.getLong("PasswordHistoryID"));
+		userPasswordHistory.setUserId(rs.getLong("UserID"));
+		userPasswordHistory.setPreviousPassword(rs.getString("UserOldPassword"));
+		userPasswordHistory.setModifiedBy(rs.getString("ModifiedBy"));
+		
+		if (rs.getString("DateCreated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			userPasswordHistory.setDateCreated(new DateTime(ts));
+		}
+		if (rs.getString("DatedModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			userPasswordHistory.setDateModified(new DateTime(ts));
+		}
+		return userPasswordHistory;
+		
+	}
 }
