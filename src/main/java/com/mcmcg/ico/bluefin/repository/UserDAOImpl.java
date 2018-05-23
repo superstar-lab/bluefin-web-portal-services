@@ -250,28 +250,6 @@ public class UserDAOImpl implements UserDAO {
 
 		return new PageImpl<>(onePage, pageRequest, countResult);
 	}
-
-	@Override
-	public int updateUserLastLogin(User user) {
-
-		// The Java class uses Joda DateTime, which isn't supported by
-		// PreparedStatement.
-		// Convert Joda DateTime to UTC (the format for the database).
-		// Remove the 'T' and 'Z' from the format, because it's not in the
-		// database.
-		// Convert this string to Timestamp, which is supported by
-		// PreparedStatement.
-		DateTime utc1 = new DateTime(DateTimeZone.UTC);
-		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
-
-		int rows = jdbcTemplate.update(Queries.UPDATEUSERLASTLOGIN,
-				new Object[] {lastLogin, user.getUserId()});
-
-		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
-
-		return rows;
-	
-	}
 }
 
 class UserRowMapper implements RowMapper<User> {
