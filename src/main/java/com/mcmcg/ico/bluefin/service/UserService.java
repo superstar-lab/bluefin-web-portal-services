@@ -617,7 +617,7 @@ public class UserService {
 		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
 			userToUpdate.setStatus(status);
 			if ("NEW".equals(status)) {
-				userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+				//userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 				// Send email
 				final String link = "/api/users/" + username + "/password";
