@@ -30,6 +30,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.enums.UserStatus;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
@@ -253,32 +254,26 @@ public class UserDAOImpl implements UserDAO {
 	}
 	
 	@Override
-	public int updateUserLookUp(Integer wrongPasswordCounter, String status, Long userId, Timestamp accountLockedOn) 
+	public int updateUserLookUp(User user) 
 			throws ApplicationGenericException{
 		
 		int rows = 0;
-		
 		try {
-			if(status == null) {
 				rows = jdbcTemplate.update(Queries.UPDATE_USER_LOOKUP, 
-								wrongPasswordCounter,
-								userId
+							user.getWrongPasswordCounter(),
+							user.getStatus(),
+							(user.getAccountLockedOn() == null || UserStatus.ACTIVE.getStatus().equals(user.getStatus())) ? 
+									null : Timestamp.valueOf(dtf.print(user.getAccountLockedOn())),
+							Timestamp.valueOf(dtf.print(user.getLastLogin())),
+							user.getUserId()
 						);
-			} else {
-				rows = jdbcTemplate.update(Queries.UPDATE_USER_LOOKUP_WITH_STATUS, 
-								wrongPasswordCounter,
-								status,
-								accountLockedOn,
-								userId
-						);
-			}
 		} catch(Exception e) {
 			LOGGER.error(e.getMessage(),e);
 			throw new ApplicationGenericException(e.getMessage(),e);
 		}
 		return rows;
 	}
-	@Override
+	/*@Override
 	public int updateUserLastLogin(User user) {
 
 		// The Java class uses Joda DateTime, which isn't supported by
@@ -297,7 +292,7 @@ public class UserDAOImpl implements UserDAO {
 		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
 
 		return rows;
-	}
+	}*/
 }
 
 class UserRowMapper implements RowMapper<User> {
@@ -338,6 +333,10 @@ class UserRowMapper implements RowMapper<User> {
 		user.setModifiedBy(rs.getString("ModifiedBy"));
 		user.setStatus(rs.getString("Status"));
 		user.setWrongPasswordCounter(rs.getInt("WrongPasswordCounter"));
+		if (rs.getDate("AccountLockedOn") != null) {
+			ts = Timestamp.valueOf(rs.getString("AccountLockedOn"));
+			user.setAccountLockedOn(new DateTime(ts));
+		}
 
 		return user;
 	}

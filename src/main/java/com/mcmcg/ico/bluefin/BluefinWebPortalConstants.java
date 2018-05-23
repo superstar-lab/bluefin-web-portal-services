@@ -124,7 +124,9 @@ public class BluefinWebPortalConstants {
 	public static final String BLUEFIN_NAMED_JDBC_TEMPLATE = "bluefinNamedJdbcTemplate";
 	//public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
 	public static final String WRONG_PASSWORD_MAX_LIMIT = "WRONG_PASSWORD_MAX_LIMIT";
-	
+	public static final int WRONG_PASSWORD_MAX_LIMIT_DEFAULT = 6;
+	public static final String ACCOUNT_LOCKED_DURATION_SECONDS = "ACCOUNT_LOCKED_DURATION_SECONDS";
+	public static final int ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT = 30*60;
 	private BluefinWebPortalConstants(){
 		
 	}
