@@ -91,7 +91,7 @@ public class SessionService {
 	private UserPreferenceDAO userPreferenceDAO;
 	@Value("${password.expire.after}")
     private int passwordExpireAfter;
-	@Value("${password.warn.with.in}")
+	@Value("${password.expire.warn.before}")
     private int passwordWarnWithIn;
 
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
