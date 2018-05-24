@@ -26,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.User;
@@ -567,6 +568,8 @@ public class UserService {
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("Ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
+		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
+		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
 		if(passwordHistoryList.size()<lastPasswordCount-1) {
 			userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
 		}

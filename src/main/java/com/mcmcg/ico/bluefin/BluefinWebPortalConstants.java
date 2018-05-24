@@ -123,6 +123,9 @@ public class BluefinWebPortalConstants {
 	public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
 	public static final String BLUEFIN_NAMED_JDBC_TEMPLATE = "bluefinNamedJdbcTemplate";
 	//public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
+	public static final String MATCHLASTPASSWORDCOUNT = "MATCH_LAST_PASSWORD_COUNT";
+	public static final String PASSWORDEXPIREAFTER = "PASSWORD_EXPIRE_AFTER";
+	public static final String PASSWORDEXPIREWARNBEFORE = "PASSWORD_EXPIRE_WARN_BEFORE";
 	
 	private BluefinWebPortalConstants(){
 		
