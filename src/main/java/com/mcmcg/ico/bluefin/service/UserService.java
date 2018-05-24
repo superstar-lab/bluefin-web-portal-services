@@ -79,7 +79,7 @@ public class UserService {
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
-	@Value("${last.password.count}")
+	@Value("${last.password.match.count}")
     private int lastPasswordCount;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
