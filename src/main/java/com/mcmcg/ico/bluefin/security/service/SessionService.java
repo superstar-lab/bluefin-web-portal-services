@@ -123,10 +123,12 @@ public class SessionService {
 			try {
 				accountLockedDurationSecsVal = accountLockedDurationSecs == null || "".equals(accountLockedDurationSecs.trim()) ? 
 						BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT : Integer.parseInt(accountLockedDurationSecs);
+				if(accountLockedDurationSecsVal < 0)
+					accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
 			} catch(NumberFormatException e) {
 				accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
 			}
-			if(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal).isEqual(currentTimeUTC) || 
+			if(user.getAccountLockedOn() == null || user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal).isEqual(currentTimeUTC) || 
 					user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal).isAfter(currentTimeUTC)) {
 				user.setStatus(UserStatus.ACTIVE.getStatus());
 				user.setAccountLockedOn(null);
@@ -142,6 +144,8 @@ public class SessionService {
 			try {
 				wrongPasswordMaxLimitVal = wrongPasswordMaxLimit == null || "".equals(wrongPasswordMaxLimit.trim()) ? 
 						BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT : Integer.parseInt(wrongPasswordMaxLimit);
+				if(wrongPasswordMaxLimitVal < 0)
+					wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT;
 			} catch(NumberFormatException e) {
 				wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT;
 			}

@@ -43,7 +43,7 @@ public class User extends Common implements Serializable {
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime accountLockedOn = new DateTime();
+	private DateTime accountLockedOn;
 
 	public User() {
 		// Default Constructor
