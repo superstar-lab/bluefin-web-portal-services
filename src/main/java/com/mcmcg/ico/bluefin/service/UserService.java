@@ -24,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
@@ -527,6 +528,7 @@ public class UserService {
 	 * @throws CustomNotFoundException
 	 * @throws CustomBadRequestException
 	 */
+	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
 			final String token) {
 		String usernameVal = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
@@ -546,10 +548,26 @@ public class UserService {
 		}
 		
 		boolean isPasswordMatch = false;
+		boolean isPasswordDeleted = false;
 		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
 		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
+		//delete old password from password history if password match count changed
 		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
 		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
+		int passwordHistoryCount = passwordHistoryList.size();
+		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			if(passwordHistoryCount>lastPasswordCount-1) {
+				userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
+				isPasswordDeleted = true;
+				passwordHistoryCount--;
+			}
+			else {
+					break;
+				}
+		}
+		if(isPasswordDeleted) {
+			passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		}
 		for(UserPasswordHistory userPasswordHistory : passwordHistoryList) {
 			if(passwordEncoder.matches(updatePasswordResource.getNewPassword(), userPasswordHistory.getPreviousPassword())) {
 				isPasswordMatch = true;

@@ -126,21 +126,6 @@ public class SessionService {
 
 		updateLastLoginInfo(user);
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
-		//delete old password from password history if password match count changed
-		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
-		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
-		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
-		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
-		int passwordHistoryCount = passwordHistoryList.size();
-		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
-			if(passwordHistoryCount>lastPasswordCount-1) {
-				userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),user.getUserId());
-				passwordHistoryCount--;
-			}
-			else {
-					break;
-				}
-		}
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
 	}
