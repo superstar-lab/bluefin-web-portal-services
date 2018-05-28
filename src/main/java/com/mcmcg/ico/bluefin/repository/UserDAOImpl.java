@@ -291,6 +291,23 @@ public class UserDAOImpl implements UserDAO {
 		return userList;
 	}
 	
+	/*@Override
+	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId, int limit) {
+		
+		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID.concat(" limit "+limit), new Object[] { userId },
+				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
+		
+		LOGGER.debug("Number of User ={} ", userList.size());
+
+		if (userList.size()>0) {
+			LOGGER.debug("Found User Password History for userId ={} ", userId);
+		} else {
+			LOGGER.debug("User Password History not found for userId ={} ", userId);
+		}
+
+		return userList;
+	}*/
+	
 	@Override
 	public long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword ) {
 
@@ -338,6 +355,15 @@ public class UserDAOImpl implements UserDAO {
 				new Object[] {previousPassword, modifiedBy, dateModified, historyId});
 		
 		LOGGER.debug("update password history with ID ={} , rows affected ={} ", historyId, rows);
+	}
+	
+	@Override
+	public void deletePasswordHistory(long historyId, long userId) {
+		int rows = jdbcTemplate.update(Queries.DELETEPASSWORDHISTORY,
+				new Object[] {historyId, userId});
+		
+		LOGGER.debug("delete user with ID ={} , rows affected ={} ", userId, rows);
+		
 	}
 }
 

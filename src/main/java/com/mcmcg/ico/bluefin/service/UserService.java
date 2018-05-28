@@ -547,6 +547,9 @@ public class UserService {
 		
 		boolean isPasswordMatch = false;
 		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
+		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
+		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
 		for(UserPasswordHistory userPasswordHistory : passwordHistoryList) {
 			if(passwordEncoder.matches(updatePasswordResource.getNewPassword(), userPasswordHistory.getPreviousPassword())) {
 				isPasswordMatch = true;
@@ -555,7 +558,7 @@ public class UserService {
 		}
 		
 		if (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch) {
-			throw new CustomBadRequestException("Your new password should be different from your last 4 passwords");
+			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
 		}
 		
 		String userPreviousPasword = userToUpdate.getPassword();
@@ -568,13 +571,11 @@ public class UserService {
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("Ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
-		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
-		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
 		if(passwordHistoryList.size()<lastPasswordCount-1) {
 			userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
 		}
 		else {
-			userDAO.updatePasswordHistory(passwordHistoryList.get(2).getPasswordHistoryID(),username,userPreviousPasword);
+			userDAO.updatePasswordHistory(passwordHistoryList.get(passwordHistoryList.size()-1).getPasswordHistoryID(),username,userPreviousPasword);
 		}
 		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
@@ -685,4 +686,12 @@ public class UserService {
 		}
 		return userList;
 	}
+	
+	/*public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId, int limit) {
+		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId, limit);
+		if (userList.size()<0) {
+			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
+		}
+		return userList;
+	}*/
 }

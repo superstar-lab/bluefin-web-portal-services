@@ -171,6 +171,7 @@ public class Queries {
 	public static final String FINDUSERPASSWORDHISTORYBYUSERID = "SELECT PasswordHistoryID, UserID, UserOldPassword, ModifiedBy, DateCreated, DatedModified FROM Password_History WHERE UserID = ? order by DatedModified desc";
 	public static final String SAVEPASSWORDHISTORY = "INSERT INTO Password_History(UserID, UserOldPassword, ModifiedBy, DatedModified) VALUES (?,?,?,?)";
 	public static final String UPDATEPASSWORDHISTORY = "UPDATE Password_History SET UserOldPassword = ?, ModifiedBy = ?, DatedModified = ? where PasswordHistoryID = ?;";
+	public static final String DELETEPASSWORDHISTORY = "DELETE FROM Password_History WHERE PasswordHistoryID = ? and UserID = ?";
 
 	private Queries(){
 		// Default Constructor

@@ -94,6 +94,8 @@ public class SessionService {
     private int passwordExpireAfter;
 	@Value("${password.expire.warn.before}")
     private int passwordWarnWithIn;
+	@Value("${last.password.match.count}")
+    private int lastPasswordCount;
 
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
@@ -124,6 +126,21 @@ public class SessionService {
 
 		updateLastLoginInfo(user);
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
+		//delete old password from password history if password match count changed
+		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
+		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
+		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
+		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
+		int passwordHistoryCount = passwordHistoryList.size();
+		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			if(passwordHistoryCount>lastPasswordCount-1) {
+				userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),user.getUserId());
+				passwordHistoryCount--;
+			}
+			else {
+					break;
+				}
+		}
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
 	}
@@ -249,6 +266,7 @@ public class SessionService {
 		response.setSelectedTimeZone(selectedTimeZone);
 		
 		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
+		//ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId(),1);
 		String passwordExpirecount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREAFTER);
 		String passwordWarncount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORE);
 		passwordExpireAfter = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordExpirecount) ? Integer.parseInt(passwordExpirecount) : passwordExpireAfter;
