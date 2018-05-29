@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +34,4 @@ public interface UserDAO {
 	 * @throws ApplicationGenericException
 	 */
 	public int updateUserLookUp(User user) throws ApplicationGenericException;
-
-	/*int updateUserLastLogin(User user);*/
-	
 }

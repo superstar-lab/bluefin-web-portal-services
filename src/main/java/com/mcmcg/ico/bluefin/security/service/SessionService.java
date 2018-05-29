@@ -128,8 +128,8 @@ public class SessionService {
 			} catch(NumberFormatException e) {
 				accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
 			}
-			if(user.getAccountLockedOn() == null || user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal).isEqual(currentTimeUTC) || 
-					user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal).isAfter(currentTimeUTC)) {
+			if(user.getAccountLockedOn() == null || currentTimeUTC.isEqual(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal)) || 
+					currentTimeUTC.isAfter(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal))) {
 				user.setStatus(UserStatus.ACTIVE.getStatus());
 				user.setAccountLockedOn(null);
 			} else {
@@ -387,12 +387,4 @@ public class SessionService {
 		}
 		LOGGER.info("Exit from updateUserLookUp");
 	}
-	
-	/*private void updateLastLoginInfo(User user) {
-		LOGGER.debug("updateLastLoginInfo value is ={} ",user);
-		if (user != null) {
-			userDAO.updateUserLastLogin(user);
-		}
-		LOGGER.info("Exit from updateLastLoginInfo");
-	}*/
 }

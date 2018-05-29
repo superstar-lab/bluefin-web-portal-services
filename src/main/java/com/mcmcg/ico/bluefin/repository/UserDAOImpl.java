@@ -273,29 +273,11 @@ public class UserDAOImpl implements UserDAO {
 		}
 		return rows;
 	}
-	/*@Override
-	public int updateUserLastLogin(User user) {
-
-		// The Java class uses Joda DateTime, which isn't supported by
-		// PreparedStatement.
-		// Convert Joda DateTime to UTC (the format for the database).
-		// Remove the 'T' and 'Z' from the format, because it's not in the
-		// database.
-		// Convert this string to Timestamp, which is supported by
-		// PreparedStatement.
-		DateTime utc1 = new DateTime(DateTimeZone.UTC);
-		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
-
-		int rows = jdbcTemplate.update(Queries.UPDATEUSERLASTLOGIN,
-				new Object[] {lastLogin, user.getUserId()});
-
-		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
-
-		return rows;
-	}*/
 }
 
 class UserRowMapper implements RowMapper<User> {
+	
+	DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 
 	@Override
 	public User mapRow(ResultSet rs, int row) throws SQLException {
@@ -333,9 +315,8 @@ class UserRowMapper implements RowMapper<User> {
 		user.setModifiedBy(rs.getString("ModifiedBy"));
 		user.setStatus(rs.getString("Status"));
 		user.setWrongPasswordCounter(rs.getInt("WrongPasswordCounter"));
-		if (rs.getDate("AccountLockedOn") != null) {
-			ts = Timestamp.valueOf(rs.getString("AccountLockedOn"));
-			user.setAccountLockedOn(new DateTime(ts));
+		if (rs.getString("AccountLockedOn") != null) {
+			user.setAccountLockedOn(dtf.withZoneUTC().parseDateTime(rs.getString("AccountLockedOn")));
 		}
 
 		return user;
