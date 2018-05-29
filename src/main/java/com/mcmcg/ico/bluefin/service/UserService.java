@@ -528,7 +528,6 @@ public class UserService {
 	 * @throws CustomNotFoundException
 	 * @throws CustomBadRequestException
 	 */
-	@Transactional(propagation=Propagation.NOT_SUPPORTED)
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
 			final String token) {
 		String usernameVal = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
