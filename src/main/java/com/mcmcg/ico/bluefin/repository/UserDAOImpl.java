@@ -431,6 +431,7 @@ class PasswordHistoryRowMapper implements RowMapper<UserPasswordHistory> {
 
 			ts = Timestamp.valueOf(rs.getString("DatedModified"));
 			userPasswordHistory.setDateModified(new DateTime(ts));
+			//userPasswordHistory.setDateModified(DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT).withZoneUTC().parseDateTime(rs.getString("DatedModified")));
 		}
 		return userPasswordHistory;
 		
