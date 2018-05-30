@@ -256,9 +256,9 @@ public class SessionService {
 		String passwordWarncount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORE);
 		passwordExpireAfter = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordExpirecount) ? Integer.parseInt(passwordExpirecount) : passwordExpireAfter;
 		passwordWarnWithIn = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordWarncount) ? Integer.parseInt(passwordWarncount) : passwordWarnWithIn;;
-		DateTime dateModified = new DateTime(DateTimeZone.UTC);
+		DateTime dateModified;
 		DateTime currentDateTime = new DateTime(DateTimeZone.UTC);
-		if(passwordHistoryList.size()<=0) {
+		if(passwordHistoryList.isEmpty()) {
 			dateModified = user.getDateCreated();
 		}else {
 			dateModified = passwordHistoryList.get(0).getDateModified();
