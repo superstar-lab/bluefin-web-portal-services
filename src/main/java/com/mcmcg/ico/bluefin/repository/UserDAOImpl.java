@@ -30,10 +30,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.enums.UserStatus;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -251,27 +253,26 @@ public class UserDAOImpl implements UserDAO {
 
 		return new PageImpl<>(onePage, pageRequest, countResult);
 	}
-
-	@Override
-	public int updateUserLastLogin(User user) {
-
-		// The Java class uses Joda DateTime, which isn't supported by
-		// PreparedStatement.
-		// Convert Joda DateTime to UTC (the format for the database).
-		// Remove the 'T' and 'Z' from the format, because it's not in the
-		// database.
-		// Convert this string to Timestamp, which is supported by
-		// PreparedStatement.
-		DateTime utc1 = new DateTime(DateTimeZone.UTC);
-		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
-
-		int rows = jdbcTemplate.update(Queries.UPDATEUSERLASTLOGIN,
-				new Object[] {lastLogin, user.getUserId()});
-
-		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
-
-		return rows;
 	
+	@Override
+	public int updateUserLookUp(User user) 
+			throws ApplicationGenericException{
+		
+		int rows = 0;
+		try {
+				rows = jdbcTemplate.update(Queries.UPDATE_USER_LOOKUP, 
+							user.getWrongPasswordCounter(),
+							user.getStatus(),
+							(user.getAccountLockedOn() == null || UserStatus.ACTIVE.getStatus().equals(user.getStatus())) ? 
+									null : Timestamp.valueOf(dtf.print(user.getAccountLockedOn())),
+							Timestamp.valueOf(dtf.print(user.getLastLogin())),
+							user.getUserId()
+						);
+		} catch(Exception e) {
+			LOGGER.error(e.getMessage(),e);
+			throw new ApplicationGenericException(e.getMessage(),e);
+		}
+		return rows;
 	}
 	
 	@Override
@@ -368,6 +369,8 @@ public class UserDAOImpl implements UserDAO {
 }
 
 class UserRowMapper implements RowMapper<User> {
+	
+	DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 
 	@Override
 	public User mapRow(ResultSet rs, int row) throws SQLException {
@@ -404,6 +407,10 @@ class UserRowMapper implements RowMapper<User> {
 		user.setPassword(rs.getString("UserPassword"));
 		user.setModifiedBy(rs.getString("ModifiedBy"));
 		user.setStatus(rs.getString("Status"));
+		user.setWrongPasswordCounter(rs.getInt("WrongPasswordCounter"));
+		if (rs.getString("AccountLockedOn") != null) {
+			user.setAccountLockedOn(dtf.withZoneUTC().parseDateTime(rs.getString("AccountLockedOn")));
+		}
 
 		return user;
 	}

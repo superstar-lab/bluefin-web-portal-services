@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.enums.UserStatus;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Permission;
 import com.mcmcg.ico.bluefin.model.Role;
@@ -43,6 +44,7 @@ import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
@@ -104,6 +106,12 @@ public class SessionService {
 		UserLoginHistory userLoginHistory = new UserLoginHistory();
 		userLoginHistory.setUsername(username);
 		userLoginHistory.setPassword(passwordEncoder.encode(password));
+		Integer wrongPasswordCounterNextVal = 0;
+		String wrongPasswordMaxLimit;
+		int wrongPasswordMaxLimitVal;
+		String accountLockedDurationSecs;
+		int accountLockedDurationSecsVal;
+		DateTime currentTimeUTC = new DateTime(DateTimeZone.UTC);
 
 		LOGGER.debug("user is ={} ",user);
 		if (user == null) {
@@ -119,12 +127,51 @@ public class SessionService {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account was deactivated.");
 		}
+		if (UserStatus.LOCKED.getStatus().equalsIgnoreCase(user.getStatus())) {
+			accountLockedDurationSecs = propertyService.getPropertyValue(BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS);
+			try {
+				accountLockedDurationSecsVal = accountLockedDurationSecs == null || "".equals(accountLockedDurationSecs.trim()) ? 
+						BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT : Integer.parseInt(accountLockedDurationSecs);
+				if(accountLockedDurationSecsVal < 0)
+					accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
+			} catch(NumberFormatException e) {
+				accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
+			}
+			if(user.getAccountLockedOn() == null || currentTimeUTC.isEqual(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal)) || 
+					currentTimeUTC.isAfter(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal))) {
+				user.setStatus(UserStatus.ACTIVE.getStatus());
+				user.setAccountLockedOn(null);
+			} else {
+				saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_IS_LOCKED.getValue());
+				throw new AccessDeniedException("Account is Locked.");
+			}
+		}
 		if (!passwordEncoder.matches(password, user.getPassword())) {
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
+			
+			wrongPasswordMaxLimit = propertyService.getPropertyValue(BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT);
+			try {
+				wrongPasswordMaxLimitVal = wrongPasswordMaxLimit == null || "".equals(wrongPasswordMaxLimit.trim()) ? 
+						BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT : Integer.parseInt(wrongPasswordMaxLimit);
+				if(wrongPasswordMaxLimitVal < 0)
+					wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT;
+			} catch(NumberFormatException e) {
+				wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT;
+			}
+			wrongPasswordCounterNextVal = user.getWrongPasswordCounter() + 1;
+			if (wrongPasswordCounterNextVal >= wrongPasswordMaxLimitVal) {
+				user.setStatus(UserStatus.LOCKED.getStatus());
+				user.setAccountLockedOn(currentTimeUTC);
+			}
+			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
+			updateUserLookUp(user);
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
-
-		updateLastLoginInfo(user);
+		
+		user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
+		user.setLastLogin(currentTimeUTC);
+		updateUserLookUp(user);
+		
 		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
@@ -363,11 +410,16 @@ public class SessionService {
 		return true;
 	}
 	
-	private void updateLastLoginInfo(User user) {
-		LOGGER.debug("updateLastLoginInfo value is ={} ",user);
-		if (user != null) {
-			userDAO.updateUserLastLogin(user);
+	private void updateUserLookUp(User user) {
+		LOGGER.debug("Inside updateUserLookUp method for User Id : "+user.getUserId());
+		
+		try {	
+			userDAO.updateUserLookUp(user);
+		} catch (ApplicationGenericException e) {
+			LOGGER.error(e.getMessage(),e);
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage(),e);
 		}
-		LOGGER.info("Exit from updateLastLoginInfo");
+		LOGGER.info("Exit from updateUserLookUp");
 	}
 }

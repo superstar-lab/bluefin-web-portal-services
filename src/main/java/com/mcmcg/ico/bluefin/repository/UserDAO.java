@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mysema.query.types.expr.BooleanExpression;
 
 public interface UserDAO {
@@ -25,8 +26,6 @@ public interface UserDAO {
 	int updateUser(User user, String modifiedBy);
 	
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
-
-	int updateUserLastLogin(User user);
 	
 	ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId);
 	
@@ -37,5 +36,14 @@ public interface UserDAO {
 	void updatePasswordHistory(long historyId, String modifiedBy, String previousPassword);
 	
 	void deletePasswordHistory(long historyId, long userId);
-
+	
+	/**
+	 * 
+	 * @param wrongPasswordCounter
+	 * @param status
+	 * @param userId
+	 * @return
+	 * @throws ApplicationGenericException
+	 */
+	public int updateUserLookUp(User user) throws ApplicationGenericException;
 }
