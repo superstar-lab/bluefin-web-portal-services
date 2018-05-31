@@ -553,9 +553,11 @@ public class UserService {
 		int passwordHistoryCount = passwordHistoryList.size();
 		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
 			if(passwordHistoryCount>lastPasswordCount-1) {
-				userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
-				isPasswordDeleted = true;
-				passwordHistoryCount--;
+				if(passwordHistoryCount>0){
+					userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
+					isPasswordDeleted = true;
+					passwordHistoryCount--;
+				}
 			}
 			else {
 					break;
@@ -571,7 +573,7 @@ public class UserService {
 			}
 		}
 		
-		if (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch) {
+		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
 			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
 		}
 		
@@ -589,7 +591,10 @@ public class UserService {
 			userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
 		}
 		else {
-			userDAO.updatePasswordHistory(passwordHistoryList.get(passwordHistoryList.size()-1).getPasswordHistoryID(),username,userPreviousPasword);
+			if(!passwordHistoryList.isEmpty()) {
+				userDAO.updatePasswordHistory(passwordHistoryList.get(passwordHistoryList.size()-1).getPasswordHistoryID(),username,userPreviousPasword);
+			}
+			
 		}
 		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
