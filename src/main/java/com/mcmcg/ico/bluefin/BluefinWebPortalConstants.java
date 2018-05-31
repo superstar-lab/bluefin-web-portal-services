@@ -130,6 +130,10 @@ public class BluefinWebPortalConstants {
 	public static final int WRONG_PASSWORD_MAX_LIMIT_DEFAULT = 6;
 	public static final String ACCOUNT_LOCKED_DURATION_SECONDS = "ACCOUNT_LOCKED_DURATION_SECONDS";
 	public static final int ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT = 30*60;
+	public static final int MATCHLASTPASSWORD = 4;
+	public static final int PASSWORDEXPIREAFTERCOUNT = 90;
+	public static final int PASSWORDEXPIREWARNBEFORECOUNT = 7;
+	
 	private BluefinWebPortalConstants(){
 		
 	}

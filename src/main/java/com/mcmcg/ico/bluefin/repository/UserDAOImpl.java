@@ -280,11 +280,9 @@ public class UserDAOImpl implements UserDAO {
 		
 		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
-		
-		LOGGER.debug("Number of User ={} ", userList.size());
 
-		if (userList.size()>0) {
-			LOGGER.debug("Found User Password History for userId ={} ", userId);
+		if (!userList.isEmpty()) {
+			LOGGER.debug("Found User Password History with size ={} ", userList.size());
 		} else {
 			LOGGER.debug("User Password History not found for userId ={} ", userId);
 		}

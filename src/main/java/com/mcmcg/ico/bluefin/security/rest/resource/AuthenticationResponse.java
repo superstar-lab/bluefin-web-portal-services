@@ -23,7 +23,8 @@ public class AuthenticationResponse implements Serializable {
 	private String selectedTimeZone;
 	private String email;
 	private String warn;
-	private int changePasswordWithIn;
+	/*UI not take any action if value '-1' else if value = 0 then redirect to password change screen else show warning message after successful login.*/
+	private int changePasswordWithIn = -1;
 	
 	public AuthenticationResponse() {
 		// Default Constructor

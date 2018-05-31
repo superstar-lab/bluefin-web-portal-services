@@ -24,7 +24,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
@@ -81,8 +80,6 @@ public class UserService {
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
-	@Value("${last.password.match.count}")
-    private int lastPasswordCount;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
@@ -552,7 +549,7 @@ public class UserService {
 		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
 		//delete old password from password history if password match count changed
 		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
-		lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : lastPasswordCount;
+		int lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : BluefinWebPortalConstants.MATCHLASTPASSWORD;
 		int passwordHistoryCount = passwordHistoryList.size();
 		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
 			if(passwordHistoryCount>lastPasswordCount-1) {
