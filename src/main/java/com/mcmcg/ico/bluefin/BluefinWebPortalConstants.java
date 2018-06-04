@@ -133,6 +133,8 @@ public class BluefinWebPortalConstants {
 	public static final int MATCHLASTPASSWORD = 4;
 	public static final int PASSWORDEXPIREAFTERCOUNT = 90;
 	public static final int PASSWORDEXPIREWARNBEFORECOUNT = 7;
+	public static final String INVALID_LOGIN_ATTEMPT = "INVALID LOGIN ACCESS ATTEMPT";
+	public static final String SEPARATOR = " :: ";
 	
 	private BluefinWebPortalConstants(){
 		
