@@ -333,8 +333,7 @@ public class SessionService {
 		userResource.setLastName(thirdparyApp.getUsername());
 		userResource.setEmail(thirdparyApp.getEmail());
 		
-		Collection<Role> rolesToAssign = new ArrayList<>();
-		rolesToAssign.add(getRoleThirdParty());
+		Collection<Role> rolesToAssign = getRoleThirdParty();
 
 		if (!userService.existUsername(thirdparyApp.getUsername())) {
 			LOGGER.info("user not exist  ready to save");
@@ -348,33 +347,16 @@ public class SessionService {
 		return new TokenResponse(generateNewToken(thirdparyApp.getUsername(), TokenType.APPLICATION, null));
 	}
 
-	public Role getRoleThirdParty() {
+	public List<Role> getRoleThirdParty() {
 		LOGGER.info("Entering get Role Third Party");
+		List<Role> roleList = new ArrayList<>();
 		String applicationRoleName = propertyService.getPropertyValue("APPLICATION_ROLE_NAME");
-		Role roleThirdParty = roleService.getRoleByName(applicationRoleName);
-		LOGGER.debug("roleThirdParty is ={} ",roleThirdParty);
-		if (roleThirdParty == null) {
-			String applicationPermissionName = propertyService.getPropertyValue("APPLICATION_PERMISSION_NAME");
-			Permission permissionThirdParty = permissionDAO.findByPermissionName(applicationPermissionName);
-			LOGGER.debug("permissionThirdParty is ={} ",permissionThirdParty);
-			if (permissionThirdParty == null) {
-				permissionThirdParty = new Permission();
-				permissionThirdParty.setPermissionName(applicationPermissionName);
-				permissionThirdParty.setDescription(StringUtils.capitalize(applicationPermissionName));
-				long permissionId = permissionDAO.savePermission(permissionThirdParty);
-				permissionDAO.findByPermissionId(permissionId);
-			}
-			roleThirdParty = new Role();
-			roleThirdParty.setRoleName(applicationRoleName);
-			roleThirdParty.setDescription(StringUtils.capitalize(applicationRoleName));
-			long roleId = roleDAO.saveRole(roleThirdParty);
-			roleThirdParty = roleDAO.findByRoleId(roleId);
-
-			RolePermission rolePermission = new RolePermission();
-			rolePermissionDAO.saveRolePermission(rolePermission);
-		}
+		roleList.add(setUserRolePermission(applicationRoleName));
+		String applicationThirdPartyApiRoleName = propertyService.getPropertyValue("THIRD_PARTY_ROLE_NAME");
+		roleList.add(setUserRolePermission(applicationThirdPartyApiRoleName));
 		LOGGER.info("Exit from get Role Third Party");
-		return roleThirdParty;
+		
+		return roleList;
 	}
 
 	public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {
@@ -420,5 +402,36 @@ public class SessionService {
 			LOGGER.error(e.getMessage(),e);
 		}
 		LOGGER.info("Exit from updateUserLookUp");
+	}
+	
+	private Role setUserRolePermission(String applicationRoleName) {
+		LOGGER.debug("Inside getUserRolePermission method for propertyName {} ", applicationRoleName);
+		
+		Role roleThirdParty = roleService.getRoleByName(applicationRoleName);
+		LOGGER.debug("roleThirdParty is ={} ",roleThirdParty);
+		if (roleThirdParty == null) {
+			String applicationPermissionName = propertyService.getPropertyValue("APPLICATION_PERMISSION_NAME");
+			Permission permissionThirdParty = permissionDAO.findByPermissionName(applicationPermissionName);
+			LOGGER.debug("permissionThirdParty is ={} ",permissionThirdParty);
+			if (permissionThirdParty == null) {
+				permissionThirdParty = new Permission();
+				permissionThirdParty.setPermissionName(applicationPermissionName);
+				permissionThirdParty.setDescription(StringUtils.capitalize(applicationPermissionName));
+				long permissionId = permissionDAO.savePermission(permissionThirdParty);
+				permissionDAO.findByPermissionId(permissionId);
+			}
+			roleThirdParty = new Role();
+			roleThirdParty.setRoleName(applicationRoleName);
+			roleThirdParty.setDescription(StringUtils.capitalize(applicationRoleName));
+			long roleId = roleDAO.saveRole(roleThirdParty);
+			roleThirdParty = roleDAO.findByRoleId(roleId);
+
+			RolePermission rolePermission = new RolePermission();
+			rolePermissionDAO.saveRolePermission(rolePermission);
+		}
+		LOGGER.info("Exit from setUserRolePermission");
+		
+		return roleThirdParty;
+		
 	}
 }
