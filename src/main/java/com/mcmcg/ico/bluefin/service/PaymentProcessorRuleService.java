@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
 @Transactional
@@ -43,9 +45,10 @@ public class PaymentProcessorRuleService {
 
     	// Payment processor must has merchants associate to it
     	if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
-    		LOGGER.error(
-    				"Unable to create payment processor rule.  Payment processor MUST has at least one merchant associated.   Payment processor id = [{}]",
-    				loadedPaymentProcessor.getPaymentProcessorId());
+    		LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
+    				"Unable to create payment processor rule. Payment processor must have at least one merchant associated. Payment processor id : ", 
+    				String.valueOf(loadedPaymentProcessor.getPaymentProcessorId())));
+    		
     		throw new CustomNotFoundException(String.format(
     				"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
     				loadedPaymentProcessor.getPaymentProcessorId()));
@@ -116,6 +119,8 @@ public class PaymentProcessorRuleService {
 		LOGGER.info("Entering to get Payment Processor Rule ");
     	PaymentProcessorRule paymentProcessorRule = paymentProcessorRuleDAO.findOne(id);
         if (paymentProcessorRule == null) {
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Unable to find payment processor rule with id : ", String.valueOf(id)));
+        	
             throw new CustomNotFoundException(
                     String.format("Unable to find payment processor rule with id = [%s]", id));
         }

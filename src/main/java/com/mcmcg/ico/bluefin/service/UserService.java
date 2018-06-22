@@ -18,7 +18,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,6 +49,7 @@ import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
@@ -167,6 +167,9 @@ public class UserService {
 	public UserResource registerNewUserAccount(RegisterUserResource userResource) {
 		final String username = userResource.getUsername();
 		if (existUsername(username)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to create the account, this username already exists : ", username));
+			
 			throw new CustomBadRequestException(
 					"Unable to create the account, this username already exists: " + username);
 		}
@@ -313,6 +316,9 @@ public class UserService {
 		LOGGER.debug("userToUpdate ={}",userToUpdate);
 		// User wants to clear roles from user
 		if (rolesIds.isEmpty()) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"User : ", username, " must have at least one role assign to him."));
+			
 			throw new CustomBadRequestException("User MUST have at least one role assign to him.");
 		}
 
@@ -532,6 +538,10 @@ public class UserService {
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("TokenType : {}",tokenType);
 		if (usernameVal == null || tokenType == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"An authorization token is required to request this resource."));
+			
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
 
@@ -540,6 +550,10 @@ public class UserService {
 
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR, 
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"The old password is incorrect."));
+			
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
 		
@@ -574,6 +588,10 @@ public class UserService {
 		}
 		
 		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords."));
+			
 			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
 		}
 		

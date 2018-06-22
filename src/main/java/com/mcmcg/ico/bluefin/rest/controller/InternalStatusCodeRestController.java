@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
@@ -30,6 +31,7 @@ import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.service.InternalStatusCodeService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -89,15 +91,22 @@ public class InternalStatusCodeRestController {
             @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors,Authentication auth) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
-            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
+        	String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+        	
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Status Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, (auth == null ? null : auth.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription));
+        	
             throw new CustomBadRequestException(errorDescription);
         }
         String currentLoginUserName = null;
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.debug("Inside createInternalStatusCodes to Create internal status code for currentLoginUserName = {}",currentLoginUserName);
+        LOGGER.info(LoggingUtil.adminAuditInfo("Status Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, currentLoginUserName));
+        
         return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource,currentLoginUserName);
     }
 
@@ -116,13 +125,20 @@ public class InternalStatusCodeRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Status Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, (auth == null ? null : auth.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription));
+            
             throw new CustomBadRequestException(errorDescription);
         }
         String currentLoginUserName = null;
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.debug("Inside updateInternalStatusCodes to Update internal status code for currentLoginUserName ={}",currentLoginUserName);
+        LOGGER.info(LoggingUtil.adminAuditInfo("Status Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, currentLoginUserName));
+        
         return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource,currentLoginUserName);
     }
 
@@ -135,7 +151,9 @@ public class InternalStatusCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.debug("Deleting Internal Status Code {}", id);
+    	LOGGER.info(LoggingUtil.adminAuditInfo("Status Codes Delete Request", BluefinWebPortalConstants.SEPARATOR,
+    			"Internal Status Code Id : ", String.valueOf(id)));
+    	
         internalStatusCodeService.deleteInternalStatusCode(id);
         LOGGER.debug("Internal Status Code {} has been deleted.", id);
 
