@@ -266,6 +266,7 @@ public class UserDAOImpl implements UserDAO {
 							(user.getAccountLockedOn() == null || UserStatus.ACTIVE.getStatus().equals(user.getStatus())) ? 
 									null : Timestamp.valueOf(dtf.print(user.getAccountLockedOn())),
 							Timestamp.valueOf(dtf.print(user.getLastLogin())),
+							user.getUsername(),
 							user.getUserId()
 						);
 		} catch(Exception e) {
@@ -363,6 +364,40 @@ public class UserDAOImpl implements UserDAO {
 		
 		LOGGER.debug("delete user with ID ={} , rows affected ={} ", userId, rows);
 		
+	}
+	
+	/**
+	 * 
+	 */
+	public int updateUserStatus(User user, String modifiedBy){
+		// The Java class uses Joda DateTime, which isn't supported by
+		// PreparedStatement.
+		// Convert Joda DateTime to UTC (the format for the database).
+		// Remove the 'T' and 'Z' from the format, because it's not in the
+		// database.
+		// Convert this string to Timestamp, which is supported by
+		// PreparedStatement.
+		DateTime utc1 = user.getLastLogin().withZone(DateTimeZone.UTC);
+		DateTime utc2 = user.getDateCreated().withZone(DateTimeZone.UTC);
+		DateTime utc3 = new DateTime(DateTimeZone.UTC);
+		DateTime utc4 = new DateTime(DateTimeZone.UTC);
+		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
+		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
+		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
+
+		int rows = jdbcTemplate.update(Queries.UPDATEUSERSTATUS,
+				new Object[] { user.getUsername(), user.getFirstName(), user.getLastName(), user.getIsActive(),
+						lastLogin, dateCreated, dateUpdated, user.getEmail(), user.getPassword(), dateModified,
+						modifiedBy, user.getStatus(),  
+						(user.getAccountLockedOn() == null || UserStatus.ACTIVE.getStatus().equals(user.getStatus())) ? 
+								null : Timestamp.valueOf(dtf.print(user.getAccountLockedOn())), 0, user.getUserId() });
+
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
+		
+		createUserRoles(user);
+		createLegalEntityApp(user);
+		return rows;
 	}
 }
 

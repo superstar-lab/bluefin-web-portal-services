@@ -172,7 +172,8 @@ public class Queries {
 	public static final String SAVEPASSWORDHISTORY = "INSERT INTO Password_History(UserID, UserOldPassword, ModifiedBy, DatedModified) VALUES (?,?,?,?)";
 	public static final String UPDATEPASSWORDHISTORY = "UPDATE Password_History SET UserOldPassword = ?, ModifiedBy = ?, DatedModified = ? where PasswordHistoryID = ?;";
 	public static final String DELETEPASSWORDHISTORY = "DELETE FROM Password_History WHERE PasswordHistoryID = ? and UserID = ?";
-	public static final String UPDATE_USER_LOOKUP = "UPDATE User_Lookup SET WrongPasswordCounter = ?, Status = ?, AccountLockedOn = ?, LastLogin = ?  WHERE UserID = ?";
+	public static final String UPDATE_USER_LOOKUP = "UPDATE User_Lookup SET WrongPasswordCounter = ?, Status = ?, AccountLockedOn = ?, LastLogin = ?, ModifiedBy = ?  WHERE UserID = ?";
+	public static final String UPDATEUSERSTATUS = "UPDATE User_Lookup SET UserName = ?, FirstName = ?, LastName = ?, IsActive = ?, LastLogin = ?, DateCreated = ?, DateUpdated = ?, Email = ?, UserPassword = ?, DateModified = ?, ModifiedBy = ?, Status = ?, AccountLockedOn = ?, WrongPasswordCounter = ? WHERE UserID = ?";
 	//public static final String UPDATEUSERLASTLOGIN = "UPDATE User_Lookup SET LastLogin = ? WHERE UserID = ?";
 	private Queries(){
 		// Default Constructor

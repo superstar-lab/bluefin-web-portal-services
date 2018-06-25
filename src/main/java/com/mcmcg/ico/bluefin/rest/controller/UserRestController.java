@@ -306,7 +306,7 @@ public class UserRestController {
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token: ={} ",token);
 		if (token != null) {
-			userService.userActivation(activationResource);
+			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
