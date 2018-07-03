@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -88,7 +89,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
+    public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication, @RequestHeader(name = "X-Auth-Token") String xAuthToken) {
         LOGGER.debug("Uploading new ACF file {}",request.getFileMap());
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
@@ -113,7 +114,7 @@ public class BatchUploadRestController {
         LOGGER.info("Encoding file content to send it as stream");
         String stream = new String(Base64.encodeBase64(bytes));
         return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream,
-                lines);
+                lines, xAuthToken);
     }
 
     private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {
