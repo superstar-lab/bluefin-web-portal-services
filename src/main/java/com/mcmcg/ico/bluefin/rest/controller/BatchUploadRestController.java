@@ -89,7 +89,7 @@ public class BatchUploadRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication, @RequestHeader(name = "X-Auth-Token") String xAuthToken) {
+    public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
         LOGGER.debug("Uploading new ACF file {}",request.getFileMap());
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
@@ -114,7 +114,7 @@ public class BatchUploadRestController {
         LOGGER.info("Encoding file content to send it as stream");
         String stream = new String(Base64.encodeBase64(bytes));
         return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream,
-                lines, xAuthToken);
+                lines, request.getHeader("X-Auth-Token"));
     }
 
     private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {
