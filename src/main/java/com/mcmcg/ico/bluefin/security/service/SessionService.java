@@ -161,11 +161,16 @@ public class SessionService {
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 		
-		user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
-		user.setLastLogin(currentTimeUTC);
-		updateUserLookUp(user);
+		if(isPasswordExpire(user, null)) {
+			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_PASSWORD_EXPIRED.getValue());
+		}
+		else {
+			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
+			user.setLastLogin(currentTimeUTC);
+			updateUserLookUp(user);
+			saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
+		}
 		
-		saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
 		LOGGER.info("Exit from authenticate");
 		return new UsernamePasswordAuthenticationToken(username, password);
 	}
@@ -290,36 +295,7 @@ public class SessionService {
 		String selectedTimeZone = userPreferenceDAO.getSelectedTimeZone(user.getUserId()); 
 		response.setSelectedTimeZone(selectedTimeZone);
 		
-		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
-		//ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId(),1);
-		String passwordExpirecount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREAFTER);
-		String passwordWarncount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORE);
-		int passwordExpireAfter = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordExpirecount) ? Integer.parseInt(passwordExpirecount) : BluefinWebPortalConstants.PASSWORDEXPIREAFTERCOUNT ;
-		int passwordWarnWithIn = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordWarncount) ? Integer.parseInt(passwordWarncount) : BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORECOUNT;
-		DateTime dateModified;
-		DateTime currentDateTime = new DateTime(DateTimeZone.UTC);
-		if(passwordHistoryList.isEmpty()) {
-			dateModified = user.getDateCreated();
-		}else {
-			dateModified = passwordHistoryList.get(0).getDateModified();
-			if(dateModified == null) {
-				dateModified = user.getDateCreated();
-			}
-		}
-		if(dateModified == null) {
-			dateModified = new DateTime(DateTimeZone.UTC);
-		}
-		int daysDiff = Days.daysBetween(dateModified, currentDateTime).getDays();
-		if(passwordExpireAfter>=0 && passwordWarnWithIn>=0 && (passwordExpireAfter-passwordWarnWithIn)>=0) {
-			if(daysDiff>(passwordExpireAfter-passwordWarnWithIn) && daysDiff<=passwordExpireAfter) {
-				response.setWarn("Please change your password, Your password will be expire "+((passwordExpireAfter-daysDiff) == 0 ? "today" : "in next "+(passwordExpireAfter-daysDiff) +" days"));
-				response.setChangePasswordWithIn(daysDiff);
-			}
-			else if(daysDiff>passwordExpireAfter) {
-				response.setWarn("Your password has been expired");
-				response.setChangePasswordWithIn(0);
-			}
-		}
+		isPasswordExpire(user, response);
 		
 		LOGGER.debug("Exit with response ={} ",response);
 		return response;
@@ -433,5 +409,47 @@ public class SessionService {
 		
 		return roleThirdParty;
 		
+	}
+	
+	public boolean isPasswordExpire(final User user, AuthenticationResponse response) {
+		
+		boolean isPasswordExpire = false;
+		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
+		//ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId(),1);
+		String passwordExpirecount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREAFTER);
+		String passwordWarncount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORE);
+		int passwordExpireAfter = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordExpirecount) ? Integer.parseInt(passwordExpirecount) : BluefinWebPortalConstants.PASSWORDEXPIREAFTERCOUNT ;
+		int passwordWarnWithIn = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordWarncount) ? Integer.parseInt(passwordWarncount) : BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORECOUNT;
+		DateTime dateModified;
+		DateTime currentDateTime = new DateTime(DateTimeZone.UTC);
+		if(passwordHistoryList.isEmpty()) {
+			dateModified = user.getDateCreated();
+		}else {
+			dateModified = passwordHistoryList.get(0).getDateModified();
+			if(dateModified == null) {
+				dateModified = user.getDateCreated();
+			}
+		}
+		if(dateModified == null) {
+			dateModified = new DateTime(DateTimeZone.UTC);
+		}
+		int daysDiff = Days.daysBetween(dateModified, currentDateTime).getDays();
+		if(passwordExpireAfter>=0 && passwordWarnWithIn>=0 && (passwordExpireAfter-passwordWarnWithIn)>=0) {
+			if(daysDiff>(passwordExpireAfter-passwordWarnWithIn) && daysDiff<=passwordExpireAfter) {
+				if(response!=null) {
+					response.setWarn("Please change your password, Your password will be expire "+((passwordExpireAfter-daysDiff) == 0 ? "today" : "in next "+(passwordExpireAfter-daysDiff) +" days"));
+					response.setChangePasswordWithIn(daysDiff);
+				}
+			}
+			else if(daysDiff>passwordExpireAfter) {
+				if(response!=null) {
+					response.setWarn("Your password has been expired");
+					response.setChangePasswordWithIn(0);
+				}
+				isPasswordExpire = true;
+			}
+		}
+		
+		return isPasswordExpire;
 	}
 }
