@@ -69,11 +69,11 @@ public class ApplicationPropertyLookupController {
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()))) ;
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()))) ;
 
 		if(applicationProperty.getPropertyId()==null) {
 			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR),
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR),
 					"Applicaton id can't be null for update operation");
 			throw new CustomException("Applicaton id cann't be null for update operation");
 		}

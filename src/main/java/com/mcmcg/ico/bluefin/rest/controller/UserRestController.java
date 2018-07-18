@@ -150,7 +150,7 @@ public class UserRestController {
 					.collect(Collectors.joining("<br /> "));
 			
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDFOR, newUser.getUsername(), BluefinWebPortalConstants.SEPARATOR,
 					errorDescription));
 			
@@ -187,7 +187,7 @@ public class UserRestController {
 		} else {
 			if (!userService.hasPermissionToManageAllUsers(authentication)) {
 				LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-						"User : ", String.valueOf(authentication.getPrincipal()), " does not have sufficient permissions for this profile."));
+						"User : ", String.valueOf(authentication.getName()), " does not have sufficient permissions for this profile."));
 				throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 			}
 		}
@@ -201,13 +201,13 @@ public class UserRestController {
 		} catch(AccessDeniedException e) {
 			
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", String.valueOf(authentication.getPrincipal()), " does not have access to add by legal entity restriction."));
+					"User : ", String.valueOf(authentication.getName()), " does not have access to add by legal entity restriction."));
 			
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
 		}
 		validateErrors(errors);
 		LOGGER.info(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDFOR, usernameValue));
 		LOGGER.debug("Updating account for user: {}", usernameValue);
 		return userService.updateUserProfile("me".equals(usernameValue) ? authentication.getName() : usernameValue, userToUpdate, authentication.getName());
@@ -234,13 +234,13 @@ public class UserRestController {
 		if (!userService.belongsToSameLegalEntity(authentication,
 				"me".equals(username) ? authentication.getName() : username)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", String.valueOf(authentication.getPrincipal()), " doesn't have permission to add/remove roles to this user."));
+					"User : ", String.valueOf(authentication.getName()), " doesn't have permission to add/remove roles to this user."));
 			throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
 		}
 		LOGGER.debug("Updating roles for user: {}", username);
 
 		LOGGER.info(LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDFOR, username));
 		return new UserResource(
 				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles));
@@ -275,12 +275,12 @@ public class UserRestController {
 		if (!userService.belongsToSameLegalEntity(authentication,
 				"me".equals(username) ? authentication.getName() : username)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Legal Entities Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", String.valueOf(authentication.getPrincipal()), " doesn't have permission to add/remove legal entities to this user."));
+					"User : ", String.valueOf(authentication.getName()), " doesn't have permission to add/remove legal entities to this user."));
 			throw new AccessDeniedException("User doesn't have permission to add/remove legal entities to this user.");
 		}
 
 		LOGGER.info(LoggingUtil.adminAuditInfo("User Legal Entities Updation Request", BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDFOR, username));
 		LOGGER.debug("Updating legalEntities for user: {}", username);
 		return new UserResource(userService
@@ -306,7 +306,7 @@ public class UserRestController {
 			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"Password updation failed for User : ", String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG));
 			throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 		}
@@ -317,7 +317,7 @@ public class UserRestController {
 		LOGGER.debug("token ={} ",token);
 		if (token != null) {
 			LOGGER.info(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDFOR, username));
 			userService.updateUserPassword(usernameValue, updatePasswordResource, token);
 			User user = userService.findByUsername(usernameValue);
@@ -346,7 +346,7 @@ public class UserRestController {
 
 		if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Status Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", String.valueOf(authentication.getPrincipal()), " does not have sufficient permissions for this profile."));
+					"User : ", String.valueOf(authentication.getName()), " does not have sufficient permissions for this profile."));
 			throw new AccessDeniedException("User does not have sufficient permissions to perform the operation.");
 		}
 
@@ -355,12 +355,12 @@ public class UserRestController {
 		LOGGER.debug("token: ={} ",token);
 		if (token != null) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal())));
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName())));
 			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		LOGGER.error(LoggingUtil.adminAuditInfo("User Status Updation Request", BluefinWebPortalConstants.SEPARATOR,
-				"Status Updation Request failed for User : ", String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+				"Status Updation Request failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
 		throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 	}
@@ -397,7 +397,7 @@ public class UserRestController {
 	private void hasUserPrivilegesOverLegalEntities(Authentication authentication,Set<Long> legalEntityApps){ 
 		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, legalEntityApps)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", String.valueOf(authentication.getPrincipal()), " doesn't have access to add by legal entity restriction."));
+					"User : ", String.valueOf(authentication.getName()), " doesn't have access to add by legal entity restriction."));
 			throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
 		}
 	}

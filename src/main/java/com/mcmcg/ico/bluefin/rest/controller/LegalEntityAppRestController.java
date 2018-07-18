@@ -91,14 +91,14 @@ public class LegalEntityAppRestController {
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()));
         
         return new ResponseEntity<>(
@@ -122,7 +122,7 @@ public class LegalEntityAppRestController {
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
