@@ -18,12 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorRuleService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -95,10 +97,16 @@ public class PaymentProcessorRuleRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
+            		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getPaymentProcessorId()), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription));
+            
             throw new CustomBadRequestException(errorDescription);
         }
-
-        LOGGER.debug("Creating new payment processor rule: {}", paymentProcessorRuleResource);
+        LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
+        		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getPaymentProcessorId())));
+        
         return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRule(
                 paymentProcessorRuleResource.getPaymentProcessorId().longValue(),
                 paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);
@@ -118,10 +126,17 @@ public class PaymentProcessorRuleRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		"Payment Processor Rule Id : ", String.valueOf(id), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription));
+            
             throw new CustomBadRequestException(errorDescription);
         }
-
-        LOGGER.debug("Updating payment processor rule: {}", paymentProcessorRuleResource);
+        
+        LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Update Request", BluefinWebPortalConstants.SEPARATOR,
+        		"Payment Processor Rule Id : ", String.valueOf(id)));
+        
         return paymentProcessorRuleService.updatePaymentProcessorRule(
                 paymentProcessorRuleResource.toPaymentProcessorRule(id),
                 paymentProcessorRuleResource.getPaymentProcessorId().longValue());
@@ -137,7 +152,9 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.debug("Deleting payment processor rule {}", id);
+    	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Delete Request", BluefinWebPortalConstants.SEPARATOR,
+    			"Payment Processor Rule Id : ", String.valueOf(id)));
+    	
         paymentProcessorRuleService.delete(id);
         LOGGER.debug("Payment processor rule {} has been deleted.", id);
 

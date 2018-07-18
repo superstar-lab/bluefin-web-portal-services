@@ -57,6 +57,7 @@ import com.mcmcg.ico.bluefin.service.EmailService;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.RoleService;
 import com.mcmcg.ico.bluefin.service.UserService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
 @Transactional
@@ -108,55 +109,82 @@ public class SessionService {
 
 		LOGGER.debug("user is ={} ",user);
 		if (user == null) {
+			
+			LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", username, BluefinWebPortalConstants.SEPARATOR,
+					"Reason : User NOT FOUND"));
+			
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 		userLoginHistory.setUserId(user.getUserId());
 		if ("NEW".equals(user.getStatus())) {
+			
+			LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+					"Reason : User is ", UserStatus.NEW.getStatus()));
+			
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account is not activated yet.");
 		}
 		if ("INACTIVE".equals(user.getStatus())) {
+			
+			LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+					"Reason : User is ", UserStatus.INACTIVE.getStatus()));
+			
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account was deactivated.");
 		}
 		if (UserStatus.LOCKED.getStatus().equalsIgnoreCase(user.getStatus())) {
-			accountLockedDurationSecs = propertyService.getPropertyValue(BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS);
+			accountLockedDurationSecs = propertyService.getPropertyValue(BluefinWebPortalConstants.ACCOUNTLOCKEDDURATIONSECONDS);
 			try {
 				accountLockedDurationSecsVal = accountLockedDurationSecs == null || "".equals(accountLockedDurationSecs.trim()) ? 
-						BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT : Integer.parseInt(accountLockedDurationSecs);
+						BluefinWebPortalConstants.ACCOUNTLOCKEDDURATIONSECONDSDEFAULT : Integer.parseInt(accountLockedDurationSecs);
 				if(accountLockedDurationSecsVal < 0)
-					accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
+					accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNTLOCKEDDURATIONSECONDSDEFAULT;
 			} catch(NumberFormatException e) {
-				accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNT_LOCKED_DURATION_SECONDS_DEFAULT;
+				accountLockedDurationSecsVal = BluefinWebPortalConstants.ACCOUNTLOCKEDDURATIONSECONDSDEFAULT;
 			}
 			if(user.getAccountLockedOn() == null || currentTimeUTC.isEqual(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal)) || 
 					currentTimeUTC.isAfter(user.getAccountLockedOn().plusSeconds(accountLockedDurationSecsVal))) {
 				user.setStatus(UserStatus.ACTIVE.getStatus());
 				user.setAccountLockedOn(null);
 			} else {
+				LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+						"Reason : User is ", UserStatus.LOCKED.getStatus()));
+				
 				saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_IS_LOCKED.getValue());
 				throw new AccessDeniedException("Account is Locked.");
 			}
 		}
 		if (!passwordEncoder.matches(password, user.getPassword())) {
-			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
 			
-			wrongPasswordMaxLimit = propertyService.getPropertyValue(BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT);
+			wrongPasswordCounterNextVal = user.getWrongPasswordCounter() + 1;
+			wrongPasswordMaxLimit = propertyService.getPropertyValue(BluefinWebPortalConstants.WRONGPASSWORDMAXLIMIT);
 			try {
 				wrongPasswordMaxLimitVal = wrongPasswordMaxLimit == null || "".equals(wrongPasswordMaxLimit.trim()) ? 
-						BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT : Integer.parseInt(wrongPasswordMaxLimit);
+						BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT : Integer.parseInt(wrongPasswordMaxLimit);
 				if(wrongPasswordMaxLimitVal < 0)
-					wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT;
+					wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT;
 			} catch(NumberFormatException e) {
-				wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONG_PASSWORD_MAX_LIMIT_DEFAULT;
+				wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT;
 			}
-			wrongPasswordCounterNextVal = user.getWrongPasswordCounter() + 1;
+			
 			if (wrongPasswordCounterNextVal >= wrongPasswordMaxLimitVal) {
 				user.setStatus(UserStatus.LOCKED.getStatus());
 				user.setAccountLockedOn(currentTimeUTC);
+				
+				LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+						"Reason : ", "PASSWORD IS INVALID", BluefinWebPortalConstants.SEPARATOR,
+						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal), BluefinWebPortalConstants.SEPARATOR,
+						"User is LOCKED"));
+				
+			} else {
+				LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+						"Reason : ", "PASSWORD IS INVALID", BluefinWebPortalConstants.SEPARATOR,
+						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal)));
 			}
+			
 			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
+			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
 			updateUserLookUp(user);
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}

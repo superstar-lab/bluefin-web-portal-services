@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalResponseCode;
@@ -31,6 +32,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
 @Transactional
@@ -71,6 +73,9 @@ public class InternalResponseCodeService {
 
 	private void validateInternalResponseCode(InternalResponseCode internalResponseCode){
 		if (internalResponseCode != null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Internal response code already exists and is assigned to this transaction type."));
+			
 			throw new CustomBadRequestException(
 					"Internal response code already exists and is assigned to this transaction type.");
 		}
@@ -78,6 +83,9 @@ public class InternalResponseCodeService {
 	
 	private void validateInternalResponseCodeUpdate(InternalResponseCode internalResponseCode,Long internalResponseCodeIdToModify){
 		if (internalResponseCode == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+					"Internal Response Code does not exist : ", String.valueOf(internalResponseCodeIdToModify)));
+			
 			throw new CustomNotFoundException("Internal Response Code does not exist: " + internalResponseCodeIdToModify);
 		}
 	}
@@ -228,6 +236,9 @@ public class InternalResponseCodeService {
 					.findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(),
 							internalResponseCodeResource.getTransactionTypeName());
 			if (existingInternalResponseCode != null) {
+				LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+						"Another Internal response code already exists and is assigned to this transaction type : ", String.valueOf(existingInternalResponseCode)));
+				
 				throw new CustomBadRequestException(
 						"Another Internal response code already exists and is assigned to this transaction type.");
 			}
@@ -448,6 +459,9 @@ public class InternalResponseCodeService {
 		InternalResponseCode internalResponseCodeToDelete = internalResponseCodeDAO.findOne(internalResponseCodeId);
 
 		if (internalResponseCodeToDelete == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find  Internal Code Id : ", String.valueOf(internalResponseCodeId)));
+			
 			throw new CustomNotFoundException(
 					String.format("Unable to find internal response code with id = [%s]", internalResponseCodeId));
 		}
