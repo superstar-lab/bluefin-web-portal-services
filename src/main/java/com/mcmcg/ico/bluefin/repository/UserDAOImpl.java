@@ -30,9 +30,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.enums.UserStatus;
 import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserRole;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.service.util.QueryBuilderHelper;
 import com.mysema.query.types.expr.BooleanExpression;
 
@@ -250,9 +253,157 @@ public class UserDAOImpl implements UserDAO {
 
 		return new PageImpl<>(onePage, pageRequest, countResult);
 	}
+	
+	@Override
+	public int updateUserLookUp(User user) 
+			throws ApplicationGenericException{
+		
+		int rows = 0;
+		try {
+				rows = jdbcTemplate.update(Queries.UPDATE_USER_LOOKUP, 
+							user.getWrongPasswordCounter(),
+							user.getStatus(),
+							(user.getAccountLockedOn() == null || UserStatus.ACTIVE.getStatus().equals(user.getStatus())) ? 
+									null : Timestamp.valueOf(dtf.print(user.getAccountLockedOn())),
+							Timestamp.valueOf(dtf.print(user.getLastLogin())),
+							user.getUsername(),
+							user.getUserId()
+						);
+		} catch(Exception e) {
+			LOGGER.error(e.getMessage(),e);
+			throw new ApplicationGenericException(e.getMessage(),e);
+		}
+		return rows;
+	}
+	
+	@Override
+	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId) {
+		
+		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID, new Object[] { userId },
+				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
+
+		if (!userList.isEmpty()) {
+			LOGGER.debug("Found User Password History with size ={} ", userList.size());
+		} else {
+			LOGGER.debug("User Password History not found for userId ={} ", userId);
+		}
+
+		return userList;
+	}
+	
+	/*@Override
+	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId, int limit) {
+		
+		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID.concat(" limit "+limit), new Object[] { userId },
+				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
+		
+		LOGGER.debug("Number of User ={} ", userList.size());
+
+		if (userList.size()>0) {
+			LOGGER.debug("Found User Password History for userId ={} ", userId);
+		} else {
+			LOGGER.debug("User Password History not found for userId ={} ", userId);
+		}
+
+		return userList;
+	}*/
+	
+	@Override
+	public long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword ) {
+
+		DateTime utc = new DateTime(DateTimeZone.UTC);
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc));
+		
+		KeyHolder holder = new GeneratedKeyHolder();
+		jdbcTemplate.update(connection->{
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPASSWORDHISTORY,
+					Statement.RETURN_GENERATED_KEYS);
+			ps.setLong(1, user.getUserId()); 
+			ps.setString(2, userPreviousPasword); 
+			ps.setString(3, modifiedBy);
+			ps.setTimestamp(4, dateModified);
+			return ps;
+		}, holder);
+		long noOfRecordsInserted = holder.getKey().longValue();
+		LOGGER.debug("Saved Password History - id ={} ", noOfRecordsInserted);
+		
+		if(noOfRecordsInserted>0){
+			LOGGER.debug("Password history inserted successfully");
+			return noOfRecordsInserted;
+		}
+		else {
+			LOGGER.debug("Password history not inserted");
+		}
+		return 0;
+		
+		
+		/*int rows = jdbcTemplate.update(Queries.SAVEPASSWORDHISTORY,
+				new Object[] {user.getUserId(), user.getPassword(), modifiedBy});
+
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
+
+		return rows;*/
+	}
+
+	@Override
+	public void updatePasswordHistory(long historyId, String modifiedBy, String previousPassword) {
+
+		DateTime utc = new DateTime(DateTimeZone.UTC);
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc));
+		
+		int rows = jdbcTemplate.update(Queries.UPDATEPASSWORDHISTORY,
+				new Object[] {previousPassword, modifiedBy, dateModified, historyId});
+		
+		LOGGER.debug("update password history with ID ={} , rows affected ={} ", historyId, rows);
+	}
+	
+	@Override
+	public void deletePasswordHistory(long historyId, long userId) {
+		int rows = jdbcTemplate.update(Queries.DELETEPASSWORDHISTORY,
+				new Object[] {historyId, userId});
+		
+		LOGGER.debug("delete user with ID ={} , rows affected ={} ", userId, rows);
+		
+	}
+	
+	/**
+	 * 
+	 */
+	public int updateUserStatus(User user, String modifiedBy){
+		// The Java class uses Joda DateTime, which isn't supported by
+		// PreparedStatement.
+		// Convert Joda DateTime to UTC (the format for the database).
+		// Remove the 'T' and 'Z' from the format, because it's not in the
+		// database.
+		// Convert this string to Timestamp, which is supported by
+		// PreparedStatement.
+		DateTime utc1 = user.getLastLogin().withZone(DateTimeZone.UTC);
+		DateTime utc2 = user.getDateCreated().withZone(DateTimeZone.UTC);
+		DateTime utc3 = new DateTime(DateTimeZone.UTC);
+		DateTime utc4 = new DateTime(DateTimeZone.UTC);
+		Timestamp lastLogin = Timestamp.valueOf(dtf.print(utc1));
+		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc2));
+		Timestamp dateUpdated = Timestamp.valueOf(dtf.print(utc3));
+		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc4));
+
+		int rows = jdbcTemplate.update(Queries.UPDATEUSERSTATUS,
+				new Object[] { user.getUsername(), user.getFirstName(), user.getLastName(), user.getIsActive(),
+						lastLogin, dateCreated, dateUpdated, user.getEmail(), user.getPassword(), dateModified,
+						modifiedBy, user.getStatus(),  
+						(user.getAccountLockedOn() == null || UserStatus.ACTIVE.getStatus().equals(user.getStatus())) ? 
+								null : Timestamp.valueOf(dtf.print(user.getAccountLockedOn())), 0, user.getUserId() });
+
+		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
+		
+		createUserRoles(user);
+		createLegalEntityApp(user);
+		return rows;
+	}
 }
 
 class UserRowMapper implements RowMapper<User> {
+	
+	DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 
 	@Override
 	public User mapRow(ResultSet rs, int row) throws SQLException {
@@ -289,9 +440,40 @@ class UserRowMapper implements RowMapper<User> {
 		user.setPassword(rs.getString("UserPassword"));
 		user.setModifiedBy(rs.getString("ModifiedBy"));
 		user.setStatus(rs.getString("Status"));
+		user.setWrongPasswordCounter(rs.getInt("WrongPasswordCounter"));
+		if (rs.getString("AccountLockedOn") != null) {
+			user.setAccountLockedOn(dtf.withZoneUTC().parseDateTime(rs.getString("AccountLockedOn")));
+		}
 
 		return user;
 	}
 	
 	
+}
+
+class PasswordHistoryRowMapper implements RowMapper<UserPasswordHistory> {
+
+	@Override
+	public UserPasswordHistory mapRow(ResultSet rs, int row) throws SQLException {
+		UserPasswordHistory userPasswordHistory = new UserPasswordHistory();
+		Timestamp ts;
+		userPasswordHistory.setPasswordHistoryID(rs.getLong("PasswordHistoryID"));
+		userPasswordHistory.setUserId(rs.getLong("UserID"));
+		userPasswordHistory.setPreviousPassword(rs.getString("UserOldPassword"));
+		userPasswordHistory.setModifiedBy(rs.getString("ModifiedBy"));
+		
+		if (rs.getString("DateCreated") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			userPasswordHistory.setDateCreated(new DateTime(ts));
+		}
+		if (rs.getString("DatedModified") != null) {
+
+			ts = Timestamp.valueOf(rs.getString("DatedModified"));
+			userPasswordHistory.setDateModified(new DateTime(ts));
+			//userPasswordHistory.setDateModified(DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT).withZoneUTC().parseDateTime(rs.getString("DatedModified")));
+		}
+		return userPasswordHistory;
+		
+	}
 }

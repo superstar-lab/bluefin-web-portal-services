@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.InternalStatusCode;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorInternalStatusCode;
@@ -31,6 +32,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
 @Transactional
@@ -449,6 +451,9 @@ public class InternalStatusCodeService {
 		InternalStatusCode internalStatusCodeToDelete = internalStatusCodeDAO.findOne(internalStatusCodeId);
 
 		if (internalStatusCodeToDelete == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Status Codes Delete Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Internal Status Code Id : ", String.valueOf(internalStatusCodeId)));
+			
 			throw new CustomNotFoundException(String.format("Unable to find internal Status code with id = [%s]", internalStatusCodeId));
 		}
 		// need to find all payment processor status code ids which used by payment processor internal status code of requested internalStatusCodeId to delete
