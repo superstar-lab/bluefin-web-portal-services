@@ -46,4 +46,12 @@ public interface UserDAO {
 	 * @throws ApplicationGenericException
 	 */
 	public int updateUserLookUp(User user) throws ApplicationGenericException;
+	
+	/**
+	 * 
+	 * @param user
+	 * @param modifiedBy
+	 * @return
+	 */
+	public int updateUserStatus(User user, String modifiedBy);
 }

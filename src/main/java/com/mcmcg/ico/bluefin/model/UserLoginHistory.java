@@ -14,7 +14,7 @@ public class UserLoginHistory implements Serializable {
 	private static final long serialVersionUID = -2022911364184731333L;
 
 	public enum MessageCode {
-		SUCCESS(1), ERROR_USER_NOT_FOUND(2), ERROR_PASSWORD_NOT_FOUND(3), ERROR_USER_NOT_ACTIVE(4), ERROR_USER_IS_LOCKED(5);
+		SUCCESS(1), ERROR_USER_NOT_FOUND(2), ERROR_PASSWORD_NOT_FOUND(3), ERROR_USER_NOT_ACTIVE(4), ERROR_USER_IS_LOCKED(5), ERROR_USER_PASSWORD_EXPIRED(6);
 
 		private final Integer messageCodeVal;
 

@@ -627,7 +627,7 @@ public class UserService {
 		}
 	}
 
-	public void userActivation(ActivationResource activationResource) {
+	public void userActivation(ActivationResource activationResource, String modifiedBy) {
 		Boolean activate = activationResource.isActivate();
 		LOGGER.debug("activate ={}",activate);
 		List<String> notFoundUsernames = new ArrayList<>();
@@ -644,7 +644,7 @@ public class UserService {
 			if (user == null) {
 				notFoundUsernames.add(username);
 			} else {
-				activateAccount(user, status);
+				activateAccount(user, status, modifiedBy);
 			}
 		}
 		if (!notFoundUsernames.isEmpty()) {
@@ -652,7 +652,7 @@ public class UserService {
 		}
 	}
 
-	private void activateAccount(User userToUpdate, String status) {
+	private void activateAccount(User userToUpdate, String status, String modifiedBy) {
 		String username = userToUpdate.getUsername();
 		LOGGER.debug("username:= {} ",username);
 		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
@@ -673,13 +673,12 @@ public class UserService {
 						+ "Please feel free to contact your system administratior. \n\n";
 				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
 			}
-			String modifiedBy = null;
 			// Why we need to update roles and LE while activating/deactivating user, so make Roles/LE list as empty.[Matloob]
 			userToUpdate.setRoles(Collections.emptyList());
 			userToUpdate.setLegalEntities(Collections.emptyList());
 			
 			LOGGER.info("ready to update user ");
-			long userId = userDAO.updateUser(userToUpdate, modifiedBy);
+			long userId = userDAO.updateUserStatus(userToUpdate, modifiedBy);
 			LOGGER.debug("userId ",userId);
 			//TOOD.................Why are you calling below operation again, I have commented this [Matloob]
 		}
