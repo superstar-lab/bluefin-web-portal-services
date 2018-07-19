@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
@@ -39,6 +41,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private SecurityService securityService;
+    
+    @Value(("${csp.header}"))
+    private String cspHeader;
 
     @Autowired
     public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws ApplicationGenericException {
@@ -71,6 +76,18 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     public SecurityService securityService() {
         return this.securityService;
     }
+    
+   /* @Bean
+    public ServletContextInitializer servletContextInitializer(@Value("${secure.cookie}") final boolean secure) {
+        return new ServletContextInitializer() {
+
+            @Override
+            public void onStartup(final ServletContext servletContext) throws ServletException {
+                servletContext.getSessionCookieConfig().setSecure(secure);
+            }
+        };
+    }*/
+
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
@@ -90,7 +107,21 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String reportsApiBaseURL = apiBaseURL + "/reports";
         final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
         final String applicationPropertyApiBaseURL = apiBaseURL + "/applicationProperties";
-
+        ////////////////////////////////CSP Code Starts Here///////////////////////////////
+        //final String cspHeader = "www.google-analytics.com ajax.googleapis.com www.midlandcreditonline.com *.optimizely.com fullstory.com  *.outbrain.com bat.bing.com *.taboola.com *.mcmpay.com  connect.facebook.net web.adblade.com *.marketo.net s.yimg.com sp.analytics.yahoo.com www.google.com www.google-analytics.com www.googletagmanager.com www.gstatic.com www.googleadservices.com";
+       // final String cspHeader ="www.google-analytics.com *.cloudflare.com;img-src *.cloudflare.comframe-src *.mcmcg.com *.mcmpay.com; style-src *.mcmcg.com *.mcmpay.com *.cloudflare.com";
+        cspHeader.replaceAll("\\s+", " ");
+        httpSecurity.headers().addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy",
+        		"script-src 'self' 'unsafe-inline' 'unsafe-eval' " + cspHeader + " ; object-src 'self'" ));
+        //    .addHeaderWriter(new StaticHeadersWriter("P3P", "CP=\"This is just to make IE happy with cookies in this iframe\""));
+        ////////////////////////////////CSP Code Ends Here///////////////////////////////
+        
+        // Set Max-age to 1 day
+        ////////////////////////////////HSTS Code Starts Here///////////////////////////////
+        httpSecurity.headers().httpStrictTransportSecurity().includeSubDomains(true).maxAgeInSeconds(86400);
+        
+//      //////////////////////////////HSTS Code Ends Here///////////////////////////////
+        
         // @formatter:off
 		httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)
 				.authenticationEntryPoint(this.unauthorizedHandler).and().sessionManagement()
