@@ -92,7 +92,7 @@ public class ApplicationPropertyLookupController {
 	public ApplicationProperty insertApplicationProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
 		
 		LOGGER.info(LoggingUtil.adminAuditInfo("Application Property Insertion Request", BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				"Applicaton Property Name : ", applicationProperty.getPropertyName()));
 
 		return propertyService.saveApplicationProperty(applicationProperty);
@@ -113,13 +113,14 @@ public class ApplicationPropertyLookupController {
 		
 		if(StringUtils.isBlank(applicationPropertyId)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					"Applicaton Property Id can't be null for delete operation"));
 			
 			throw new CustomException("Applicaton id cann't be null for delete operation");
 		}
-		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()),
-				 BluefinWebPortalConstants.SEPARATOR, "Applicaton Property Id : ", applicationPropertyId));
+		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+				"Applicaton Property Id : ", applicationPropertyId));
 		
 		return propertyService.deleteApplicationProperty(applicationPropertyId);
 	}
