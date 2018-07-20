@@ -89,9 +89,10 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ApplicationProperty insertApplicationProperties(@RequestBody ApplicationProperty applicationProperty) {
+	public ApplicationProperty insertApplicationProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
 		
 		LOGGER.info(LoggingUtil.adminAuditInfo("Application Property Insertion Request", BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
 				"Applicaton Property Name : ", applicationProperty.getPropertyName()));
 
 		return propertyService.saveApplicationProperty(applicationProperty);
@@ -112,6 +113,7 @@ public class ApplicationPropertyLookupController {
 		
 		if(StringUtils.isBlank(applicationPropertyId)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
 					"Applicaton Property Id can't be null for delete operation"));
 			
 			throw new CustomException("Applicaton id cann't be null for delete operation");
