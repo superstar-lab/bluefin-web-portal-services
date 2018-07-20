@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -92,21 +93,21 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<PaymentProcessor> create(
-            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors) {
+            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Creation Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, paymentProcessorResource.getLastModifiedBy(), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorResource.getProcessorName()),
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Creation Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, paymentProcessorResource.getLastModifiedBy(), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorResource.getProcessorName()));
         
         return new ResponseEntity<>(
@@ -122,20 +123,20 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessor update(@PathVariable Long id,
-            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors) {
+            @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Update Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, paymentProcessorToUpdate.getLastModifiedBy(), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorToUpdate.getProcessorName()), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Update Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, paymentProcessorToUpdate.getLastModifiedBy(), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorToUpdate.getProcessorName()));
         
         return paymentProcessorService.updatePaymentProcessor(id, paymentProcessorToUpdate);
@@ -151,8 +152,9 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
             @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
-            @ApiIgnore Errors errors) {
+            @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
     	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
+    			BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
     			"Payment Processor Id : ", String.valueOf(id)));
     	
         if (errors.hasErrors()) {
@@ -160,6 +162,7 @@ public class PaymentProcessorRestController {
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
         			"Payment Processor Id : ", String.valueOf(id)), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
@@ -176,9 +179,10 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id, @ApiIgnore Authentication authentication) {
     	
     	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Delete Request", BluefinWebPortalConstants.SEPARATOR,
+    			BluefinWebPortalConstants.REQUESTEDBY, authentication.getName(), BluefinWebPortalConstants.SEPARATOR,
     			"Payment Processor Id : ", String.valueOf(id)));
     	
         paymentProcessorService.deletePaymentProcessor(id);

@@ -246,4 +246,18 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 	public String getPaymentFrequency() {
         return PaymentFrequency.getPaymentFrequency(origin).toString();
     }
+	
+	public String getCardNumberFirst6Char(){
+		if (this.cardNumberFirst6Char == null) {
+			this.cardNumberFirst6Char = "";
+		}
+		return this.cardNumberFirst6Char;
+	}
+	
+	public String getCardNumberLast4Char(){
+		if (this.cardNumberLast4Char == null) {
+			this.cardNumberLast4Char = "";
+		}
+		return this.cardNumberLast4Char;
+	}
 }
