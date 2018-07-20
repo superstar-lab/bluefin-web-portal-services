@@ -143,9 +143,10 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id, @ApiIgnore Authentication authentication) {
     	
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
         		"Legal Entity Id : ", String.valueOf(id)));
         
         legalEntityAppService.deleteLegalEntityApp(id);
