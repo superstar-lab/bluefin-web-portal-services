@@ -354,8 +354,9 @@ public class UserRestController {
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token: ={} ",token);
 		if (token != null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName())));
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Status Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName())),
+					BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDFOR, activationResource.getUsernames());
 			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
