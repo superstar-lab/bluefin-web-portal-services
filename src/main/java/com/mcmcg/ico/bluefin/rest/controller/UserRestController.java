@@ -354,9 +354,18 @@ public class UserRestController {
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token: ={} ",token);
 		if (token != null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Status Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName())),
-					BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDFOR, activationResource.getUsernames());
+			String users = "";
+			for(String userName : activationResource.getUsernames()) {
+				if(StringUtils.isNotEmpty(users)) {
+					users = users + "," +userName;
+				}
+				else {
+					users = userName;
+				}
+			}
+			LOGGER.info(LoggingUtil.adminAuditInfo("User Status Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()),
+					BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDFOR, users));
 			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
