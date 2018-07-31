@@ -257,7 +257,7 @@ public class UserService {
 		user.setLastName(userResource.getLastName());
 		user.setEmail(userResource.getEmail());
 		user.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUserName) ? loginUserName : null;
 		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
 		//backup user's role and legalEntities, will set these roles and legalEntities in api response.
 		Collection<UserRole> userRoleList= user.getRoles();
@@ -354,7 +354,7 @@ public class UserService {
 		}
 
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
 		removeRolesFromUser(rolesToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setLegalEntities(Collections.emptyList());
@@ -416,7 +416,7 @@ public class UserService {
 			}
 		}
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
 		removeLegalEntityFromUser(legalEntityAppsToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
@@ -599,7 +599,7 @@ public class UserService {
 		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		userToUpdate.setLegalEntities(Collections.emptyList());

@@ -299,7 +299,7 @@ public class UserRestController {
 			@Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
 			HttpServletRequest request, @ApiIgnore Authentication authentication) {
 		validateErrors(errors);
-
+		
 		LOGGER.info("update User Password service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
@@ -313,6 +313,7 @@ public class UserRestController {
 		if(usernameValue != null && usernameValue.isEmpty()) {
 			usernameValue = username;
 		}
+		validatePasswordCriteria(usernameValue, updatePasswordResource.getNewPassword());
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token ={} ",token);
 		if (token != null) {
@@ -417,6 +418,14 @@ public class UserRestController {
 			final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
 					.collect(Collectors.joining("<br /> "));
 			throw new CustomBadRequestException(errorDescription);
+		}
+	}
+	
+	private void validatePasswordCriteria(String userName, String password){
+		if(StringUtils.isBlank(password) || password.indexOf(' ')>-1 || 
+				password.length()<8 || password.length()>16 ||
+				StringUtils.isBlank(userName)  || userName.equals(password)) {
+			throw new CustomBadRequestException("Password must be between 8 to 16 characters in length and must not contain space and must contain at least one uppercase letter and one number and usename and password must not be same");
 		}
 	}
 }
