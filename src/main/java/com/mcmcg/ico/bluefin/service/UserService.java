@@ -257,7 +257,7 @@ public class UserService {
 		user.setLastName(userResource.getLastName());
 		user.setEmail(userResource.getEmail());
 		user.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUserName) ? loginUserName : null;
 		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
 		//backup user's role and legalEntities, will set these roles and legalEntities in api response.
 		Collection<UserRole> userRoleList= user.getRoles();
@@ -310,7 +310,9 @@ public class UserService {
 	 * @return userResource with all the user information
 	 * @throws CustomNotFoundException
 	 */
-	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
+	public User updateUserRoles(final String username, final Set<Long> rolesIds, String loginUser) {
+
+
 		User userToUpdate = getUser(username);
 
 		LOGGER.debug("userToUpdate ={}",userToUpdate);
@@ -354,13 +356,17 @@ public class UserService {
 		}
 
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUser) ? loginUser : null;
 		removeRolesFromUser(rolesToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("ready to update user ");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
+		
+	}
+	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
+		return updateUserRoles(username, rolesIds, null);
 	}
 
 	private void removeRolesFromUser(Set<Long> rolesToRemove) {
@@ -376,7 +382,8 @@ public class UserService {
 	 * @return user with all the user information
 	 * @throws CustomNotFoundException
 	 */
-	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
+	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds, String loginUser) {
+
 		User userToUpdate = getUser(username);
 
 		LOGGER.debug("userToUpdate ={} ",userToUpdate);
@@ -416,13 +423,18 @@ public class UserService {
 			}
 		}
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUser) ? loginUser : null;
 		removeLegalEntityFromUser(legalEntityAppsToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		LOGGER.debug("ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
+	
+	}
+	
+	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
+		return updateUserLegalEntities(username, legalEntityAppsIds, null);
 	}
 
 	public void removeLegalEntityFromUser(Collection<Long> legalEntityAppsToRemove) {
@@ -599,7 +611,7 @@ public class UserService {
 		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		userToUpdate.setLegalEntities(Collections.emptyList());

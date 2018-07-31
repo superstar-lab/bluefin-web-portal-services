@@ -243,7 +243,7 @@ public class UserRestController {
 				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDFOR, username));
 		return new UserResource(
-				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles));
+				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles, authentication.getName()));
 	}
 
 	@ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
@@ -284,7 +284,7 @@ public class UserRestController {
 				BluefinWebPortalConstants.REQUESTEDFOR, username));
 		LOGGER.debug("Updating legalEntities for user: {}", username);
 		return new UserResource(userService
-				.updateUserLegalEntities("me".equals(username) ? authentication.getName() : username, legalEntities));
+				.updateUserLegalEntities("me".equals(username) ? authentication.getName() : username, legalEntities, authentication.getName()));
 	}
 
 	@ApiOperation(value = "updateUserPassword", nickname = "updateUserPassword")
@@ -299,7 +299,7 @@ public class UserRestController {
 			@Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
 			HttpServletRequest request, @ApiIgnore Authentication authentication) {
 		validateErrors(errors);
-
+		
 		LOGGER.info("update User Password service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
@@ -313,6 +313,7 @@ public class UserRestController {
 		if(usernameValue != null && usernameValue.isEmpty()) {
 			usernameValue = username;
 		}
+		validatePasswordCriteria(usernameValue, updatePasswordResource.getNewPassword());
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token ={} ",token);
 		if (token != null) {
@@ -417,6 +418,28 @@ public class UserRestController {
 			final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
 					.collect(Collectors.joining("<br /> "));
 			throw new CustomBadRequestException(errorDescription);
+		}
+	}
+	
+	private void validatePasswordCriteria(String userName, String password){
+		//As per Dheeraj code review suggestion
+		if(StringUtils.isBlank(userName)) {
+			throw new CustomBadRequestException("UserName can not be null");	
+		}
+		if(StringUtils.isBlank(password)) {
+			throw new CustomBadRequestException("Password can not null");	
+		}
+		int passwordLength = password.length();
+		String passwordTrimVal = password.trim();
+		int passwordTrimLength = passwordTrimVal.trim().length();
+		if(passwordLength!=passwordTrimLength || StringUtils.containsWhitespace(passwordTrimVal.trim())) {
+			throw new CustomBadRequestException("Password must not contain space");
+		}
+		if(password.length()<8 || password.length()>16) {
+			throw new CustomBadRequestException("Password must be between 8 to 16 characters in length");
+		}
+		if(userName.equals(password)) {
+			throw new CustomBadRequestException("username and password must not be same");
 		}
 	}
 }
