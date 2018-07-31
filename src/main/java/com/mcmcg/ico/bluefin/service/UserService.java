@@ -366,56 +366,7 @@ public class UserService {
 		
 	}
 	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
-		User userToUpdate = getUser(username);
-
-		LOGGER.debug("userToUpdate ={}",userToUpdate);
-		// User wants to clear roles from user
-		if (rolesIds.isEmpty()) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", username, " must have at least one role assign to him."));
-			
-			throw new CustomBadRequestException("User MUST have at least one role assign to him.");
-		}
-
-		// Validate and load existing roles
-		Map<Long, Role> newMapOfRoles = roleService.getRolesByIds(rolesIds).stream()
-				.collect(Collectors.toMap(Role::getRoleId, r -> r));
-
-		LOGGER.debug("newMapOfRoles size ={} ",newMapOfRoles.size());
-		// Temporal list of roles that we need to keep in the user role list
-		Set<Long> rolesToKeep = new HashSet<>();
-		Set<Long> rolesToRemove = new HashSet<>();
-		// Update current role list from user
-		Iterator<UserRole> iter = userToUpdate.getRoles().iterator();
-		while (iter.hasNext()) {
-			UserRole element = iter.next();
-
-			Role role = newMapOfRoles.get(element.getRoleId());
-			if (role == null) {
-				iter.remove();//
-				rolesToRemove.add(element.getUserRoleId());
-			} else {
-				iter.remove();// No need to have this Roles objetct , as it is already in db associated with this user
-				rolesToKeep.add(element.getRoleId());
-			}
-		}
-
-		// Correct this when fixing code for User.
-		// Add new roles to the user but ignoring the existing ones
-		for (Entry<Long,Role> roleEntry : newMapOfRoles.entrySet()) {
-			if (!rolesToKeep.contains(roleEntry.getKey())) {
-				userToUpdate.addRole(roleEntry.getValue());
-			} 
-		}
-
-		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
-		removeRolesFromUser(rolesToRemove);
-		//We are setting empty collectionn object not  to update roles in case of password update
-		userToUpdate.setLegalEntities(Collections.emptyList());
-		LOGGER.info("ready to update user ");
-		userDAO.updateUser(userToUpdate, modifiedBy);
-		return getUser(username);
+		return updateUserRoles(username, rolesIds, null);
 	}
 
 	private void removeRolesFromUser(Set<Long> rolesToRemove) {
@@ -481,53 +432,9 @@ public class UserService {
 		return getUser(username);
 	
 	}
+	
 	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
-		User userToUpdate = getUser(username);
-
-		LOGGER.debug("userToUpdate ={} ",userToUpdate);
-		// User wants to clear legal entity apps from user
-		if (legalEntityAppsIds == null || legalEntityAppsIds.isEmpty()) {
-			throw new CustomBadRequestException("User MUST have at least one legal entity assign to him.");
-		}
-
-		// Validate and load existing legal entity apps
-		Map<Long, LegalEntityApp> newMapOfLegalEntityApps = getLegalEntityAppsByIds(legalEntityAppsIds).stream()
-				.collect(Collectors.toMap(LegalEntityApp::getLegalEntityAppId, l -> l));
-
-		LOGGER.debug("newMapOfLegalEntityApps size ={} ",newMapOfLegalEntityApps.size());
-		// Temporal list of legal entity apps that we need to keep in the user
-		// legal entity app list
-		Set<Long> legalEntityAppsToKeep = new HashSet<>();
-		Set<Long> legalEntityAppsToRemove = new HashSet<>();
-		// Update current role list from user
-		Iterator<UserLegalEntityApp> iter = userToUpdate.getLegalEntities().iterator();
-		while (iter.hasNext()) {
-			UserLegalEntityApp element = iter.next();
-
-			LegalEntityApp legalEntityApp = newMapOfLegalEntityApps.get(element.getLegalEntityAppId());
-			if (legalEntityApp == null) {
-				iter.remove();
-				legalEntityAppsToRemove.add(element.getUserLegalEntityAppId());
-			} else {
-				iter.remove();
-				legalEntityAppsToKeep.add(element.getLegalEntityAppId());
-			}
-		}
-
-		// Add new roles to the user but ignoring the existing ones
-		for (Entry<Long,LegalEntityApp> legalEntityApp : newMapOfLegalEntityApps.entrySet()) {
-			if (!legalEntityAppsToKeep.contains(legalEntityApp.getKey())) {
-				userToUpdate.addLegalEntityApp(legalEntityApp.getValue());
-			}
-		}
-		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
-		removeLegalEntityFromUser(legalEntityAppsToRemove);
-		//We are setting empty collectionn object not  to update roles in case of password update
-		userToUpdate.setRoles(Collections.emptyList());
-		LOGGER.debug("ready to update user");
-		userDAO.updateUser(userToUpdate, modifiedBy);
-		return getUser(username);
+		return updateUserLegalEntities(username, legalEntityAppsIds, null);
 	}
 
 	public void removeLegalEntityFromUser(Collection<Long> legalEntityAppsToRemove) {
