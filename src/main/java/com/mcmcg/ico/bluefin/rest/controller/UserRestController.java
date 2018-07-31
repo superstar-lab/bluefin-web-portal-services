@@ -243,7 +243,7 @@ public class UserRestController {
 				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDFOR, username));
 		return new UserResource(
-				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles));
+				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles, authentication.getName()));
 	}
 
 	@ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
@@ -284,7 +284,7 @@ public class UserRestController {
 				BluefinWebPortalConstants.REQUESTEDFOR, username));
 		LOGGER.debug("Updating legalEntities for user: {}", username);
 		return new UserResource(userService
-				.updateUserLegalEntities("me".equals(username) ? authentication.getName() : username, legalEntities));
+				.updateUserLegalEntities("me".equals(username) ? authentication.getName() : username, legalEntities, authentication.getName()));
 	}
 
 	@ApiOperation(value = "updateUserPassword", nickname = "updateUserPassword")
