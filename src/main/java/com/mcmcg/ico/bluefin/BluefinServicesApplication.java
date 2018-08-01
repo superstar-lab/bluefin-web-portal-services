@@ -26,6 +26,9 @@ public class BluefinServicesApplication {
 
     @Value("${spring.datasource.binddb.jndi-name}")
     private String bindbJndiName;
+    
+    @Value("${spring.bluefin.muti.file.upload.size}")
+    private String multiFileSize;
 
     private JndiDataSourceLookup lookup = new JndiDataSourceLookup();
     
@@ -68,8 +71,8 @@ public class BluefinServicesApplication {
 	@Bean
 	public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize("3MB");
-        factory.setMaxRequestSize("3MB");
+        factory.setMaxFileSize(multiFileSize);
+        factory.setMaxRequestSize(multiFileSize);
         return factory.createMultipartConfig();
     }
 }
