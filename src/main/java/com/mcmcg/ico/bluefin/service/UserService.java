@@ -130,7 +130,7 @@ public class UserService {
 					str1[1] = str1[1].replace("]", "");
 					filterMap.put(str1[0], str1[1]);
 				} else {
-					filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));
+					filterMap.put(str1[0], str1[1]);
 				}
 			}
 		}
