@@ -68,8 +68,8 @@ public class BluefinServicesApplication {
 	@Bean
 	public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
-        factory.setMaxFileSize("2MB");
-        factory.setMaxRequestSize("2MB");
+        factory.setMaxFileSize("3MB");
+        factory.setMaxRequestSize("3MB");
         return factory.createMultipartConfig();
     }
 }
