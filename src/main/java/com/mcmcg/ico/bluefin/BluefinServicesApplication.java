@@ -1,11 +1,13 @@
 package com.mcmcg.ico.bluefin;
 
+import javax.servlet.MultipartConfigElement;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.embedded.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -62,4 +64,12 @@ public class BluefinServicesApplication {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(bluefinJdbcTemplate);
 		return namedParameterJdbcTemplate;
 	}
+	
+	@Bean
+	public MultipartConfigElement multipartConfigElement() {
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        factory.setMaxFileSize("2MB");
+        factory.setMaxRequestSize("2MB");
+        return factory.createMultipartConfig();
+    }
 }
