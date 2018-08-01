@@ -463,7 +463,7 @@ public class SessionService {
 		}
 		int daysDiff = Days.daysBetween(dateModified, currentDateTime).getDays();
 		if(passwordExpireAfter>=0 && passwordWarnWithIn>=0 && (passwordExpireAfter-passwordWarnWithIn)>=0) {
-			if(daysDiff>(passwordExpireAfter-passwordWarnWithIn) && daysDiff<=passwordExpireAfter) {
+			if(daysDiff>=(passwordExpireAfter-passwordWarnWithIn) && daysDiff<=passwordExpireAfter) {
 				if(response!=null) {
 					response.setWarn("Please change your password, Your password will be expire "+((passwordExpireAfter-daysDiff) == 0 ? "today" : "in next "+(passwordExpireAfter-daysDiff) +" days"));
 					response.setChangePasswordWithIn(daysDiff);
