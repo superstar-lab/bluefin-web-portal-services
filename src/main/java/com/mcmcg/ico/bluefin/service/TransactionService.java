@@ -262,6 +262,9 @@ public class TransactionService {
 		if(transaction!=null && StringUtils.isNotBlank(transaction.getToken())){
 		transactionDataRecord.add("'"+transaction.getToken()+"");
 		}
+		else{
+			transactionDataRecord.add(transaction.getToken());	
+		}
 		transactionDataRecord.add(
 				transaction.getChargeAmount() == null ? " " : "$" + transaction.getChargeAmount().toString());
 		transactionDataRecord.add(transaction.getLegalEntityApp());
