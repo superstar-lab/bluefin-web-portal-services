@@ -258,7 +258,7 @@ public class TransactionService {
 		transactionDataRecord.add(transaction.getCountry());
 		transactionDataRecord.add(transaction.getCardNumberLast4Char());
 		transactionDataRecord.add(transaction.getCardType());
-		transactionDataRecord.add(transaction.getToken());
+		transactionDataRecord.add("'"+transaction.getToken()+"");
 		transactionDataRecord.add(
 				transaction.getChargeAmount() == null ? " " : "$" + transaction.getChargeAmount().toString());
 		transactionDataRecord.add(transaction.getLegalEntityApp());
