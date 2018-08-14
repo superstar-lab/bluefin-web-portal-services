@@ -260,7 +260,7 @@ public class TransactionService {
 		transactionDataRecord.add(transaction.getCardNumberLast4Char());
 		transactionDataRecord.add(transaction.getCardType());
 		if(transaction!=null && StringUtils.isNotBlank(transaction.getToken())){
-		transactionDataRecord.add("'"+transaction.getToken()+"");
+		transactionDataRecord.add("'"+transaction.getToken()+"'");
 		}
 		else{
 			transactionDataRecord.add(transaction.getToken());	
