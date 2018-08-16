@@ -92,7 +92,7 @@ public class BatchUploadService {
 		return result;
 	}
 
-	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines) {
+	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines, String xAuthToken) {
 		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
 		LOGGER.info("Creating new basic Batch Upload");
 		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
@@ -100,7 +100,7 @@ public class BatchUploadService {
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
 		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
-				fileStream);
+				fileStream, xAuthToken);
 		LOGGER.debug("ACF response ={} ",response);
 
 		try {

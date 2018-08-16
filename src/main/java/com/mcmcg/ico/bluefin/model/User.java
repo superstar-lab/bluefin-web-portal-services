@@ -38,6 +38,12 @@ public class User extends Common implements Serializable {
 	private Collection<UserRole> roles;
 	@JsonIgnore
 	private Collection<UserLegalEntityApp> legalEntities;
+	@JsonIgnore
+	private Integer wrongPasswordCounter;
+	@JsonIgnore
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+	private DateTime accountLockedOn;
 
 	public User() {
 		// Default Constructor
@@ -174,7 +180,7 @@ public class User extends Common implements Serializable {
 	public void setSelectedTimeZone(String selectedTimeZone) {
 		this.selectedTimeZone = selectedTimeZone;
 	}
-
+	
 	public void addRole(Role role) {
 		if (roles == null) {
 			roles = new ArrayList<>();
@@ -196,5 +202,20 @@ public class User extends Common implements Serializable {
 		userLE.setUser(this);
 		legalEntities.add(userLE);
 	}
+	
+	public Integer getWrongPasswordCounter() {
+		return wrongPasswordCounter;
+	}
 
+	public void setWrongPasswordCounter(Integer wrongPasswordCounter) {
+		this.wrongPasswordCounter = wrongPasswordCounter;
+	}
+	
+	public DateTime getAccountLockedOn() {
+		return accountLockedOn;
+	}
+
+	public void setAccountLockedOn(DateTime accountLockedOn) {
+		this.accountLockedOn = accountLockedOn;
+	}
 }

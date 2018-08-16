@@ -20,11 +20,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.LegalEntityAppService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -87,10 +89,18 @@ public class LegalEntityAppRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription);
+            
             throw new CustomBadRequestException(errorDescription);
         }
-
-        LOGGER.debug("Creating new legal entity: {}", legalEntityResource.getLegalEntityAppName());
+        LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()));
+        
         return new ResponseEntity<>(
                 legalEntityAppService.createLegalEntity(legalEntityResource, authentication.getName()),
                 HttpStatus.CREATED);
@@ -110,10 +120,18 @@ public class LegalEntityAppRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription);
+            
             throw new CustomBadRequestException(errorDescription);
         }
-
-        LOGGER.debug("Updating Legal Entity {}", legalEntityAppToUpdate);
+        LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()));
+        
         return legalEntityAppService.updateLegalEntityApp(id, legalEntityAppToUpdate, authentication.getName());
     }
 
@@ -125,8 +143,12 @@ public class LegalEntityAppRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.info("Deleting Legal Entity {}", id);
+    public ResponseEntity<String> delete(@PathVariable Long id, @ApiIgnore Authentication authentication) {
+    	
+        LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+        		"Legal Entity Id : ", String.valueOf(id)));
+        
         legalEntityAppService.deleteLegalEntityApp(id);
         LOGGER.debug("Legal Entity {} has been deleted.", id);
 

@@ -123,6 +123,23 @@ public class BluefinWebPortalConstants {
 	public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
 	public static final String BLUEFIN_NAMED_JDBC_TEMPLATE = "bluefinNamedJdbcTemplate";
 	//public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
+	public static final String MATCHLASTPASSWORDCOUNT = "MATCH_LAST_PASSWORD_COUNT";
+	public static final String PASSWORDEXPIREAFTER = "PASSWORD_EXPIRE_AFTER";
+	public static final String PASSWORDEXPIREWARNBEFORE = "PASSWORD_EXPIRE_WARN_BEFORE";
+	public static final String WRONGPASSWORDMAXLIMIT = "WRONG_PASSWORD_MAX_LIMIT";
+	public static final int WRONGPASSWORDMAXLIMITDEFAULT = 6;
+	public static final String ACCOUNTLOCKEDDURATIONSECONDS = "ACCOUNT_LOCKED_DURATION_SECONDS";
+	public static final int ACCOUNTLOCKEDDURATIONSECONDSDEFAULT = 30*60;
+	public static final int MATCHLASTPASSWORD = 4;
+	public static final int PASSWORDEXPIREAFTERCOUNT = 90;
+	public static final int PASSWORDEXPIREWARNBEFORECOUNT = 7;
+	public static final String INVALIDLOGINATTEMPT = "INVALID LOGIN ACCESS ATTEMPT";
+	public static final String SEPARATOR = " :: ";
+	public static final String ADMINAUDITINFO = "ADMIN AUDIT INFO";
+	public static final String REQUESTEDBY = "Requested By : ";
+	public static final String REQUESTEDFOR = "Requested For : ";
+	public static final String LEGALENTITYNAME = "Legal Entity Name : ";
+	public static final String PAYMENTPROCESSORNAME = "Payment Processor Name : ";
 	
 	private BluefinWebPortalConstants(){
 		

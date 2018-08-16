@@ -20,12 +20,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.InternalResponseCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.InternalCodeResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateInternalCodeResource;
 import com.mcmcg.ico.bluefin.service.InternalResponseCodeService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -76,13 +78,20 @@ public class InternalResponseCodeRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Creation Request", BluefinWebPortalConstants.SEPARATOR, 
+            		BluefinWebPortalConstants.REQUESTEDBY, (auth == null ? null : auth.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription));
+            
             throw new CustomBadRequestException(errorDescription);
         }
         String currentLoginUserName = null;
         if (auth != null) {
         	currentLoginUserName = auth.getName();
         }
-        LOGGER.debug("Creating internal response code for currentLoginUserName ={}",currentLoginUserName);
+        LOGGER.info(LoggingUtil.adminAuditInfo("Response Codes Creation Request", BluefinWebPortalConstants.SEPARATOR, 
+        		BluefinWebPortalConstants.REQUESTEDBY, currentLoginUserName));
+        
         return internalResponseCodeService.createInternalResponseCodes(internalResponseCodeResource, currentLoginUserName);
     }
 
@@ -102,10 +111,16 @@ public class InternalResponseCodeRestController {
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
+            
+            LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		"Internal Code Id : ", String.valueOf(updateInternalResponseCodeResource.getInternalCodeId())), BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription);
+            
             throw new CustomBadRequestException(errorDescription);
         }
-
-        LOGGER.info("Updating internal response code");
+        LOGGER.info(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+        		"Internal Code Id : ", String.valueOf(updateInternalResponseCodeResource.getInternalCodeId())));
+        
         return internalResponseCodeService.updateInternalResponseCode(updateInternalResponseCodeResource);
     }
 
@@ -118,7 +133,10 @@ public class InternalResponseCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-        LOGGER.debug("Deleting Internal Response Code {}", id);
+        
+        LOGGER.info(LoggingUtil.adminAuditInfo("Response Codes Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+        		"Internal Code Id : ", String.valueOf(id)));
+        
         internalResponseCodeService.deleteInternalResponseCode(id);
         LOGGER.debug("Internal Response Code {} has been deleted.", id);
 

@@ -25,10 +25,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.Role;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
+import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
 import com.mcmcg.ico.bluefin.model.UserPreference;
 import com.mcmcg.ico.bluefin.model.UserPreferenceEnum;
 import com.mcmcg.ico.bluefin.model.UserRole;
@@ -47,6 +49,7 @@ import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
@@ -127,7 +130,12 @@ public class UserService {
 					str1[1] = str1[1].replace("]", "");
 					filterMap.put(str1[0], str1[1]);
 				} else {
-					filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));
+					if("status".equalsIgnoreCase(str1[0])){
+					filterMap.put(str1[0], str1[1]);
+					}
+					else{
+					filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));	
+					}
 				}
 			}
 		}
@@ -164,6 +172,9 @@ public class UserService {
 	public UserResource registerNewUserAccount(RegisterUserResource userResource) {
 		final String username = userResource.getUsername();
 		if (existUsername(username)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to create the account, this username already exists : ", username));
+			
 			throw new CustomBadRequestException(
 					"Unable to create the account, this username already exists: " + username);
 		}
@@ -251,7 +262,7 @@ public class UserService {
 		user.setLastName(userResource.getLastName());
 		user.setEmail(userResource.getEmail());
 		user.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUserName) ? loginUserName : null;
 		user.setSelectedTimeZone(userResource.getSelectedTimeZone());
 		//backup user's role and legalEntities, will set these roles and legalEntities in api response.
 		Collection<UserRole> userRoleList= user.getRoles();
@@ -304,12 +315,17 @@ public class UserService {
 	 * @return userResource with all the user information
 	 * @throws CustomNotFoundException
 	 */
-	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
+	public User updateUserRoles(final String username, final Set<Long> rolesIds, String loginUser) {
+
+
 		User userToUpdate = getUser(username);
 
 		LOGGER.debug("userToUpdate ={}",userToUpdate);
 		// User wants to clear roles from user
 		if (rolesIds.isEmpty()) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"User : ", username, " must have at least one role assign to him."));
+			
 			throw new CustomBadRequestException("User MUST have at least one role assign to him.");
 		}
 
@@ -345,13 +361,17 @@ public class UserService {
 		}
 
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUser) ? loginUser : null;
 		removeRolesFromUser(rolesToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("ready to update user ");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
+		
+	}
+	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
+		return updateUserRoles(username, rolesIds, null);
 	}
 
 	private void removeRolesFromUser(Set<Long> rolesToRemove) {
@@ -367,7 +387,8 @@ public class UserService {
 	 * @return user with all the user information
 	 * @throws CustomNotFoundException
 	 */
-	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
+	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds, String loginUser) {
+
 		User userToUpdate = getUser(username);
 
 		LOGGER.debug("userToUpdate ={} ",userToUpdate);
@@ -407,13 +428,18 @@ public class UserService {
 			}
 		}
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(loginUser) ? loginUser : null;
 		removeLegalEntityFromUser(legalEntityAppsToRemove);
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		LOGGER.debug("ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
+	
+	}
+	
+	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
+		return updateUserLegalEntities(username, legalEntityAppsIds, null);
 	}
 
 	public void removeLegalEntityFromUser(Collection<Long> legalEntityAppsToRemove) {
@@ -529,6 +555,10 @@ public class UserService {
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("TokenType : {}",tokenType);
 		if (usernameVal == null || tokenType == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"An authorization token is required to request this resource."));
+			
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
 
@@ -537,17 +567,70 @@ public class UserService {
 
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR, 
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"The old password is incorrect."));
+			
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
+		
+		boolean isPasswordMatch = false;
+		boolean isPasswordDeleted = false;
+		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
+		//delete old password from password history if password match count changed
+		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
+		int lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : BluefinWebPortalConstants.MATCHLASTPASSWORD;
+		int passwordHistoryCount = passwordHistoryList.size();
+		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			if(passwordHistoryCount>lastPasswordCount-1) {
+				if(passwordHistoryCount>0){
+					userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
+					isPasswordDeleted = true;
+					passwordHistoryCount--;
+				}
+			}
+			else {
+					break;
+				}
+		}
+		if(isPasswordDeleted) {
+			passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		}
+		for(UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			if(passwordEncoder.matches(updatePasswordResource.getNewPassword(), userPasswordHistory.getPreviousPassword())) {
+				isPasswordMatch = true;
+				break;
+			}
+		}
+		
+		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords."));
+			
+			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
+		}
+		
+		String userPreviousPasword = userToUpdate.getPassword();
 		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
 		userToUpdate.setDateUpdated(new DateTime());
-		String modifiedBy = null;
+		String modifiedBy = StringUtils.isNotBlank(username) ? username : null;
 		//We are setting empty collectionn object not  to update roles in case of password update
 		userToUpdate.setRoles(Collections.emptyList());
 		userToUpdate.setLegalEntities(Collections.emptyList());
 		LOGGER.info("Ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
+		if(passwordHistoryList.size()<lastPasswordCount-1) {
+			userDAO.savePasswordHistory(userToUpdate, username, userPreviousPasword);
+		}
+		else {
+			if(!passwordHistoryList.isEmpty()) {
+				userDAO.updatePasswordHistory(passwordHistoryList.get(passwordHistoryList.size()-1).getPasswordHistoryID(),username,userPreviousPasword);
+			}
+			
+		}
 		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
@@ -561,7 +644,7 @@ public class UserService {
 		}
 	}
 
-	public void userActivation(ActivationResource activationResource) {
+	public void userActivation(ActivationResource activationResource, String modifiedBy) {
 		Boolean activate = activationResource.isActivate();
 		LOGGER.debug("activate ={}",activate);
 		List<String> notFoundUsernames = new ArrayList<>();
@@ -578,7 +661,7 @@ public class UserService {
 			if (user == null) {
 				notFoundUsernames.add(username);
 			} else {
-				activateAccount(user, status);
+				activateAccount(user, status, modifiedBy);
 			}
 		}
 		if (!notFoundUsernames.isEmpty()) {
@@ -586,13 +669,13 @@ public class UserService {
 		}
 	}
 
-	private void activateAccount(User userToUpdate, String status) {
+	private void activateAccount(User userToUpdate, String status, String modifiedBy) {
 		String username = userToUpdate.getUsername();
 		LOGGER.debug("username:= {} ",username);
 		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
 			userToUpdate.setStatus(status);
 			if ("NEW".equals(status)) {
-				userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+				//userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 				// Send email
 				final String link = "/api/users/" + username + "/password";
@@ -607,13 +690,12 @@ public class UserService {
 						+ "Please feel free to contact your system administratior. \n\n";
 				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
 			}
-			String modifiedBy = null;
 			// Why we need to update roles and LE while activating/deactivating user, so make Roles/LE list as empty.[Matloob]
 			userToUpdate.setRoles(Collections.emptyList());
 			userToUpdate.setLegalEntities(Collections.emptyList());
 			
 			LOGGER.info("ready to update user ");
-			long userId = userDAO.updateUser(userToUpdate, modifiedBy);
+			long userId = userDAO.updateUserStatus(userToUpdate, modifiedBy);
 			LOGGER.debug("userId ",userId);
 			//TOOD.................Why are you calling below operation again, I have commented this [Matloob]
 		}
@@ -649,4 +731,20 @@ public class UserService {
 	public User findByUsername(String userName){
 		return userDAO.findByUsername(userName);
 	}
+	
+	public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId) {
+		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId);
+		if (userList.size()<0) {
+			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
+		}
+		return userList;
+	}
+	
+	/*public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId, int limit) {
+		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId, limit);
+		if (userList.size()<0) {
+			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
+		}
+		return userList;
+	}*/
 }

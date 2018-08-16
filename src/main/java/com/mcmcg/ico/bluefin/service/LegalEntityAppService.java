@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
@@ -23,6 +24,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
 @Transactional
@@ -93,6 +95,11 @@ public class LegalEntityAppService {
 		final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
 
 		if (existLegalEntityAppName(newLegalEntityAppName)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					"Legal Entity App Name already exists."));
+			
 			throw new CustomBadRequestException(
 					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
 		}
@@ -106,6 +113,11 @@ public class LegalEntityAppService {
 
 		LOGGER.debug("legalEntityAppToUpdate ={} ",legalEntityAppToUpdate);
 		if (legalEntityAppToUpdate == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find legal entity app with id : ", String.valueOf(id)));
+			
 			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
 		}
 
@@ -119,6 +131,8 @@ public class LegalEntityAppService {
 		LegalEntityApp legalEntityAppToDelete = legalEntityAppDAO.findByLegalEntityAppId(id);
 
 		if (legalEntityAppToDelete == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Legal Entity with Id : ", String.valueOf(id)));
 			throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
 		}
 		try {
