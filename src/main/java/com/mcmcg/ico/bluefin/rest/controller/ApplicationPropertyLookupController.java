@@ -61,6 +61,7 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ApplicationProperty updateProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
+		LOGGER.debug("PUT-application properties endpoint");
 		
 		String logArg1 = "Application Properties Update Request";
 		
