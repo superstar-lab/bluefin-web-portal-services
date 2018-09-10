@@ -19,6 +19,7 @@ import com.mcmcg.ico.bluefin.model.ApplicationProperty;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.PropertyService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -60,12 +61,20 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ApplicationProperty updateProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
+		
+		String logArg1 = "Application Properties Update Request";
+		
 		if (authentication == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
-		LOGGER.debug("update application properties endpoint ={} ", authentication.getName());
+		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), " For the property", BluefinWebPortalConstants.SEPARATOR, applicationProperty.getPropertyName())) ;
 
 		if(applicationProperty.getPropertyId()==null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR),
+					"Applicaton id can't be null for update operation");
 			throw new CustomException("Applicaton id cann't be null for update operation");
 		}
 		return propertyService.updateProperty(applicationProperty, authentication.getName());
@@ -80,8 +89,11 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ApplicationProperty insertApplicationProperties(@RequestBody ApplicationProperty applicationProperty) {
-		LOGGER.debug("insert application properties endpoint");
+	public ApplicationProperty insertApplicationProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
+		
+		LOGGER.info(LoggingUtil.adminAuditInfo("Application Property Insertion Request", BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+				"Applicaton Property Name : ", applicationProperty.getPropertyName()));
 
 		return propertyService.saveApplicationProperty(applicationProperty);
 	}
@@ -95,11 +107,20 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public String deleteApplicationProperties(@PathVariable String applicationPropertyId) {
-		LOGGER.debug("delete application properties endpoint");
+	public String deleteApplicationProperties(@PathVariable String applicationPropertyId, @ApiIgnore Authentication authentication) {
+		
+		String logArg1 = "Application Properties Deletion Request";
+		
 		if(StringUtils.isBlank(applicationPropertyId)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+					"Applicaton Property Id can't be null for delete operation"));
+			
 			throw new CustomException("Applicaton id cann't be null for delete operation");
 		}
+		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+				"Applicaton Property Id : ", applicationPropertyId));
 		
 		return propertyService.deleteApplicationProperty(applicationPropertyId);
 	}

@@ -25,7 +25,7 @@ public class HttpsUtil {
 		// default constructor
 	}
 
-    public static String sendPostRequest(String requestUrl, String payload) {
+    public static String sendPostRequest(String requestUrl, String payload, String xAuthToken) {
         StringBuilder jsonString = new StringBuilder();
         try {
             URL url = new URL(requestUrl);
@@ -39,6 +39,7 @@ public class HttpsUtil {
 
             cntn.setRequestProperty("Accept", "application/json");
             cntn.setRequestProperty("Content-Type", "application/json");
+            cntn.setRequestProperty("X-Auth-Token", xAuthToken);
 
             OutputStreamWriter writer = new OutputStreamWriter(cntn.getOutputStream(), "UTF-8");
             writer.write(payload);
