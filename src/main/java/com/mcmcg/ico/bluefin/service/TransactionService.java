@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -258,7 +259,12 @@ public class TransactionService {
 		transactionDataRecord.add(transaction.getCountry());
 		transactionDataRecord.add(transaction.getCardNumberLast4Char());
 		transactionDataRecord.add(transaction.getCardType());
-		transactionDataRecord.add(transaction.getToken());
+		if(transaction!=null && StringUtils.isNotBlank(transaction.getToken())){
+		transactionDataRecord.add("'"+transaction.getToken()+"'");
+		}
+		else{
+			transactionDataRecord.add(transaction.getToken());	
+		}
 		transactionDataRecord.add(
 				transaction.getChargeAmount() == null ? " " : "$" + transaction.getChargeAmount().toString());
 		transactionDataRecord.add(transaction.getLegalEntityApp());
