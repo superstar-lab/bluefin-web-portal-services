@@ -325,7 +325,11 @@ public class BatchUploadService {
 			}
 			LOGGER.info("CSV file report was created successfully !!!");
 		}
-
+		finally {
+	    	if(csvFilePrinter!=null) {
+	    		csvFilePrinter.close();
+	    	}
+	}
 		return file;
 	}
 }
