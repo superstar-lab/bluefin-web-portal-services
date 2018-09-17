@@ -15,12 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -41,7 +37,6 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
-import com.mcmcg.ico.bluefin.model.BinDBDetails;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
@@ -483,7 +478,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	private List<String> getOriginFromPaymentFrequency(String paymentFrequency) {
 		logger.debug("Fetching Origins PaymentFrequency{} ",paymentFrequency);
-		return jdbcTemplate.queryForList("SELECT Origin FROM OriginPaymentFrequency_Lookup where PaymentFrequency = lower('"	+ paymentFrequency + "')",String.class);
+		String query = "SELECT Origin FROM OriginPaymentFrequency_Lookup where PaymentFrequency = lower('"	+ paymentFrequency + "')";
+		return jdbcTemplate.queryForList(query,String.class);
 	}
 	
 	private class CustomQuery {
@@ -881,7 +877,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setPaymentMethod(rs.getString(BluefinWebPortalConstants.PAYMENTMETHOD));
 			record.setTransactionAmount(rs.getBigDecimal(BluefinWebPortalConstants.TRANSACTIONAMOUNT));
 			record.setTransactionType(rs.getString(BluefinWebPortalConstants.TRANSACTIONTYPE));
-			record.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TRANSACTIONTIMEVAL)));
+			record.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TRANSACTIONTIME)));
 			record.setAccountId(rs.getString(BluefinWebPortalConstants.ACCOUNTIDVAL));
 			record.setApplication(rs.getString(BluefinWebPortalConstants.APPLICATION));
 			record.setProcessorTransactionId(rs.getString(BluefinWebPortalConstants.PROCESSORTRANSACTIONID));
@@ -1495,7 +1491,7 @@ class CustomSalePaymentProcessorRemittanceExtractor implements ResultSetExtracto
 			ppr.setPaymentMethod(rs.getString(BluefinWebPortalConstants.PAYMENTMETHOD));
 			ppr.setTransactionAmount(rs.getBigDecimal(BluefinWebPortalConstants.TRANSACTIONAMOUNT));
 			ppr.setTransactionType(rs.getString(BluefinWebPortalConstants.TRANSACTIONTYPE));
-			ppr.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TRANSACTIONTIMEVAL)));
+			ppr.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TRANSACTIONTIME)));
 			ppr.setAccountId(rs.getString(BluefinWebPortalConstants.ACCOUNTIDVAL));
 			ppr.setApplication(rs.getString(BluefinWebPortalConstants.APPLICATION));
 			ppr.setProcessorTransactionId(rs.getString(BluefinWebPortalConstants.PROCESSORTRANSACTIONID));

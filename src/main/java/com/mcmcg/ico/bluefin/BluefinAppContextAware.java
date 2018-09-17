@@ -24,17 +24,13 @@ public class BluefinAppContextAware implements ApplicationContextAware {
 	private CookiesConfiguration cookieConfig;
 	
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) {
 		LOGGER.info("Setting cookie setting to servlet context");
 		if (servletContext != null) {
 			if (servletContext.getSessionCookieConfig() != null) {
 				if (cookieConfig != null) {
 					LOGGER.info("The Cookie config secure , set as={}",cookieConfig.isSecure());
-					try {
-						servletContext.getSessionCookieConfig().setSecure(cookieConfig.isSecure());
-					} catch (Exception ex) {
-						LOGGER.info("Failed to set Cookie config setting , Exp Message={}",ex.getMessage(),ex);
-					}
+					servletContext.getSessionCookieConfig().setSecure(cookieConfig.isSecure());
 				} else {	
 					LOGGER.info("The Cookie Config Object found null");
 				}

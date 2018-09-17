@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.bindb.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,8 +10,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +19,6 @@ import com.mcmcg.ico.bluefin.service.BinDBService;
 
 @Component
 public class TransationBinDBDetailsService {
-
-	private static final Logger logger = LoggerFactory.getLogger(TransationBinDBDetailsService.class);
 	
 	@Autowired
 	private BinDBService binDBService;
@@ -37,7 +34,7 @@ public class TransationBinDBDetailsService {
 			}
 			return contentBinDBs;
 		}
-		return null;
+		return Collections.emptyList();
 	}
 	
 	public void setBinDBDetailsForTransactions(List<SaleTransaction> list) {
@@ -70,6 +67,6 @@ public class TransationBinDBDetailsService {
 		if (filteredAndUniqueCardNumberFirst6Char != null && !filteredAndUniqueCardNumberFirst6Char.isEmpty()) {
 			return binDBService.fetchBinDBDetailsForCardNumbers(filteredAndUniqueCardNumberFirst6Char);
 		} 
-		return null;
+		return Collections.emptyList();
 	}
 }
