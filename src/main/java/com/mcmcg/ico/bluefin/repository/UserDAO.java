@@ -29,8 +29,6 @@ public interface UserDAO {
 	
 	ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId);
 	
-	//ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId, int limit);
-	
 	long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword);
 	
 	void updatePasswordHistory(long historyId, String modifiedBy, String previousPassword);

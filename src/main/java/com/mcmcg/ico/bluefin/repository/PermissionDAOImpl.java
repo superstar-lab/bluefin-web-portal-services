@@ -110,9 +110,8 @@ public class PermissionDAOImpl implements PermissionDAO {
 
 	@Override
 	public List<Permission> findByRoleId(Long roleId) {
-		List<Permission> list = jdbcTemplate.query( Queries.FINDPERMISSIONBYROLEID, new Object[] {roleId},
+		return jdbcTemplate.query( Queries.FINDPERMISSIONBYROLEID, new Object[] {roleId},
 				new PermissionRowMapper());
-		return list;
 	}
 }
 

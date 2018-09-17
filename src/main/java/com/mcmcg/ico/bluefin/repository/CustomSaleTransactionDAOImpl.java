@@ -256,7 +256,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		query = queryObj.getFinalQueryToExecute();
 		queryObj.setPagination(false);
 		String queryForCount = queryObj.getFinalQueryToExecute();
-		int astrikIndex = queryForCount.indexOf("*");
+		int astrikIndex = queryForCount.indexOf('*');
 		if (astrikIndex != -1) {
 			String beforeAsktrik = queryForCount.substring(0,astrikIndex);
 			String afterAsktrik = queryForCount.substring(astrikIndex+1);
@@ -566,7 +566,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			while (list.hasNext()) {
 				Order order = list.next();
 				String predicate = getPropertyPredicate(order.getProperty());
-				result.append(predicate.substring(predicate.indexOf(":prefix.") + 8, predicate.indexOf(" ")));
+				result.append(predicate.substring(predicate.indexOf(":prefix.") + 8, predicate.indexOf(' ')));
 				result.append(" ");
 				result.append(order.getDirection().toString());
 				if (list.hasNext()) {
@@ -688,10 +688,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		if (validateBatchUpload(attribute, prefix)) {
 			return true;
 		}
-		if (validateTransactionType(attribute)) {
+		return validateTransactionType(attribute);
+		/**if (validateTransactionType(attribute)) {
 			return true;
 		}
-		return false;
+		return false;*/
 	}
 	
 	private boolean validateTransactionType(String attribute){
@@ -1037,7 +1038,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	private String getSearchValue(String search){
-		int anyOtherParamsIndex = search.indexOf("&");
+		int anyOtherParamsIndex = search.indexOf('&');
 		String searchValue;
 		if (anyOtherParamsIndex != -1 && anyOtherParamsIndex < search.length()) {
 			searchValue = search.substring(0, anyOtherParamsIndex);

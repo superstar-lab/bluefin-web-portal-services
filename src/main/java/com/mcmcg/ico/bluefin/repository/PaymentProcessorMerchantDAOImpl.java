@@ -44,7 +44,7 @@ public class PaymentProcessorMerchantDAOImpl implements PaymentProcessorMerchant
 	
 	@Override
 	public List<PaymentProcessorMerchant> findPaymentProccessorMerchantByProcessorId(Long paymentProcessorId) {
-		List<PaymentProcessorMerchant> list = (ArrayList<PaymentProcessorMerchant>) jdbcTemplate.query(
+		List<PaymentProcessorMerchant> list =  jdbcTemplate.query(
 				Queries.FINDPAYMENTPROCESSORMERCHANTSBYID, new Object[] { paymentProcessorId },
 				new RowMapperResultSetExtractor<PaymentProcessorMerchant>(new PaymentProcessorMerchantRowMapper()));
 

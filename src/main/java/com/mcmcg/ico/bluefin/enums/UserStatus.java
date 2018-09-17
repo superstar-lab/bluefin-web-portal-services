@@ -17,17 +17,17 @@ public enum UserStatus {
 	private int statusId;
 	private String status;
 	
+	private UserStatus(int statusId, String status) {
+		this.statusId = statusId;
+		this.status = status;
+	}
+	
 	public int getStatusId() {
 		return statusId;
 	}
 
 	public String getStatus() {
 		return status;
-	}
-
-	private UserStatus(int statusId, String status) {
-		this.statusId = statusId;
-		this.status = status;
 	}
 	
 	/**

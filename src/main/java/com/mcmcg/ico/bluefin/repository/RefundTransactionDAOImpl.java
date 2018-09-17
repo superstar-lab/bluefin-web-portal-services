@@ -48,20 +48,7 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 			if (saleTransactionId != null) {
 				saleTransactionId = saleTransactionId.trim();
 				if (saleTransactionId.length() > 0) {
-					ArrayList<SaleTransaction> saleTransactions = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-							Queries.FINDSALETRANSACTIONBYSALETRANSACTIONID, new Object[] { saleTransactionId },
-							new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
-					LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
-					SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
-
-					if (saleTransaction != null) {
-						LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
-						saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
-						refundTransaction.setBinDBDetails(saleTransaction.getBinDBDetails());
-						refundTransaction.setSaleTransaction(saleTransaction);
-					} else {
-						LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);
-					}
+					refundTransaction = findByApplicationTransactionIdInSale(saleTransactionId, refundTransaction);
 				}
 			} else {
 				LOGGER.debug("SaleTransactionId found invalid");
@@ -70,6 +57,25 @@ public class RefundTransactionDAOImpl implements RefundTransactionDAO {
 			LOGGER.debug("RefundTransaction not found for transactionId ={} ", transactionId);
 		}
 
+		return refundTransaction;
+	}
+	
+	public RefundTransaction findByApplicationTransactionIdInSale(String saleTransactionId, RefundTransaction refundTransaction) {
+		ArrayList<SaleTransaction> saleTransactions = (ArrayList<SaleTransaction>) jdbcTemplate.query(
+				Queries.FINDSALETRANSACTIONBYSALETRANSACTIONID, new Object[] { saleTransactionId },
+				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+		LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
+		SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
+
+		if (saleTransaction != null) {
+			LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
+			saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
+			refundTransaction.setBinDBDetails(saleTransaction.getBinDBDetails());
+			refundTransaction.setSaleTransaction(saleTransaction);
+		} else {
+			LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);
+		}
+		
 		return refundTransaction;
 	}
 

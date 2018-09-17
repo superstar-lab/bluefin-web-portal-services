@@ -59,7 +59,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 	@Override
 	public String getPropertyValue(String propertyName) {
 		Property property = findByName(propertyName);
-		LOGGER.debug("property ={}", property);
+		LOGGER.debug("property1 ={}", property);
 		return property == null ? "" : property.getApplicationPropertyValue();
 	}
 
@@ -79,7 +79,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 	@Override
 	public List<ApplicationProperty> getAllProperty() {
 		List<ApplicationProperty> propertylist = findAll();
-		LOGGER.debug("property ={}", propertylist.size());
+		LOGGER.debug("property2 ={}", propertylist.size());
 		return propertylist;
 	}
 
