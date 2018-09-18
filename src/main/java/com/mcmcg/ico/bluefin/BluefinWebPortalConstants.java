@@ -138,6 +138,8 @@ public class BluefinWebPortalConstants {
 	public static final String REQUESTEDFOR = "Requested For : ";
 	public static final String LEGALENTITYNAME = "Legal Entity Name : ";
 	public static final String PAYMENTPROCESSORNAME = "Payment Processor Name : ";
+	public static final String INTERNALCODEID = "Internal Code Id : ";
+	public static final String PAYMENTPROCESSORIDLOG = "Payment Processor Id : ";
 	
 	private BluefinWebPortalConstants(){
 		

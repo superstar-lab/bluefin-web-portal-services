@@ -3,15 +3,19 @@ package com.mcmcg.ico.bluefin.service;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
+import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -20,11 +24,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.StatusCode;
@@ -331,5 +339,33 @@ public class BatchUploadService {
 	    	}
 	}
 		return file;
+	}
+	
+	public ResponseEntity<String> deleteTempFile(InputStream targetStream, File downloadFile, HttpServletResponse response, String deleteTempFile) {
+		InputStream inputStream = targetStream;
+		try {
+			inputStream = FileUtils.openInputStream(downloadFile);
+			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+			response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
+			
+			FileCopyUtils.copy(inputStream, response.getOutputStream());
+			LOGGER.debug(deleteTempFile, downloadFile.getName());
+			boolean deleted = downloadFile.delete();
+			LOGGER.debug("File deleted ? {}",deleted);
+			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+		} catch(Exception e) {
+			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
+			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
+		}
+		finally {
+		    	if(inputStream!=null) {
+		    		try {
+		    			inputStream.close();
+					} catch (IOException e) {
+						LOGGER.error("An error occured to close input stream= "+e);
+					}
+		    	}
+		}
+		
 	}
 }

@@ -84,23 +84,13 @@ public class ReportRestController {
 		InputStream targetStream = null;
 		try {
 			File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
-			targetStream = FileUtils.openInputStream(downloadFile);
-			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-			response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 			
-			// Below line found in releases while merging, but was not available in develop branch
-			FileCopyUtils.copy(targetStream, response.getOutputStream());
-			LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-			downloadFile.delete();
-			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			
 		}
 		catch(Exception e) {
+			LOGGER.error("An error occured to during downloading file="+e);
 			throw new CustomException("An error occured to during downloading file.");
-		}
-		finally {
-		    	if(targetStream!=null) {
-		    		targetStream.close();
-		    	}
 		}
 	}
 
@@ -143,23 +133,12 @@ public class ReportRestController {
 		InputStream targetStream = null;
 		try {
 			File downloadFile = transactionService.getRemittanceTransactionsReport(searchVal, timeZone,negate);
-			targetStream = FileUtils.openInputStream(downloadFile);
-			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-			response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
 			
-			FileCopyUtils.copy(targetStream, response.getOutputStream());
-			LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-			boolean deleted = downloadFile.delete();
-			LOGGER.debug("File deleted ? {}",deleted);
-			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
 		}
 		catch(Exception e) {
+			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
 			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
-		}
-		finally {
-		    	if(targetStream!=null) {
-		    		targetStream.close();
-		    	}
 		}
 	}
 
@@ -180,22 +159,12 @@ public class ReportRestController {
 		try {
 			File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
 
-			targetStream = FileUtils.openInputStream(downloadFile);
-			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-			response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-
-			FileCopyUtils.copy(targetStream, response.getOutputStream());
-			LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-			downloadFile.delete();
-			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			
 		}
 		catch(Exception e) {
-			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
-		}
-		finally {
-		    	if(targetStream!=null) {
-		    		targetStream.close();
-		    	}
+			LOGGER.error("An error occured to during get report="+e);
+			throw new CustomException("An error occured to during get report.");
 		}
 	}
 
@@ -217,22 +186,12 @@ public class ReportRestController {
 		try {
 			File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
-			targetStream = FileUtils.openInputStream(downloadFile);
-			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-			response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-
-			FileCopyUtils.copy(targetStream, response.getOutputStream());
-			LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-			downloadFile.delete();
-			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			
 		}
 		catch(Exception e) {
-			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
-		}
-		finally {
-		    	if(targetStream!=null) {
-		    		targetStream.close();
-		    	}
+			LOGGER.error("An error occured to during get report="+e);
+			throw new CustomException("An error occured to during getBatchUploadTransactionsReport file.");
 		}
 	}
 }

@@ -155,7 +155,7 @@ public class PaymentProcessorRestController {
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
     	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
     			BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-    			"Payment Processor Id : ", String.valueOf(id)));
+    			BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id)));
     	
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -163,7 +163,7 @@ public class PaymentProcessorRestController {
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        			"Payment Processor Id : ", String.valueOf(id)), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id)), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
@@ -183,7 +183,7 @@ public class PaymentProcessorRestController {
     	
     	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Delete Request", BluefinWebPortalConstants.SEPARATOR,
     			BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-    			"Payment Processor Id : ", String.valueOf(id)));
+    			BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id)));
     	
         paymentProcessorService.deletePaymentProcessor(id);
         LOGGER.debug("Payment Processor {} has been deleted.", id);
