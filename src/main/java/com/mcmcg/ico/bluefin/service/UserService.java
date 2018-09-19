@@ -538,63 +538,15 @@ public class UserService {
 		LOGGER.debug("Username : {}",usernameVal);
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("TokenType : {}",tokenType);
-		if (usernameVal == null || tokenType == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
-					"Password updation failed for User: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"An authorization token is required to request this resource.."));
-			
-			throw new CustomBadRequestException("An authorization token is required to request this resource");
-		}
-
+		
 		User userToUpdate = getUser(usernameVal);
 		LOGGER.debug("UserToUpdate : {} ",userToUpdate.getUserId());
-
-		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
-				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR, 
-					"Password updation failed for User:: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"The old password is incorrect..."));
-			
-			throw new CustomBadRequestException("The old password is incorrect.");
-		}
 		
-		boolean isPasswordMatch = false;
-		boolean isPasswordDeleted = false;
-		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
-		//delete old password from password history if password match count changed
-		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
-		int lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : BluefinWebPortalConstants.MATCHLASTPASSWORD;
-		int passwordHistoryCount = passwordHistoryList.size();
-		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
-			LOGGER.debug("userPasswordHistory : {} ",userPasswordHistory);
-			if(passwordHistoryCount>lastPasswordCount-1) {
-				if(passwordHistoryCount>0){
-					userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
-					isPasswordDeleted = true;
-					passwordHistoryCount--;
-				}
-			}
-			else {
-					break;
-				}
-		}
-		if(isPasswordDeleted) {
-			passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
-		}
-		for(UserPasswordHistory userPasswordHistory : passwordHistoryList) {
-			if(passwordEncoder.matches(updatePasswordResource.getNewPassword(), userPasswordHistory.getPreviousPassword())) {
-				isPasswordMatch = true;
-				break;
-			}
-		}
+		List<Object> passwordHistoryAndLastCount = validateUserName(tokenType, userToUpdate, updatePasswordResource, usernameVal);
 		
-		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords."));
-			
-			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
-		}
+		@SuppressWarnings("unchecked")
+		List<UserPasswordHistory> passwordHistoryList = (List<UserPasswordHistory>) passwordHistoryAndLastCount.get(0);
+		int lastPasswordCount = (int) passwordHistoryAndLastCount.get(1);
 		
 		String userPreviousPasword = userToUpdate.getPassword();
 		setStatus(tokenType,userToUpdate);
@@ -745,5 +697,82 @@ public class UserService {
 			filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));	
 			}
 		}
+	}
+	
+	public List<Object> validateUserName(String tokenType, User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
+		if (usernameVal == null || tokenType == null) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"An authorization token is required to request this resource.."));
+			
+			throw new CustomBadRequestException("An authorization token is required to request this resource");
+		}
+		
+		return validateUserNameAuthentication(tokenType,userToUpdate,updatePasswordResource,usernameVal);
+	}
+	
+	public List<Object> validateUserNameAuthentication(String tokenType, User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
+		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
+				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR, 
+					"Password updation failed for User:: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"The old password is incorrect..."));
+			
+			throw new CustomBadRequestException("The old password is incorrect.");
+		}
+		
+		return checkInPasswordHistory(userToUpdate,updatePasswordResource,usernameVal);
+	}
+	
+	public List<Object> checkInPasswordHistory(User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {		
+		boolean isPasswordDeleted = false;
+		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		//delete old password from password history if password match count changed
+		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
+		int lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : BluefinWebPortalConstants.MATCHLASTPASSWORD;
+		int passwordHistoryCount = passwordHistoryList.size();
+		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			LOGGER.debug("userPasswordHistory : {} ",userPasswordHistory);
+			if(passwordHistoryCount>lastPasswordCount-1) {
+				if(passwordHistoryCount>0){
+					userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
+					isPasswordDeleted = true;
+					passwordHistoryCount--;
+				}
+			}
+			else {
+					break;
+				}
+		}
+		
+		return checkPasswordMatch(isPasswordDeleted, passwordHistoryList, userToUpdate, updatePasswordResource, usernameVal, lastPasswordCount);
+	}
+	
+	public List<Object> checkPasswordMatch(boolean isPasswordDeleted, List<UserPasswordHistory> passwordHistoryList, User userToUpdate, 
+			final UpdatePasswordResource updatePasswordResource, String usernameVal, int lastPasswordCount) {
+		boolean isPasswordMatch = false;
+		if(isPasswordDeleted) {
+			passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		}
+		for(UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			if(passwordEncoder.matches(updatePasswordResource.getNewPassword(), userPasswordHistory.getPreviousPassword())) {
+				isPasswordMatch = true;
+				break;
+			}
+		}
+		
+		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords."));
+			
+			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
+		}
+		
+		List<Object> passwordHistoryAndCount = new ArrayList<>();
+		passwordHistoryAndCount.add(passwordHistoryList);
+		passwordHistoryAndCount.add(lastPasswordCount);
+		
+		 return passwordHistoryAndCount;
 	}
 }

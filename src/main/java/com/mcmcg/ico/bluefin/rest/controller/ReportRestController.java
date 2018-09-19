@@ -2,7 +2,6 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
