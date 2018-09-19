@@ -140,6 +140,13 @@ public class BluefinWebPortalConstants {
 	public static final String PAYMENTPROCESSORNAME = "Payment Processor Name : ";
 	public static final String INTERNALCODEID = "Internal Code Id : ";
 	public static final String PAYMENTPROCESSORIDLOG = "Payment Processor Id : ";
+	public static final String APIUSER = "/api/users/";
+	public static final String PASSLINK = "/password";
+	public static final String WELCOMECONTENT = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n";
+	public static final String CREATEPASSCONTENT = "\n\n To create your password, use the link below: \n\n";
+	public static final String REGISTERUSEREMAIL = "REGISTER_USER_EMAIL_LINK";
+	public static final String USERVALUE = "?user=";
+	public static final String TOKENVALUE = "&token=";
 	
 	private BluefinWebPortalConstants(){
 		

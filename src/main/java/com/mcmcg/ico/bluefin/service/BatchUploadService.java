@@ -341,8 +341,8 @@ public class BatchUploadService {
 		return file;
 	}
 	
-	public ResponseEntity<String> deleteTempFile(InputStream targetStream, File downloadFile, HttpServletResponse response, String deleteTempFile) {
-		InputStream inputStream = targetStream;
+	public ResponseEntity<String> deleteTempFile(File downloadFile, HttpServletResponse response, String deleteTempFile) {
+		InputStream inputStream = null;
 		try {
 			inputStream = FileUtils.openInputStream(downloadFile);
 			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);

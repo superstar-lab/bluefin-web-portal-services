@@ -123,20 +123,7 @@ public class UserService {
 		Map<String,String> filterMap = new HashMap<>(7);
 		if(search != null && !search.isEmpty()) {
 			for(String searchParam:search){
-				
-				String[] str1 = searchParam.split(":");
-				if ("legalEntities".equalsIgnoreCase(str1[0]) || "roles".equalsIgnoreCase(str1[0]) ) {
-					str1[1] = str1[1].replace("[", "");
-					str1[1] = str1[1].replace("]", "");
-					filterMap.put(str1[0], str1[1]);
-				} else {
-					if("status".equalsIgnoreCase(str1[0])){
-					filterMap.put(str1[0], str1[1]);
-					}
-					else{
-					filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));	
-					}
-				}
+				checkUser(searchParam, filterMap);
 			}
 		}
 		Page<User> result = userDAO.findAllWithDynamicFilter(search, QueryDSLUtil.getPageRequest(page, size, sort),filterMap);
@@ -197,11 +184,11 @@ public class UserService {
 		}
 		
 		// Send email
-		final String link = "/api/users/" + username + "/password";
+		final String link = BluefinWebPortalConstants.APIUSER + username + BluefinWebPortalConstants.PASSLINK;
 		final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
-		String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
-				+ "Username: " + username + "\n\n To create your password, use the link below: \n\n"
-				+ propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
+		String content = BluefinWebPortalConstants.WELCOMECONTENT
+				+ BluefinWebPortalConstants.USERNAME + username + BluefinWebPortalConstants.CREATEPASSCONTENT
+				+ propertyService.getPropertyValue(BluefinWebPortalConstants.REGISTERUSEREMAIL) + BluefinWebPortalConstants.USERVALUE + username + BluefinWebPortalConstants.TOKENVALUE
 				+ token;
 		emailService.sendEmail(newUser.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
 
@@ -456,7 +443,6 @@ public class UserService {
 	 * @param userName
 	 */
 	public boolean hasUserPrivilegesOverLegalEntities(Authentication authentication, Set<Long> legalEntitiesToVerify) {
-		//if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 		if (hasPermissionToManageAllUsers(authentication)) {
 			return true;
 		}
@@ -517,8 +503,6 @@ public class UserService {
 		// Verify if user that needs to be updated exist
 		User userToUpdate = getUser(usernameToUpdate);
 		LOGGER.debug("userToUpdate ={} ",userToUpdate.getUserId());
-		
-		//if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 		if (hasPermissionToManageAllUsers(authentication)) {
 			return true;
 		}
@@ -555,9 +539,9 @@ public class UserService {
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("TokenType : {}",tokenType);
 		if (usernameVal == null || tokenType == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"An authorization token is required to request this resource."));
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+					"Password updation failed for User: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"An authorization token is required to request this resource.."));
 			
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
@@ -567,9 +551,9 @@ public class UserService {
 
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR, 
-					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"The old password is incorrect."));
+			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR, 
+					"Password updation failed for User:: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
+					"The old password is incorrect..."));
 			
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
@@ -577,12 +561,12 @@ public class UserService {
 		boolean isPasswordMatch = false;
 		boolean isPasswordDeleted = false;
 		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
-		//ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId(), lastPasswordCount-1);
 		//delete old password from password history if password match count changed
 		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
 		int lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : BluefinWebPortalConstants.MATCHLASTPASSWORD;
 		int passwordHistoryCount = passwordHistoryList.size();
 		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {
+			LOGGER.debug("userPasswordHistory : {} ",userPasswordHistory);
 			if(passwordHistoryCount>lastPasswordCount-1) {
 				if(passwordHistoryCount>0){
 					userDAO.deletePasswordHistory(passwordHistoryList.get(passwordHistoryCount-1).getPasswordHistoryID(),userToUpdate.getUserId());
@@ -675,14 +659,13 @@ public class UserService {
 		if (!userToUpdate.getStatus().equalsIgnoreCase( status)) {
 			userToUpdate.setStatus(status);
 			if ("NEW".equals(status)) {
-				//userToUpdate.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
 				// Send email
-				final String link = "/api/users/" + username + "/password";
+				final String link = BluefinWebPortalConstants.APIUSER + username + BluefinWebPortalConstants.PASSLINK;
 				final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
-				String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
-						+ "Username: " + username + "\n\n To create your password, use the link below: \n\n"
-						+ propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
+				String content = BluefinWebPortalConstants.WELCOMECONTENT
+						+ BluefinWebPortalConstants.USERNAME + username + BluefinWebPortalConstants.CREATEPASSCONTENT
+						+ propertyService.getPropertyValue(BluefinWebPortalConstants.REGISTERUSEREMAIL) + BluefinWebPortalConstants.USERVALUE + username + BluefinWebPortalConstants.TOKENVALUE
 						+ token;
 				emailService.sendEmail(userToUpdate.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
 			} else {
@@ -707,11 +690,11 @@ public class UserService {
 				emailService.sendEmail(userToUpdate.getEmail(), DEACTIVATE_ACCOUNT_EMAIL_SUBJECT, content);
 			}
 			else {
-				final String link = "/api/users/" + username + "/password";
+				final String link = BluefinWebPortalConstants.APIUSER + username + BluefinWebPortalConstants.PASSLINK;
 				final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
-				String content = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n"
-						+ "Username: " + username + "\n\n To create your password, use the link below: \n\n"
-						+ propertyService.getPropertyValue("REGISTER_USER_EMAIL_LINK") + "?user=" + username + "&token="
+				String content = BluefinWebPortalConstants.WELCOMECONTENT
+						+ BluefinWebPortalConstants.USERNAME + username + BluefinWebPortalConstants.CREATEPASSCONTENT
+						+ propertyService.getPropertyValue(BluefinWebPortalConstants.REGISTERUSEREMAIL) + BluefinWebPortalConstants.USERVALUE + username + BluefinWebPortalConstants.TOKENVALUE
 						+ token;
 				emailService.sendEmail(userToUpdate.getEmail(), REGISTER_USER_EMAIL_SUBJECT, content);
 			}
@@ -740,11 +723,27 @@ public class UserService {
 		return userList;
 	}
 	
-	/*public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId, int limit) {
+	/**public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId, int limit) {
 		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId, limit);
 		if (userList.size()<0) {
 			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
 		}
 		return userList;
 	}*/
+	
+	public void checkUser(String searchParam, Map<String,String> filterMap) {
+		String[] str1 = searchParam.split(":");
+		if ("legalEntities".equalsIgnoreCase(str1[0]) || "roles".equalsIgnoreCase(str1[0]) ) {
+			str1[1] = str1[1].replace("[", "");
+			str1[1] = str1[1].replace("]", "");
+			filterMap.put(str1[0], str1[1]);
+		} else {
+			if("status".equalsIgnoreCase(str1[0])){
+			filterMap.put(str1[0], str1[1]);
+			}
+			else{
+			filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));	
+			}
+		}
+	}
 }

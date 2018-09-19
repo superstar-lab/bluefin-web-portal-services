@@ -77,11 +77,10 @@ public class ReportRestController {
 		} else {
 			searchValue = search;
 		}
-		InputStream targetStream = null;
 		try {
 			File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
 			
-			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
 		}
 		catch(Exception e) {
@@ -126,11 +125,10 @@ public class ReportRestController {
 			searchVal = searchVal.replaceAll("notReconciled", id);
 			negate = true;
 		}
-		InputStream targetStream = null;
 		try {
 			File downloadFile = transactionService.getRemittanceTransactionsReport(searchVal, timeZone,negate);
 			
-			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 		}
 		catch(Exception e) {
 			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
@@ -151,11 +149,10 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
 			throws IOException {
 		LOGGER.info("Getting all batch uploads");
-		InputStream targetStream = null;
 		try {
 			File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
 
-			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
 		}
 		catch(Exception e) {
@@ -178,11 +175,10 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
 			throws IOException {
 		LOGGER.debug("Getting all batch uploads by id = [{}]", batchUploadId);
-		InputStream targetStream = null;
 		try {
 			File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
-			return batchUploadService.deleteTempFile(targetStream, downloadFile, response, DELETETEMPFILE);
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
 		}
 		catch(Exception e) {

@@ -43,7 +43,6 @@ import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
-import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;

@@ -91,7 +91,7 @@ public class QueryBuilderHelper {
 		}
 	}
 	
-	/*private static void processStatus(StringBuilder bf2,Map<String,String> filterMap){
+	/**private static void processStatus(StringBuilder bf2,Map<String,String> filterMap){
 		if(isValidFilter(filterMap,"status")) {
 			appendQuery(bf2," AND  status like :status ");
 		}
@@ -99,7 +99,7 @@ public class QueryBuilderHelper {
 	
 	private static void processStatus(StringBuilder bf2,Map<String,String> filterMap){
 		if(isValidFilter(filterMap,"status")) {
-		//	appendQuery(bf2," AND status ="+filterMap.get("status"));
+		/**	appendQuery(bf2," AND status ="+filterMap.get("status"));*/
 			appendQuery(bf2," AND status =:status ");
 			
 		}
