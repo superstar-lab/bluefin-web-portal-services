@@ -279,7 +279,7 @@ public class UserDAOImpl implements UserDAO {
 	@Override
 	public List<UserPasswordHistory> getPasswordHistoryById(long userId) {
 		
-		List<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPWHISTORYBYUSERID, new Object[] { userId },
+		List<UserPasswordHistory> userList = jdbcTemplate.query(Queries.FINDUSERPWHISTORYBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
 
 		if (!userList.isEmpty()) {
