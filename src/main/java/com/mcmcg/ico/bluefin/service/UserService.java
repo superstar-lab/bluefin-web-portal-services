@@ -667,8 +667,8 @@ public class UserService {
 		return userDAO.findByUsername(userName);
 	}
 	
-	public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId) {
-		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId);
+	public List<UserPasswordHistory> getPasswordHistory(final Long userId) {
+		List<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId);
 		if (userList.size()<0) {
 			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
 		}
@@ -726,9 +726,9 @@ public class UserService {
 	
 	public List<Object> checkInPasswordHistory(User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {		
 		boolean isPasswordDeleted = false;
-		ArrayList<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
+		List<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
 		//delete old password from password history if password match count changed
-		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPASSWORDCOUNT);
+		String lastPwCount = propertyService.getPropertyValue(BluefinWebPortalConstants.MATCHLASTPWCOUNT);
 		int lastPasswordCount = org.apache.commons.lang3.StringUtils.isNotEmpty(lastPwCount) ? Integer.parseInt(lastPwCount) : BluefinWebPortalConstants.MATCHLASTPASSWORD;
 		int passwordHistoryCount = passwordHistoryList.size();
 		for (UserPasswordHistory userPasswordHistory : passwordHistoryList) {

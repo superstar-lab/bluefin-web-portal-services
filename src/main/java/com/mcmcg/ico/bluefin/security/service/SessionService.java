@@ -383,9 +383,9 @@ public class SessionService {
 	
 	public boolean isPasswordExpire(final User user, AuthenticationResponse response) {
 		
-		ArrayList<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
-		String passwordExpirecount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREAFTER);
-		String passwordWarncount = propertyService.getPropertyValue(BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORE);
+		List<UserPasswordHistory> passwordHistoryList = userService.getPasswordHistory(user.getUserId());
+		String passwordExpirecount = propertyService.getPropertyValue(BluefinWebPortalConstants.PWEXPIREAFTER);
+		String passwordWarncount = propertyService.getPropertyValue(BluefinWebPortalConstants.PWEXPIREWARNBEFORE);
 		int passwordExpireAfter = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordExpirecount) ? Integer.parseInt(passwordExpirecount) : BluefinWebPortalConstants.PASSWORDEXPIREAFTERCOUNT ;
 		int passwordWarnWithIn = org.apache.commons.lang3.StringUtils.isNotEmpty(passwordWarncount) ? Integer.parseInt(passwordWarncount) : BluefinWebPortalConstants.PASSWORDEXPIREWARNBEFORECOUNT;
 		DateTime dateModified;
@@ -442,7 +442,7 @@ public class SessionService {
 		if (!passwordEncoder.matches(password, user.getPassword())) {
 			
 			wrongPasswordCounterNextVal = user.getWrongPasswordCounter() + 1;
-			wrongPasswordMaxLimit = propertyService.getPropertyValue(BluefinWebPortalConstants.WRONGPASSWORDMAXLIMIT);
+			wrongPasswordMaxLimit = propertyService.getPropertyValue(BluefinWebPortalConstants.WRONGPWMAXLIMIT);
 			try {
 				wrongPasswordMaxLimitVal = wrongPasswordMaxLimit == null || "".equals(wrongPasswordMaxLimit.trim()) ? 
 						BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT : Integer.parseInt(wrongPasswordMaxLimit);

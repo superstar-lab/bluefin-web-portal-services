@@ -277,9 +277,9 @@ public class UserDAOImpl implements UserDAO {
 	}
 	
 	@Override
-	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId) {
+	public List<UserPasswordHistory> getPasswordHistoryById(long userId) {
 		
-		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID, new Object[] { userId },
+		List<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPWHISTORYBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
 
 		if (!userList.isEmpty()) {
@@ -316,7 +316,7 @@ public class UserDAOImpl implements UserDAO {
 		
 		KeyHolder holder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection->{
-			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPASSWORDHISTORY,
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPWHISTORY,
 					Statement.RETURN_GENERATED_KEYS);
 			ps.setLong(1, user.getUserId()); 
 			ps.setString(2, userPreviousPasword); 
@@ -351,7 +351,7 @@ public class UserDAOImpl implements UserDAO {
 		DateTime utc = new DateTime(DateTimeZone.UTC);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc));
 		
-		int rows = jdbcTemplate.update(Queries.UPDATEPASSWORDHISTORY,
+		int rows = jdbcTemplate.update(Queries.UPDATEPWHISTORY,
 				new Object[] {previousPassword, modifiedBy, dateModified, historyId});
 		
 		LOGGER.debug("update password history with ID ={} , rows affected ={} ", historyId, rows);
@@ -359,7 +359,7 @@ public class UserDAOImpl implements UserDAO {
 	
 	@Override
 	public void deletePasswordHistory(long historyId, long userId) {
-		int rows = jdbcTemplate.update(Queries.DELETEPASSWORDHISTORY,
+		int rows = jdbcTemplate.update(Queries.DELETEPWHISTORY,
 				new Object[] {historyId, userId});
 		
 		LOGGER.debug("delete user with ID ={} , rows affected ={} ", userId, rows);

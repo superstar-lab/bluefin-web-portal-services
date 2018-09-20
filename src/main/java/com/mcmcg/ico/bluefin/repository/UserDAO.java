@@ -27,7 +27,7 @@ public interface UserDAO {
 	
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
 	
-	ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId);
+	List<UserPasswordHistory> getPasswordHistoryById(long userId);
 	
 	long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword);
 	

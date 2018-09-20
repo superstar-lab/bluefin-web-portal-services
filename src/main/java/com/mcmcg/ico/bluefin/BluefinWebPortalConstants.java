@@ -121,10 +121,10 @@ public class BluefinWebPortalConstants {
 	public static final String BLUEFIN_BIN_DB_DATA_SOURCE = "binDBDataSource";
 	public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
 	public static final String BLUEFIN_NAMED_JDBC_TEMPLATE = "bluefinNamedJdbcTemplate";
-	public static final String MATCHLASTPASSWORDCOUNT = "MATCH_LAST_PASSWORD_COUNT";
-	public static final String PASSWORDEXPIREAFTER = "PASSWORD_EXPIRE_AFTER";
-	public static final String PASSWORDEXPIREWARNBEFORE = "PASSWORD_EXPIRE_WARN_BEFORE";
-	public static final String WRONGPASSWORDMAXLIMIT = "WRONG_PASSWORD_MAX_LIMIT";
+	public static final String MATCHLASTPWCOUNT = "MATCH_LAST_PASSWORD_COUNT";
+	public static final String PWEXPIREAFTER = "PASSWORD_EXPIRE_AFTER";
+	public static final String PWEXPIREWARNBEFORE = "PASSWORD_EXPIRE_WARN_BEFORE";
+	public static final String WRONGPWMAXLIMIT = "WRONG_PASSWORD_MAX_LIMIT";
 	public static final int WRONGPASSWORDMAXLIMITDEFAULT = 6;
 	public static final String ACCOUNTLOCKEDDURATIONSECONDS = "ACCOUNT_LOCKED_DURATION_SECONDS";
 	public static final int ACCOUNTLOCKEDDURATIONSECONDSDEFAULT = 30*60;
