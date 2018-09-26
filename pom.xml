@@ -424,5 +424,6 @@
 				</executions>
 			</plugin> -->
 		</plugins>
+		<finalName>bluefin-web-portal-services</finalName>
 	</build>
 </project>
