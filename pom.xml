@@ -319,7 +319,7 @@
 	</dependencyManagement>
 
 	<build>
-	 <finalname>bluefin-web-portal-services</finalname>
+	 
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
