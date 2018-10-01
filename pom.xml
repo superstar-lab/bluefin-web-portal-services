@@ -27,6 +27,7 @@
 		<endpoint.email.wsdl.base.url>http://emailservice.internal.mcmcg.com</endpoint.email.wsdl.base.url>
 		<endpoint.email.wsdl.uri>${endpoint.email.wsdl.base.url}/MailManagerEJBHttpRouter/services/EmailRequestor</endpoint.email.wsdl.uri>
 		<springdata.commons>1.11.4.RELEASE</springdata.commons>
+		<!-- <sonar.host.url>http://localhost:9000/</sonar.host.url> -->
 	</properties>
 
 	
