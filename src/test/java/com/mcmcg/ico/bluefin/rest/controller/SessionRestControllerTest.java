@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-/**import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -55,11 +55,11 @@ public class SessionRestControllerTest {
 	}
 
 	// Authenticating
-	*//**
+	/**
 	 * Test a successful response with a valid user and password
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequest() throws Exception {// 200
 		Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
@@ -79,11 +79,11 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test a bad request for when only the password is sent
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestMissingUserName() throws Exception { // 400
 		AuthenticationRequest request = createValidAuthentificationRequest();
@@ -97,11 +97,11 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when a Request body is not supplied
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestIsMissing() throws Exception { // 400
 		mockMvc.perform(post(API).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isBadRequest());
@@ -111,12 +111,12 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test the case for when the user has not permissions on the Data Base,
 	 * wrong user
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestWrongPasswordAuthenticating() throws Exception { // 403
 		AuthenticationRequest request = createValidAuthentificationRequest();
@@ -133,11 +133,11 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test errors with data base when the user is trying to authenticate
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestException() throws Exception { // 500
 		AuthenticationRequest request = new AuthenticationRequest();
@@ -156,11 +156,11 @@ public class SessionRestControllerTest {
 	}
 
 	// Generating token
-	*//**
+	/**
 	 * Tests the case for when there's a 404 error creating the login response
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testGenerationTokenErrorCreatingResponse() throws Exception { // 404
 		AuthenticationRequest request = createValidAuthentificationRequest();
@@ -177,12 +177,12 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when trying to load the user by name but no user is
 	 * found, throwing UsernameNotFoundException**
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testGenerationTokenErrorLoadUserByUsername() throws Exception { // 500
 		AuthenticationRequest request = createValidAuthentificationRequest();
@@ -201,22 +201,22 @@ public class SessionRestControllerTest {
 
 	// Refresh token
 
-	*//**
+	/**
 	 * Test a successful response with a valid user and password
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testRefreshTokenSuccess() throws Exception {// 200
 
 		mockMvc.perform(put(API).header("X-Auth-Token", TOKEN).contentType(MediaType.APPLICATION_JSON));
 	}
 
-	*//**
+	/**
 	 * Test errors when a token is not supplied
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestExceptionGeneratingTokenNull() throws Exception { // 400
 
@@ -226,12 +226,12 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test the case for when the login response created but a
 	 * CustomNotFoundException is raised.
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testRefreshTokenCustomNotFoundException() throws Exception { // 404
 
@@ -244,12 +244,12 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test errors when an unauthorized exception will arise, when given token
 	 * is no valid
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestUnauthorizedGeneratingToken() throws Exception { // 401
 
@@ -262,11 +262,11 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test errors when a internal server error arise
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testAuthenticationRequestExceptionGeneratingToken() throws Exception { // 500
 
@@ -281,11 +281,11 @@ public class SessionRestControllerTest {
 
 	/// Test log out
 
-	*//**
+	/**
 	 * Test a successful logout with a valid token
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testUserLogoutRequest() throws Exception {// 204
 		Mockito.doNothing().when(sessionService).deleteSession(Mockito.anyString());
@@ -296,11 +296,11 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test a bad request for no token provided
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testUserLogoutRequestMissingToken() throws Exception { // 400
 		mockMvc.perform(delete(API)).andExpect(status().isBadRequest());
@@ -310,12 +310,12 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	*//**
+	/**
 	 * Test errors with data base when the user is lo delete the currently
 	 * session
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	@Test
 	public void testUserLogoutRequestException() throws Exception { // 500
 		Mockito.doThrow(new RuntimeException("")).when(sessionService).deleteSession(Mockito.anyString());
@@ -366,4 +366,3 @@ public class SessionRestControllerTest {
 	}
 
 }
-*/

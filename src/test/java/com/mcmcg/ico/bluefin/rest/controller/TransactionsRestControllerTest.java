@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-/**import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -156,10 +156,10 @@ public class TransactionsRestControllerTest {
 		Mockito.verifyNoMoreInteractions(transactionService);
 	}
 
-	*//****** Starts GetTransactions ******//**
+	/****** Starts GetTransactions ******/
 	@Test
 	public void getTransactionsOK() throws Exception { // 200
-		
+		/*
 		 * List<SaleTransaction> transactions = new
 		 * ArrayList<SaleTransaction>(); transactions.add(getSaleTransaction());
 		 * 
@@ -194,12 +194,12 @@ public class TransactionsRestControllerTest {
 		 * Mockito.times(1)).getTransactions(Mockito.anyObject(),
 		 * Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
 	@Test
 	public void getTransactionsOKAllParams() throws Exception { // 200
-		
+		/*
 		 * List<SaleTransaction> transactions = new
 		 * ArrayList<SaleTransaction>(); transactions.add(getSaleTransaction());
 		 * 
@@ -235,12 +235,12 @@ public class TransactionsRestControllerTest {
 		 * Mockito.times(1)).getTransactions(Mockito.anyObject(),
 		 * Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
 	@Test
 	public void getTransactionsNoSearchParam() throws Exception { // 200
-		
+		/*
 		 * List<SaleTransaction> transactions = new
 		 * ArrayList<SaleTransaction>(); transactions.add(getSaleTransaction());
 		 * 
@@ -276,7 +276,7 @@ public class TransactionsRestControllerTest {
 		 * Mockito.times(1)).getTransactions(Mockito.anyObject(),
 		 * Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
 	@Test
@@ -314,7 +314,7 @@ public class TransactionsRestControllerTest {
 	@Test
 	public void getTransactionsInternalServerError() throws Exception { // 500
 
-		
+		/*
 		 * Mockito.when(transactionService.getTransactions(Mockito.anyObject(),
 		 * Mockito.anyInt(), Mockito.anyInt(),
 		 * Mockito.anyString())).thenThrow(new CustomException(""));
@@ -331,12 +331,12 @@ public class TransactionsRestControllerTest {
 		 * Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
 		 * 
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
 	@Test
 	public void getTransactionsNoLegalEntities() throws Exception { // 200
-		
+		/*
 		 * List<SaleTransaction> transactions = new
 		 * ArrayList<SaleTransaction>(); transactions.add(getSaleTransaction());
 		 * 
@@ -372,10 +372,10 @@ public class TransactionsRestControllerTest {
 		 * Mockito.times(1)).getTransactions(Mockito.anyObject(),
 		 * Mockito.anyInt(), Mockito.anyInt(), Mockito.anyString());
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
-	
+	/*
 	 * @Test public void getTransactionsUnauthorizedLegalEntities() throws
 	 * Exception { // 401
 	 * Mockito.when(transactionService.getLegalEntitiesFromUser(Mockito.
@@ -388,7 +388,7 @@ public class TransactionsRestControllerTest {
 	 * Mockito.verify(transactionService,
 	 * Mockito.times(1)).getLegalEntitiesFromUser(Mockito.anyString());
 	 * Mockito.verifyNoMoreInteractions(transactionService); }
-	 
+	 */
 
 	@Test
 	public void getTransactionsAccessDenied() throws Exception { // 401
@@ -402,7 +402,7 @@ public class TransactionsRestControllerTest {
 
 	@Test
 	public void getTransactionsEmptyLegalEntities() throws Exception { // 200
-		
+		/*
 		 * List<SaleTransaction> transactions = new
 		 * ArrayList<SaleTransaction>(); transactions.add(getSaleTransaction());
 		 * 
@@ -421,12 +421,12 @@ public class TransactionsRestControllerTest {
 		 * Mockito.verify(transactionService,
 		 * Mockito.times(1)).getLegalEntitiesFromUser(Mockito.anyString());
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
 	@Test
 	public void getTransactionsInvalidLegalEntities() throws Exception { // 400
-		
+		/*
 		 * List<SaleTransaction> transactions = new
 		 * ArrayList<SaleTransaction>(); transactions.add(getSaleTransaction());
 		 * 
@@ -445,8 +445,7 @@ public class TransactionsRestControllerTest {
 		 * Mockito.verify(transactionService,
 		 * Mockito.times(1)).getLegalEntitiesFromUser(Mockito.anyString());
 		 * Mockito.verifyNoMoreInteractions(transactionService);
-		 
+		 */
 	}
 
 }
-*/

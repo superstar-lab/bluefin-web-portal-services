@@ -1,11 +1,11 @@
 package com.mcmcg.ico.bluefin.util;
 
-/**import org.springframework.aop.framework.Advised;
+import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 
 public class TestUtilClass {
 
-    *//**
+    /**
      * 
      * Work around to remove proxies from the classes that we need to mock.
      * 
@@ -24,12 +24,12 @@ public class TestUtilClass {
      * @param bean
      * @return
      * @throws Exception
-     *//**
+     */
     public static final Object unwrapProxy(Object bean) throws Exception {
-        
+        /*
          * If the given object is a proxy, set the return value as the object
          * being proxied, otherwise return the given object.
-         
+         */
         if (AopUtils.isAopProxy(bean) && bean instanceof Advised) {
             Advised advised = (Advised) bean;
             bean = advised.getTargetSource().getTarget();
@@ -38,4 +38,3 @@ public class TestUtilClass {
         return bean;
     }
 }
-*/

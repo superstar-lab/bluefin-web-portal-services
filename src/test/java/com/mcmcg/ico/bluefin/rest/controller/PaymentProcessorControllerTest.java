@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-/**import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,10 +55,10 @@ public class PaymentProcessorControllerTest {
 
     static final String API = "/api/payment-processors";
 
-    *//**
+    /**
      * Initiates the services that are going to be mocked and then injected to
      * the controller. Set a list of authorities for the Authenticated user
-     *//**
+     */
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
@@ -70,14 +70,14 @@ public class PaymentProcessorControllerTest {
 
     // Get Payment Processor by id
 
-    *//**
+    /**
      * Test the success path when trying to get payment processor from DB
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testGetPaymentProcessor() { // 200
-       *//** Mockito.when(paymentProcessorService.getPaymentProcessorById(1L)).thenReturn(createValidPaymentProcessor());*//**
+       /** Mockito.when(paymentProcessorService.getPaymentProcessorById(1L)).thenReturn(createValidPaymentProcessor());*/
 
         try {
 			mockMvc.perform(get(API + "/{id}", 1L).principal(auth)).andExpect(status().isOk())
@@ -90,22 +90,22 @@ public class PaymentProcessorControllerTest {
 		}
     }
 
-    *//**
+    /**
      * Test the case when the search by id without authentication
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testGetPaymentProcessorBadRequestSearchMissing() throws Exception { // 400
 
         mockMvc.perform(get(API + "/{id}", "test").principal(auth)).andExpect(status().isBadRequest());
     }
 
-    *//**
+    /**
      * Test the case when a runtime exception raises up, like DB exceptions
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testGetPaymentProcessorRuntimeException() throws Exception { // 500
         Mockito.when(paymentProcessorService.getPaymentProcessorById(Mockito.anyLong()))
@@ -119,11 +119,11 @@ public class PaymentProcessorControllerTest {
 
     // Get Payment Processors
 
-    *//**
+    /**
      * Test the success path when trying to get payment processor from DB
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testGetPaymentProcessors() throws Exception { // 200
         //Mockito.when(paymentProcessorService.getPaymentProcessors()).thenReturn(getValidPaymentProcessorList());
@@ -141,11 +141,11 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
-    *//**
+    /**
      * Test the case when a runtime exception raises up, like DB exceptions
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testGetPaymentProcessorsRuntimeException() throws Exception { // 500
         Mockito.when(paymentProcessorService.getPaymentProcessors()).thenThrow(new RuntimeException(""));
@@ -159,11 +159,11 @@ public class PaymentProcessorControllerTest {
 
     // Create new PaymentProcessor
 
-    *//**
+    /**
      * Test the success case when a new payment processor is created
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testCreatePaymentProcessor() throws Exception { // 201
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
@@ -181,12 +181,12 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
-    *//**
+    /**
      * Test the case when the name of the processor is missing, bad request
      * exception is thrown
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testCreatePaymentProcessorBadRequestNameMissing() throws Exception { // 400
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
@@ -203,11 +203,11 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyZeroInteractions(paymentProcessorService);
     }
 
-    *//**
+    /**
      * Test the case when an exception raises up, like DB exceptions
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testCreatePaymentProcessorRuntimeException() throws Exception { // 500
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
@@ -224,11 +224,11 @@ public class PaymentProcessorControllerTest {
 
     // Update payment processor
 
-    *//**
+    /**
      * Test the success path when trying to update a existing payment processor
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testUpdatePaymentProcessorSuccess() throws Exception {// 200
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
@@ -249,12 +249,12 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
-    *//**
+    /**
      * Test the case when the request is not correct, it's missing the name of
      * the payment processor, bad request exceptions will be send
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testUpdatePaymentProcessorBadRequestNameMissing() throws Exception {// 400
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
@@ -272,12 +272,12 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyZeroInteractions(paymentProcessorService);
     }
 
-    *//**
+    /**
      * Test the case when there's an error when trying to update a payment
      * processor
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testUpdatePaymentProcessorRuntimeException() throws Exception {// 500
         Mockito.when(paymentProcessorService.updatePaymentProcessor(Mockito.anyLong(),
@@ -295,11 +295,11 @@ public class PaymentProcessorControllerTest {
 
     // Delete payment processor
 
-    *//**
+    /**
      * Test the success path when trying to delete a existing payment processor
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testDeletePaymentProcessorSuccess() throws Exception {// 200
         Mockito.doAnswer(new Answer<Void>() {
@@ -315,12 +315,12 @@ public class PaymentProcessorControllerTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorService);
     }
 
-    *//**
+    /**
      * Test the case when there's an error when trying to delete a payment
      * processor
      * 
      * @throws Exception
-     *//**
+     */
     @Test
     public void testDeletePaymentProcessorRuntimeException() throws Exception {// 500
         Mockito.doThrow(new RuntimeException("")).when(paymentProcessorService).deletePaymentProcessor(1L);
@@ -368,4 +368,3 @@ public class PaymentProcessorControllerTest {
     }
 
 }
-*/

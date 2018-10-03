@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.security.service;
 
-/**import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,9 +76,9 @@ public class SessionServiceTest {
 
 	// Authenticate
 
-	*//**
+	/**
 	 * Tests a successful call for a valid user and password
-	 *//**
+	 */
 	// @Test
 	public void testAuthenticateSuccess() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
@@ -98,9 +98,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when the user does not exists
-	 *//**
+	 */
 	@Test(expected = AccessDeniedException.class)
 	public void testAuthenticateNotUserFound() {
 		User user = createValidUser();
@@ -114,9 +114,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when the user is null
-	 *//**
+	 */
 	@Test(expected = AccessDeniedException.class)
 	public void testAuthenticateUserNull() {
 		Mockito.when(userDAO.findByUsername(null)).thenReturn(null);
@@ -142,10 +142,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when there is a Runtime Exception when finding a user
 	 * by username
-	 *//**
+	 */
 	@Test(expected = RuntimeException.class)
 	public void testAuthenticateTransactionErrorFindUser() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
@@ -158,10 +158,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when there is a DB error Transaction Exception when
 	 * trying to save the login history for a particular user
-	 *//**
+	 */
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testAuthenticateTransactionErrorLoginHistory() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
@@ -177,10 +177,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userLoginHistoryDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when there is a DB error Data Access Exception when
 	 * trying to find a user by user name
-	 *//**
+	 */
 	@Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
 	public void testAuthenticateDataAccessErrorFindUser() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
@@ -194,10 +194,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when there is a DB error Data Access Exception when
 	 * trying to save login history for a particular user
-	 *//**
+	 */
 	@Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
 	public void testAuthenticateDataAccessErrorLoginHistory() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
@@ -213,10 +213,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userLoginHistoryDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when there is a DB error JDBC Connection Exception
 	 * when trying to find a user by user name
-	 *//**
+	 */
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testAuthenticateJDBCConnectionErrorFindUser() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
@@ -230,10 +230,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when there is a DB error JDBC Connection Exception
 	 * when trying to save login history for a particular user
-	 *//**
+	 */
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testAuthenticateJDBCConnectionErrorLoginHistory() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(new User());
@@ -251,10 +251,10 @@ public class SessionServiceTest {
 
 	// GenerateToken
 
-	*//**
+	/**
 	 * Test a new token creation for a user that does not have a active token,
 	 * happy path
-	 *//**
+	 */
 	@Test
 	public void testGenerateTokenNewSuccess() {
 		SecurityUser securityUser = createValidSecurityUser();
@@ -278,16 +278,16 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Test a new token verification for a user that have a active token, happy
 	 * path
-	 *//**
+	 */
 
 	// Testing errors Transaction, Data Access and Data Base exceptions
 
-	*//**
+	/**
 	 * Test a error when loading user by name, transaction exception
-	 *//**
+	 */
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testGenerateTokenLoadUserTransactionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -300,9 +300,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
 	}
 
-	*//**
+	/**
 	 * Test a error when loading user by name, Data Access exception
-	 *//**
+	 */
 	@Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
 	public void testGenerateTokenLoadUserDataAccessError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -315,9 +315,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
 	}
 
-	*//**
+	/**
 	 * Test a error when loading user by name, JDBC Connection exception
-	 *//**
+	 */
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testGenerateTokenLoadUserJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -330,9 +330,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
 	}
 
-	*//**
+	/**
 	 * Test a error when finding user by name, Transaction exception
-	 *//**
+	 */
 	@Test(expected = CustomNotFoundException.class)
 	public void testGenerateTokenFindUserNameTransactionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -351,9 +351,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Test a error when finding user by name, Data access exception
-	 *//**
+	 */
 	@Test(expected = CustomNotFoundException.class)
 	public void testGenerateTokenFindUserNameDataAccessError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -371,9 +371,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Test a error when finding user by name, JDBC Connection exception
-	 *//**
+	 */
 	@Test(expected = CustomNotFoundException.class)
 	public void testGenerateTokenFindUserNameJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -392,9 +392,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Test a error when creating a new token, Transaction exception
-	 *//**
+	 */
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testGenerateTokenCreateTokenTransactionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -412,9 +412,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Test a error when creating a new token, Data Access exception
-	 *//**
+	 */
 	@Test(expected = org.springframework.dao.DataAccessResourceFailureException.class)
 	public void testGenerateTokenCreateTokenDataAccessError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -434,9 +434,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Test a error when creating a new token, JDBC Connection exception
-	 *//**
+	 */
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testGenerateTokenCreateTokenJDBCConnectionError() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername(Mockito.anyString()))
@@ -456,10 +456,10 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(tokenUtils);
 	}
 
-	*//**
+	/**
 	 * Tests the case for when a user name does not exists in the table user a
 	 * UsernameNotFoundException will be triggered.
-	 *//**
+	 */
 	@Test(expected = RuntimeException.class)
 	public void testGenerateTokenUserNotFound() {
 		Mockito.when(userDetailsServiceImpl.loadUserByUsername("omonge2")).thenThrow(new RuntimeException(""));
@@ -471,9 +471,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDetailsServiceImpl);
 	}
 
-	*//**
+	/**
 	 * Generate a new token for the user, success case
-	 *//**
+	 */
 	@Test
 	public void generateNewTokenSuccess() {
 		SecurityUser securityUser = createValidSecurityUser();
@@ -491,11 +491,11 @@ public class SessionServiceTest {
 		Assert.assertNotNull(response.getToken());
 	}
 
-	*//**
+	/**
 	 * Get login response by username
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	// @Test
 	// public void getLoginResponseSuccess() throws Exception {
 	// User user = createValidUser();
@@ -531,11 +531,11 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Test if roles are null, NullPointerException is thrown
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	// @Test(expected = java.lang.NullPointerException.class)
 	// public void getLoginResponseNoRoles() throws Exception {
 	// User user = createValidUser();
@@ -548,11 +548,11 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Test roles as null, NullPointerException is thrown
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	// @Test(expected = java.lang.NullPointerException.class)
 	// public void getLoginResponseNoPermission() throws Exception {
 	// User user = createValidUser();
@@ -565,12 +565,12 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Test as a user null attempting to access property, NullPointerException
 	 * is thrown
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 	// @Test(expected = java.lang.NullPointerException.class)
 	// public void getLoginResponseNullUserName() throws Exception {
 	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
@@ -581,11 +581,11 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Get login response by username but Transaction Exception
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 
 	// @Test(expected =
 	// org.springframework.transaction.CannotCreateTransactionException.class)
@@ -601,11 +601,11 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Get login response by username but Data Access Exception
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 
 	// @Test(expected =
 	// org.springframework.dao.DataAccessResourceFailureException.class)
@@ -621,11 +621,11 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Get login response by username but JDBC Connection Exception
 	 * 
 	 * @throws Exception
-	 *//**
+	 */
 
 	// @Test(expected = DataAccessResourceFailureException.class)
 	// public void getLoginResponseErrorJDBC() throws Exception {
@@ -640,9 +640,9 @@ public class SessionServiceTest {
 	// Mockito.verifyNoMoreInteractions(userDAO);
 	// }
 
-	*//**
+	/**
 	 * Test the happy way of refreshing a given token
-	 *//**
+	 */
 	@Test
 	public void refreshTokenSuccess() {
 
@@ -678,9 +678,9 @@ public class SessionServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test when the name of the user is null and not found
-	 *//**
+	 */
 	@Test(expected = CustomBadRequestException.class)
 	public void refreshTokenUserNameNullUserNotFound() {
 
@@ -785,4 +785,3 @@ public class SessionServiceTest {
 		return user;
 	}
 }
-*/

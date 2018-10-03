@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.service;
 
-/**import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -170,9 +170,9 @@ public class UserServiceTest {
 
 	// Get Legal Entities by user name
 
-	*//**
+	/**
 	 * Test success path for Legal Entities by user name
-	 *//**
+	 */
 	@Test
 	public void testGetLegalEntitiesByUser() {
 		User user = createValidUser();
@@ -187,10 +187,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test success path for Legal Entities by user name, empty list is return
 	 * if user not found
-	 *//**
+	 */
 	@Test
 	public void testGetLegalEntitiesByUserNotFound() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
@@ -204,9 +204,9 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test runtime exception when trying to get information
-	 *//**
+	 */
 	@Test
 	public void testGetLegalEntitiesByUserRunTimeException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException());
@@ -220,11 +220,11 @@ public class UserServiceTest {
 
 	// Get Users
 
-	*//**
+	/**
 	 * Test the success case where the user is allowed to get the list of users
 	 * according with the LE that are owned, in other words, all LE that are
 	 * sent in the search criteria belong to the consultan user
-	 *//**
+	 */
 	@Test
 	public void testGetUsers() {// 200
 		Page<User> list = new PageImpl<User>(getValidUsers());
@@ -251,10 +251,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case where no information was found with the criteria used in
 	 * the search parameter
-	 *//**
+	 */
 	@Test
 	public void testGetUsersNotFound() {// 404
 		Page<User> list = new PageImpl<User>(new ArrayList<User>());
@@ -272,10 +272,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case where a RuntimeException rises for when get all the list of
 	 * users according with the criteria given
-	 *//**
+	 */
 	@Test
 	public void testGetUsersRuntimeExceptionFindAll() {
 		Mockito.when(userDAO.findAll(Mockito.any(BooleanExpression.class), Mockito.any(PageRequest.class)))
@@ -1053,10 +1053,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppService);
 	}
 
-	*//**
+	/**
 	 * Test the success case when the users exists and have a valid list of
 	 * legal entities
-	 *//**
+	 */
 	@Test
 	public void testGetLegalEntitiesByUserNameSuccess() {
 		User user = createValidUser();
@@ -1074,9 +1074,9 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case when the users does not exists, empty list will be returned
-	 *//**
+	 */
 	@Test
 	public void testGetLegalEntitiesByUserNameNoUserFound() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
@@ -1092,10 +1092,10 @@ public class UserServiceTest {
 
 	// Legal Entity verification
 
-	*//**
+	/**
 	 * Test the case when the user is allowed to update a user with some legal
 	 * entity related
-	 *//**
+	 */
 	@Test
 	public void testUpdateUserLegalEntitiesAllowedByLegalEntityMe() {
 
@@ -1107,10 +1107,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case when the user is allowed to update a user with some legal
 	 * entity related
-	 *//**
+	 */
 	@Test
 	public void testUpdateUserLegalEntitiesAllowedByLegalEntity() {
 		// Adds 1 element equals as the for the consultant user's legal entity
@@ -1131,10 +1131,10 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case when the user is not allowed to update a user because are
 	 * not related with some lega entity
-	 *//**
+	 */
 	@Test
 	public void testUpdateUserLegalEntitiesNotAllowedByLegalEntity() {
 		Mockito.when(userDAO.findByUsername("omonge")).thenReturn(getUserMoreLegalEntities());
@@ -1148,9 +1148,9 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case when a error raises when consulting database
-	 *//**
+	 */
 	@Test
 	public void testUpdateUserLegalEntitiesRuntimeExceptionFindUser1() {
 		// Adds 1 element equals as the for the consultant user's legal entity
@@ -1169,9 +1169,9 @@ public class UserServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	*//**
+	/**
 	 * Test the case when a error raises when consulting database
-	 *//**
+	 */
 	@Test
 	public void testUpdateUserLegalEntitiesRuntimeExceptionFindUser2() {
 		// Adds 1 element equals as the for the consultant user's legal entity
@@ -1316,11 +1316,11 @@ public class UserServiceTest {
 		return legalEntityApps;
 	}
 
-	*//**
+	/**
 	 * Create a list with valid users
 	 * 
 	 * @return List of valid users
-	 *//**
+	 */
 	private List<User> getValidUsers() {
 		List<User> resultList = new ArrayList<User>();
 		resultList.add(createValidUser());
@@ -1381,4 +1381,3 @@ public class UserServiceTest {
 		return user;
 	}
 }
-*/

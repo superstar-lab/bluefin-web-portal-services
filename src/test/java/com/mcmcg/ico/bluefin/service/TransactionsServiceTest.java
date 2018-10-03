@@ -1,6 +1,6 @@
 package com.mcmcg.ico.bluefin.service;
 
-/**import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +50,7 @@ public class TransactionsServiceTest {
 		MockitoAnnotations.initMocks(this);
 	}
 
-	*//****** Starts GetTransactionInformation ******//**
+	/****** Starts GetTransactionInformation ******/
 	@Test
 	public void testGetTransactionInformationSuccess() {
 
@@ -124,12 +124,12 @@ public class TransactionsServiceTest {
 
 	}
 
-	*//****** Ends GetTransactionInformation ******//*
-	*//****** Starts GetTransactions ******//**
+	/****** Ends GetTransactionInformation ******/
+	/****** Starts GetTransactions ******/
 
 	@Test
 	public void testGetTransactionsSuccess() {
-		
+		/*
 		 * List<SaleTransaction> resultList = new ArrayList<SaleTransaction>();
 		 * resultList.add(new SaleTransaction());
 		 * 
@@ -150,11 +150,11 @@ public class TransactionsServiceTest {
 		 * Mockito.any(Pageable.class));
 		 * 
 		 * Mockito.verifyNoMoreInteractions(saleTransactionDAO);
-		 
+		 */
 
 	}
 
-	
+	/*
 	 * @Test(expected = CustomNotFoundException.class) public void
 	 * testGetTransactionsNotFound() {
 	 * 
@@ -172,9 +172,9 @@ public class TransactionsServiceTest {
 	 * Mockito.any(Pageable.class));
 	 * 
 	 * Mockito.verifyNoMoreInteractions(saleTransactionDAO); }
-	 
+	 */
 
-	
+	/*
 	 * @Test(expected =
 	 * org.springframework.transaction.CannotCreateTransactionException.class)
 	 * public void testGetTransactionsDBFail() {
@@ -193,10 +193,10 @@ public class TransactionsServiceTest {
 	 * Mockito.verifyNoMoreInteractions(saleTransactionDAO);
 	 * 
 	 * }
-	 
+	 */
 
-	*//****** Ends GetTransactions ******//*
-	*//****** Starts GetLegalEntitiesFromUser ******//**
+	/****** Ends GetTransactions ******/
+	/****** Starts GetLegalEntitiesFromUser ******/
 
 	@Test
 	public void testGetLegalEntitiesFromUserSuccess() {
@@ -262,4 +262,3 @@ public class TransactionsServiceTest {
 	}
 
 }
-*/
