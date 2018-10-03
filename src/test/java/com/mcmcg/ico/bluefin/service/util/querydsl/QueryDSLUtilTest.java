@@ -1,6 +1,6 @@
-/**package com.mcmcg.ico.bluefin.service.util.querydsl;
+package com.mcmcg.ico.bluefin.service.util.querydsl;
 
-import static org.junit.Assert.assertEquals;
+/**import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
@@ -30,7 +30,7 @@ public class QueryDSLUtilTest {
 
 		DateTime date = new DateTime(1465322756555L);
 		SaleTransaction result = new SaleTransaction();
-		//TODO Dheeraj can look into this
+		
 		result.setAccountNumber("67326509");
 		result.setAmount(new BigDecimal(4592.36));
 		result.setLegalEntity("MCMR2K");
@@ -73,7 +73,7 @@ public class QueryDSLUtilTest {
 		// Creates the boolean expression to be compared with the one returned
 		// by the method we want to test
 		//BooleanExpression expected = 
-				//TODO - Dheeraj Can look into this.
+				
 				entityPath.getString(accountNumber).containsIgnoreCase(tv.getAccountNumber())// accountNumber:1234
 				.and(entityPath.getNumber(amount, BigDecimal.class).goe(tv.getAmount()))// amount>1234
 				.and(entityPath.getNumber(amount, BigDecimal.class).loe(amountValue))// amount<1234
