@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin;
+/**package com.mcmcg.ico.bluefin;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,8 @@ public class BluefinWebPortalServicesApplicationTests {
 
     @Test
     public void contextLoads() {
-    	/**need to add test case*/
+    	/**need to add test case*//*
     }
 
 }
+*/

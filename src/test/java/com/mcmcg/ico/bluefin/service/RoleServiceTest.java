@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service;
+/**package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,9 +76,9 @@ public class RoleServiceTest {
 		Mockito.verify(roleDAO, Mockito.times(1)).findAll();
 	}
 
-	/**
+	*//**
 	 * Test when we send the correct data
-	 */
+	 *//**
 	// @Test
 	// public void testGetRolesByIdsByIds() {
 	// List<Role> mockedLoadedRoles = getValidRoleList();
@@ -97,9 +97,9 @@ public class RoleServiceTest {
 	// Mockito.verifyNoMoreInteractions(roleDAO);
 	// }
 
-	/**
+	*//**
 	 * Test when the system does not have roles
-	 */
+	 *//**
 	// @Test(expected = CustomBadRequestException.class)
 	// public void testGetRolesByIdsEmptyList() {
 	// Mockito.when(roleDAO.findAll(Mockito.anyCollectionOf(Long.class))).thenReturn(new
@@ -112,9 +112,9 @@ public class RoleServiceTest {
 	// Mockito.verifyNoMoreInteractions(roleDAO);
 	// }
 
-	/**
+	*//**
 	 * Test when we pass a wrong role ids
-	 */
+	 *//**
 	// @Test
 	// public void testGetRolesByIdsOneWrongElement() {
 	// Mockito.when(roleDAO.findAll(Mockito.anyCollectionOf(Long.class))).thenReturn(getValidRoleList());
@@ -157,3 +157,4 @@ public class RoleServiceTest {
 		return role;
 	}
 }
+*/

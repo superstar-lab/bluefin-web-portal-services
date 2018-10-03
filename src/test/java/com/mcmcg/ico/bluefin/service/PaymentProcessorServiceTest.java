@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service;
+/**package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,10 +62,10 @@ public class PaymentProcessorServiceTest {
 
     // Get Payment Processor by id
 
-    /**
+    *//**
      * Test the success case when the get by id is performed correctly an return
      * a valid payment processor
-     */
+     *//**
     @Test
     public void testGetPaymentProcessorSuccess() {
         PaymentProcessor paymentProcessor = createValidPaymentProcessor();
@@ -78,10 +78,10 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when the object is going to be found and does not exist by
      * id in the DB
-     */
+     *//**
     @Test
     public void testGetPaymentProcessorSuccessNotFound() {
         Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(1L)).thenReturn(null);
@@ -94,9 +94,9 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when a runtime exception shows up when trying to find by id
-     */
+     *//**
     @Test
     public void testGetPaymentProcessorRuntimeExceptionSaving() {
         Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong())).thenThrow(new RuntimeException(""));
@@ -111,9 +111,9 @@ public class PaymentProcessorServiceTest {
 
     // Get Payment Processors
 
-    /**
+    *//**
      * Test the success path when trying to get all payment processors from DB
-     */
+     *//**
     @Test
     public void testGetPaymentProcessors() {
         List<PaymentProcessor> returnedPaymentProcessorList = getValidPaymentProcessorList();
@@ -127,9 +127,9 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case for when there's not a match for the criteria given
-     */
+     *//**
     @Test
     public void testGetPaymentProcessorsNotFound() {
         List<PaymentProcessor> returnedPaymentProcessorList = new ArrayList<PaymentProcessor>();
@@ -144,10 +144,10 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the success path when trying to get all payment processors from DB
      * and a Runtime exception raises
-     */
+     *//**
     @Test(expected = RuntimeException.class)
     public void testGetPaymentProcessorsRuntimeException() {
         Mockito.when(paymentProcessorRepository.findAll()).thenThrow(new RuntimeException(""));
@@ -160,13 +160,13 @@ public class PaymentProcessorServiceTest {
 
     // Create new PaymentProcessor
 
-    /**
+    *//**
      * This method will test the success creation of a new payment processor, it
      * will check if the name does not exist to do the insert, bad request
      * exception otherwise
-     */
+     *//**
     @Test
-    public void testCreatePaymentProcessorSuccess() {/*
+    public void testCreatePaymentProcessorSuccess() {
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         com.mcmcg.ico.bluefin.model.PaymentProcessor paymentProcessorExpected = paymentProcessorResource.toPaymentProcessor();
 
@@ -181,14 +181,14 @@ public class PaymentProcessorServiceTest {
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).getPaymentProcessorByProcessorName("PAYSCOUT");
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(paymentProcessorExpected);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
-    */}
+    }
 
-    /**
+    *//**
      * Test the case when the processor already exists in DB by its name, a bad
      * request exception will be thrown
-     */
+     *//**
     @Test
-    public void testCreatePaymentProcessorAlreadyExist() {/*
+    public void testCreatePaymentProcessorAlreadyExist() {
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor paymentProcessorExpected = paymentProcessorResource.toPaymentProcessor();
 
@@ -203,12 +203,12 @@ public class PaymentProcessorServiceTest {
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).getPaymentProcessorByProcessorName("PAYSCOUT");
         Mockito.verify(paymentProcessorRepository, Mockito.times(0)).save(paymentProcessorExpected);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
-    */}
+    }
 
-    /**
+    *//**
      * Test the case when trying to request payment processor by name but an
      * exception raises up
-     */
+     *//**
     @Test(expected = RuntimeException.class)
     public void testCreatePaymentProcessorByNameRuntimeException() {
         Mockito.when(paymentProcessorRepository.getPaymentProcessorByProcessorName("PAYSCOUT"))
@@ -221,12 +221,12 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when trying to save a new payment processor but an
      * exception raises up
-     */
+     *//**
     @Test(expected = RuntimeException.class)
-    public void testCreatePaymentProcessorSavingRuntimeException() {/*
+    public void testCreatePaymentProcessorSavingRuntimeException() {
         BasicPaymentProcessorResource paymentProcessorResource = createValidPaymentProcessorResource();
         PaymentProcessor paymentProcessorExpected = paymentProcessorResource.toPaymentProcessor();
 
@@ -241,16 +241,16 @@ public class PaymentProcessorServiceTest {
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).getPaymentProcessorByProcessorName("PAYSCOUT");
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(paymentProcessorExpected);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
-    */}
+    }
 
     // Update Payment Processor
 
-    /**
+    *//**
      * Test the success case when the update is performed correctly over the
      * object
-     */
+     *//**
     @Test
-    public void testUpdatePaymentProcessorSuccess() {/*
+    public void testUpdatePaymentProcessorSuccess() {
         BasicPaymentProcessorResource paymentProcessorResource = new BasicPaymentProcessorResource();
 
         paymentProcessorResource.setProcessorName("DEBIT");
@@ -269,14 +269,14 @@ public class PaymentProcessorServiceTest {
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).save(newPaymentProcessor);
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
-    */}
+    }
 
-    /**
+    *//**
      * Test the case when the object that is going to be updated does not exist
      * by id in the DB
-     */
+     *//**
     @Test
-    public void testUpdatePaymentProcessorSuccessNotFound() {/*
+    public void testUpdatePaymentProcessorSuccessNotFound() {
         BasicPaymentProcessorResource paymentProcessorResource = new BasicPaymentProcessorResource();
 
         paymentProcessorResource.setProcessorName("DEBIT");
@@ -292,11 +292,11 @@ public class PaymentProcessorServiceTest {
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findOne(1L);
         Mockito.verify(paymentProcessorRepository, Mockito.times(0)).save(Mockito.any(PaymentProcessor.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
-    */}
+    }
 
-    /**
+    *//**
      * Test the case when a runtime exception shows up when trying to find by id
-     */
+     *//**
     @Test
     public void testUpdatePaymentProcessorRuntimeExceptionFindId() {
         Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(1L)).thenThrow(new RuntimeException(""));
@@ -310,10 +310,10 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when a runtime exception shows up when trying to update the
      * payment processor
-     */
+     *//**
     @Test
     public void testUpdatePaymentProcessorRuntimeExceptionSaving() {
         Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong())).thenReturn(new PaymentProcessor());
@@ -332,10 +332,10 @@ public class PaymentProcessorServiceTest {
 
     // Delete Payment Processor
 
-    /**
+    *//**
      * Test the success case when the delete is performed correctly over the
      * object
-     */
+     *//**
     @Test
     public void testDeletePaymentProcessorSuccess() {
         PaymentProcessor paymentProcessorToDelete = new PaymentProcessor();
@@ -356,10 +356,10 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when the object that is going to be deleted and does not
      * exist by id in the DB
-     */
+     *//**
     @Test
     public void testDeletePaymentProcessorSuccessNotFound() {
         Mockito.doAnswer(new Answer<Void>() {
@@ -378,9 +378,9 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when a runtime exception shows up when trying to find by id
-     */
+     *//**
     @Test
     public void testDeletePaymentProcessorRuntimeExceptionFindId() {
         Mockito.doThrow(new RuntimeException("")).when(paymentProcessorRepository).findByPaymentProcessorId(1L);
@@ -394,10 +394,10 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test the case when a runtime exception shows up when trying to delete the
      * payment processor
-     */
+     *//**
     @Test
     public void testDeletePaymentProcessorRuntimeExceptionSaving() {
         Mockito.when(paymentProcessorRepository.findByPaymentProcessorId(Mockito.anyLong())).thenReturn(new PaymentProcessor());
@@ -413,11 +413,11 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test when we send the correct data
-     */
+     *//**
     @Test
-    public void testGetPaymentProcessorsByIds() {/*
+    public void testGetPaymentProcessorsByIds() {
         List<PaymentProcessor> mockedLoadedPaymentProcessors = getValidPaymentProcessorList();
         Mockito.when(paymentProcessorRepository.findAll(Mockito.anyCollectionOf(Long.class)))
                 .thenReturn(mockedLoadedPaymentProcessors);
@@ -433,11 +433,11 @@ public class PaymentProcessorServiceTest {
 
         Mockito.verify(paymentProcessorRepository, Mockito.times(1)).findAll(Mockito.anyCollectionOf(Long.class));
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
-    */}
+    }
 
-    /**
+    *//**
      * Test when the system does not have payment processor
-     */
+     *//**
     @Test(expected = CustomBadRequestException.class)
     public void testGetPaymentProcessorsByIdsEmptyList() {
         Mockito.when(paymentProcessorRepository.findAll((Set<Long>) Mockito.anyCollectionOf(Long.class)))
@@ -449,9 +449,9 @@ public class PaymentProcessorServiceTest {
         Mockito.verifyNoMoreInteractions(paymentProcessorRepository);
     }
 
-    /**
+    *//**
      * Test when we pass a wrong payment processor id
-     */
+     *//**
     @Test(expected = CustomBadRequestException.class)
     public void testGetPaymentProcessorsByIdsOneWrongElement() {
         Mockito.when(paymentProcessorRepository.findAll((Set<Long>) Mockito.anyCollectionOf(Long.class)))
@@ -494,3 +494,4 @@ public class PaymentProcessorServiceTest {
     }
 
 }
+*/

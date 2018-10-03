@@ -1,4 +1,4 @@
-package com.mcmcg.ico.bluefin.service;
+/**package com.mcmcg.ico.bluefin.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,13 +70,13 @@ public class LegalEntityAppServiceTest {
 		auth = new UsernamePasswordAuthenticationToken("omonge", "password", null);
 	}
 
-	/**
+	*//**
 	 * Test the success case, a valid username is sent and the user object is
 	 * found. The returned list should match the mocked list created for the
 	 * valid user and should not be empty, this case will arise an error if the
 	 * parameter listOfIds is different from the one in the user's list
 	 * (LegalEntities)
-	 */
+	 *//**
 	@Test
 	public void testFindAllSuccess() {
 
@@ -98,9 +98,9 @@ public class LegalEntityAppServiceTest {
 
 	}
 
-	/**
+	*//**
 	 * If the user is not found a empty list should be returned
-	 */
+	 *//**
 	@Test
 	public void testFindAllUserNameNull() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
@@ -114,10 +114,10 @@ public class LegalEntityAppServiceTest {
 	}
 
 	// DB Exceptions
-	/**
+	*//**
 	 * Test the case for when trying to get the user but a RuntimeException
 	 * shows up
-	 */
+	 *//**
 	@Test(expected = RuntimeException.class)
 	public void testFindByUserGeneralExceptionFindByUser() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new RuntimeException(""));
@@ -128,10 +128,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but a RuntimeException shows up
-	 */
+	 *//**
 	@Test(expected = RuntimeException.class)
 	public void testFindByUserGeneralExceptionEntities() {
 		List<Long> listOfIds = Arrays.asList(1L);
@@ -146,10 +146,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is down
-	 */
+	 *//**
 	@SuppressWarnings("unchecked")
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testFindByUserGeneralExceptionLegalEntity() {
@@ -167,10 +167,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is down
-	 */
+	 *//**
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testFindByUserTransactionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString()))
@@ -182,10 +182,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is throws a Failure exception
-	 */
+	 *//**
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testFindByUserDataAccessException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new DataAccessResourceFailureException(""));
@@ -196,10 +196,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is throws a JDBC Connection exception
-	 */
+	 *//**
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testFindByUserJDBCConnectionException() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenThrow(new DataAccessResourceFailureException("", null));
@@ -210,10 +210,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is down
-	 */
+	 *//**
 	@SuppressWarnings("unchecked")
 	@Test(expected = org.springframework.transaction.CannotCreateTransactionException.class)
 	public void testLegalEntityTransactionException() {
@@ -231,10 +231,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is throws a Failure exception
-	 */
+	 *//**
 	@SuppressWarnings("unchecked")
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testLegalEntityDataAccessException() {
@@ -251,10 +251,10 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test the case for when trying to get the legal entities method is called
 	 * but the DB is throws a JDBC Connection exception
-	 */
+	 *//**
 	@SuppressWarnings("unchecked")
 	@Test(expected = DataAccessResourceFailureException.class)
 	public void testLegalEntityJDBCConnectionException() {
@@ -271,9 +271,9 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test when we send the correct data
-	 */
+	 *//**
 	@Test
 	public void testGetLegalEntityAppsByIds() {
 		// List<LegalEntityApp> mockedLoadedLegalEntityApps =
@@ -295,9 +295,9 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test when the system does not have roles
-	 */
+	 *//**
 	@Test(expected = CustomBadRequestException.class)
 	public void testGetLegalEntityAppsByIdsEmptyList() {
 		// Mockito.when(legalEntityAppDAO.findAll(Mockito.anyCollectionOf(Long.class)))
@@ -310,9 +310,9 @@ public class LegalEntityAppServiceTest {
 		Mockito.verifyNoMoreInteractions(legalEntityAppDAO);
 	}
 
-	/**
+	*//**
 	 * Test when we pass a wrong role ids
-	 */
+	 *//**
 	@Test
 	public void testGetLegalEntityAppsByIdsOneWrongElement() {
 		// Mockito.when(legalEntityAppDAO.findAll(Mockito.anyCollectionOf(Long.class)))
@@ -408,3 +408,4 @@ public class LegalEntityAppServiceTest {
 		return validRole;
 	}
 }
+*/
