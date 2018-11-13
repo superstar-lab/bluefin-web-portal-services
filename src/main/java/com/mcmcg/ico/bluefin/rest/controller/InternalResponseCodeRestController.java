@@ -113,13 +113,13 @@ public class InternalResponseCodeRestController {
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
-            		"Internal Code Id : ", String.valueOf(updateInternalResponseCodeResource.getInternalCodeId())), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.INTERNALCODEID, String.valueOf(updateInternalResponseCodeResource.getInternalCodeId())), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
-        		"Internal Code Id : ", String.valueOf(updateInternalResponseCodeResource.getInternalCodeId())));
+        		BluefinWebPortalConstants.INTERNALCODEID, String.valueOf(updateInternalResponseCodeResource.getInternalCodeId())));
         
         return internalResponseCodeService.updateInternalResponseCode(updateInternalResponseCodeResource);
     }
@@ -135,7 +135,7 @@ public class InternalResponseCodeRestController {
     public ResponseEntity<String> delete(@PathVariable Long id) {
         
         LOGGER.info(LoggingUtil.adminAuditInfo("Response Codes Deletion Request", BluefinWebPortalConstants.SEPARATOR,
-        		"Internal Code Id : ", String.valueOf(id)));
+        		BluefinWebPortalConstants.INTERNALCODEID, String.valueOf(id)));
         
         internalResponseCodeService.deleteInternalResponseCode(id);
         LOGGER.debug("Internal Response Code {} has been deleted.", id);

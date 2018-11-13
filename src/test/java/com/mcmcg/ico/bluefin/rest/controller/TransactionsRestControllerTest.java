@@ -61,7 +61,7 @@ public class TransactionsRestControllerTest {
 		DateTime date = new DateTime(1465322756555L);
 		SaleTransaction result = new SaleTransaction();
 		result.setAccountId("67326509");
-		result.setChargeAmount(new BigDecimal(4592.36));
+		result.setChargeAmount(BigDecimal.valueOf(4592.36));
 		result.setCardNumberLast4Char("5162");
 		// result.setCreatedDate(date);
 		result.setFirstName("Natalia");
@@ -95,7 +95,7 @@ public class TransactionsRestControllerTest {
 		mockMvc.perform(get("/api/transactions/{id}", 1234)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.accountNumber").value("67326509"))
-				.andExpect(jsonPath("$.amount").value(new BigDecimal(4592.36)))
+				.andExpect(jsonPath("$.amount").value(BigDecimal.valueOf(4592.36)))
 				.andExpect(jsonPath("$.cardNumberLast4Char").value("XXXX-XXXX-XXXX-5162"))
 				.andExpect(jsonPath("$.createdDate").value("2016-06-07T18:05:56.555Z"))
 				.andExpect(jsonPath("$.firstName").value("Natalia")).andExpect(jsonPath("$.lastName").value("Quiros"))

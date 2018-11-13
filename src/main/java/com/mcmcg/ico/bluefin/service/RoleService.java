@@ -61,7 +61,7 @@ public class RoleService {
 		}
 
 		List<Role> roleList;
-		/*
+		/**
 		 * this condition check only for role ADMINISTRATIVE 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			roleList = roleDAO.findAll();

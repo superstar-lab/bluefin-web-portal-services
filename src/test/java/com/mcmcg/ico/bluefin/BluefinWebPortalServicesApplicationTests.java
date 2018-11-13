@@ -13,6 +13,7 @@ public class BluefinWebPortalServicesApplicationTests {
 
     @Test
     public void contextLoads() {
+    	/**need to add test case*/
     }
 
 }

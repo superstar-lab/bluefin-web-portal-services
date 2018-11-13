@@ -132,7 +132,7 @@ public class PaymentProcessorRuleRestController {
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Update Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		"Payment Processor Rule Id : ", String.valueOf(id), BluefinWebPortalConstants.SEPARATOR,
+            		"Payment Processor Rule Id: ", String.valueOf(id), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription));
             
             throw new CustomBadRequestException(errorDescription);
@@ -140,7 +140,7 @@ public class PaymentProcessorRuleRestController {
         
         LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Update Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		"Payment Processor Rule Id : ", String.valueOf(id)));
+        		"Payment Processor Rule Id:: ", String.valueOf(id)));
         
         return paymentProcessorRuleService.updatePaymentProcessorRule(
                 paymentProcessorRuleResource.toPaymentProcessorRule(id),

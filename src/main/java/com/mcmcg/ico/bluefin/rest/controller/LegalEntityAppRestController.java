@@ -102,7 +102,7 @@ public class LegalEntityAppRestController {
         		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()));
         
         return new ResponseEntity<>(
-                legalEntityAppService.createLegalEntity(legalEntityResource, authentication.getName()),
+                legalEntityAppService.createLegalEntity(legalEntityResource, authentication==null ? "":authentication.getName()),
                 HttpStatus.CREATED);
     }
 
@@ -132,7 +132,7 @@ public class LegalEntityAppRestController {
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()));
         
-        return legalEntityAppService.updateLegalEntityApp(id, legalEntityAppToUpdate, authentication.getName());
+        return legalEntityAppService.updateLegalEntityApp(id, legalEntityAppToUpdate, authentication==null ? "":authentication.getName());
     }
 
     @ApiOperation(value = "deleteLegalEntityApp", nickname = "deleteLegalEntityApp")

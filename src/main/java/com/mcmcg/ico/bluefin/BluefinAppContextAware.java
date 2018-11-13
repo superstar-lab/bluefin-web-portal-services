@@ -4,7 +4,6 @@ import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -24,17 +23,13 @@ public class BluefinAppContextAware implements ApplicationContextAware {
 	private CookiesConfiguration cookieConfig;
 	
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) {
 		LOGGER.info("Setting cookie setting to servlet context");
 		if (servletContext != null) {
 			if (servletContext.getSessionCookieConfig() != null) {
 				if (cookieConfig != null) {
 					LOGGER.info("The Cookie config secure , set as={}",cookieConfig.isSecure());
-					try {
-						servletContext.getSessionCookieConfig().setSecure(cookieConfig.isSecure());
-					} catch (Exception ex) {
-						LOGGER.info("Failed to set Cookie config setting , Exp Message={}",ex.getMessage(),ex);
-					}
+					servletContext.getSessionCookieConfig().setSecure(cookieConfig.isSecure());
 				} else {	
 					LOGGER.info("The Cookie Config Object found null");
 				}

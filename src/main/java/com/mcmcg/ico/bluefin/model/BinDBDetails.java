@@ -2,9 +2,7 @@ package com.mcmcg.ico.bluefin.model;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
 
@@ -61,6 +59,11 @@ public class BinDBDetails {
 		if (StringUtils.isBlank(this.level) || StringUtils.equalsIgnoreCase("NULL",this.level)) {
 			this.level = "";
 		}
+		
+		updateNullValuesToBlank1();
+	}
+	
+	public void updateNullValuesToBlank1() {
 		if (StringUtils.isBlank(this.isocountry) || StringUtils.equalsIgnoreCase("NULL",this.isocountry)) {
 			this.isocountry = "";
 		}

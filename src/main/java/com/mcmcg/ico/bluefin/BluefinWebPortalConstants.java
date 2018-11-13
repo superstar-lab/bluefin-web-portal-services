@@ -43,7 +43,6 @@ public class BluefinWebPortalConstants {
 	public static final String PAYMENTMETHOD = "PaymentMethod";
 	public static final String TRANSACTIONAMOUNT = "TransactionAmount";
 	public static final String TRANSACTIONTYPE = "TransactionType";
-	public static final String TRANSACTIONTIMEVAL = "TransactionTime";
 	public static final String ACCOUNTIDVAL = "AccountID";
 	public static final String APPLICATION = "Application";
 	public static final String PROCESSORTRANSACTIONID = "ProcessorTransactionID";
@@ -122,11 +121,10 @@ public class BluefinWebPortalConstants {
 	public static final String BLUEFIN_BIN_DB_DATA_SOURCE = "binDBDataSource";
 	public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
 	public static final String BLUEFIN_NAMED_JDBC_TEMPLATE = "bluefinNamedJdbcTemplate";
-	//public static final String BLUEFIN_BIN_DB_JDBC_TEMPLATE = "binJdbcTemplate";
-	public static final String MATCHLASTPASSWORDCOUNT = "MATCH_LAST_PASSWORD_COUNT";
-	public static final String PASSWORDEXPIREAFTER = "PASSWORD_EXPIRE_AFTER";
-	public static final String PASSWORDEXPIREWARNBEFORE = "PASSWORD_EXPIRE_WARN_BEFORE";
-	public static final String WRONGPASSWORDMAXLIMIT = "WRONG_PASSWORD_MAX_LIMIT";
+	public static final String MATCHLASTPWCOUNT = "MATCH_LAST_PASSWORD_COUNT";
+	public static final String PWEXPIREAFTER = "PASSWORD_EXPIRE_AFTER";
+	public static final String PWEXPIREWARNBEFORE = "PASSWORD_EXPIRE_WARN_BEFORE";
+	public static final String WRONGPWMAXLIMIT = "WRONG_PASSWORD_MAX_LIMIT";
 	public static final int WRONGPASSWORDMAXLIMITDEFAULT = 6;
 	public static final String ACCOUNTLOCKEDDURATIONSECONDS = "ACCOUNT_LOCKED_DURATION_SECONDS";
 	public static final int ACCOUNTLOCKEDDURATIONSECONDSDEFAULT = 30*60;
@@ -140,6 +138,15 @@ public class BluefinWebPortalConstants {
 	public static final String REQUESTEDFOR = "Requested For : ";
 	public static final String LEGALENTITYNAME = "Legal Entity Name : ";
 	public static final String PAYMENTPROCESSORNAME = "Payment Processor Name : ";
+	public static final String INTERNALCODEID = "Internal Code Id : ";
+	public static final String PAYMENTPROCESSORIDLOG = "Payment Processor Id : ";
+	public static final String APIUSER = "/api/users/";
+	public static final String PASSLINK = "/password";
+	public static final String WELCOMECONTENT = "Welcome to the Bluefin Portal.  Below is your username and a link to create a password. \n\n";
+	public static final String CREATEPASSCONTENT = "\n\n To create your password, use the link below: \n\n";
+	public static final String REGISTERUSEREMAIL = "REGISTER_USER_EMAIL_LINK";
+	public static final String USERVALUE = "?user=";
+	public static final String TOKENVALUE = "&token=";
 	
 	private BluefinWebPortalConstants(){
 		

@@ -33,7 +33,7 @@ public class UserResource extends CommonUserResource implements Serializable {
 	private String status;
 
 	public UserResource() {
-		// Default Constructor
+		/** Default Constructor */
 	}
 
 	public UserResource(User user) {
