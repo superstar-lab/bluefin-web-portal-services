@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -219,11 +220,11 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 			List<Long> idsFetched = namedJDBCTemplate.queryForList(Queries.INTERNALSTATUSCODEIDSMAPPEDWITHPAYMENTPROCESSORSTATUSCODEIDS,valuesToCheck,Long.class);
 			if (idsFetched != null && !idsFetched.isEmpty()) {
 				// Need to return only unique ids
-				Set<Long> idsFetchedAndReturnedUnique = new HashSet<Long>();
+				Set<Long> idsFetchedAndReturnedUnique = new HashSet<>();
 				idsFetchedAndReturnedUnique.addAll(idsFetched);
 				return idsFetchedAndReturnedUnique;
 			}
 		}
-		return null;
+		return Collections.emptySet();
 	}
 }

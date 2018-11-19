@@ -2,30 +2,26 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
@@ -80,17 +76,16 @@ public class ReportRestController {
 		} else {
 			searchValue = search;
 		}
-
-		File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
-		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-		
-		// Below line found in releases while merging, but was not available in develop branch
-		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-		downloadFile.delete();
-		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+		try {
+			File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
+			
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+			
+		}
+		catch(Exception e) {
+			LOGGER.error("An error occured to during downloading file="+e);
+			throw new CustomException("An error occured to during downloading file.");
+		}
 	}
 
 	@ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
@@ -129,17 +124,15 @@ public class ReportRestController {
 			searchVal = searchVal.replaceAll("notReconciled", id);
 			negate = true;
 		}
-		
-		File downloadFile = transactionService.getRemittanceTransactionsReport(searchVal, timeZone,negate);
-		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-		
-		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-		boolean deleted = downloadFile.delete();
-		LOGGER.debug("File deleted ? {}",deleted);
-		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+		try {
+			File downloadFile = transactionService.getRemittanceTransactionsReport(searchVal, timeZone,negate);
+			
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+		}
+		catch(Exception e) {
+			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
+			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
+		}
 	}
 
 	@ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
@@ -155,16 +148,16 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
 			throws IOException {
 		LOGGER.info("Getting all batch uploads");
-		File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
+		try {
+			File downloadFile = batchUploadService.getBatchUploadsReport(noofdays, timeZone);
 
-		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-
-		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-		downloadFile.delete();
-		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+			
+		}
+		catch(Exception e) {
+			LOGGER.error("An error occured to during get report="+e);
+			throw new CustomException("An error occured to during get report.");
+		}
 	}
 
 	@ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
@@ -181,15 +174,15 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone, HttpServletResponse response)
 			throws IOException {
 		LOGGER.debug("Getting all batch uploads by id = [{}]", batchUploadId);
-		File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
+		try {
+			File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
 
-		InputStream targetStream = FileUtils.openInputStream(downloadFile);
-		response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
-		response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
-
-		FileCopyUtils.copy(targetStream, response.getOutputStream());
-		LOGGER.debug(DELETETEMPFILE, downloadFile.getName());
-		downloadFile.delete();
-		return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+			
+		}
+		catch(Exception e) {
+			LOGGER.error("An error occured to during get report="+e);
+			throw new CustomException("An error occured to during getBatchUploadTransactionsReport file.");
+		}
 	}
 }

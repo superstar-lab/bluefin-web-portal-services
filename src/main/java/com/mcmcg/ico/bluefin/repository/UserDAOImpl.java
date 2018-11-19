@@ -277,9 +277,9 @@ public class UserDAOImpl implements UserDAO {
 	}
 	
 	@Override
-	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId) {
+	public List<UserPasswordHistory> getPasswordHistoryById(long userId) {
 		
-		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID, new Object[] { userId },
+		List<UserPasswordHistory> userList = jdbcTemplate.query(Queries.FINDUSERPWHISTORYBYUSERID, new Object[] { userId },
 				new RowMapperResultSetExtractor<UserPasswordHistory>(new PasswordHistoryRowMapper()));
 
 		if (!userList.isEmpty()) {
@@ -291,7 +291,7 @@ public class UserDAOImpl implements UserDAO {
 		return userList;
 	}
 	
-	/*@Override
+	/**@Override
 	public ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId, int limit) {
 		
 		ArrayList<UserPasswordHistory> userList = (ArrayList<UserPasswordHistory>) jdbcTemplate.query(Queries.FINDUSERPASSWORDHISTORYBYUSERID.concat(" limit "+limit), new Object[] { userId },
@@ -316,7 +316,7 @@ public class UserDAOImpl implements UserDAO {
 		
 		KeyHolder holder = new GeneratedKeyHolder();
 		jdbcTemplate.update(connection->{
-			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPASSWORDHISTORY,
+			PreparedStatement ps = connection.prepareStatement(Queries.SAVEPWHISTORY,
 					Statement.RETURN_GENERATED_KEYS);
 			ps.setLong(1, user.getUserId()); 
 			ps.setString(2, userPreviousPasword); 
@@ -337,7 +337,7 @@ public class UserDAOImpl implements UserDAO {
 		return 0;
 		
 		
-		/*int rows = jdbcTemplate.update(Queries.SAVEPASSWORDHISTORY,
+		/**int rows = jdbcTemplate.update(Queries.SAVEPASSWORDHISTORY,
 				new Object[] {user.getUserId(), user.getPassword(), modifiedBy});
 
 		LOGGER.debug("Updated user with ID ={} , rows affected ={} ", user.getUserId(), rows);
@@ -351,7 +351,7 @@ public class UserDAOImpl implements UserDAO {
 		DateTime utc = new DateTime(DateTimeZone.UTC);
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc));
 		
-		int rows = jdbcTemplate.update(Queries.UPDATEPASSWORDHISTORY,
+		int rows = jdbcTemplate.update(Queries.UPDATEPWHISTORY,
 				new Object[] {previousPassword, modifiedBy, dateModified, historyId});
 		
 		LOGGER.debug("update password history with ID ={} , rows affected ={} ", historyId, rows);
@@ -359,7 +359,7 @@ public class UserDAOImpl implements UserDAO {
 	
 	@Override
 	public void deletePasswordHistory(long historyId, long userId) {
-		int rows = jdbcTemplate.update(Queries.DELETEPASSWORDHISTORY,
+		int rows = jdbcTemplate.update(Queries.DELETEPWHISTORY,
 				new Object[] {historyId, userId});
 		
 		LOGGER.debug("delete user with ID ={} , rows affected ={} ", userId, rows);
@@ -419,9 +419,9 @@ class UserRowMapper implements RowMapper<User> {
 			user.setLastLogin(new DateTime(ts));
 		}
 		
-		if (rs.getString("DateCreated") != null) {
+		if (rs.getString(BluefinWebPortalConstants.DATECREATED) != null) {
 
-			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DATECREATED));
 			user.setDateCreated(new DateTime(ts));
 		}
 		if (rs.getString("DateUpdated") != null) {
@@ -462,16 +462,15 @@ class PasswordHistoryRowMapper implements RowMapper<UserPasswordHistory> {
 		userPasswordHistory.setPreviousPassword(rs.getString("UserOldPassword"));
 		userPasswordHistory.setModifiedBy(rs.getString("ModifiedBy"));
 		
-		if (rs.getString("DateCreated") != null) {
+		if (rs.getString(BluefinWebPortalConstants.DATECREATED) != null) {
 
-			ts = Timestamp.valueOf(rs.getString("DateCreated"));
+			ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DATECREATED));
 			userPasswordHistory.setDateCreated(new DateTime(ts));
 		}
 		if (rs.getString("DatedModified") != null) {
 
 			ts = Timestamp.valueOf(rs.getString("DatedModified"));
 			userPasswordHistory.setDateModified(new DateTime(ts));
-			//userPasswordHistory.setDateModified(DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT).withZoneUTC().parseDateTime(rs.getString("DatedModified")));
 		}
 		return userPasswordHistory;
 		

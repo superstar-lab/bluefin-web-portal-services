@@ -1,6 +1,5 @@
 package com.mcmcg.ico.bluefin.repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,9 +26,7 @@ public interface UserDAO {
 	
 	public Page<User> findAllWithDynamicFilter(List<String> search, PageRequest pageRequest,Map<String,String> filterMap );
 	
-	ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId);
-	
-	//ArrayList<UserPasswordHistory> getPasswordHistoryById(long userId, int limit);
+	List<UserPasswordHistory> getPasswordHistoryById(long userId);
 	
 	long savePasswordHistory(User user, String modifiedBy, String userPreviousPasword);
 	

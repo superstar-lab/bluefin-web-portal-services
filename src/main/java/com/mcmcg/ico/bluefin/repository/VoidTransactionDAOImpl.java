@@ -47,19 +47,7 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 			if (saleTransactionId != null) {
 				saleTransactionId = saleTransactionId.trim();
 				if (saleTransactionId.length() > 0) {
-					ArrayList<SaleTransaction> saleTransactions = (ArrayList<SaleTransaction>) jdbcTemplate.query(
-							Queries.FINDSALETRANSACTIONBYSALETRANSACTIONID, new Object[] { saleTransactionId },
-							new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
-					LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
-					SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
-					if (saleTransaction != null) {
-						LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
-						saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
-						voidTransaction.setBinDBDetails(saleTransaction.getBinDBDetails());
-						voidTransaction.setSaleTransaction(saleTransaction);
-					} else {
-						LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);
-					}
+					voidTransaction = findByApplicationTransactionIdInSale(saleTransactionId, voidTransaction);
 				}
 			} else {
 				LOGGER.debug("SaleTransactionId found invalid");
@@ -71,6 +59,23 @@ public class VoidTransactionDAOImpl implements VoidTransactionDAO {
 		return voidTransaction;
 	}
 
+	public VoidTransaction findByApplicationTransactionIdInSale(String saleTransactionId, VoidTransaction voidTransaction) {
+		ArrayList<SaleTransaction> saleTransactions = (ArrayList<SaleTransaction>) jdbcTemplate.query(
+				Queries.FINDSALETRANSACTIONBYSALETRANSACTIONID, new Object[] { saleTransactionId },
+				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+		LOGGER.debug("Number of Sale transactions: {}", saleTransactions.size());
+		SaleTransaction saleTransaction = DataAccessUtils.singleResult(saleTransactions);
+		if (saleTransaction != null) {
+			LOGGER.debug("Record found for sale transactionId: {}", saleTransactionId);
+			saleTransaction.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransaction.getCardNumberFirst6Char()));
+			voidTransaction.setBinDBDetails(saleTransaction.getBinDBDetails());
+			voidTransaction.setSaleTransaction(saleTransaction);
+		} else {
+			LOGGER.debug("Record not found for transactionId: {} ", saleTransactionId);
+		}
+		
+		return voidTransaction;
+	}
 }
 
 class VoidTransactionRowMapper implements RowMapper<VoidTransaction> {

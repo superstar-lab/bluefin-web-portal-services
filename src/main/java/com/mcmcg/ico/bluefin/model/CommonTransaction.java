@@ -62,7 +62,7 @@ public class CommonTransaction implements Transaction {
 		return applicationTransactionId;
 	}
 	
-	/*@Override
+	/**@Override
 	public String getTransactionType() {
 		return TransactionTypeCode.VOID.toString();
 	}*/

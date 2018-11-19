@@ -50,7 +50,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	@Override
 	public List<PaymentProcessorRule> findPaymentProccessorRulByProcessorId(
 			Long paymentProcessorId) {
-		List<PaymentProcessorRule> list = (ArrayList<PaymentProcessorRule>) jdbcTemplate
+		List<PaymentProcessorRule> list = jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRULEBYID, new Object[] { paymentProcessorId },
 						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));
@@ -68,7 +68,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 
 	@Override
 	public List<PaymentProcessorRule> findByCardType(String cardType) {
-		List<PaymentProcessorRule> list = (ArrayList<PaymentProcessorRule>) jdbcTemplate
+		List<PaymentProcessorRule> list =  jdbcTemplate
 				.query(Queries.FINDPAYMENTPROCESSORRULEBYCARDTYPE, new Object[] { cardType },
 						new RowMapperResultSetExtractor<PaymentProcessorRule>(
 								new PaymentProcessorRuleRowMapper()));

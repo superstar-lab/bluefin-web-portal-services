@@ -77,7 +77,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return this.securityService;
     }
     
-   /* @Bean
+   /** @Bean
     public ServletContextInitializer servletContextInitializer(@Value("${secure.cookie}") final boolean secure) {
         return new ServletContextInitializer() {
 
@@ -107,20 +107,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String reportsApiBaseURL = apiBaseURL + "/reports";
         final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
         final String applicationPropertyApiBaseURL = apiBaseURL + "/applicationProperties";
-        ////////////////////////////////CSP Code Starts Here///////////////////////////////
-        //final String cspHeader = "www.google-analytics.com ajax.googleapis.com www.midlandcreditonline.com *.optimizely.com fullstory.com  *.outbrain.com bat.bing.com *.taboola.com *.mcmpay.com  connect.facebook.net web.adblade.com *.marketo.net s.yimg.com sp.analytics.yahoo.com www.google.com www.google-analytics.com www.googletagmanager.com www.gstatic.com www.googleadservices.com";
-       // final String cspHeader ="www.google-analytics.com *.cloudflare.com;img-src *.cloudflare.comframe-src *.mcmcg.com *.mcmpay.com; style-src *.mcmcg.com *.mcmpay.com *.cloudflare.com";
+        /**CSP Code Starts Here*/
         cspHeader.replaceAll("\\s+", " ");
         httpSecurity.headers().addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy",
         		"script-src 'self' 'unsafe-inline' 'unsafe-eval' " + cspHeader + " ; object-src 'self'" ));
-        //    .addHeaderWriter(new StaticHeadersWriter("P3P", "CP=\"This is just to make IE happy with cookies in this iframe\""));
-        ////////////////////////////////CSP Code Ends Here///////////////////////////////
         
-        // Set Max-age to 1 day
-        ////////////////////////////////HSTS Code Starts Here///////////////////////////////
         httpSecurity.headers().httpStrictTransportSecurity().includeSubDomains(true).maxAgeInSeconds(86400);
-        
-//      //////////////////////////////HSTS Code Ends Here///////////////////////////////
         
         // @formatter:off
 		httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)

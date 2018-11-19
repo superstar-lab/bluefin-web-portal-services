@@ -15,7 +15,7 @@ import lombok.Data;
 public class TransactionPageImpl<T> extends PageImpl<T> {
 	
 	@JsonProperty("content-bindb-details")
-	private List<BinDBDetails> binDBDetails = new ArrayList<BinDBDetails>();
+	private transient List<BinDBDetails> binDBDetails = new ArrayList<>();
 	
 	public TransactionPageImpl(List<T> content, Pageable pageable, long total,List<BinDBDetails> binDBDetails){
 		super(content, pageable, total);
