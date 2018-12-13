@@ -54,7 +54,7 @@ public class LegalEntityAppService {
 			return new ArrayList<>();
 		}
 
-		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication) || sessionService.hasPermissionToManageAllUser(authentication)) {
 			return legalEntityAppDAO.findAll();
 		} else {
 			List<LegalEntityApp> list = new ArrayList<>();
