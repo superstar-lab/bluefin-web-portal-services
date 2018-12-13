@@ -21,6 +21,7 @@ import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -54,7 +55,7 @@ public class LegalEntityAppService {
 			return new ArrayList<>();
 		}
 
-		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication) || sessionService.hasPermissionToManageAllUser(authentication)) {
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			return legalEntityAppDAO.findAll();
 		} else {
 			List<LegalEntityApp> list = new ArrayList<>();
@@ -193,5 +194,21 @@ public class LegalEntityAppService {
 	
 	public LegalEntityApp getLegalEntityAppName(String legalEntityAppName) {
 		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName);
+	}
+	
+	public List<LegalEntityApp> getAllLegalEntities(Authentication authentication) {
+
+		User user = userDAO.findByUsername(authentication.getName());
+		if (user == null) {
+			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
+					authentication.getName());
+			return new ArrayList<>();
+		}
+
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication) || sessionService.hasPermissionToManageAllUser(authentication)) {
+			return legalEntityAppDAO.findAll();
+		}
+	
+		throw new CustomException("User don't have permission to get all legal entity");
 	}
 }
