@@ -190,4 +190,8 @@ public class LegalEntityAppService {
 	private boolean existLegalEntityAppName(String legalEntityAppName) {
 		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
 	}
+	
+	public LegalEntityApp getLegalEntityAppName(String legalEntityAppName) {
+		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName);
+	}
 }
