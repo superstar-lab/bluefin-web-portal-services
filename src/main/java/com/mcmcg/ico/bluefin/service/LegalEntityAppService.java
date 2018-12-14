@@ -71,6 +71,43 @@ public class LegalEntityAppService {
 			return legalEntityAppDAO.findAll(legalEntitiesFromUser);
 		}
 	}
+	
+	
+	
+	public List<LegalEntityApp> getActiveLegalEntities(Authentication authentication) {
+		User user = userDAO.findByUsername(authentication.getName());
+		
+
+		if (user == null) {
+			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
+					authentication.getName());
+			return new ArrayList<>();
+		}
+
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			return legalEntityAppDAO.findAll();
+		} else {
+			List<LegalEntityApp> list = new ArrayList<>();
+
+			LOGGER.info("ready to iteration userLegalEntityApp ");
+			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+				long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
+				LegalEntityApp legalEntity =legalEntityAppDAO.findActiveLegalEntityAppId(legalEntityAppId);
+				if (null != legalEntity) {
+					list.add(legalEntity);
+				}
+
+			}
+			List<Long> legalEntitiesFromUser = list.stream()
+					.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toList());
+			LOGGER.debug("legalEntitiesFromUser size ={} ",legalEntitiesFromUser.size());
+			return legalEntityAppDAO.findAll(legalEntitiesFromUser);
+		}
+	}
+	
+	
+	
+	
 
 	/**
 	 * This method will find a legal entity by its id, not found exception if it

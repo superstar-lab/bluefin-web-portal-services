@@ -10,6 +10,8 @@ public interface LegalEntityAppDAO {
 	LegalEntityApp findByLegalEntityAppName(String legalEntityAppName);
 
 	LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId);
+	
+	LegalEntityApp findActiveLegalEntityAppId(Long legalEntityAppId);
 
 	List<LegalEntityApp> findAll();
 

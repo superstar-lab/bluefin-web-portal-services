@@ -74,6 +74,25 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		}
 
 	}
+	
+	@Override
+	public LegalEntityApp findActiveLegalEntityAppId(Long legalEntityAppId) {
+		LegalEntityApp legalEntityApp = null;
+		try {
+			legalEntityApp = jdbcTemplate.queryForObject(Queries.FINDBYLEGALENTITYAPPIDACTIVE, new Object[] { legalEntityAppId, BluefinWebPortalConstants.ACTIVELEGALENTITY },
+					new LegalEntityAppRowMapper());
+			if ( LOGGER.isDebugEnabled() ) {
+				LOGGER.debug("legalEntityApp: ={}", legalEntityApp);
+			}
+			return legalEntityApp;
+		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for legal entity app id = {}",legalEntityAppId,e);
+        	}
+			return null;
+		}
+
+	}
 
 	@Override
 	public List<LegalEntityApp> findAll() {

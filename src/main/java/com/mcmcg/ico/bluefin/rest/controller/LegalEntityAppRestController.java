@@ -73,6 +73,29 @@ public class LegalEntityAppRestController {
         return legalEntityAppService.getLegalEntities(authentication);
     }
 
+    
+   @ApiOperation(value = "getActiveLegalEntities", nickname = "getActiveLegalEntities")
+    @RequestMapping(method = RequestMethod.GET,value="/active", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public List<LegalEntityApp> getActiveLegalEntities(@ApiIgnore Authentication authentication) {
+        LOGGER.info("Getting all legal entities");
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        return legalEntityAppService.getActiveLegalEntities(authentication);
+    }
+    
+    
+    
+    
+    
+    
     @ApiOperation(value = "createLegalEntityApp", nickname = "createLegalEntityApp")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
