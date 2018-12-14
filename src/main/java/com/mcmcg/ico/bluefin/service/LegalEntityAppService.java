@@ -123,6 +123,8 @@ public class LegalEntityAppService {
 
 		// Update fields for existing Legal Entity App
 		legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
+		legalEntityAppToUpdate.setIsActive(legalEntityAppResource.getIsActive());
+		legalEntityAppToUpdate.setPrNumber(legalEntityAppResource.getPrNumber());
 
 		return legalEntityAppDAO.updateLegalEntityApp(legalEntityAppToUpdate, modifiedBy);
 	}

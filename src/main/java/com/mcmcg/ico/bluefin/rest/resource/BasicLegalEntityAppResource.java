@@ -17,10 +17,15 @@ public class BasicLegalEntityAppResource implements Serializable {
     @NotBlank(message = "Please provide a legal entity name")
     @Pattern(regexp = "^\\w+(\\s|\\.|\\'|-|\\w)*$", message = "Field legal entity name must be alphanumeric")
     private String legalEntityAppName;
+    
+    private String prNumber;
+    private Short isActive ;
 
     public LegalEntityApp toLegalEntityApp() {
         LegalEntityApp legalEntityApp = new LegalEntityApp();
         legalEntityApp.setLegalEntityAppName(legalEntityAppName);
+        legalEntityApp.setIsActive(isActive);
+        legalEntityApp.setPrNumber(prNumber);
         return legalEntityApp;
     }
 }

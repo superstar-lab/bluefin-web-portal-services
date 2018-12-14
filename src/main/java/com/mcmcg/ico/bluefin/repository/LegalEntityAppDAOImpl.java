@@ -122,6 +122,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, legalEntityApp.getModifiedBy()); // ModifiedBy
 				ps.setShort(5, legalEntityApp.getIsActive()); // IsActive
+				ps.setString(6, legalEntityApp.getPrNumber()); //PRNumber
 				return ps;
 		}, holder);
 
@@ -160,6 +161,8 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, modifiedBy); // ModifiedBy
 				ps.setLong(5, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
+				ps.setString(6, legalEntityApp.getPrNumber());  //PRNumber
+				
 				return ps;
 		}, holder);
 
