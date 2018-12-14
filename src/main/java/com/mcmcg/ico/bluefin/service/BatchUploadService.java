@@ -376,6 +376,6 @@ public class BatchUploadService {
 	}
 	
 	public boolean checkLegalEntityStatus() {
-		return (legalEntityAppService.getLegalEntityAppById(legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getLegalEntityAppId()).getIsActive()).intValue() == 0;
+		return legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getIsActive().intValue() == 0;
 	}
 }
