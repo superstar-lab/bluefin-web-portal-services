@@ -196,7 +196,8 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 	@JsonView({ Views.Extend.class, Views.Summary.class })
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime reconciliationDate = new DateTime();
+	private DateTime reconciliationDate;
+	/*private DateTime reconciliationDate = new DateTime();*/
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
 	private Long batchUploadId;
