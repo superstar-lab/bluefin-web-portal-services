@@ -495,4 +495,21 @@ public class SessionService {
 		
 		return isPasswordExpire;
 	}
+	
+	public boolean hasPermissionToManageAllUser(Authentication authentication) {
+		LOGGER.info("Entering to Has Permission To Manage All User");
+		Boolean hasPermission = false;
+		LOGGER.debug("authentication size to manage all user is ={}", authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
+		if (authentication != null) {
+			for (GrantedAuthority authority : authentication.getAuthorities()) {
+				hasPermission = "MANAGE_ALL_USERS".equals(authority.getAuthority());
+				LOGGER.debug("hasPermission value ={} ",hasPermission);
+				if (hasPermission) {
+					break;
+				}
+			}
+		}
+		LOGGER.info("Exit from Has Permission To Manage All User");
+		return hasPermission;
+	}
 }
