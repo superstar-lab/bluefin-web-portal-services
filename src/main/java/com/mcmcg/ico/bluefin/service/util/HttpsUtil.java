@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -65,12 +66,25 @@ public class HttpsUtil {
                 return new X509Certificate[0];
             }
         	@Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        		
+        		try {
+                    chain[0].checkValidity();
+                } catch (Exception e) {
+                    throw new CertificateException("Certificate not valid or trusted.");
+                }
+        		
         		// Overridden method
             }
         	@Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
         		// Overridden method
+        		try {
+                    chain[0].checkValidity();
+                } catch (Exception e) {
+                    throw new CertificateException("Certificate not valid or trusted.");
+                }
+ 
             }
         }, };
         SSLContext sslContext;

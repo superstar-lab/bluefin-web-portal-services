@@ -108,7 +108,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
         final String applicationPropertyApiBaseURL = apiBaseURL + "/applicationProperties";
         /**CSP Code Starts Here*/
-        cspHeader.replaceAll("\\s+", " ");
+        cspHeader = cspHeader.replaceAll("\\s+", " ");
         httpSecurity.headers().addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy",
         		"script-src 'self' 'unsafe-inline' 'unsafe-eval' " + cspHeader + " ; object-src 'self'" ));
         
