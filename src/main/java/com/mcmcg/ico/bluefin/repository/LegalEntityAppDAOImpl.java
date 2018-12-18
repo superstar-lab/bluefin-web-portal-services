@@ -238,6 +238,9 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 		}
 		legalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
 		legalEntityApp.setIsActive(rs.getShort("IsActive"));
+		if(rs.getString("PRNUMBER") != null) {
+			legalEntityApp.setPrNumber(rs.getString("PRNUMBER"));
+		}
 
 		return legalEntityApp;
 	}

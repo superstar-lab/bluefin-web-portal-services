@@ -36,11 +36,11 @@ public class Queries {
 	public static final String FINDALLBATCHUPLOADSBYORDERBYDATEUPLOADEDDESC = "SELECT * FROM (SELECT *, (@row_number:=@row_number + 1) AS num FROM BatchUpload, (SELECT @row_number := 0) as r ORDER BY DateUploaded desc) AS RowConstrainedResult WHERE num >= ? AND num < ? ORDER BY num asc";
 	public static final String FINDCOUNTBATCHUPLOAD = "SELECT COUNT(*) FROM BatchUpload";
 	public static final String FINDBATCHUPLOADSBYDATEUPLOADEDAFTERORDERBYDATEUPLOADEDDESC = "SELECT * FROM (SELECT *, (@row_number:=@row_number + 1) AS num FROM BatchUpload, (SELECT @row_number := 0) as r WHERE DateUploaded > ? ORDER BY DateUploaded desc) AS RowConstrainedResult WHERE num >= ? AND num < ? ORDER BY num asc";
-	public static final String FINDBYLEGALENTITYAPPID = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
-	public static final String FINDBYLEGALENTITYAPPIDACTIVE = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ? and IsActive = ? ";
-	public static final String FINDBYLEGALENTITYAPPNAME = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppName = ?";
-	public static final String FINDALLLEGALENTITYAPPS = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive FROM LegalEntityApp_Lookup";
-	public static final String FINDALLLEGALENTITYAPPSBYIDS = "SELECT LegalEntityAppID, LegalEntityAppName, DateCreated, DatedModified, ModifiedBy, IsActive FROM LegalEntityApp_Lookup WHERE LegalEntityAppID IN (:legalEntityAppIds)";
+	public static final String FINDBYLEGALENTITYAPPID = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
+	public static final String FINDBYLEGALENTITYAPPIDACTIVE = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ? and IsActive = ? ";
+	public static final String FINDBYLEGALENTITYAPPNAME = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppName = ?";
+	public static final String FINDALLLEGALENTITYAPPS = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup";
+	public static final String FINDALLLEGALENTITYAPPSBYIDS = "SELECT LegalEntityAppID, LegalEntityAppName, DateCreated, DatedModified, ModifiedBy, IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppID IN (:legalEntityAppIds)";
 	public static final String DELETELEGALENTITYAPP = "DELETE FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	public static final String SAVELEGALENTITYAPP = "INSERT INTO LegalEntityApp_Lookup (LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER) VALUES (?,?,?,?,?,?)";
 	public static final String UPDATELEGALENTITYAPP = "UPDATE LegalEntityApp_Lookup SET LegalEntityAppName = ?,IsActive = ?, DatedModified = ?, ModifiedBy = ?, PRNUMBER=? WHERE LegalEntityAppID = ?";
