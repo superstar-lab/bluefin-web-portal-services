@@ -26,8 +26,10 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
+import com.mcmcg.ico.bluefin.service.LegalEntityAppService;
 
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -92,6 +94,9 @@ public class BatchUploadRestController {
         LOGGER.debug("Uploading new ACF file {}",request.getFileMap());
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        if (batchUploadService.checkLegalEntityStatus()) {
+        	throw new CustomException("Legal Entity MCM-LATITUDE is Inactive");
         }
         Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);

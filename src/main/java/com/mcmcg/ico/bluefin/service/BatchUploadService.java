@@ -23,6 +23,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,11 @@ public class BatchUploadService {
 	private SaleTransactionDAO saleTransactionDAO;
 	@Autowired
 	private PropertyService propertyService;
+	@Autowired
+    private LegalEntityAppService legalEntityAppService;
+	
+	@Value("${batch.upload.legal.entity.name}")
+    private String legalEntityAppName;
 
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -375,5 +381,9 @@ public class BatchUploadService {
 		    	}
 		}
 		
+	}
+	
+	public boolean checkLegalEntityStatus() {
+		return legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getIsActive().intValue() == 0;
 	}
 }
