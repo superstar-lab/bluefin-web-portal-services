@@ -216,7 +216,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				while (rs.next()) {
 					finalCount = rs.getInt(1);
 					logger.debug("finalCount= {}", finalCount);
-					break;
+					if(finalCount >= 0) {
+						break;
+					}
 				}
 				return finalCount;
 		});

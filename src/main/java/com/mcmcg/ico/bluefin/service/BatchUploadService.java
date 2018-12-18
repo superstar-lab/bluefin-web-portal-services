@@ -164,11 +164,15 @@ public class BatchUploadService {
 
 		// Create the CSVFormat object with "\n" as a record delimiter
 		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
+		boolean flag;
 		try {
 			File dir = new File(reportPath);
 			dir.mkdirs();
 			file = new File(dir, UUID.randomUUID() + ".csv");
-			file.createNewFile();
+			flag = file.createNewFile();
+			if(flag) {
+				LOGGER.info("Batch file Created {}", file.getName());
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
 			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
@@ -258,11 +262,15 @@ public class BatchUploadService {
 			result = saleTransactionDAO.findByBatchUploadId(batchUploadId);
 		}
 		
+		boolean flag;
 		try {
 			File dir = new File(reportPath);
 			dir.mkdirs();
 			file = new File(dir, UUID.randomUUID() + ".csv");
-			file.createNewFile();
+			flag = file.createNewFile();
+			if(flag) {
+				LOGGER.info("Batch file Created {}", file.getName());
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
 			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");

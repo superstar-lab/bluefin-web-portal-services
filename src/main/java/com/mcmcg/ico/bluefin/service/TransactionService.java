@@ -195,11 +195,16 @@ public class TransactionService {
 	}
 
 	private File createFileToPrepareReport(String reportPath){
+		
 		try {
 			File dir = new File(reportPath);
 			dir.mkdirs();
 			File file = new File(dir, UUID.randomUUID() + ".csv");
-			file.createNewFile();
+			boolean flag;
+			flag = file.createNewFile();
+			if(flag) {
+				LOGGER.info("Report file Created {}", file.getName());
+			}
 			return file;
 		} catch (Exception e) {
 			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);

@@ -669,7 +669,7 @@ public class UserService {
 	
 	public List<UserPasswordHistory> getPasswordHistory(final Long userId) {
 		List<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId);
-		if (userList.size()<0) {
+		if (userList.isEmpty()) {
 			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
 		}
 		return userList;
