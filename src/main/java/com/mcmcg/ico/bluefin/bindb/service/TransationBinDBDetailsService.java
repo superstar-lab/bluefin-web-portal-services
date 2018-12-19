@@ -41,7 +41,7 @@ public class TransationBinDBDetailsService {
 		if (list != null && !list.isEmpty()) {
 			List<BinDBDetails> contentBinDBs = fetchBinDBDetailsRecord(list);
 			if (contentBinDBs != null && !contentBinDBs.isEmpty()) {
-				Map<String, BinDBDetails> bindDBMap = contentBinDBs.stream().collect(Collectors.toMap(BinDBDetails::getBin, BinDBDetails::getSelfObject));
+				Map<String, BinDBDetails> bindDBMap = contentBinDBs.stream().collect(Collectors.toMap(BinDBDetails::getBin, binDbDetail -> binDbDetail));
 				if (bindDBMap != null && !bindDBMap.isEmpty()) {
 					list.forEach(saleObj -> saleObj.setBinDBDetails(bindDBMap.get(saleObj.getCardNumberFirst6Char())));
 				}
