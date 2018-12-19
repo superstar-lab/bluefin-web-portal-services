@@ -41,6 +41,7 @@ public class BinDBDetails {
 		this.self = null;
 	}
 	
+	@JsonIgnoreProperties
 	public BinDBDetails getSelfObject(){
 		return this;
 	}
