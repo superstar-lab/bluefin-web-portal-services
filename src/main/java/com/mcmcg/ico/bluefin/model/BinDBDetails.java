@@ -41,11 +41,6 @@ public class BinDBDetails {
 		this.self = null;
 	}
 	
-	@JsonIgnoreProperties
-	public BinDBDetails getSelfObject(){
-		return this;
-	}
-	
 	/**
 	 * This method update blank and NULL values to "" (Without any space - Blank)
 	 * Bin , Type value can not null in database table.
