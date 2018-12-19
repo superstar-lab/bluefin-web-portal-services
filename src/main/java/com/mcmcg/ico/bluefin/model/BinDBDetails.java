@@ -41,7 +41,7 @@ public class BinDBDetails {
 		this.self = null;
 	}
 	
-	public BinDBDetails getSelf(){
+	public BinDBDetails getSelfObject(){
 		return this;
 	}
 	
