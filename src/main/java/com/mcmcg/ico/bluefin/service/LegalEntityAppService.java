@@ -86,7 +86,7 @@ public class LegalEntityAppService {
 		}
 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-			return legalEntityAppDAO.findAll();
+			return legalEntityAppDAO.findAllActive();
 		} else {
 			List<LegalEntityApp> list = new ArrayList<>();
 
