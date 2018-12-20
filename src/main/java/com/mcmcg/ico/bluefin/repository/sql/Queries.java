@@ -40,6 +40,7 @@ public class Queries {
 	public static final String FINDBYLEGALENTITYAPPIDACTIVE = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ? and IsActive = ? ";
 	public static final String FINDBYLEGALENTITYAPPNAME = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppName = ?";
 	public static final String FINDALLLEGALENTITYAPPS = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup";
+	public static final String FINDALLACTIVELEGALENTITYAPPS = "SELECT LegalEntityAppID,LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER FROM LegalEntityApp_Lookup where IsActive = 1";
 	public static final String FINDALLLEGALENTITYAPPSBYIDS = "SELECT LegalEntityAppID, LegalEntityAppName, DateCreated, DatedModified, ModifiedBy, IsActive,PRNUMBER FROM LegalEntityApp_Lookup WHERE LegalEntityAppID IN (:legalEntityAppIds)";
 	public static final String DELETELEGALENTITYAPP = "DELETE FROM LegalEntityApp_Lookup WHERE LegalEntityAppID = ?";
 	public static final String SAVELEGALENTITYAPP = "INSERT INTO LegalEntityApp_Lookup (LegalEntityAppName,DateCreated,DatedModified,ModifiedBy,IsActive,PRNUMBER) VALUES (?,?,?,?,?,?)";

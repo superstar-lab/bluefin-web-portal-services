@@ -24,4 +24,6 @@ public interface LegalEntityAppDAO {
 	void deleteLegalEntityApp(LegalEntityApp legalEntityAppToDelete);
 
 	void createLegalEntityApps(Collection<UserLegalEntityApp> legalEntities);
+
+	List<LegalEntityApp> findAllActive();
 }

@@ -103,6 +103,17 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 		return legalEntityApps;
 	}
+	
+
+	@Override
+	public List<LegalEntityApp> findAllActive() {
+		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLACTIVELEGALENTITYAPPS,
+				new LegalEntityAppRowMapper());
+
+		LOGGER.debug("Number of rows ={}", legalEntityApps.size());
+
+		return legalEntityApps;
+	}
 
 	@Override
 	public List<LegalEntityApp> findAll(List<Long> legalEntityAppIds) {
