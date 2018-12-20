@@ -108,6 +108,7 @@ public class LegalEntityAppRestController {
     public ResponseEntity<LegalEntityApp> create(
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
+    	final Short activeStatus=legalEntityResource.getIsActive();
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -119,6 +120,13 @@ public class LegalEntityAppRestController {
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
+        }
+        if(activeStatus==null){
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+        			"Active/In-active status cannot be null");
+        	throw new CustomBadRequestException("Active/In-active status cannot be null");
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
@@ -140,6 +148,7 @@ public class LegalEntityAppRestController {
     public LegalEntityApp update(@PathVariable Long id,
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
+    	final Short activeStatus=legalEntityAppToUpdate.getIsActive();
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
@@ -150,6 +159,13 @@ public class LegalEntityAppRestController {
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
+        }
+        if(activeStatus==null){
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+        			"Active/In-active status cannot be null");
+        	throw new CustomBadRequestException("Active/In-active status cannot be null");
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
