@@ -142,7 +142,7 @@ public class LegalEntityAppService {
 			throw new CustomBadRequestException(
 					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
 		}
-		if(isValidStatus(activeStatus)){
+		if(isInValidStatus(activeStatus)){
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
@@ -166,7 +166,7 @@ public class LegalEntityAppService {
 			
 			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
 		}
-		if(isValidStatus(activeStatus)){
+		if(isInValidStatus(activeStatus)){
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
@@ -266,7 +266,7 @@ public class LegalEntityAppService {
 		throw new CustomException("User don't have permission to get all legal entity");
 	}
 	
-	private boolean isValidStatus(Short activeStatus) {
+	private boolean isInValidStatus(Short activeStatus) {
 		boolean bad=false;//Starts false-will change to true if the input is bad
 		    if(!(activeStatus==0 || activeStatus==1)){//if c isn't 0 or 1
 		       bad=true;
