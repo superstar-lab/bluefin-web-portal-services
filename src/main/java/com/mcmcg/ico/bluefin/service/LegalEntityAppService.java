@@ -86,7 +86,7 @@ public class LegalEntityAppService {
 		}
 
 		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
-			return legalEntityAppDAO.findAllActive();
+			return legalEntityAppDAO.findAll();
 		} else {
 			List<LegalEntityApp> list = new ArrayList<>();
 
@@ -131,6 +131,7 @@ public class LegalEntityAppService {
 	public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource, String modifiedBy) {
 		LOGGER.info("Entering to create Legal Entity : ");
 		final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
+		final Short activeStatus =legalEntityResource.getIsActive();
 
 		if (existLegalEntityAppName(newLegalEntityAppName)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
@@ -141,14 +142,21 @@ public class LegalEntityAppService {
 			throw new CustomBadRequestException(
 					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
 		}
-
+		if(isValidStatus(activeStatus)){
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					"Invalid Active/In-active status value : ", String.valueOf(activeStatus)));
+        	throw new CustomBadRequestException(
+					String.format("Invalid Active/In-active status value= [%s]", activeStatus));
+        }
 		return legalEntityAppDAO.saveLegalEntityApp(legalEntityResource.toLegalEntityApp(), modifiedBy);
 	}
 
 	public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource,
 			String modifiedBy) {
 		LegalEntityApp legalEntityAppToUpdate = legalEntityAppDAO.findByLegalEntityAppId(id);
-
+        final Short activeStatus =legalEntityAppResource.getIsActive();
 		LOGGER.debug("legalEntityAppToUpdate ={} ",legalEntityAppToUpdate);
 		if (legalEntityAppToUpdate == null) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
@@ -158,7 +166,14 @@ public class LegalEntityAppService {
 			
 			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
 		}
-
+		if(isValidStatus(activeStatus)){
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					"Invalid Active/In-active status value : ", String.valueOf(activeStatus)));
+        	throw new CustomBadRequestException(
+					String.format("Invalid Active/In-active status value= [%s]", activeStatus));
+        }
 		// Update fields for existing Legal Entity App
 		legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
 		legalEntityAppToUpdate.setIsActive(legalEntityAppResource.getIsActive());
@@ -249,5 +264,13 @@ public class LegalEntityAppService {
 		}
 	
 		throw new CustomException("User don't have permission to get all legal entity");
+	}
+	
+	private boolean isValidStatus(Short activeStatus) {
+		boolean bad=false;//Starts false-will change to true if the input is bad
+		    if(!(activeStatus==0 || activeStatus==1)){//if c isn't 0 or 1
+		       bad=true;
+		    }
+		    return bad;
 	}
 }
