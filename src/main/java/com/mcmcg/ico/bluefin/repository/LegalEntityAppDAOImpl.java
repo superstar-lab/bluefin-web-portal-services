@@ -119,11 +119,13 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 	public List<LegalEntityApp> findAll(List<Long> legalEntityAppIds) {
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
 		Map<String, List<Long>> map = Collections.singletonMap("legalEntityAppIds", legalEntityAppIds);
-		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPSBYIDS,
-				map, new LegalEntityAppRowMapper());
-
+		
+		List<LegalEntityApp> legalEntityApps = new ArrayList<>();
+		if (!map.isEmpty()) {
+			legalEntityApps = namedParameterJdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPSBYIDS,
+					map, new LegalEntityAppRowMapper());
+		}
 		LOGGER.debug("Number of rows ={}",legalEntityApps.size());
-
 		return legalEntityApps;
 	}
 
