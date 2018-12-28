@@ -102,6 +102,9 @@ public class LegalEntityAppService {
 			List<Long> legalEntitiesFromUser = list.stream()
 					.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toList());
 			LOGGER.debug("legalEntitiesFromUser size ={} ",legalEntitiesFromUser.size());
+			if(legalEntitiesFromUser.isEmpty()) {
+				return new ArrayList<>();
+			}
 			return legalEntityAppDAO.findAll(legalEntitiesFromUser);
 		}
 	}
