@@ -1,7 +1,7 @@
 package com.mcmcg.ico.bluefin.model;
 
 public enum StatusCode {
-    A("1"), D("2"), E("3");
+    A("1"), D("2"), E("3"), R("5");
 
     private final String code;
 
