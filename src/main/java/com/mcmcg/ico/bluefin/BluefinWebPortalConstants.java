@@ -147,6 +147,8 @@ public class BluefinWebPortalConstants {
 	public static final String REGISTERUSEREMAIL = "REGISTER_USER_EMAIL_LINK";
 	public static final String USERVALUE = "?user=";
 	public static final String TOKENVALUE = "&token=";
+	public static final Short ACTIVELEGALENTITY = 1;
+
 	
 	private BluefinWebPortalConstants(){
 		

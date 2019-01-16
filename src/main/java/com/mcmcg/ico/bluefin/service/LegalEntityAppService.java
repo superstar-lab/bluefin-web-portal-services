@@ -21,6 +21,7 @@ import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.BasicLegalEntityAppResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -71,6 +72,46 @@ public class LegalEntityAppService {
 			return legalEntityAppDAO.findAll(legalEntitiesFromUser);
 		}
 	}
+	
+	
+	
+	public List<LegalEntityApp> getActiveLegalEntities(Authentication authentication) {
+		User user = userDAO.findByUsername(authentication.getName());
+		
+
+		if (user == null) {
+			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
+					authentication.getName());
+			return new ArrayList<>();
+		}
+
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			return legalEntityAppDAO.findAllActive();
+		} else {
+			List<LegalEntityApp> list = new ArrayList<>();
+
+			LOGGER.info("ready to iteration userLegalEntityApp ");
+			for (UserLegalEntityApp userLegalEntityApp : userLegalEntityAppDAO.findByUserId(user.getUserId())) {
+				long legalEntityAppId = userLegalEntityApp.getLegalEntityAppId();
+				LegalEntityApp legalEntity =legalEntityAppDAO.findActiveLegalEntityAppId(legalEntityAppId);
+				if (null != legalEntity) {
+					list.add(legalEntity);
+				}
+
+			}
+			List<Long> legalEntitiesFromUser = list.stream()
+					.map(userLegalEntityApp -> userLegalEntityApp.getLegalEntityAppId()).collect(Collectors.toList());
+			LOGGER.debug("legalEntitiesFromUser size ={} ",legalEntitiesFromUser.size());
+			if(legalEntitiesFromUser.isEmpty()) {
+				return new ArrayList<>();
+			}
+			return legalEntityAppDAO.findAll(legalEntitiesFromUser);
+		}
+	}
+	
+	
+	
+	
 
 	/**
 	 * This method will find a legal entity by its id, not found exception if it
@@ -93,6 +134,7 @@ public class LegalEntityAppService {
 	public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource, String modifiedBy) {
 		LOGGER.info("Entering to create Legal Entity : ");
 		final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
+		final Short activeStatus =legalEntityResource.getIsActive();
 
 		if (existLegalEntityAppName(newLegalEntityAppName)) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
@@ -103,14 +145,21 @@ public class LegalEntityAppService {
 			throw new CustomBadRequestException(
 					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
 		}
-
+		if(isInValidStatus(activeStatus)){
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					"Invalid Active/In-active status value : ", String.valueOf(activeStatus)));
+        	throw new CustomBadRequestException(
+					String.format("Invalid Active/In-active status value= [%s]", activeStatus));
+        }
 		return legalEntityAppDAO.saveLegalEntityApp(legalEntityResource.toLegalEntityApp(), modifiedBy);
 	}
 
 	public LegalEntityApp updateLegalEntityApp(Long id, BasicLegalEntityAppResource legalEntityAppResource,
 			String modifiedBy) {
 		LegalEntityApp legalEntityAppToUpdate = legalEntityAppDAO.findByLegalEntityAppId(id);
-
+        final Short activeStatus =legalEntityAppResource.getIsActive();
 		LOGGER.debug("legalEntityAppToUpdate ={} ",legalEntityAppToUpdate);
 		if (legalEntityAppToUpdate == null) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
@@ -120,9 +169,18 @@ public class LegalEntityAppService {
 			
 			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
 		}
-
+		if(isInValidStatus(activeStatus)){
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					"Invalid Active/In-active status value : ", String.valueOf(activeStatus)));
+        	throw new CustomBadRequestException(
+					String.format("Invalid Active/In-active status value= [%s]", activeStatus));
+        }
 		// Update fields for existing Legal Entity App
 		legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
+		legalEntityAppToUpdate.setIsActive(legalEntityAppResource.getIsActive());
+		legalEntityAppToUpdate.setPrNumber(legalEntityAppResource.getPrNumber());
 
 		return legalEntityAppDAO.updateLegalEntityApp(legalEntityAppToUpdate, modifiedBy);
 	}
@@ -189,5 +247,33 @@ public class LegalEntityAppService {
 
 	private boolean existLegalEntityAppName(String legalEntityAppName) {
 		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
+	}
+	
+	public LegalEntityApp getLegalEntityAppName(String legalEntityAppName) {
+		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName);
+	}
+	
+	public List<LegalEntityApp> getAllLegalEntities(Authentication authentication) {
+
+		User user = userDAO.findByUsername(authentication.getName());
+		if (user == null) {
+			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
+					authentication.getName());
+			return new ArrayList<>();
+		}
+
+		if (sessionService.sessionHasPermissionToManageAllLegalEntities(authentication) || sessionService.hasPermissionToManageAllUser(authentication)) {
+			return legalEntityAppDAO.findAll();
+		}
+	
+		throw new CustomException("User don't have permission to get all legal entity");
+	}
+	
+	private boolean isInValidStatus(Short activeStatus) {
+		boolean bad=false;//Starts false-will change to true if the input is bad
+		    if(!(activeStatus==0 || activeStatus==1)){//if c isn't 0 or 1
+		       bad=true;
+		    }
+		    return bad;
 	}
 }

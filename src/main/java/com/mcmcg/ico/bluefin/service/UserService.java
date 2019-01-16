@@ -668,11 +668,7 @@ public class UserService {
 	}
 	
 	public List<UserPasswordHistory> getPasswordHistory(final Long userId) {
-		List<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId);
-		if (userList.size()<0) {
-			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
-		}
-		return userList;
+		return userDAO.getPasswordHistoryById(userId);
 	}
 	
 	/**public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId, int limit) {

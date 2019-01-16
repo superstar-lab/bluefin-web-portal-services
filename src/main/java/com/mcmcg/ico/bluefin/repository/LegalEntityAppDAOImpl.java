@@ -74,10 +74,40 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		}
 
 	}
+	
+	@Override
+	public LegalEntityApp findActiveLegalEntityAppId(Long legalEntityAppId) {
+		LegalEntityApp legalEntityApp = null;
+		try {
+			legalEntityApp = jdbcTemplate.queryForObject(Queries.FINDBYLEGALENTITYAPPIDACTIVE, new Object[] { legalEntityAppId, BluefinWebPortalConstants.ACTIVELEGALENTITY },
+					new LegalEntityAppRowMapper());
+			if ( LOGGER.isDebugEnabled() ) {
+				LOGGER.debug("legalEntityApp: ={}", legalEntityApp);
+			}
+			return legalEntityApp;
+		} catch (EmptyResultDataAccessException e) {
+			if ( LOGGER.isDebugEnabled() ) {
+        		LOGGER.debug("No record found for legal entity app id = {}",legalEntityAppId,e);
+        	}
+			return null;
+		}
+
+	}
 
 	@Override
 	public List<LegalEntityApp> findAll() {
 		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPS,
+				new LegalEntityAppRowMapper());
+
+		LOGGER.debug("Number of rows ={}", legalEntityApps.size());
+
+		return legalEntityApps;
+	}
+	
+
+	@Override
+	public List<LegalEntityApp> findAllActive() {
+		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLACTIVELEGALENTITYAPPS,
 				new LegalEntityAppRowMapper());
 
 		LOGGER.debug("Number of rows ={}", legalEntityApps.size());
@@ -122,6 +152,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, legalEntityApp.getModifiedBy()); // ModifiedBy
 				ps.setShort(5, legalEntityApp.getIsActive()); // IsActive
+				ps.setString(6, legalEntityApp.getPrNumber()); //PRNumber
 				return ps;
 		}, holder);
 
@@ -159,7 +190,9 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setShort(2, legalEntityApp.getIsActive()); // IsActive
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, modifiedBy); // ModifiedBy
-				ps.setLong(5, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
+				ps.setString(5, legalEntityApp.getPrNumber()); //PRNumber
+				ps.setLong(6, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
+				
 				return ps;
 		}, holder);
 
@@ -216,6 +249,9 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 		}
 		legalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
 		legalEntityApp.setIsActive(rs.getShort("IsActive"));
+		if(rs.getString("PRNUMBER") != null) {
+			legalEntityApp.setPrNumber(rs.getString("PRNUMBER"));
+		}
 
 		return legalEntityApp;
 	}

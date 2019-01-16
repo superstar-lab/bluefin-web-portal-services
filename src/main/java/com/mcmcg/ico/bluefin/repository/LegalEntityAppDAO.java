@@ -10,6 +10,8 @@ public interface LegalEntityAppDAO {
 	LegalEntityApp findByLegalEntityAppName(String legalEntityAppName);
 
 	LegalEntityApp findByLegalEntityAppId(Long legalEntityAppId);
+	
+	LegalEntityApp findActiveLegalEntityAppId(Long legalEntityAppId);
 
 	List<LegalEntityApp> findAll();
 
@@ -22,4 +24,6 @@ public interface LegalEntityAppDAO {
 	void deleteLegalEntityApp(LegalEntityApp legalEntityAppToDelete);
 
 	void createLegalEntityApps(Collection<UserLegalEntityApp> legalEntities);
+
+	List<LegalEntityApp> findAllActive();
 }

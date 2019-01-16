@@ -73,6 +73,29 @@ public class LegalEntityAppRestController {
         return legalEntityAppService.getLegalEntities(authentication);
     }
 
+    
+   @ApiOperation(value = "getActiveLegalEntities", nickname = "getActiveLegalEntities")
+    @RequestMapping(method = RequestMethod.GET,value="/active", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public List<LegalEntityApp> getActiveLegalEntities(@ApiIgnore Authentication authentication) {
+        LOGGER.info("Getting all legal entities");
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        return legalEntityAppService.getActiveLegalEntities(authentication);
+    }
+    
+    
+    
+    
+    
+    
     @ApiOperation(value = "createLegalEntityApp", nickname = "createLegalEntityApp")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -85,6 +108,7 @@ public class LegalEntityAppRestController {
     public ResponseEntity<LegalEntityApp> create(
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
+    	final Short activeStatus=legalEntityResource.getIsActive();
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -96,6 +120,13 @@ public class LegalEntityAppRestController {
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
+        }
+        if(activeStatus==null){
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+        			"Active/In-active status cannot be null");
+        	throw new CustomBadRequestException("Active/In-active status cannot be null");
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
@@ -117,6 +148,7 @@ public class LegalEntityAppRestController {
     public LegalEntityApp update(@PathVariable Long id,
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
+    	final Short activeStatus=legalEntityAppToUpdate.getIsActive();
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
@@ -127,6 +159,13 @@ public class LegalEntityAppRestController {
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
+        }
+        if(activeStatus==null){
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+        			"Active/In-active status cannot be null");
+        	throw new CustomBadRequestException("Active/In-active status cannot be null");
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
@@ -153,5 +192,22 @@ public class LegalEntityAppRestController {
         LOGGER.debug("Legal Entity {} has been deleted.", id);
 
         return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+    }
+    
+    @ApiOperation(value = "getAllLegalEntities", nickname = "getAllLegalEntities")
+    @RequestMapping(method = RequestMethod.GET, value = "/all", produces = "application/json")
+    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = LegalEntityApp.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+    public List<LegalEntityApp> getAllLegalEntity(@ApiIgnore Authentication authentication) {
+        LOGGER.info("Fetching all legal entities");
+        if (authentication == null) {
+            throw new AccessDeniedException("An authorization token is required to request this resource");
+        }
+        return legalEntityAppService.getAllLegalEntities(authentication);
     }
 }

@@ -216,7 +216,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				while (rs.next()) {
 					finalCount = rs.getInt(1);
 					logger.debug("finalCount= {}", finalCount);
-					break;
+					if(finalCount >= 0) {
+						break;
+					}
 				}
 				return finalCount;
 		});
@@ -1318,7 +1320,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySb.append(
 				"NULL AS SaleAddress2,NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,NULL AS SaleCardNumberFirst6Char,");
 		querySb.append(
-				"st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");
+				/*"st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");*/
+	            "st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,st1.ExpiryDate AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");
 		querySb.append(
 				"st1.LegalEntityApp AS SaleLegalEntityApp,st1.AccountId AS SaleAccountId,rt.ApplicationTransactionID AS SaleApplicationTransactionID,rt.MerchantID AS SaleMerchantID,");
 		querySb.append(

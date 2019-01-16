@@ -13,7 +13,9 @@ public class LegalEntityApp extends Common implements Serializable {
 	private Long legalEntityAppId;
 	private String legalEntityAppName;
 		
-	private Short isActive = 1;
+	private Short isActive ;
+	
+	private String prNumber;
 
 	public LegalEntityApp() {
 		// Default constructor
