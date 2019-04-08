@@ -2,8 +2,6 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,7 +62,7 @@ public class TransactionsRestController {
 	}
 
 	@ApiOperation(value = "getTransactions", nickname = "getTransactions")
-	@RequestMapping(method = {RequestMethod.GET, RequestMethod.POST}, produces = "application/json")
+	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
@@ -76,18 +73,13 @@ public class TransactionsRestController {
 	public String get(@RequestParam(value = "search", required = true) String search,
 			@RequestParam(value = "page", required = true) Integer page,
 			@RequestParam(value = "size", required = true) Integer size,
-			@RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication,
-			HttpServletRequest request)
+			@RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication)
 			throws JsonProcessingException {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
 		LOGGER.debug("get Transactions servive");
 		String searchValue;
-		if (request instanceof MultipartHttpServletRequest) {
-			MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-	    }
-		
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			searchValue = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
