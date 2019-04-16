@@ -105,6 +105,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.LEGALENTITY, ":prefix.LegalEntityApp IN (:legalEntityParam1)");
 		predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
+		predicatesHashMapping.put("accountNumbers", ":prefix.AccountId in (:accountNumbersParam1)");
 		predicatesHashMapping.put("application", ":prefix.Application = :applicationParam1");
 		predicatesHashMapping.put("processUser", ":prefix.ProcessUser = :processUserParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.BATCHUPLOADID, ":prefix.BatchUploadID = :batchUploadIdParam1"); // This is ONLY for sale
@@ -716,6 +717,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	private void populateRefundOrVoidTypeAttributesFilterNames(){
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountNumber"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountNumbers"));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.AMOUNT));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("cardType"));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.LEGALENTITY));

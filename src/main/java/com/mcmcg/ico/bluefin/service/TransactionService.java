@@ -1,8 +1,12 @@
 package com.mcmcg.ico.bluefin.service;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mcmcg.ico.bluefin.model.BinDBDetails;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
@@ -48,6 +53,7 @@ import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.VoidTransactionDAO;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
@@ -527,4 +533,48 @@ public class TransactionService {
 		}
 		return transactionTypeVal;
 	}
+
+	public String getAccountListFromFile(MultipartFile[] filesArray) {
+		System.out.println("filesArray.length= "+filesArray.length);
+		if (filesArray.length != 1) {
+            throw new CustomBadRequestException("A file must be uploded");
+        }
+        MultipartFile multipartFile = filesArray[0];
+        List<String> accountList= new ArrayList<>();
+        String accountString="";
+        try{
+        byte[] content = multipartFile.getBytes();
+        InputStream is = null;
+        BufferedReader bfReader = null;
+        try {
+        is = new ByteArrayInputStream(content);
+        bfReader = new BufferedReader(new InputStreamReader(is));
+        String temp = null;
+        int index =0;
+        while((temp = bfReader.readLine()) != null){
+        	if(index!=0){
+        String[] cells = temp.split(",");
+        System.out.println(cells[0]);
+        accountList.add(cells[0]);
+        }
+        	index++;	
+        }
+        if(accountList!=null && accountList.size()>0){
+        	accountString=String.join(",", accountList);
+        }
+        } catch (IOException e) {
+        e.printStackTrace();
+        } finally {
+        try{
+        if(is != null) is.close();
+        } catch (Exception ex)
+        {
+        	
+        }
+         }}
+        catch (Exception e) {
+			e.printStackTrace();
+		}
+        return accountString;
+        }
 }
