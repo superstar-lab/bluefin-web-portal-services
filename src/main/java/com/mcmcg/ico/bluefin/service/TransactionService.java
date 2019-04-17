@@ -185,6 +185,24 @@ public class TransactionService {
 		LOGGER.debug("result :={} ",result);
 		return result;
 	}
+	
+	public Iterable<SaleTransaction> getTransactionsWithMultipleAccount(String search,boolean fileFlag, String accountList, PageRequest paging) {
+		Page<SaleTransaction> result;
+		try {
+			result = customSaleTransactionDAO.findTransactionWithMultipleAccount(search, fileFlag, accountList, paging);
+		} catch (ParseException e) {
+			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
+		}
+		final int page = paging.getPageNumber();
+
+		if (page > result.getTotalPages() && page != 0) {
+			LOGGER.error("Unable to find the page requested");
+			throw new CustomNotFoundException("Unable to find the page requested");
+		}
+
+		LOGGER.debug("result :={} ",result);
+		return result;
+	}
 
 	public List<LegalEntityApp> getLegalEntitiesFromUser(String username) {
 		User user = userDAO.findByUsername(username);
@@ -535,46 +553,46 @@ public class TransactionService {
 	}
 
 	public String getAccountListFromFile(MultipartFile[] filesArray) {
-		System.out.println("filesArray.length= "+filesArray.length);
+		System.out.println("filesArray.length= " + filesArray.length);
 		if (filesArray.length != 1) {
-            throw new CustomBadRequestException("A file must be uploded");
-        }
-        MultipartFile multipartFile = filesArray[0];
-        List<String> accountList= new ArrayList<>();
-        String accountString="";
-        try{
-        byte[] content = multipartFile.getBytes();
-        InputStream is = null;
-        BufferedReader bfReader = null;
-        try {
-        is = new ByteArrayInputStream(content);
-        bfReader = new BufferedReader(new InputStreamReader(is));
-        String temp = null;
-        int index =0;
-        while((temp = bfReader.readLine()) != null){
-        	if(index!=0){
-        String[] cells = temp.split(",");
-        System.out.println(cells[0]);
-        accountList.add(cells[0]);
-        }
-        	index++;	
-        }
-        if(accountList!=null && accountList.size()>0){
-        	accountString=String.join(",", accountList);
-        }
-        } catch (IOException e) {
-        e.printStackTrace();
-        } finally {
-        try{
-        if(is != null) is.close();
-        } catch (Exception ex)
-        {
-        	
-        }
-         }}
-        catch (Exception e) {
+			throw new CustomBadRequestException("A file must be uploded");
+		}
+		MultipartFile multipartFile = filesArray[0];
+		List<String> accountList = new ArrayList<>();
+		String accountString = "";
+		try {
+			byte[] content = multipartFile.getBytes();
+			InputStream is = null;
+			BufferedReader bfReader = null;
+			try {
+				is = new ByteArrayInputStream(content);
+				bfReader = new BufferedReader(new InputStreamReader(is));
+				String temp = null;
+				int index = 0;
+				while ((temp = bfReader.readLine()) != null) {
+					if (index != 0) {
+						String[] cells = temp.split(",");
+						System.out.println(cells[0]);
+						accountList.add(cells[0]);
+					}
+					index++;
+				}
+				if (accountList != null && accountList.size() > 0) {
+					accountString = String.join(",", accountList);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (is != null)
+						is.close();
+				} catch (Exception ex) {
+
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        return accountString;
-        }
+		return accountString;
+	}
 }

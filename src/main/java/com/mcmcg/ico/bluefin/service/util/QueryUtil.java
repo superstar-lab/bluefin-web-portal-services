@@ -26,9 +26,9 @@ public class QueryUtil {
 	public static final String SORT_REGEX = "(\\w+?)(:)(\\w+?),";
 	public static final String EMAIL_PATTERN = "[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
-	//public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|-|\\w)*";
+	public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|-|\\w)*";
 	//public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|\\,|-|\\w)*";
-	public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|\\,|\\','|-|\\w)*";
+	//public static final String WORD_REGEX = "\\w+(\\s|\\.|\\'|\\,|\\','|-|\\w)*";
 	public static final String DECIMAL_NUMBER_REGEX = "\\d+(?:\\.\\d+)?";
 	public static final String ANY_LIST_REGEX = "\\[(.*?)\\]";
 	public static final String INTEGER_LIST_REGEX = "\\[\\d[\\d,\\s*]*\\]";

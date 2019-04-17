@@ -111,6 +111,7 @@ public class TransactionsRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public String post(MultipartHttpServletRequest request,@RequestParam(value = "search", required = true) String search,
+			@RequestParam(value = "fileFlag", required = true) boolean fileFlag,
 			@RequestParam(value = "page", required = true) Integer page,
 			@RequestParam(value = "size", required = true) Integer size,
 			@RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication)
@@ -129,7 +130,6 @@ public class TransactionsRestController {
 			searchValue = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
 		} else {
 			searchValue = search;
-			searchValue = searchValue + accountList;
 		}
 
 		LOGGER.info("Generating Report with the following filters= {}", searchValue);
@@ -139,7 +139,7 @@ public class TransactionsRestController {
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(searchValue, QueryUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactionsWithMultipleAccount(searchValue, fileFlag, accountList, QueryUtil.getPageRequest(page, size, sort)));
 	}
 	
 	 private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {
