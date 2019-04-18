@@ -12,9 +12,7 @@ import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
 public interface CustomSaleTransactionDAO  {
-	public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException;
-	
-	public Page<SaleTransaction> findTransactionWithMultipleAccount(String search, boolean fileFlag, String accountList, PageRequest page) throws ParseException;
+	public Page<SaleTransaction> findTransaction(String search,List<String> accountList, PageRequest page) throws ParseException;
 
 	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException;
 

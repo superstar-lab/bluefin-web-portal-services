@@ -168,28 +168,12 @@ public class TransactionService {
 		return tranResult;
 	}
 
-	public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
-		Page<SaleTransaction> result;
-		try {
-			result = customSaleTransactionDAO.findTransaction(search, paging);
-		} catch (ParseException e) {
-			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
-		}
-		final int page = paging.getPageNumber();
-
-		if (page > result.getTotalPages() && page != 0) {
-			LOGGER.error("Unable to find the page requested");
-			throw new CustomNotFoundException("Unable to find the page requested");
-		}
-
-		LOGGER.debug("result :={} ",result);
-		return result;
-	}
 	
-	public Iterable<SaleTransaction> getTransactionsWithMultipleAccount(String search,boolean fileFlag, String accountList, PageRequest paging) {
+	
+	public Iterable<SaleTransaction> getTransactions(String search,List<String> accountList, PageRequest paging) {
 		Page<SaleTransaction> result;
 		try {
-			result = customSaleTransactionDAO.findTransactionWithMultipleAccount(search, fileFlag, accountList, paging);
+			result = customSaleTransactionDAO.findTransaction(search, accountList, paging);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
@@ -594,5 +578,48 @@ public class TransactionService {
 			e.printStackTrace();
 		}
 		return accountString;
+	}
+	
+	
+	public List<String> getAccountsListFromFile(MultipartFile[] filesArray) {
+		System.out.println("filesArray.length= " + filesArray.length);
+		if (filesArray.length != 1) {
+			throw new CustomBadRequestException("A file must be uploded");
+		}
+		MultipartFile multipartFile = filesArray[0];
+		List<String> accountList = new ArrayList<>();
+		String accountString = "";
+		try {
+			byte[] content = multipartFile.getBytes();
+			InputStream is = null;
+			BufferedReader bfReader = null;
+			try {
+				is = new ByteArrayInputStream(content);
+				bfReader = new BufferedReader(new InputStreamReader(is));
+				String temp = null;
+				int index = 0;
+				while ((temp = bfReader.readLine()) != null) {
+					if (index != 0) {
+						String[] cells = temp.split(",");
+						System.out.println(cells[0]);
+						accountList.add(cells[0]);
+					}
+					index++;
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (is != null)
+						is.close();
+				} catch (Exception ex) {
+
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return accountList;
 	}
 }
