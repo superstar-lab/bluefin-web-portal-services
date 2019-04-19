@@ -122,7 +122,7 @@ public class TransactionsRestController {
 		LOGGER.debug("get Transactions servive");
 		Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
-		List<String> accountList= transactionService.getAccountsListFromFile(filesArray);
+		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());

@@ -535,54 +535,8 @@ public class TransactionService {
 		}
 		return transactionTypeVal;
 	}
-
-	public String getAccountListFromFile(MultipartFile[] filesArray) {
-		System.out.println("filesArray.length= " + filesArray.length);
-		if (filesArray.length != 1) {
-			throw new CustomBadRequestException("A file must be uploded");
-		}
-		MultipartFile multipartFile = filesArray[0];
-		List<String> accountList = new ArrayList<>();
-		String accountString = "";
-		try {
-			byte[] content = multipartFile.getBytes();
-			InputStream is = null;
-			BufferedReader bfReader = null;
-			try {
-				is = new ByteArrayInputStream(content);
-				bfReader = new BufferedReader(new InputStreamReader(is));
-				String temp = null;
-				int index = 0;
-				while ((temp = bfReader.readLine()) != null) {
-					if (index != 0) {
-						String[] cells = temp.split(",");
-						System.out.println(cells[0]);
-						accountList.add(cells[0]);
-					}
-					index++;
-				}
-				if (accountList != null && accountList.size() > 0) {
-					accountString = String.join(",", accountList);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					if (is != null)
-						is.close();
-				} catch (Exception ex) {
-
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return accountString;
-	}
 	
-	
-	public List<String> getAccountsListFromFile(MultipartFile[] filesArray) {
-		System.out.println("filesArray.length= " + filesArray.length);
+	public List<String> getAccountListFromFile(MultipartFile[] filesArray) {
 		if (filesArray.length != 1) {
 			throw new CustomBadRequestException("A file must be uploded");
 		}
@@ -608,17 +562,17 @@ public class TransactionService {
 				}
 				
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.error("Exception occurs while parsing");
 			} finally {
 				try {
 					if (is != null)
 						is.close();
 				} catch (Exception ex) {
-
+					LOGGER.error("Exception occurs while parsing");
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Exception occurs while parsing");
 		}
 		return accountList;
 	}
