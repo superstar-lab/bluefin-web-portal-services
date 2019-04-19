@@ -104,7 +104,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		predicatesHashMapping.put("lastName", ":prefix.LastName LIKE :lastNameParam1");
 		predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.LEGALENTITY, ":prefix.LegalEntityApp IN (:legalEntityParam1)");
-		predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
+		predicatesHashMapping.put("accountNumber", ":prefix.AccountId = (:accountNumberParam1)");
 		predicatesHashMapping.put("accountList", ":prefix.AccountId in (:accountListParam1)");
 		predicatesHashMapping.put("application", ":prefix.Application = :applicationParam1");
 		predicatesHashMapping.put("processUser", ":prefix.ProcessUser = :processUserParam1");
@@ -197,7 +197,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.info("Fetching Transactions, Search  Value {} , page{} ",search,page); 
 		HashMap<String, Object> dynamicParametersMap = new HashMap<> ();
 		String query = getQueryByCriteria(search,accountList, dynamicParametersMap);
-		System.out.println(query);
 		logger.debug(" Query={}", query);
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
 		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
@@ -412,7 +411,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					continue;
 				}
 				WhereCalValues whereCalValues ;
-                if(value.equals("file")){
+                if(StringUtils.isNotBlank(attribute) && attribute.equals("accountList") && value.equals("file")){
                 whereCalValues = new WhereCalValues(attribute,prefix,value,accountList,attributeParam,operator,predicate);
                 calculateValues(whereCalValues,dynamicParametersMap);
 
