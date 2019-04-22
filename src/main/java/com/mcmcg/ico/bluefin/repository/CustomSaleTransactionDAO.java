@@ -14,7 +14,7 @@ import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 public interface CustomSaleTransactionDAO  {
 	public Page<SaleTransaction> findTransaction(String search,List<String> accountList, PageRequest page) throws ParseException;
 
-	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException;
+	public List<SaleTransaction> findTransactionsReport(String search,List<String> accountList) throws ParseException;
 
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest page,
 			boolean negate) throws ParseException ;

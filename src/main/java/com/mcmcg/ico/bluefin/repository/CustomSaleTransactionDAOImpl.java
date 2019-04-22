@@ -128,10 +128,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	@Override
-	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
+	public List<SaleTransaction> findTransactionsReport(String search,List<String> accountList) throws ParseException {
 		logger.debug("Executing findTransactionsReport , Search Value {}",search);
 		HashMap<String, Object> dynamicParametersMap = new HashMap<> ();
-		String query = getQueryByCriteria(search, null, dynamicParametersMap);
+		String query = getQueryByCriteria(search, accountList, dynamicParametersMap);
 		logger.debug("Dynamic Query {}", query);
 		
 		Map<String, CustomQuery> queriesMap = createQueries(query, null,dynamicParametersMap);

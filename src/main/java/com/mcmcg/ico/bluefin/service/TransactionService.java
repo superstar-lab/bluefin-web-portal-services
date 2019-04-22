@@ -220,14 +220,14 @@ public class TransactionService {
 		}
 	}
 	
-	public File getTransactionsReport(String search, String timeZone) throws IOException {
+	public File getTransactionsReport(String search,List<String> accountList, String timeZone) throws IOException {
 		List<SaleTransaction> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		LOGGER.debug("ReportPath : {}",reportPath);
 		File file;
 		try {
-			result = customSaleTransactionDAO.findTransactionsReport(search);
+			result = customSaleTransactionDAO.findTransactionsReport(search, accountList);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
@@ -555,6 +555,9 @@ public class TransactionService {
 				while ((temp = bfReader.readLine()) != null) {
 					if (index != 0) {
 						String[] cells = temp.split(",");
+						System.out.println(cells[0]);
+					//	cells[0] = cells[0].replace("'","");
+						cells[0]= cells[0].replaceAll("\"","\\\\\"");
 						System.out.println(cells[0]);
 						accountList.add(cells[0]);
 					}

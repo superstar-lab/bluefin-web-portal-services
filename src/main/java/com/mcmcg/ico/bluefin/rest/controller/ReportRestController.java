@@ -3,6 +3,8 @@ package com.mcmcg.ico.bluefin.rest.controller;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
@@ -77,7 +81,47 @@ public class ReportRestController {
 			searchValue = search;
 		}
 		try {
-			File downloadFile = transactionService.getTransactionsReport(searchValue, timeZone);
+			File downloadFile = transactionService.getTransactionsReport(searchValue, null, timeZone);
+			
+			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+			
+		}
+		catch(Exception e) {
+			LOGGER.error("An error occured to during downloading file="+e);
+			throw new CustomException("An error occured to during downloading file.");
+		}
+	}
+	
+	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
+	@RequestMapping(method = RequestMethod.POST, value = "/transactions")
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getTransactionsReport(MultipartHttpServletRequest request,
+			@RequestParam(value = "search", required = true) String search,
+			@RequestParam(value = "timeZone", required = true) String timeZone,
+			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
+		if (authentication == null) {
+			throw new AccessDeniedException("An authorization token is required to request this resource");
+		}
+		
+		LOGGER.debug("search ={} ",search);
+		Map<String, MultipartFile> filesMap = request.getFileMap();
+        MultipartFile[] filesArray = getFilesArray(filesMap);
+		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
+		String searchValue;
+		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
+			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
+			searchValue = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
+		} else {
+			searchValue = search;
+		}
+		try {
+			File downloadFile = transactionService.getTransactionsReport(searchValue, accountList, timeZone);
 			
 			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
@@ -185,4 +229,18 @@ public class ReportRestController {
 			throw new CustomException("An error occured to during getBatchUploadTransactionsReport file.");
 		}
 	}
+	
+	 private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {
+	        Set<String> keysSet = filesMap.keySet();
+	        MultipartFile[] fileArray = new MultipartFile[keysSet.size()];
+	        int i = 0;
+	        for (String key : keysSet) {
+	            if (key.indexOf("file") != -1) {
+	                fileArray[i] = filesMap.get(key);
+	                i++;
+	            }
+	        }
+	        return fileArray;
+
+	    }
 }
