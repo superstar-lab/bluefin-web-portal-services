@@ -1149,13 +1149,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySbPart1.append(getPaymentProcessorRemittanceAndSaleQuery());
 		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
 		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-		querySbPart1.append("AND (ppr.TransactionType = 'SALE') ");
+		querySbPart1.append("AND (ppr.TransactionType in ('SALE', 'settle')) ");
 		querySbPart1.append("AND (st.TestMode = " + testOrProd + " OR st.TestMode IS NULL) ");
 		querySbPart1.append(BluefinWebPortalConstants.UNION);
 		querySbPart1.append(getPaymentProcessorRemittanceAndRefundQuery());
 		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
 		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
-		querySbPart1.append("AND (ppr.TransactionType = 'REFUND') ");
+		querySbPart1.append("AND (ppr.TransactionType in ('REFUND')) ");
 		querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
 		logger.debug("Query (part 1): {} " , querySbPart1);
 	}
@@ -1444,6 +1444,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			break;
 		case SALE:
 		case TOKENIZE:
+		case SETTLE:
 		default:
 			prepareForDefault(querySb,transactionId,processorTransactionType);
 		}

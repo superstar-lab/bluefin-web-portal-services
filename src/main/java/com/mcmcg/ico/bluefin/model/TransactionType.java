@@ -11,7 +11,7 @@ public class TransactionType extends Common implements Serializable {
 	private static final long serialVersionUID = -1192867359830305926L;
 
 	public enum TransactionTypeCode {
-		SALE("SALE"), VOID("VOID"), REFUND("REFUND"), REMITTANCE("REMITTANCE"), TOKENIZE("TOKENIZE");
+		SALE("SALE"), VOID("VOID"), REFUND("REFUND"), REMITTANCE("REMITTANCE"), TOKENIZE("TOKENIZE"),SETTLE("SETTLE"),;
 
 		private final String type;
 
