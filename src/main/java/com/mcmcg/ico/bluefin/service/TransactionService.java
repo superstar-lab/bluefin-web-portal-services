@@ -559,6 +559,7 @@ public class TransactionService {
 						String[] cells = temp.split(",");
 						for(String cell:cells){
 						if(cell!=null &&  StringUtils.isNotBlank(cell))
+						{
 							cell = cell.replaceAll("^\"|\"$", "");
 					      	cell = cell.replaceAll("\'","");
 					      	if(cell.equalsIgnoreCase("accountId")){
@@ -566,6 +567,7 @@ public class TransactionService {
 					      		break;
 					      	}
 					      	columnIndex++;
+						}
 					}
 					}
 					else{
@@ -598,7 +600,6 @@ public class TransactionService {
 						is.close();
 				} catch (Exception ex) {
 					LOGGER.error("Exception occurs while parsing");
-					throw new CustomException("An error occured while parsing the account number file.");
 				}
 			}
 		} catch (Exception e) {
