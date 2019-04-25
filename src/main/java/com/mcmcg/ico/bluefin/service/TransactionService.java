@@ -619,9 +619,10 @@ public class TransactionService {
 		}
 		MultipartFile multipartFile = filesArray[0];
 		List<String> accountList = new ArrayList<>();
+		InputStreamReader input =null;
 		int rowIndex=2;
 		try{
-		    InputStreamReader input = new InputStreamReader(multipartFile.getInputStream());  
+		    input = new InputStreamReader(multipartFile.getInputStream());  
 		    CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);  
 		    for(CSVRecord csvRecord:parser){
 		    	String value= csvRecord.get("AccountNumber");
@@ -637,6 +638,15 @@ public class TransactionService {
 		catch (Exception e) {
 			LOGGER.error("Exception occurs while parsing");
 			throw new CustomException("An error occured while parsing the account number file.");
+		}
+		finally {
+			try {
+				if (input != null)
+					input.close();
+			} catch (Exception ex) {
+				LOGGER.error("Exception occurs while parsing");
+				throw new CustomException("An error occured while parsing the account number file.");
+			}
 		}
 		    return accountList;
 	}
