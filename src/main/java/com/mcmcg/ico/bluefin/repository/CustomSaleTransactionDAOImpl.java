@@ -412,13 +412,12 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				}
 				WhereCalValues whereCalValues ;
                 if(StringUtils.isNotBlank(attribute) && attribute.equals("accountNumber") && value.equals("file") ){
-                	if(accountList!=null){
                 whereCalValues = new WhereCalValues(attribute,prefix,value,accountList,attributeParam,operator,predicate);
                 calculateValues(whereCalValues,dynamicParametersMap);
 
 				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
 				dynamicParametersMap.put(whereCalValues.getAttributeParam(), whereCalValues.getAccountList());
-                }}
+                }
                 else{
 				whereCalValues = new WhereCalValues(attribute,prefix,value,accountList,attributeParam,operator,predicate);
 				calculateValues(whereCalValues,dynamicParametersMap);

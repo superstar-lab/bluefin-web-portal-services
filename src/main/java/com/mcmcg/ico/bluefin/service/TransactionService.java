@@ -7,7 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +18,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -536,7 +540,7 @@ public class TransactionService {
 		return transactionTypeVal;
 	}
 	
-	public List<String> getAccountListFromFile(MultipartFile[] filesArray) {
+	public List<String> getAccountListFromAccFile(MultipartFile[] filesArray) {
 		if (filesArray.length != 1) {
 			throw new CustomBadRequestException("A file must be uploded");
 		}
@@ -608,4 +612,33 @@ public class TransactionService {
 		}
 		return accountList;
 	}
+	
+	public List<String> getAccountListFromFile(MultipartFile[] filesArray) { 
+		if (filesArray.length != 1) {
+			throw new CustomBadRequestException("A file must be uploded");
+		}
+		MultipartFile multipartFile = filesArray[0];
+		List<String> accountList = new ArrayList<>();
+		int rowIndex=2;
+		try{
+		    InputStreamReader input = new InputStreamReader(multipartFile.getInputStream());  
+		    CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);  
+		    for(CSVRecord csvRecord:parser){
+		    	String value= csvRecord.get("AccountNumber");
+		    	value = value.replaceAll("\'","");
+		    	accountList.add(value);
+		    	rowIndex++;
+		    }
+		}
+		catch (IllegalArgumentException e) {
+			LOGGER.error("Exception occurs while parsing row number {}", rowIndex);
+			throw new CustomException("An error occured while parsing the file for row number= "+rowIndex);
+		}
+		catch (Exception e) {
+			LOGGER.error("Exception occurs while parsing");
+			throw new CustomException("An error occured while parsing the account number file.");
+		}
+		    return accountList;
+	}
+		    
 }

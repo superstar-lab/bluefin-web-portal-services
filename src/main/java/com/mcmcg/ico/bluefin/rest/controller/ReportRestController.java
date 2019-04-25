@@ -113,6 +113,10 @@ public class ReportRestController {
 		Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
 		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
+		if(accountList.size()==0){
+	    	LOGGER.error("There is no record exist for this file");
+			throw new CustomException("There is no record exist for this file.");
+	    }
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());

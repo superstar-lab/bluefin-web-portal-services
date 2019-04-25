@@ -25,6 +25,7 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -123,6 +124,10 @@ public class TransactionsRestController {
 		Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
 		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
+		if(accountList.size()==0){
+	    	LOGGER.error("There is no record exist for this file");
+			throw new CustomException("There is no record exist for this file.");
+	    }
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
