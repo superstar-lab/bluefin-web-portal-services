@@ -631,12 +631,8 @@ public class TransactionService {
 		    	rowIndex++;
 		    }
 		}
-		catch (IllegalArgumentException e) {
-			LOGGER.error("Exception occurs while parsing row number {}", rowIndex);
-			throw new CustomException("An error occured while parsing the file for row number= "+rowIndex);
-		}
 		catch (Exception e) {
-			LOGGER.error("Exception occurs while parsing");
+			LOGGER.error("An error occured while parsing the account number file");
 			throw new CustomException("An error occured while parsing the account number file.");
 		}
 		finally {
@@ -644,7 +640,7 @@ public class TransactionService {
 				if (input != null)
 					input.close();
 			} catch (Exception ex) {
-				LOGGER.error("Exception occurs while parsing");
+				LOGGER.error("An error occured while parsing the account number file");
 			}
 		}
 		    return accountList;

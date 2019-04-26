@@ -414,7 +414,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
                 calculateValues(whereCalValues,dynamicParametersMap);
 
 				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
-				dynamicParametersMap.put(whereCalValues.getAttributeParam(),(StringUtils.isNotBlank(attribute) && attribute.equals("accountNumber") && !whereCalValues.getAccountList().isEmpty()) ? whereCalValues.getAccountList() : whereCalValues.getValue());	
+				dynamicParametersMap.put(whereCalValues.getAttributeParam(),(attribute.equals("accountNumber") && !whereCalValues.getAccountList().isEmpty()) ? whereCalValues.getAccountList() : whereCalValues.getValue());	
 			}
 		}
 		return prepareStatementWithWhere(statement);
