@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +86,7 @@ public class TransactionsRestController {
 		}
 		LOGGER.debug("get Transactions servive");
 		String searchValue;
+		List<String> accountList= new ArrayList<>(); 
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			searchValue = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
@@ -99,7 +101,7 @@ public class TransactionsRestController {
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(searchValue,null, QueryUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(searchValue,accountList, QueryUtil.getPageRequest(page, size, sort)));
 	}
 	
 	@ApiOperation(value = "getTransactions", nickname = "getTransactions")

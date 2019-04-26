@@ -341,9 +341,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("(SELECT Count(*) FROM Void_Transaction WHERE Saletransactionid = MAINSALE.Saletransactionid AND InternalStatusCode = '1') AS IsVoided,")
 				.append("(SELECT Count(*) FROM Refund_Transaction WHERE Saletransactionid = MAINSALE.Saletransactionid AND InternalStatusCode = '1') AS IsRefunded, ")
 				.append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate, MAINSALE.BatchUploadID ")
-				.append("FROM Sale_Transaction MAINSALE ");
-
-		querySb.append(createWhereStatement(search, accountList, BluefinWebPortalConstants.MAINSALE,dynamicParametersMap));
+				.append("FROM Sale_Transaction MAINSALE ")
+                .append(createWhereStatement(search, accountList, BluefinWebPortalConstants.MAINSALE,dynamicParametersMap));
 		
 
 		return querySb.toString();
@@ -411,21 +410,11 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					continue;
 				}
 				WhereCalValues whereCalValues ;
-                if(StringUtils.isNotBlank(attribute) && attribute.equals("accountNumber") && value.equals("file") ){
                 whereCalValues = new WhereCalValues(attribute,prefix,value,accountList,attributeParam,operator,predicate);
                 calculateValues(whereCalValues,dynamicParametersMap);
 
 				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
-				dynamicParametersMap.put(whereCalValues.getAttributeParam(), whereCalValues.getAccountList());
-                }
-                else{
-				whereCalValues = new WhereCalValues(attribute,prefix,value,accountList,attributeParam,operator,predicate);
-				calculateValues(whereCalValues,dynamicParametersMap);
-
-				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
-				dynamicParametersMap.put(whereCalValues.getAttributeParam(), whereCalValues.getValue());
-                }
-				
+				dynamicParametersMap.put(whereCalValues.getAttributeParam(),(StringUtils.isNotBlank(attribute) && attribute.equals("accountNumber") && !whereCalValues.getAccountList().isEmpty()) ? whereCalValues.getAccountList() : whereCalValues.getValue());	
 			}
 		}
 		return prepareStatementWithWhere(statement);
@@ -804,8 +793,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate,SALEINNERREFUND.BatchUploadID ")
 				.append("FROM Sale_Transaction SALEINNERREFUND ")
 
-				.append(createWhereStatement(search, accountList, BluefinWebPortalConstants.SALEINNERREFUND,dynamicParametersMap));
-		        querySb.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
+				.append(createWhereStatement(search, accountList, BluefinWebPortalConstants.SALEINNERREFUND,dynamicParametersMap))
+		        .append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
 				.append(createWhereStatement(search, accountList, BluefinWebPortalConstants.REFUND,dynamicParametersMap));
 
 		return querySb.toString();
@@ -849,8 +838,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERVOID.Application,SALEINNERVOID.Origin,SALEINNERVOID.AccountPeriod,SALEINNERVOID.Desk,SALEINNERVOID.InvoiceNumber,SALEINNERVOID.UserDefinedField1,")
 				.append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated ")
 				.append("FROM Sale_Transaction SALEINNERVOID ")
-                .append(createWhereStatement(search, accountList, BluefinWebPortalConstants.SALEINNERVOID,dynamicParametersMap));
-                querySb.append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
+                .append(createWhereStatement(search, accountList, BluefinWebPortalConstants.SALEINNERVOID,dynamicParametersMap))
+                .append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
 				.append(createWhereStatement(search, accountList, "VOID",dynamicParametersMap));
 		return querySb.toString();
 

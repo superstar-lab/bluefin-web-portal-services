@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,6 +75,7 @@ public class ReportRestController {
 		
 		LOGGER.debug("search ={} ",search);
 		String searchValue;
+		List<String> accountList= new ArrayList<>();
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			searchValue = QueryDSLUtil.getValidSearchBasedOnLegalEntities(userLE, search);
@@ -81,7 +83,7 @@ public class ReportRestController {
 			searchValue = search;
 		}
 		try {
-			File downloadFile = transactionService.getTransactionsReport(searchValue, null, timeZone);
+			File downloadFile = transactionService.getTransactionsReport(searchValue, accountList, timeZone);
 			
 			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
