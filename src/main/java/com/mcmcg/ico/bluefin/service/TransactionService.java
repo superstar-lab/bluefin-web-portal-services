@@ -620,7 +620,6 @@ public class TransactionService {
 		MultipartFile multipartFile = filesArray[0];
 		List<String> accountList = new ArrayList<>();
 		InputStreamReader input =null;
-		int rowIndex=2;
 		try{
 		    input = new InputStreamReader(multipartFile.getInputStream());  
 		    CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);  
@@ -628,7 +627,6 @@ public class TransactionService {
 		    	String value= csvRecord.get("AccountNumber");
 		    	value = value.replaceAll("\'","");
 		    	accountList.add(value);
-		    	rowIndex++;
 		    }
 		}
 		catch (Exception e) {
