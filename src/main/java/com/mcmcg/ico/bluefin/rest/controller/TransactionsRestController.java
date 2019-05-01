@@ -1,5 +1,6 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -117,7 +118,7 @@ public class TransactionsRestController {
 			@RequestParam(value = "page", required = true) Integer page,
 			@RequestParam(value = "size", required = true) Integer size,
 			@RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication)
-			throws JsonProcessingException {
+			throws IOException {
 		
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");

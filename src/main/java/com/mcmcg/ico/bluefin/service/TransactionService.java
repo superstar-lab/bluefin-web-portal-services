@@ -540,107 +540,25 @@ public class TransactionService {
 		return transactionTypeVal;
 	}
 	
-	public List<String> getAccountListFromAccFile(MultipartFile[] filesArray) {
-		if (filesArray.length != 1) {
-			throw new CustomBadRequestException("A file must be uploded");
-		}
-		MultipartFile multipartFile = filesArray[0];
-		List<String> accountList = null;
-		try {
-			byte[] content = multipartFile.getBytes();
-			InputStream is = null;
-			BufferedReader bfReader = null;
-			try {
-				is = new ByteArrayInputStream(content);
-				bfReader = new BufferedReader(new InputStreamReader(is));
-				String temp = null;
-				int index = 0;
-				int columnIndex=0;
-				boolean columnExistenceFlag=false;
-				while ((temp = bfReader.readLine()) != null) {
-					if(temp.trim().length()>0){
-					if(index == 0){
-						String[] cells = temp.split(",");
-						for(String cell:cells){
-						if(cell!=null &&  StringUtils.isNotBlank(cell))
-						{
-							cell = cell.replaceAll("^\"|\"$", "");
-					      	cell = cell.replaceAll("\'","");
-					      	if(cell.equalsIgnoreCase("accountId")){
-					      		columnExistenceFlag=true;
-					      		break;
-					      	}
-					      	columnIndex++;
-						}
-					}
-					}
-					else{
-						if(columnExistenceFlag){
-							if(accountList==null){
-								accountList=new ArrayList<String>();
-							}
-						String[] cells = temp.split(",");
-						if(cells!=null && cells.length>columnIndex && StringUtils.isNotBlank(cells[columnIndex]))
-						{
-						cells[columnIndex] = cells[columnIndex].replaceAll("^\"|\"$", "");
-						cells[columnIndex] = cells[columnIndex].replaceAll("\'","");
-						accountList.add(cells[columnIndex]);
-						}
-					}
-						else{
-							break;
-						}
-					}
-					index++;
-				}
-					}
-				
-			} catch (IOException e) {
-				LOGGER.error("Exception occurs while parsing");
-				throw new CustomException("An error occured while parsing the account number file.");
-			} finally {
-				try {
-					if (is != null)
-						is.close();
-				} catch (Exception ex) {
-					LOGGER.error("Exception occurs while parsing");
-				}
-			}
-		} catch (Exception e) {
-			LOGGER.error("Exception occurs while parsing");
-			throw new CustomException("An error occured while parsing the account number file.");
-		}
-		return accountList;
-	}
-	
-	public List<String> getAccountListFromFile(MultipartFile[] filesArray) { 
+	public List<String> getAccountListFromFile(MultipartFile[] filesArray) throws IOException { 
 		if (filesArray.length != 1) {
 			throw new CustomBadRequestException("A file must be uploded");
 		}
 		MultipartFile multipartFile = filesArray[0];
 		List<String> accountList = new ArrayList<>();
-		InputStreamReader input =null;
-		try{
-		    input = new InputStreamReader(multipartFile.getInputStream());  
+		 InputStreamReader  input = new InputStreamReader(multipartFile.getInputStream());  
 		    CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);  
 		    for(CSVRecord csvRecord:parser){
 		    	String value= csvRecord.get("AccountNumber");
 		    	value = value.replaceAll("\'","");
+		    	if(StringUtils.isNotBlank(value)){
 		    	accountList.add(value);
+		    	}
 		    }
+		if(input!=null){
+			input.close();
 		}
-		catch (Exception e) {
-			LOGGER.error("An error occured while parsing the account number file");
-			throw new CustomException("An error occured while parsing the account number file.");
-		}
-		finally {
-			try {
-				if (input != null)
-					input.close();
-			} catch (Exception ex) {
-				LOGGER.error("An error occured while parsing the account number file");
-			}
-		}
+		
 		    return accountList;
 	}
 		    
