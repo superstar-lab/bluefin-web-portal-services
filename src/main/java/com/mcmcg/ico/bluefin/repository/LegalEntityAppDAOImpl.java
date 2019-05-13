@@ -192,8 +192,8 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setTimestamp(3, dateModified); // DateModified
 				ps.setString(4, modifiedBy); // ModifiedBy
 				ps.setString(5, legalEntityApp.getPrNumber()); //PRNumber
-				ps.setLong(6, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
-				ps.setShort(7, legalEntityApp.getIsActiveForBatchUpload()); // IsActiveForBatchUpload
+				ps.setShort(6, legalEntityApp.getIsActiveForBatchUpload()); // IsActiveForBatchUpload
+				ps.setLong(7, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
 				
 				return ps;
 		}, holder);

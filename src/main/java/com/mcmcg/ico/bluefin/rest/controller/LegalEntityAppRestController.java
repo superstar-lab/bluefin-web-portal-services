@@ -109,7 +109,7 @@ public class LegalEntityAppRestController {
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
     	final Short activeStatus=legalEntityResource.getIsActive();
-    	final Short activeForBatchUpload=legalEntityResource.getIsActiveForBatchUpload();
+    	final Short activeForBatchUpload=legalEntityResource.getIsActiveForBatchUpload() == null ? 0 : legalEntityResource.getIsActiveForBatchUpload();
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -157,7 +157,7 @@ public class LegalEntityAppRestController {
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
     	final Short activeStatus=legalEntityAppToUpdate.getIsActive();
-    	final Short activeForBatchUpload=legalEntityAppToUpdate.getIsActiveForBatchUpload();
+    	final Short activeForBatchUpload=legalEntityAppToUpdate.getIsActiveForBatchUpload() == null ? 0 : legalEntityAppToUpdate.getIsActiveForBatchUpload();
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
