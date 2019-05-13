@@ -109,7 +109,7 @@ public class LegalEntityAppRestController {
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
     	final Short activeStatus=legalEntityResource.getIsActive();
-    	final Short activeForBatchUpload=legalEntityResource.getIsActiveForBatchUpload() == null ? 0 : legalEntityResource.getIsActiveForBatchUpload();
+    	final Short activeForBatchUpload=legalEntityResource.getIsActiveForBatchUpload();
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -125,7 +125,7 @@ public class LegalEntityAppRestController {
             
             throw new CustomBadRequestException(errorDescription);
         }
-        if(activeStatus==null || activeForBatchUpload==null){
+        if(activeStatus==null){ //|| activeForBatchUpload==null){
         	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App create Request:", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
@@ -157,7 +157,7 @@ public class LegalEntityAppRestController {
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
     	final Short activeStatus=legalEntityAppToUpdate.getIsActive();
-    	final Short activeForBatchUpload=legalEntityAppToUpdate.getIsActiveForBatchUpload() == null ? 0 : legalEntityAppToUpdate.getIsActiveForBatchUpload();
+    	final Short activeForBatchUpload=legalEntityAppToUpdate.getIsActiveForBatchUpload();
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
@@ -171,7 +171,7 @@ public class LegalEntityAppRestController {
             
             throw new CustomBadRequestException(errorDescription);
         }
-        if(activeStatus==null || activeForBatchUpload==null){
+        if(activeStatus==null){ //|| activeForBatchUpload==null){
         	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request:", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
