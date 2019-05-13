@@ -16,6 +16,8 @@ public class LegalEntityApp extends Common implements Serializable {
 	private Short isActive ;
 	
 	private String prNumber;
+	
+	private Short isActiveForBatchUpload;
 
 	public LegalEntityApp() {
 		// Default constructor

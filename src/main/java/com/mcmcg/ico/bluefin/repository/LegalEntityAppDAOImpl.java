@@ -153,6 +153,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setString(4, legalEntityApp.getModifiedBy()); // ModifiedBy
 				ps.setShort(5, legalEntityApp.getIsActive()); // IsActive
 				ps.setString(6, legalEntityApp.getPrNumber()); //PRNumber
+				ps.setShort(7, legalEntityApp.getIsActiveForBatchUpload()); //IsActiveForbatchUpload
 				return ps;
 		}, holder);
 
@@ -192,6 +193,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 				ps.setString(4, modifiedBy); // ModifiedBy
 				ps.setString(5, legalEntityApp.getPrNumber()); //PRNumber
 				ps.setLong(6, legalEntityApp.getLegalEntityAppId()); // LegalEntityAppId
+				ps.setShort(7, legalEntityApp.getIsActiveForBatchUpload()); // IsActiveForBatchUpload
 				
 				return ps;
 		}, holder);
@@ -252,7 +254,8 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 		if(rs.getString("PRNUMBER") != null) {
 			legalEntityApp.setPrNumber(rs.getString("PRNUMBER"));
 		}
-
+		legalEntityApp.setIsActiveForBatchUpload(rs.getShort("IsBatchEnabled"));
+		
 		return legalEntityApp;
 	}
 }

@@ -148,6 +148,8 @@ public class BluefinWebPortalConstants {
 	public static final String USERVALUE = "?user=";
 	public static final String TOKENVALUE = "&token=";
 	public static final Short ACTIVELEGALENTITY = 1;
+	public static final String ACTIVESTATUS = "Is Legal Entity active : ";
+	public static final String ACTIVEFORBATCHUPLOAD = "Is Legal Entity active for batch :";
 
 	
 	private BluefinWebPortalConstants(){
