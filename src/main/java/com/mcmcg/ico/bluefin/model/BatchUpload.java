@@ -31,4 +31,5 @@ public class BatchUpload {
     private int numberOfDeclinedTransactions;
     private int numberOfErrorTransactions;
     private int numberOfRejected;
+    private String legalEntityName;
 }

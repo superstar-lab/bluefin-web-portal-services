@@ -58,8 +58,6 @@ public class BatchUploadService {
 	@Autowired
     private LegalEntityAppService legalEntityAppService;
 	
-	@Value("${batch.upload.legal.entity.name}")
-    private String legalEntityAppName;
 
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -106,14 +104,14 @@ public class BatchUploadService {
 		return result;
 	}
 
-	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines, String xAuthToken) {
+	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines, String xAuthToken, String legalEntityName) {
 		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
 		LOGGER.info("Creating new basic Batch Upload");
-		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
+		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines, legalEntityName);
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
-		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
+		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() + batchUpload.getLegalEntityName(),
 				fileStream, xAuthToken);
 		LOGGER.debug("ACF response ={} ",response);
 
@@ -129,7 +127,7 @@ public class BatchUploadService {
 		}
 	}
 
-	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines) {
+	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines, String legalEntityName) {
 		BatchUpload batchUpload = new BatchUpload();
 		batchUpload.setDateUploaded(new DateTime().toDateTime(DateTimeZone.UTC));
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd_HHmmss");
@@ -140,6 +138,7 @@ public class BatchUploadService {
 		batchUpload.setBatchApplication("Latitude");
 		batchUpload.setProcessStart(new DateTime().toDateTime(DateTimeZone.UTC));
 		batchUpload.setNumberOfTransactions(lines);
+		batchUpload.setLegalEntityName(legalEntityName);
 		return batchUpload;
 	}
 
@@ -383,7 +382,7 @@ public class BatchUploadService {
 		
 	}
 	
-	public boolean checkLegalEntityStatus() {
+	public boolean checkLegalEntityStatus(String legalEntityAppName) {
 		return legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getIsActive().intValue() == 0;
 	}
 }

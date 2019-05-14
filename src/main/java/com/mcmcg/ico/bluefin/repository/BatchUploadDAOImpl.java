@@ -60,6 +60,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
                 ps.setString(5, batchUpload.getUpLoadedBy());
                 ps.setTimestamp(6, processStart);
                 ps.setInt(7, batchUpload.getNumberOfTransactions());
+                ps.setString(8, batchUpload.getLegalEntityName());
                 return ps;
             }
         , holder);
@@ -174,6 +175,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
             batchUpload.setNumberOfErrorTransactions(rs.getInt("NumberOfErrorTransactions"));
             batchUpload.setNumberOfRejected(rs.getInt("NumberOfRejected"));
             batchUpload.setNumberOfTransactionsProcessed(rs.getInt("NumberOfTransactionsProcessed"));
+            batchUpload.setLegalEntityName(rs.getString("LegalEntityName"));
             return batchUpload;
         }
     }
