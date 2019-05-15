@@ -20,7 +20,7 @@ public class BasicLegalEntityAppResource implements Serializable {
     
     private String prNumber;
     private Short isActive ;
-    private Short isActiveForBatchUpload = 0;
+    private Short isActiveForBatchUpload;
 
     public LegalEntityApp toLegalEntityApp() {
         LegalEntityApp legalEntityApp = new LegalEntityApp();

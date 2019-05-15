@@ -210,7 +210,7 @@ public class LegalEntityAppService {
 				LOGGER.debug("Failed to delete legal entity app",exp);
 			}
 			LOGGER.error("Legal Entity= {} with id = {} already in use.",id,legalEntityAppToDelete.getLegalEntityAppName() );
-			throw new CustomNotFoundException("Unable to delete this legal entity. There are active payment processor merchant ids that are mapped to this legal entity.");
+			throw new CustomNotFoundException("Unable to delete this legal entity. There are active payment processor merchant ids that are mapped to this legal entity OR legal entity is associated with a batch.");
 		}
 	}
 

@@ -125,7 +125,7 @@ public class LegalEntityAppRestController {
             
             throw new CustomBadRequestException(errorDescription);
         }
-        if(activeStatus==null){ //|| activeForBatchUpload==null){
+        if(activeStatus==null || activeForBatchUpload==null){
         	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App create Request:", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
@@ -171,7 +171,7 @@ public class LegalEntityAppRestController {
             
             throw new CustomBadRequestException(errorDescription);
         }
-        if(activeStatus==null){ //|| activeForBatchUpload==null){
+        if(activeStatus==null || activeForBatchUpload==null){
         	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request:", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
