@@ -32,6 +32,7 @@ import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
 
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -83,7 +84,10 @@ public class BatchUploadRestController {
 
     @ApiOperation(value = "createBatchUpload", nickname = "createBatchUpload")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiImplicitParams({
+    	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
+        @ApiImplicitParam(name="LegalEntityName",value="Legal Entity", required = true, dataType = "string", paramType = "form")
+    })
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = BatchUpload.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -97,7 +101,7 @@ public class BatchUploadRestController {
         }
         String legalEntityName = request.getParameter("legalEntityName");
         if(StringUtils.isBlank(legalEntityName)) {
-        	throw new CustomException("Legal Entity name should not be blank");
+        	throw new CustomException("Legal Entity name can not be blank");
         }
         if (batchUploadService.checkLegalEntityStatus(legalEntityName)) {
         	throw new CustomException(String.format("Legal Entity = [%s] is Inactive", legalEntityName));

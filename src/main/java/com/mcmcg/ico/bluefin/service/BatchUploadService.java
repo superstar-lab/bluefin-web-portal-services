@@ -35,13 +35,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.repository.BatchUploadDAO;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.HttpsUtil;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
@@ -57,6 +60,8 @@ public class BatchUploadService {
 	private PropertyService propertyService;
 	@Autowired
     private LegalEntityAppService legalEntityAppService;
+	@Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
 	
 
 	// Delimiter used in CSV file
@@ -77,6 +82,16 @@ public class BatchUploadService {
 			throw new CustomNotFoundException(String.format("Unable to find batch upload with id = [%s]", id));
 		}
 
+		LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppId(batchUpload.getLegalEntityAppId());
+		if (legalEntityApp == null) {
+			LOGGER.debug(LoggingUtil.adminAuditInfo("Legal Entity name not found", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Legal Entity with Id : ", String.valueOf(batchUpload.getLegalEntityAppId())));
+			batchUpload.setLegalEntityName("Not Available");
+		}
+		else {
+			batchUpload.setLegalEntityName(legalEntityApp.getLegalEntityAppName());
+		}
+		
 		return batchUpload;
 	}
 
@@ -107,7 +122,8 @@ public class BatchUploadService {
 	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines, String xAuthToken, String legalEntityName) {
 		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
 		LOGGER.info("Creating new basic Batch Upload");
-		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines, legalEntityName);
+		LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppName(legalEntityName);
+		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines, legalEntityName, legalEntityApp.getLegalEntityAppId());
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
@@ -127,7 +143,7 @@ public class BatchUploadService {
 		}
 	}
 
-	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines, String legalEntityName) {
+	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines, String legalEntityName, Long legalEntityAppId) {
 		BatchUpload batchUpload = new BatchUpload();
 		batchUpload.setDateUploaded(new DateTime().toDateTime(DateTimeZone.UTC));
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd_HHmmss");
@@ -139,6 +155,7 @@ public class BatchUploadService {
 		batchUpload.setProcessStart(new DateTime().toDateTime(DateTimeZone.UTC));
 		batchUpload.setNumberOfTransactions(lines);
 		batchUpload.setLegalEntityName(legalEntityName);
+		batchUpload.setLegalEntityAppId(legalEntityAppId);
 		return batchUpload;
 	}
 

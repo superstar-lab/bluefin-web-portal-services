@@ -28,7 +28,9 @@ import org.springframework.stereotype.Repository;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.repository.sql.Queries;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Repository
 public class BatchUploadDAOImpl implements BatchUploadDAO {
@@ -38,6 +40,8 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
     @Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
 
     @Override
     public BatchUpload saveBasicBatchUpload(BatchUpload batchUpload) {
@@ -60,7 +64,7 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
                 ps.setString(5, batchUpload.getUpLoadedBy());
                 ps.setTimestamp(6, processStart);
                 ps.setInt(7, batchUpload.getNumberOfTransactions());
-                ps.setString(8, batchUpload.getLegalEntityName());
+                ps.setLong(8, batchUpload.getLegalEntityAppId());
                 return ps;
             }
         , holder);
@@ -134,9 +138,14 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         List<BatchUpload> batchUploads = jdbcTemplate.query(
                 Queries.FINDBATCHUPLOADSBYDATEUPLOADEDAFTERORDERBYDATEUPLOADEDDESC,
                 new Object[] { dateBeforeNoofdays, firstResult, lastResult }, new BatchUploadRowMapper());
+        
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: {}" , batchUploads != null ? batchUploads.size() : 0);
         }
+        
+        batchUploads = getLegalEntityNameById(batchUploads);
+        
+        
         return new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);
     }
@@ -152,6 +161,9 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
         if (LOGGER.isDebugEnabled()) {
         	LOGGER.debug("Number of rows: ={}",  batchUploads != null ? batchUploads.size() : 0 );
         }
+        
+        batchUploads = getLegalEntityNameById(batchUploads);
+        
         return new PageImpl(batchUploads, pageRequest,
                 batchUploadCount);
     }
@@ -175,9 +187,25 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
             batchUpload.setNumberOfErrorTransactions(rs.getInt("NumberOfErrorTransactions"));
             batchUpload.setNumberOfRejected(rs.getInt("NumberOfRejected"));
             batchUpload.setNumberOfTransactionsProcessed(rs.getInt("NumberOfTransactionsProcessed"));
-            batchUpload.setLegalEntityName(rs.getString("LegalEntityName"));
+            batchUpload.setLegalEntityAppId(rs.getLong("LegalEntityAppID"));
             return batchUpload;
         }
     }
 
+    public List<BatchUpload> getLegalEntityNameById(List<BatchUpload> batchUploads) {
+    	
+    	for(BatchUpload batchUpload : batchUploads) {
+        	LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppId(batchUpload.getLegalEntityAppId());
+    		if (legalEntityApp == null) {
+    			LOGGER.debug(LoggingUtil.adminAuditInfo("Legal Entity name not found at batch upload dao", BluefinWebPortalConstants.SEPARATOR,
+    					"Unable to find Legal Entity with Id at batch upload dao : ", String.valueOf(batchUpload.getLegalEntityAppId())));
+    			batchUpload.setLegalEntityName("Not Available");
+    		}
+    		else {
+    			batchUpload.setLegalEntityName(legalEntityApp.getLegalEntityAppName());
+    		}
+        }
+    	
+    	return batchUploads;
+    }
 }
