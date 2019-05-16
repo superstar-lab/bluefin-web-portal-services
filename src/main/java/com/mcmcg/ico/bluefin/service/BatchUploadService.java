@@ -127,7 +127,7 @@ public class BatchUploadService {
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
-		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() +"/"+ batchUpload.getLegalEntityName(),
+		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() +"/"+ legalEntityName,
 				fileStream, xAuthToken);
 		LOGGER.debug("ACF response ={} ",response);
 
@@ -136,7 +136,9 @@ public class BatchUploadService {
 			objectMapper.registerModule(new JodaModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			LOGGER.info("Conveting ACF response into BatchUpload object");
-			return objectMapper.readValue(response, BatchUpload.class);
+			BatchUpload batchUploadResult = objectMapper.readValue(response, BatchUpload.class);
+			batchUploadResult.setLegalEntityName(legalEntityName);
+			return batchUploadResult;
 		} catch (IOException e) {
 			LOGGER.error("Unable to parse ACF batch process service response.", e);
 			throw new CustomException("Unable to parse ACF batch process service response.");
