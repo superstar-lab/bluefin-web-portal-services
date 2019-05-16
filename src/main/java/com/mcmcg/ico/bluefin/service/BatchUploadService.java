@@ -127,7 +127,7 @@ public class BatchUploadService {
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
-		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() + batchUpload.getLegalEntityName(),
+		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() +"/"+ batchUpload.getLegalEntityName(),
 				fileStream, xAuthToken);
 		LOGGER.debug("ACF response ={} ",response);
 
