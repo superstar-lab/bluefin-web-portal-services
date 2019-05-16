@@ -402,6 +402,11 @@ public class BatchUploadService {
 	}
 	
 	public boolean checkLegalEntityStatus(String legalEntityAppName) {
+		LegalEntityApp legalEntityApp = legalEntityAppService.getLegalEntityAppName(legalEntityAppName);
+		if(legalEntityApp == null) {
+			throw new CustomException("Legal Entity not found, Please provide a valid Legal Entity Name");
+		}
+		
 		return legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getIsActive().intValue() == 0;
 	}
 }
