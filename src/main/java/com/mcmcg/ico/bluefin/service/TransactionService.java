@@ -1,9 +1,15 @@
 package com.mcmcg.ico.bluefin.service;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +18,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -24,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mcmcg.ico.bluefin.model.BinDBDetails;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
@@ -48,6 +57,7 @@ import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
 import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.VoidTransactionDAO;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 
@@ -162,10 +172,12 @@ public class TransactionService {
 		return tranResult;
 	}
 
-	public Iterable<SaleTransaction> getTransactions(String search, PageRequest paging) {
+	
+	
+	public Iterable<SaleTransaction> getTransactions(String search,List<String> accountList, PageRequest paging) {
 		Page<SaleTransaction> result;
 		try {
-			result = customSaleTransactionDAO.findTransaction(search, paging);
+			result = customSaleTransactionDAO.findTransaction(search, accountList, paging);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
@@ -212,14 +224,14 @@ public class TransactionService {
 		}
 	}
 	
-	public File getTransactionsReport(String search, String timeZone) throws IOException {
+	public File getTransactionsReport(String search,List<String> accountList, String timeZone) throws IOException {
 		List<SaleTransaction> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		LOGGER.debug("ReportPath : {}",reportPath);
 		File file;
 		try {
-			result = customSaleTransactionDAO.findTransactionsReport(search);
+			result = customSaleTransactionDAO.findTransactionsReport(search, accountList);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
@@ -527,4 +539,27 @@ public class TransactionService {
 		}
 		return transactionTypeVal;
 	}
+	
+	public List<String> getAccountListFromFile(MultipartFile[] filesArray) throws IOException { 
+		if (filesArray.length != 1) {
+			throw new CustomBadRequestException("A file must be uploded");
+		}
+		MultipartFile multipartFile = filesArray[0];
+		List<String> accountList = new ArrayList<>();
+		 InputStreamReader  input = new InputStreamReader(multipartFile.getInputStream());  
+		    CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);  
+		    for(CSVRecord csvRecord:parser){
+		    	String value= csvRecord.get("AccountNumber");
+		    	value = value.replaceAll("\'","");
+		    	if(StringUtils.isNotBlank(value)){
+		    	accountList.add(value);
+		    	}
+		    }
+		if(input!=null){
+			input.close();
+		}
+		
+		    return accountList;
+	}
+		    
 }

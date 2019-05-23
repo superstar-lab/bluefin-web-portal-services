@@ -104,7 +104,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		predicatesHashMapping.put("lastName", ":prefix.LastName LIKE :lastNameParam1");
 		predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.LEGALENTITY, ":prefix.LegalEntityApp IN (:legalEntityParam1)");
-		predicatesHashMapping.put("accountNumber", ":prefix.AccountId = :accountNumberParam1");
+		predicatesHashMapping.put("accountNumber", ":prefix.AccountId in (:accountNumberParam1)");
+//		predicatesHashMapping.put("accountList", ":prefix.AccountId in (:accountListParam1)");
 		predicatesHashMapping.put("application", ":prefix.Application = :applicationParam1");
 		predicatesHashMapping.put("processUser", ":prefix.ProcessUser = :processUserParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.BATCHUPLOADID, ":prefix.BatchUploadID = :batchUploadIdParam1"); // This is ONLY for sale
@@ -127,10 +128,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	@Override
-	public List<SaleTransaction> findTransactionsReport(String search) throws ParseException {
+	public List<SaleTransaction> findTransactionsReport(String search,List<String> accountList) throws ParseException {
 		logger.debug("Executing findTransactionsReport , Search Value {}",search);
-		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
-		String query = getQueryByCriteria(search,dynamicParametersMap);
+		HashMap<String, Object> dynamicParametersMap = new HashMap<> ();
+		String query = getQueryByCriteria(search, accountList, dynamicParametersMap);
 		logger.debug("Dynamic Query {}", query);
 		
 		Map<String, CustomQuery> queriesMap = createQueries(query, null,dynamicParametersMap);
@@ -192,10 +193,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	@Override
-	public Page<SaleTransaction> findTransaction(String search, PageRequest page) throws ParseException {
+	public Page<SaleTransaction> findTransaction(String search,List<String> accountList, PageRequest page) throws ParseException {
 		logger.info("Fetching Transactions, Search  Value {} , page{} ",search,page); 
-		HashMap<String, String> dynamicParametersMap = new HashMap<> ();
-		String query = getQueryByCriteria(search,dynamicParametersMap);
+		HashMap<String, Object> dynamicParametersMap = new HashMap<> ();
+		String query = getQueryByCriteria(search,accountList, dynamicParametersMap);
 		logger.debug(" Query={}", query);
 		Map<String, CustomQuery> queriesMap = createQueries(query, page,dynamicParametersMap);
 		CustomQuery result = queriesMap.get(BluefinWebPortalConstants.RESULT);
@@ -240,6 +241,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return list;
 	}
 
+
 	
 	@Override
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
@@ -281,24 +283,24 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return new PageImpl(tr, page, countResult);
 	}
 	
-	private String getQueryByCriteria(String search,HashMap<String, String> dynamicParametersMap) {
+	private String getQueryByCriteria(String search, List<String> accountList, HashMap<String, Object> dynamicParametersMap) {
 		StringBuilder querySb = new StringBuilder();
 		querySb.append(" SELECT * FROM (");
 
 		switch (getTransactionType(search).toLowerCase()) {
 		case "void":
-			querySb.append(getSelectForVoidTransaction(search,dynamicParametersMap));
+			querySb.append(getSelectForVoidTransaction(search, accountList, dynamicParametersMap));
 			break;
 		case "refund":
-			querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
+			querySb.append(getSelectForRefundTransaction(search, accountList, dynamicParametersMap));
 			break;
 		case "all":
-			prepareQueryForAllType(querySb,search,dynamicParametersMap);
+			prepareQueryForAllType(querySb, accountList, search, dynamicParametersMap);
 			break;
 		case "sale":
 		case "tokenize":
 		default:
-			querySb.append(getSelectForSaleTransaction(search,dynamicParametersMap));
+			querySb.append(getSelectForSaleTransaction(search, accountList, dynamicParametersMap));
 			break;
 		}
 		querySb.append(" ) RESULTINFO ");
@@ -306,12 +308,12 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return querySb.toString();
 	}
 	
-	private void prepareQueryForAllType(StringBuilder querySb,String search,HashMap<String, String> dynamicParametersMap){
-		querySb.append(getSelectForSaleTransaction(search,dynamicParametersMap));
+	private void prepareQueryForAllType(StringBuilder querySb, List<String> accountList, String search,HashMap<String, Object> dynamicParametersMap){
+		querySb.append(getSelectForSaleTransaction(search, accountList, dynamicParametersMap));
 		querySb.append(BluefinWebPortalConstants.UNION);
-		querySb.append(getSelectForVoidTransaction(search,dynamicParametersMap));
+		querySb.append(getSelectForVoidTransaction(search, accountList, dynamicParametersMap));
 		querySb.append(BluefinWebPortalConstants.UNION);
-		querySb.append(getSelectForRefundTransaction(search,dynamicParametersMap));
+		querySb.append(getSelectForRefundTransaction(search, accountList, dynamicParametersMap));
 	}
 	
 	/**
@@ -320,7 +322,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param search
 	 * @return String with the select of the sale transaction table
 	 */
-	private String getSelectForSaleTransaction(String search,HashMap<String, String> dynamicParametersMap) {
+	private String getSelectForSaleTransaction(String search, List<String> accountList, HashMap<String, Object> dynamicParametersMap) {
 		StringBuilder querySb = new StringBuilder();
 
 		// create select from transaction type
@@ -339,9 +341,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("(SELECT Count(*) FROM Void_Transaction WHERE Saletransactionid = MAINSALE.Saletransactionid AND InternalStatusCode = '1') AS IsVoided,")
 				.append("(SELECT Count(*) FROM Refund_Transaction WHERE Saletransactionid = MAINSALE.Saletransactionid AND InternalStatusCode = '1') AS IsRefunded, ")
 				.append("MAINSALE.PaymentProcessorInternalStatusCodeID, MAINSALE.PaymentProcessorInternalResponseCodeID, MAINSALE.ReconciliationStatusID, MAINSALE.ReconciliationDate, MAINSALE.BatchUploadID ")
-				.append("FROM Sale_Transaction MAINSALE ");
-
-		querySb.append(createWhereStatement(search, BluefinWebPortalConstants.MAINSALE,dynamicParametersMap));
+				.append("FROM Sale_Transaction MAINSALE ")
+                .append(createWhereStatement(search, accountList, BluefinWebPortalConstants.MAINSALE,dynamicParametersMap));
+		
 
 		return querySb.toString();
 	}
@@ -377,6 +379,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	private boolean isPrefixAndAttributeAsProcessor(String attribute,String prefix){
 		return "ppr".equals(prefix) && BluefinWebPortalConstants.PROCESSORNAME.equalsIgnoreCase(attribute);
 	}
+	
+	
 	/**
 	 * Creates the WHERE element in the select, it will verify each element in
 	 * the search string. Specials cases are taken into account, like
@@ -387,7 +391,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param prefix
 	 * @return where element that is going to be attached to the select element
 	 */
-	private String createWhereStatement(String search, String prefix,HashMap<String, String> dynamicParametersMap) {
+	private String createWhereStatement(String search, List<String> accountList, String prefix,HashMap<String, Object> dynamicParametersMap) {
 		logger.debug("Creating where statement");
 		StringJoiner statement = new StringJoiner(" AND ");
 
@@ -405,36 +409,39 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				if (shouldContinue(attribute,prefix)) {
 					continue;
 				}
-
-				WhereCalValues whereCalValues = new WhereCalValues(attribute,prefix,value,attributeParam,operator,predicate);
-				calculateValues(whereCalValues,dynamicParametersMap);
+				WhereCalValues whereCalValues ;
+                whereCalValues = new WhereCalValues(attribute,prefix,value,accountList,attributeParam,operator,predicate);
+                calculateValues(whereCalValues,dynamicParametersMap);
 
 				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
-				dynamicParametersMap.put(whereCalValues.getAttributeParam(), whereCalValues.getValue());
+				dynamicParametersMap.put(whereCalValues.getAttributeParam(),(attribute.equals("accountNumber") && !whereCalValues.getAccountList().isEmpty()) ? whereCalValues.getAccountList() : whereCalValues.getValue());	
 			}
 		}
 		return prepareStatementWithWhere(statement);
 	}
+
 	
 	@Data
 	private class WhereCalValues {
 		String attribute;
 		String prefix;
 		String value;
+		List<String> accountList;
 		String attributeParam;
 		String operator;
 		String predicate;
-		private WhereCalValues(String attribute,String prefix,String value,String attributeParam,String operator,String predicate){
+		private WhereCalValues(String attribute,String prefix,String value,List<String> accountList,String attributeParam,String operator,String predicate){
 			// Default Constructor
 			this.attribute = attribute;
 			this.prefix = prefix;
 			this.value = value;
+			this.accountList=accountList;
 			this.attributeParam = attributeParam;
 			this.operator = operator;
 			this.predicate = predicate;
 		}
 	}
-	private void calculateValues(WhereCalValues whereCalValues,HashMap<String, String> dynamicParametersMap){
+	private void calculateValues(WhereCalValues whereCalValues,HashMap<String, Object> dynamicParametersMap){
 		// Special scenarios, be careful when you change this
 		if (isProcessUser(whereCalValues.getAttribute(),whereCalValues.getPrefix())) {
 			// Special case for pUser in VOID and REFUND tables
@@ -582,19 +589,19 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 	}
 	
-	public Map<String, CustomQuery> createQueries(String query, PageRequest page,Map<String, String> dynamicParametersMap) throws ParseException {
+	public Map<String, CustomQuery> createQueries(String query, PageRequest page,Map<String, Object> dynamicParametersMap) throws ParseException {
 		CustomQuery queryTotalCustomQuery = new CustomQuery("SELECT COUNT(finalCount.ApplicationTransactionID) FROM (" + query + ") finalCount");
 		CustomQuery resultCustomQuery = new CustomQuery(query);
 		resultCustomQuery.setSort(page != null ? page.getSort() : null);
 		logger.debug("Dynamic Parameters {}", dynamicParametersMap);
 		// Sets all parameters to the Query result
-		for (Map.Entry<String, String> entry : dynamicParametersMap.entrySet()) {
+		for (Map.Entry<String, Object> entry : dynamicParametersMap.entrySet()) {
 			if (entry.getKey().contains("amountParam")) {
-				resultCustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
-				queryTotalCustomQuery.setParameter(entry.getKey(), new BigDecimal(entry.getValue()));
+				resultCustomQuery.setParameter(entry.getKey(), new BigDecimal((String)entry.getValue()));
+				queryTotalCustomQuery.setParameter(entry.getKey(), new BigDecimal((String)entry.getValue()));
 			} else if (entry.getKey().contains("transactionDateTimeParam")
 					|| (entry.getKey().contains(BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL))) {
-				if (!validFormatDate(entry.getValue())) {
+				if (!validFormatDate((String)entry.getValue())) {
 					throw new CustomNotFoundException(
 							"Unable to process find transaction, due an error with date formatting");
 				}
@@ -604,7 +611,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			} else if (entry.getKey().contains("legalEntityParam")
 					|| entry.getKey().contains("paymentFrequencyParam")) {
 				// Special case for legal entity
-				String value = entry.getValue().replace("[", "").replace("]", "").replace(" ", "");
+				String value = ((String)entry.getValue()).replace("[", "").replace("]", "").replace(" ", "");
 				resultCustomQuery.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
 				queryTotalCustomQuery.setParameter(entry.getKey(), Arrays.asList(value.split(",")));
 			} else {
@@ -716,6 +723,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	
 	private void populateRefundOrVoidTypeAttributesFilterNames(){
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountNumber"));
+	//	refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountList"));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.AMOUNT));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("cardType"));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.LEGALENTITY));
@@ -752,7 +760,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param search
 	 * @return String with the select of the refund transaction table
 	 */
-	private String getSelectForRefundTransaction(String search,HashMap<String, String> dynamicParametersMap ) {
+	private String getSelectForRefundTransaction(String search, List<String> accountList, HashMap<String, Object> dynamicParametersMap ) {
 		StringBuilder querySb = new StringBuilder();
 
 		querySb.append(
@@ -785,9 +793,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERREFUND.UserDefinedField2,SALEINNERREFUND.UserDefinedField3,SALEINNERREFUND.DateCreated,SALEINNERREFUND.ReconciliationStatusID,SALEINNERREFUND.ReconciliationDate,SALEINNERREFUND.BatchUploadID ")
 				.append("FROM Sale_Transaction SALEINNERREFUND ")
 
-				.append(createWhereStatement(search, BluefinWebPortalConstants.SALEINNERREFUND,dynamicParametersMap))
-				.append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
-				.append(createWhereStatement(search, BluefinWebPortalConstants.REFUND,dynamicParametersMap));
+				.append(createWhereStatement(search, accountList, BluefinWebPortalConstants.SALEINNERREFUND,dynamicParametersMap))
+		        .append(" ) REFUNDSALE ON (REFUND.saleTransactionID = REFUNDSALE.saleTransactionID) ")
+				.append(createWhereStatement(search, accountList, BluefinWebPortalConstants.REFUND,dynamicParametersMap));
 
 		return querySb.toString();
 	}
@@ -798,7 +806,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * @param search
 	 * @return String with the select of the void transaction table
 	 */
-	private String getSelectForVoidTransaction(String search,HashMap<String, String> dynamicParametersMap) {
+	private String getSelectForVoidTransaction(String search, List<String> accountList, HashMap<String, Object> dynamicParametersMap) {
 		StringBuilder querySb = new StringBuilder();
 
 		querySb.append(
@@ -830,10 +838,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				.append("SALEINNERVOID.Application,SALEINNERVOID.Origin,SALEINNERVOID.AccountPeriod,SALEINNERVOID.Desk,SALEINNERVOID.InvoiceNumber,SALEINNERVOID.UserDefinedField1,")
 				.append("SALEINNERVOID.UserDefinedField2,SALEINNERVOID.UserDefinedField3,SALEINNERVOID.DateCreated ")
 				.append("FROM Sale_Transaction SALEINNERVOID ")
-
-				.append(createWhereStatement(search, BluefinWebPortalConstants.SALEINNERVOID,dynamicParametersMap))
-				.append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
-				.append(createWhereStatement(search, "VOID",dynamicParametersMap));
+                .append(createWhereStatement(search, accountList, BluefinWebPortalConstants.SALEINNERVOID,dynamicParametersMap))
+                .append(" ) VOIDSALE ON (VOID.saleTransactionID = VOIDSALE.saleTransactionID) ")
+				.append(createWhereStatement(search, accountList, "VOID",dynamicParametersMap));
 		return querySb.toString();
 
 	}
