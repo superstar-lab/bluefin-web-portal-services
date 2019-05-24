@@ -151,6 +151,10 @@ public class BluefinWebPortalConstants {
 	public static final String ACTIVESTATUS = "Is Legal Entity active : ";
 	public static final String ACTIVEFORBATCHUPLOAD = "Is Legal Entity active for batch :";
 
+	public static final Object[] TRANSACTIONS_ACF_FILE_HEADER = { "Date","Time","Invoice","Customer","Card Type","Card Number","Amount","Source",
+			"Auth","AVS","CVV2","Error Code"};
+	public static final Object[] TRANSACTIONS_MCM_FILE_HEADER = { "Date", "Time", "Invoice", "Amount", "Result",
+	"Error Message" };
 	
 	private BluefinWebPortalConstants(){
 		

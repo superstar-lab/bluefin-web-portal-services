@@ -22,6 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.mcmcg.ico.bluefin.factory.BatchReturnFile;
+import com.mcmcg.ico.bluefin.factory.BatchReturnFileObjectFactory;
+import com.mcmcg.ico.bluefin.model.BatchFileObjects;
+import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
@@ -56,6 +60,8 @@ public class ReportRestController {
 	private BatchUploadService batchUploadService;
 	@Autowired
 	private PaymentProcessorRemittanceService paymentProcessorRemittanceService;
+	@Autowired
+	BatchReturnFileObjectFactory batchReturnFileObjectFactory;
 
 	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
 	@RequestMapping(method = RequestMethod.GET, value = "/transactions")
@@ -225,14 +231,25 @@ public class ReportRestController {
 			throws IOException {
 		LOGGER.debug("Getting all batch uploads by id = [{}]", batchUploadId);
 		try {
-			File downloadFile = batchUploadService.getBatchUploadTransactionsReport(batchUploadId, timeZone);
+			String legalEntityName = "";
+			Object[] obj = null;
+			
+			BatchReturnFileModel batchReturnFileModel = batchUploadService.getBatchUploadTransactionsReport(batchUploadId);
+			if(batchReturnFileModel!=null && batchReturnFileModel.getBatchUpload()!=null) {
+				legalEntityName = batchReturnFileModel.getBatchUpload().getLegalEntityName();
+			}
+			LOGGER.info("Legal Entity Name for batch return = [{}]", legalEntityName);
+			BatchReturnFile batchReturnFile = batchReturnFileObjectFactory.getBatchFileObject(legalEntityName);
+			obj = batchReturnFile.createFileHeader();
+			BatchFileObjects batchFileObjects = batchReturnFile.createFile(obj);
+			File downloadFile = batchReturnFile.generateFile(batchReturnFile, batchReturnFileModel, batchFileObjects, timeZone);
 
 			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
 		}
 		catch(Exception e) {
 			LOGGER.error("An error occured to during get report="+e);
-			throw new CustomException("An error occured to during getBatchUploadTransactionsReport file.");
+			throw new CustomException("An error occured for batch return file." + e.getMessage());
 		}
 	}
 	
