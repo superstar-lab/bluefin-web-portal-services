@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.factory.BatchReturnFile;
 import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
@@ -20,6 +19,9 @@ import com.mcmcg.ico.bluefin.model.SaleTransaction;
 public class ACFBatchReturnFile extends BatchReturnFile {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ACFBatchReturnFile.class);
+	
+	private static final Object[] TRANSACTIONS_ACF_FILE_HEADER = { "Date","Time","Invoice","Customer","Card Type","Card Number","Amount","Source",
+			"Auth","AVS","CVV2","Error Code"};
 	
 	@Override
 	public void generateBatchReturnFile(BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, 
@@ -76,6 +78,6 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 
 	@Override
 	public Object[] createFileHeader() {
-		return BluefinWebPortalConstants.TRANSACTIONS_ACF_FILE_HEADER;	
+		return TRANSACTIONS_ACF_FILE_HEADER;	
 	}
 }
