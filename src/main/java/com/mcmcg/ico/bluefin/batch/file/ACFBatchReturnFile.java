@@ -24,7 +24,8 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 			"Auth","AVS","CVV2","Error Code"};
 	
 	@Override
-	public void generateBatchReturnFile(SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException {
+	public void generateBatchReturnFile(BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, 
+			SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException {
 
 		LOGGER.info("adding values for ACF batch returned file");
 		// Invoice
