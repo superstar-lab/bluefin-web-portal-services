@@ -33,7 +33,7 @@ public abstract class BatchReturnFile {
 	
 	public abstract Object[] createFileHeader();
 	
-	public abstract void generateBatchReturnFile(BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException;
+	public abstract void generateBatchReturnFile(SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException;
 	
 	public File generateFile(BatchReturnFile batchReturnFile, BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, String timeZone) throws IOException {
 		
@@ -44,7 +44,7 @@ public abstract class BatchReturnFile {
 			for (SaleTransaction saleTransaction : result) {
 				List<String> saleTransactionDataRecord = new ArrayList<>();
 				ApplicationUtil.getDateTimeFormat(saleTransaction, saleTransactionDataRecord, timeZone);
-				batchReturnFile.generateBatchReturnFile(batchReturnFileModel, batchFileObjects, saleTransaction, saleTransactionDataRecord);
+				batchReturnFile.generateBatchReturnFile(saleTransaction, saleTransactionDataRecord);
 				csvFilePrinterContent.printRecord(saleTransactionDataRecord);
 			}
 			LOGGER.info("CSV file report was created for ACF successfully !!!");

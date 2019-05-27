@@ -24,8 +24,7 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 	"Error Message" };
 	
 	@Override
-	public void generateBatchReturnFile(BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, 
-			SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException {
+	public void generateBatchReturnFile(SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException {
 
 		LOGGER.info("adding values for MCM batch returned file");
 		// Invoice
