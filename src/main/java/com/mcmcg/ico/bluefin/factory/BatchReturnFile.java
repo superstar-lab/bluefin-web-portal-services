@@ -7,12 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 
 import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
@@ -34,6 +37,8 @@ public abstract class BatchReturnFile {
 	public abstract Object[] createFileHeader();
 	
 	public abstract void generateBatchReturnFile(BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord) throws IOException;
+	
+	public abstract ResponseEntity<String> deleteTempFile(File downloadFile, HttpServletResponse response, String deleteTempFile);
 	
 	public File generateFile(BatchReturnFile batchReturnFile, BatchReturnFileModel batchReturnFileModel, BatchFileObjects batchFileObjects, String timeZone) throws IOException {
 		

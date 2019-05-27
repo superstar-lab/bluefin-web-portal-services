@@ -1,19 +1,29 @@
 package com.mcmcg.ico.bluefin.batch.file;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.factory.BatchReturnFile;
 import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 
 @Component
 public class ACFBatchReturnFile extends BatchReturnFile {
@@ -80,4 +90,34 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	public Object[] createFileHeader() {
 		return TRANSACTIONS_ACF_FILE_HEADER;	
 	}
+	
+	@Override
+	public ResponseEntity<String> deleteTempFile(File downloadFile, HttpServletResponse response, String deleteTempFile) {
+		InputStream inputStream = null;
+		try {
+			inputStream = FileUtils.openInputStream(downloadFile);
+			response.setContentType(BluefinWebPortalConstants.APPOCTSTREAM);
+			response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME + downloadFile.getName());
+			
+			FileCopyUtils.copy(inputStream, response.getOutputStream());
+			LOGGER.debug(deleteTempFile, downloadFile.getName());
+			boolean deleted = downloadFile.delete();
+			LOGGER.debug("File deleted ? {}",deleted);
+			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+		} catch(Exception e) {
+			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
+			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
+		}
+		finally {
+		    	if(inputStream!=null) {
+		    		try {
+		    			inputStream.close();
+					} catch (IOException e) {
+						LOGGER.error("An error occured to close input stream= "+e);
+					}
+		    	}
+		}
+		
+	}
+	
 }

@@ -244,7 +244,7 @@ public class ReportRestController {
 			BatchFileObjects batchFileObjects = batchReturnFile.createFile(obj);
 			File downloadFile = batchReturnFile.generateFile(batchReturnFile, batchReturnFileModel, batchFileObjects, timeZone);
 
-			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+			return batchReturnFile.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 			
 		}
 		catch(Exception e) {
