@@ -104,9 +104,10 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 
         LOGGER.info("Number of ACF files {} ",fileNames.size());
 
+        FileSystemResource resource = null;
 	    try (ZipOutputStream zippedOut = new ZipOutputStream(response.getOutputStream(), StandardCharsets.UTF_8)) {
 	        for (String file : fileNames) {
-	            FileSystemResource resource = new FileSystemResource(file);
+	            resource = new FileSystemResource(file);
 
 	            ZipEntry e = new ZipEntry(resource.getFilename());
 	            e.setSize(resource.contentLength());
@@ -116,15 +117,23 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	        }
 	        zippedOut.finish();
 	        zippedOut.close();
+		    deleteFiles(new File(propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH)));
+	        
 	    } catch (Exception e) {
 	    	LOGGER.error("An error occured to during download ACF return file= "+e);
 			throw new CustomException("An error occured to during downloading ACF return file.");
-	    }	    
+	    }	
+	    finally {
+	    	if(resource!=null) {
+	    		try {
+	    			resource.getInputStream().close();
+				} catch (IOException e) {
+					LOGGER.error("An error occured to close input stream= "+e);
+				}
+	    	}
+	}
         
-	   for(Map.Entry<String,File> files : downloadFileMap.entrySet()) {
-	    	boolean deleted = files.getValue().delete();
-			LOGGER.debug("File deleted for ACF ? {}",deleted);
-	    }
+	   
 	    
 	    return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
@@ -258,5 +267,17 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		}
 		LOGGER.info("Exiting after setting date and time for batch return file - ACF");
 		return saleTransaction;
+	}
+	
+	public void deleteFiles(File f) throws IOException {
+		File fList[] = f.listFiles();
+		// Searchs .csv
+		for (int i = 0; i < fList.length; i++) {
+			File pes = fList[i];
+			if (pes.getName().endsWith(".csv")) {
+			    boolean success = pes.delete();
+			    LOGGER.debug("File deleted for ACF ? {}",success);
+			}
+		}
 	}
 }
