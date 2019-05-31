@@ -232,7 +232,6 @@ public class ReportRestController {
 		LOGGER.debug("Getting all batch uploads by id = [{}]", batchUploadId);
 		try {
 			String legalEntityName = "";
-			Object[] obj = null;
 			
 			BatchReturnFileModel batchReturnFileModel = batchUploadService.getBatchUploadTransactionsReport(batchUploadId);
 			if(batchReturnFileModel!=null && batchReturnFileModel.getBatchUpload()!=null) {
@@ -240,11 +239,11 @@ public class ReportRestController {
 			}
 			LOGGER.info("Legal Entity Name for batch return = [{}]", legalEntityName);
 			BatchReturnFile batchReturnFile = batchReturnFileObjectFactory.getBatchFileObject(legalEntityName);
-			obj = batchReturnFile.createFileHeader();
-			BatchFileObjects batchFileObjects = batchReturnFile.createFile(obj);
-			File downloadFile = batchReturnFile.generateFile(batchReturnFile, batchReturnFileModel, batchFileObjects, timeZone);
+			Map<String, Object[]> fileHeadersMap = batchReturnFile.createFileHeader();
+			Map<String, BatchFileObjects> batchFileObjectsMap = batchReturnFile.createFile(fileHeadersMap,legalEntityName);
+			Map<String, File> downloadFileMap = batchReturnFile.generateFile(batchReturnFile, batchReturnFileModel, batchFileObjectsMap, timeZone);
 
-			return batchReturnFile.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+			return batchReturnFile.deleteTempFile(downloadFileMap, response, DELETETEMPFILE, batchUploadId);
 			
 		}
 		catch(Exception e) {

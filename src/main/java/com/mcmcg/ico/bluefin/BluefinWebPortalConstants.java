@@ -150,6 +150,16 @@ public class BluefinWebPortalConstants {
 	public static final Short ACTIVELEGALENTITY = 1;
 	public static final String ACTIVESTATUS = "Is Legal Entity active : ";
 	public static final String ACTIVEFORBATCHUPLOAD = "Is Legal Entity active for batch :";
+	public static final String ACFAPPOCTSTREAM = "application/zip";
+	public static final String SUCCESS = "success";
+	public static final String DECLINED = "declined";
+	public static final String ERROR = "error";
+	public static final String BATCHRETURNFILENAMEFORACF = "Batch_Return_File_";
+	public static final String TRANSACTIONREPORTPATH = "TRANSACTIONS_REPORT_PATH";
+	public static final String CARDDIGITWITHSIXZERO = "000000";
+	public static final String CARDDIGITWITHFOURZERO = "0000";
+	public static final String UPLOADED = "uploaded";
+	public static final String BATCHRETURNFILES = "batch_return_file_";
 	
 	private BluefinWebPortalConstants(){
 		

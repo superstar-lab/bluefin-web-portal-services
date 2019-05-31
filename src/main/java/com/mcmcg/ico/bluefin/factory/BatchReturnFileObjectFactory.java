@@ -1,6 +1,7 @@
 package com.mcmcg.ico.bluefin.factory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.mcmcg.ico.bluefin.batch.file.ACFBatchReturnFile;
@@ -10,6 +11,16 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 @Component
 public class BatchReturnFileObjectFactory {
 	
+	@Value("${spring.bluefin.mcm.legal.entity}")
+	private String mcmLatitude;
+	
+	@Value("${spring.bluefin.acf.legal.entity}")
+	private String acfLatitude;
+	
+	@Value("${spring.bluefin.jpf.legal.entity}")
+	private String jpfLatitude;
+	
+	
 	@Autowired
 	MCMBatchReturnFile mCMBatchReturnFile;
 	@Autowired
@@ -17,11 +28,11 @@ public class BatchReturnFileObjectFactory {
 
 	public BatchReturnFile getBatchFileObject(String legalEntityName) {
 		
-		if("MCM-LATITUDE".equalsIgnoreCase(legalEntityName)) {
+		if(mcmLatitude.equalsIgnoreCase(legalEntityName)) {
 			return mCMBatchReturnFile;
 		}
 		
-		if("ACF-LATITUDE".equalsIgnoreCase(legalEntityName)) {
+		if(acfLatitude.equalsIgnoreCase(legalEntityName) || jpfLatitude.equalsIgnoreCase(legalEntityName)) {
 			return aCFBatchReturnFile;
 		}
 		
