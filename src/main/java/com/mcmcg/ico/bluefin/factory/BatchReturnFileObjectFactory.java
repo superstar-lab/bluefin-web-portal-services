@@ -27,12 +27,12 @@ public class BatchReturnFileObjectFactory {
 	ACFBatchReturnFile aCFBatchReturnFile;
 
 	public BatchReturnFile getBatchFileObject(String legalEntityName) {
-		
-		if(mcmLatitude.equalsIgnoreCase(legalEntityName)) {
+		String legalEntityPrifix = legalEntityName.substring(0, legalEntityName.indexOf('-'));
+		if(mcmLatitude.equalsIgnoreCase(legalEntityPrifix)) {
 			return mCMBatchReturnFile;
 		}
 		
-		if(acfLatitude.equalsIgnoreCase(legalEntityName) || jpfLatitude.equalsIgnoreCase(legalEntityName)) {
+		if(acfLatitude.equalsIgnoreCase(legalEntityPrifix) || jpfLatitude.equalsIgnoreCase(legalEntityPrifix)) {
 			return aCFBatchReturnFile;
 		}
 		

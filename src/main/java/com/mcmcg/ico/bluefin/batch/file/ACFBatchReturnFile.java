@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -105,7 +104,7 @@ public class ACFBatchReturnFile extends BatchReturnFile {
         LOGGER.info("Number of ACF files {} ",fileNames.size());
 
         FileSystemResource resource = null;
-	    try (ZipOutputStream zippedOut = new ZipOutputStream(response.getOutputStream(), StandardCharsets.UTF_8)) {
+	    try (ZipOutputStream zippedOut = new ZipOutputStream(response.getOutputStream())) {
 	        for (String file : fileNames) {
 	            resource = new FileSystemResource(file);
 
@@ -172,7 +171,7 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 			csvFilePrinter.printRecord(headerObj.getValue());
 
 			// Create the CSVFormat object with "\n" as a record delimiter
-			csvFileFormat = CSVFormat.RFC4180.withTrim();
+			csvFileFormat = CSVFormat.DEFAULT.withTrim();
 			
 			BatchFileObjects batchFileObjects = new BatchFileObjects();
 			batchFileObjects.setFile(file);
@@ -205,7 +204,7 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 						
 		//Card Number
 		String cardFirstDigits = StringUtils.isNotBlank(saleTransaction.getCardNumberFirst6Char()) ? saleTransaction.getCardNumberFirst6Char() : BluefinWebPortalConstants.CARDDIGITWITHSIXZERO;
-		String cardLastDigits = StringUtils.isNotBlank(saleTransaction.getCardNumberLast4Char().replaceAll("XXXX-", "")) ? saleTransaction.getCardNumberLast4Char().replaceAll("XXXX-", "") : BluefinWebPortalConstants.CARDDIGITWITHFOURZERO;
+		String cardLastDigits = StringUtils.isNotBlank(saleTransaction.getCardNumberLast4Char().replaceAll("XXXX-", "").replaceAll("null", "")) ? saleTransaction.getCardNumberLast4Char().replaceAll("XXXX-", "") : BluefinWebPortalConstants.CARDDIGITWITHFOURZERO;
 		String cardMiddleDigits = "";
 		String starsForCardMiddleDigits = BluefinWebPortalConstants.CARDDIGITWITHSIXZERO;
 		if(StringUtils.isNotBlank(saleTransaction.getToken())) {
