@@ -26,6 +26,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,15 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 			"Auth","AVS","CVV2","Error Code"};
 	private static final Object[] TRANSACTIONS_ACF_ERROR_FILE_HEADER = { "Date","Time","Invoice","Customer","Card Type","Card Number","Amount","Source",
 			"Error","AVS","CVV2","Error Code"};
+	
+	@Value("${spring.bluefin.mcm.legal.entity}")
+	private String mcmLatitude;
+	
+	@Value("${spring.bluefin.acf.legal.entity}")
+	private String acfLatitude;
+	
+	@Value("${spring.bluefin.jpf.legal.entity}")
+	private String jpfLatitude;
 
 	@Override
 	public void generateBatchReturnFile(String key, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord, String timeZone) throws IOException {
@@ -117,6 +127,8 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	        zippedOut.finish();
 	        zippedOut.close();
 		    deleteFiles(new File(propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH)));
+		    
+		    return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	        
 	    } catch (Exception e) {
 	    	LOGGER.error("An error occured to during download ACF return file= "+e);
@@ -130,57 +142,53 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 					LOGGER.error("An error occured to close input stream= "+e);
 				}
 	    	}
-	}
-        
-	   
+	    }
 	    
-	    return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	}
 	
 	@Override
-	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName) throws IOException {
-		Map<String, BatchFileObjects> batchFileObjectsMap = new HashMap<>();
-		String reportPath = propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH);
-		LOGGER.debug("reportPath for batch return file : ={}",reportPath);
+	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, 
+			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj) throws IOException {
 		
-		for(Map.Entry<String,Object[]> headerObj : fileHeadersMap.entrySet()) {
-			File file;
-			boolean flag;
-			String fileName = "";
-			try {
-				fileName = BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+legalEntityName.substring(0, legalEntityName.indexOf('-'))+"_"
-					+headerObj.getKey();
-				File dir = new File(reportPath);
-				dir.mkdirs();
-				file = new File(dir, fileName + ".csv");
-				flag = file.createNewFile();
-				if(flag) {
-					LOGGER.info("Batch return file Created  {}", file.getName());
-				}
-			} catch (Exception e) {
-				LOGGER.error("Error creating batch return file : {}{}{}", reportPath, fileName, ".csv", e);
-				throw new CustomException("Error creating file batch return file : " + reportPath + fileName + ".csv");
-			}
-
-			// Create CSV file header
-			CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-			// initialize FileWriter object
-			FileWriter fileWriter = new FileWriter(file);
-			@SuppressWarnings("resource")
-			CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
-			csvFilePrinter.printRecord(headerObj.getValue());
-
-			// Create the CSVFormat object with "\n" as a record delimiter
-			csvFileFormat = CSVFormat.DEFAULT.withTrim();
-			
-			BatchFileObjects batchFileObjects = new BatchFileObjects();
-			batchFileObjects.setFile(file);
-			batchFileObjects.setCsvFileFormat(csvFileFormat);
-			batchFileObjects.setFileWriter(fileWriter);
-			batchFileObjects.setCsvFilePrinter(csvFilePrinter);
-			
-			batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
+		File file;
+		boolean flag;
+		String fileName = "";
+		String legalEntityPrefix = jpfLatitude;
+		if(legalEntityName.contains(acfLatitude)) {
+			legalEntityPrefix = acfLatitude;
 		}
+		try {
+			fileName = BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+legalEntityPrefix+"_"+headerObj.getKey();
+			File dir = new File(reportPath);
+			dir.mkdirs();
+			file = new File(dir, fileName + ".csv");
+			flag = file.createNewFile();
+			if(flag) {
+				LOGGER.info("Batch return file Created  {}", file.getName());
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error creating batch return file : {}{}{}", reportPath, fileName, ".csv", e);
+			throw new CustomException("Error creating file batch return file : " + reportPath + fileName + ".csv");
+		}
+
+		// Create CSV file header
+		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
+		// initialize FileWriter object
+		FileWriter fileWriter = new FileWriter(file);
+		@SuppressWarnings("resource")
+		CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
+		csvFilePrinter.printRecord(headerObj.getValue());
+
+		// Create the CSVFormat object with "\n" as a record delimiter
+		csvFileFormat = CSVFormat.DEFAULT.withTrim();
+		
+		BatchFileObjects batchFileObjects = new BatchFileObjects();
+		batchFileObjects.setFile(file);
+		batchFileObjects.setCsvFileFormat(csvFileFormat);
+		batchFileObjects.setFileWriter(fileWriter);
+		batchFileObjects.setCsvFilePrinter(csvFilePrinter);
+			
+		batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
 		
 		return batchFileObjectsMap;
 		

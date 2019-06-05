@@ -23,7 +23,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -35,15 +34,11 @@ import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
-import com.mcmcg.ico.bluefin.service.PropertyService;
 
 @Component
 public class MCMBatchReturnFile extends BatchReturnFile {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MCMBatchReturnFile.class);
-	
-	@Autowired
-	private PropertyService propertyService; 
 	
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -118,46 +113,42 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 	}
 
 	@Override
-	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName) throws IOException {
-		Map<String, BatchFileObjects> batchFileObjectsMap = new HashMap<>();
-		String reportPath = propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH);
-		LOGGER.debug("reportPath for batch return file : ={}",reportPath);
+	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, 
+			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj) throws IOException {
 		
-		for(Map.Entry<String,Object[]> headerObj : fileHeadersMap.entrySet()) {
-			File file;
-			boolean flag;
-			try {
-				File dir = new File(reportPath);
-				dir.mkdirs();
-				file = new File(dir, UUID.randomUUID() + ".csv");
-				flag = file.createNewFile();
-				if(flag) {
-					LOGGER.info("Batch return file Created  {}", file.getName());
-				}
-			} catch (Exception e) {
-				LOGGER.error("Error creating batch return file : {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-				throw new CustomException("Error creating file batch return file : " + reportPath + UUID.randomUUID() + ".csv");
+		File file;
+		boolean flag;
+		try {
+			File dir = new File(reportPath);
+			dir.mkdirs();
+			file = new File(dir, UUID.randomUUID() + ".csv");
+			flag = file.createNewFile();
+			if(flag) {
+				LOGGER.info("Batch return file Created  {}", file.getName());
 			}
-
-			// Create CSV file header
-			CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-			// initialize FileWriter object
-			FileWriter fileWriter = new FileWriter(file);
-			@SuppressWarnings("resource")
-			CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
-			csvFilePrinter.printRecord(headerObj.getValue());
-
-			// Create the CSVFormat object with "\n" as a record delimiter
-			csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withRecordSeparator(NEW_LINE_SEPARATOR);
-			
-			BatchFileObjects batchFileObjects = new BatchFileObjects();
-			batchFileObjects.setFile(file);
-			batchFileObjects.setCsvFileFormat(csvFileFormat);
-			batchFileObjects.setFileWriter(fileWriter);
-			batchFileObjects.setCsvFilePrinter(csvFilePrinter);
-			
-			batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
+		} catch (Exception e) {
+			LOGGER.error("Error creating batch return file : {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			throw new CustomException("Error creating file batch return file : " + reportPath + UUID.randomUUID() + ".csv");
 		}
+
+		// Create CSV file header
+		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
+		// initialize FileWriter object
+		FileWriter fileWriter = new FileWriter(file);
+		@SuppressWarnings("resource")
+		CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
+		csvFilePrinter.printRecord(headerObj.getValue());
+
+		// Create the CSVFormat object with "\n" as a record delimiter
+		csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withRecordSeparator(NEW_LINE_SEPARATOR);
+			
+		BatchFileObjects batchFileObjects = new BatchFileObjects();
+		batchFileObjects.setFile(file);
+		batchFileObjects.setCsvFileFormat(csvFileFormat);
+		batchFileObjects.setFileWriter(fileWriter);
+		batchFileObjects.setCsvFilePrinter(csvFilePrinter);
+		
+		batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
 		
 		return batchFileObjectsMap;
 		

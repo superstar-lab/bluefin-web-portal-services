@@ -12,19 +12,25 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 
 public abstract class BatchReturnFile {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(BatchReturnFile.class);
 	
+	@Autowired
+	private PropertyService propertyService; 
+	
 	public abstract Map<String, Object[]> createFileHeader();
 	
-	public abstract Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName) throws IOException;
+	public abstract Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj) throws IOException;
 	
 	public abstract void generateBatchReturnFile(String key, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord, String timeZone) throws IOException;
 	
@@ -61,4 +67,16 @@ public abstract class BatchReturnFile {
 		return fileMap;
 	}
 	
+	public Map<String, BatchFileObjects> createFileMap(BatchReturnFile batchReturnFile, Map<String, Object[]> fileHeadersMap, String legalEntityName) throws IOException {
+		Map<String, BatchFileObjects> batchFileObjectsMap = new HashMap<>();
+		String reportPath = propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH);
+		LOGGER.info("legal Entity : ={}",legalEntityName);
+		LOGGER.debug("reportPath for batch return file : ={}",reportPath);
+		
+		for(Map.Entry<String,Object[]> headerObj : fileHeadersMap.entrySet()) {
+			batchReturnFile.createFile(fileHeadersMap,legalEntityName,reportPath,batchFileObjectsMap,headerObj);
+		}
+		
+		return batchFileObjectsMap;
+	}
 }
