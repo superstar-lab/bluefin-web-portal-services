@@ -3,7 +3,10 @@ package com.mcmcg.ico.bluefin.batch.file;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,7 +28,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -38,15 +40,11 @@ import com.mcmcg.ico.bluefin.factory.BatchReturnFile;
 import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
-import com.mcmcg.ico.bluefin.service.PropertyService;
 
 @Component
 public class ACFBatchReturnFile extends BatchReturnFile {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ACFBatchReturnFile.class);
-	
-	@Autowired
-	private PropertyService propertyService; 
 	
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -114,34 +112,29 @@ public class ACFBatchReturnFile extends BatchReturnFile {
         LOGGER.info("Number of ACF files {} ",fileNames.size());
 
         FileSystemResource resource = null;
+        InputStream inputStream = null;
 	    try (ZipOutputStream zippedOut = new ZipOutputStream(response.getOutputStream())) {
 	        for (String file : fileNames) {
 	            resource = new FileSystemResource(file);
-
+	            inputStream = resource.getInputStream();
 	            ZipEntry e = new ZipEntry(resource.getFilename());
 	            e.setSize(resource.contentLength());
 	            zippedOut.putNextEntry(e);
-	            StreamUtils.copy(resource.getInputStream(), zippedOut);
+	            StreamUtils.copy(inputStream, zippedOut);
 	            zippedOut.closeEntry();
+	            inputStream.close();
 	        }
 	        zippedOut.finish();
 	        zippedOut.close();
-		    deleteFiles(new File(propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH)));
+	        for(String filePath : fileNames) {
+	            Files.deleteIfExists(Paths.get(filePath));
+	        }
 		    
 		    return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 	        
 	    } catch (Exception e) {
 	    	LOGGER.error("An error occured to during download ACF return file= "+e);
-			throw new CustomException("An error occured to during downloading ACF return file.");
-	    }	
-	    finally {
-	    	if(resource!=null) {
-	    		try {
-	    			resource.getInputStream().close();
-				} catch (IOException e) {
-					LOGGER.error("An error occured to close input stream= "+e);
-				}
-	    	}
+			throw new CustomException("An error occured to during downloading ACF return file."+e.getMessage());
 	    }
 	    
 	}
@@ -274,17 +267,5 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		}
 		LOGGER.info("Exiting after setting date and time for batch return file - ACF");
 		return saleTransaction;
-	}
-	
-	public void deleteFiles(File f) throws IOException {
-		File fList[] = f.listFiles();
-		// Searchs .csv
-		for (int i = 0; i < fList.length; i++) {
-			File pes = fList[i];
-			if (pes.getName().endsWith(".csv")) {
-			    boolean success = pes.delete();
-			    LOGGER.debug("File deleted for ACF ? {}",success);
-			}
-		}
 	}
 }
