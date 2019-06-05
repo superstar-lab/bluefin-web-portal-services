@@ -31,13 +31,15 @@ public class BatchReturnFileObjectFactory {
 		if(legalEntityName.contains("_")) {
 			charS = '_';
 		}
-		String legalEntityPrifix = legalEntityName.substring(0, legalEntityName.indexOf(charS));
-		if(mcmLatitude.equalsIgnoreCase(legalEntityPrifix)) {
-			return mCMBatchReturnFile;
-		}
-		
-		if(acfLatitude.equalsIgnoreCase(legalEntityPrifix) || jpfLatitude.equalsIgnoreCase(legalEntityPrifix)) {
-			return aCFBatchReturnFile;
+		if(legalEntityName.indexOf(charS)>-1) {
+			String legalEntityPrifix = legalEntityName.substring(0, legalEntityName.indexOf(charS));
+			if(mcmLatitude.equalsIgnoreCase(legalEntityPrifix)) {
+				return mCMBatchReturnFile;
+			}
+			
+			if(acfLatitude.equalsIgnoreCase(legalEntityPrifix) || jpfLatitude.equalsIgnoreCase(legalEntityPrifix)) {
+				return aCFBatchReturnFile;
+			}
 		}
 		
 		throw new CustomException("Legal entity ["+legalEntityName+"] not available to generate batch return file");
