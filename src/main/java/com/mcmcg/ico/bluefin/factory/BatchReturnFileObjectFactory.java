@@ -27,7 +27,11 @@ public class BatchReturnFileObjectFactory {
 	ACFBatchReturnFile aCFBatchReturnFile;
 
 	public BatchReturnFile getBatchFileObject(String legalEntityName) {
-		String legalEntityPrifix = legalEntityName.substring(0, legalEntityName.indexOf('-'));
+		char charS = '-';
+		if(legalEntityName.contains("_")) {
+			charS = '_';
+		}
+		String legalEntityPrifix = legalEntityName.substring(0, legalEntityName.indexOf(charS));
 		if(mcmLatitude.equalsIgnoreCase(legalEntityPrifix)) {
 			return mCMBatchReturnFile;
 		}

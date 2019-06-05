@@ -67,7 +67,7 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	@Override
 	public void generateBatchReturnFile(String key, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord, String timeZone) throws IOException {
 
-		LOGGER.info("adding values for ACF batch returned file : "+saleTransaction.getApplicationTransactionId());
+		LOGGER.info("adding values for ACF batch returned file : ");
 		//Error Message
 		String errorMessage = saleTransaction.getInternalResponseDescription() + "("
 				+ saleTransaction.getInternalResponseCode() + ")".replaceAll("\r", "").replaceAll("\n", "");
