@@ -160,6 +160,12 @@ public class BluefinWebPortalConstants {
 	public static final String CARDDIGITWITHFOURZERO = "0000";
 	public static final String UPLOADED = "uploaded";
 	public static final String BATCHRETURNFILES = "batch_return_file_";
+	public static final String MCMLEGALENTITYNAMECONFIG = "MCM_LEGALENTITYNAME_CONFIG";
+	public static final String ACFLEGALENTITYNAMECONFIG = "ACF_LEGALENTITYNAME_CONFIG";
+	public static final String JPFLEGALENTITYNAMECONFIG = "JPF_LEGALENTITYNAME_CONFIG";
+	public static final String MCMLEGALENTITYPREFIX = "MCM";
+	public static final String ACFLEGALENTITYPREFIX = "ACF";
+	public static final String JPFLEGALENTITYPREFIX = "JPF";
 	
 	private BluefinWebPortalConstants(){
 		

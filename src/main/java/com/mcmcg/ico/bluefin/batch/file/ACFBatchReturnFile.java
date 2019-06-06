@@ -28,6 +28,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpStatus;
@@ -40,11 +41,15 @@ import com.mcmcg.ico.bluefin.factory.BatchReturnFile;
 import com.mcmcg.ico.bluefin.model.BatchFileObjects;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
+import com.mcmcg.ico.bluefin.service.PropertyService;
 
 @Component
 public class ACFBatchReturnFile extends BatchReturnFile {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ACFBatchReturnFile.class);
+	
+	@Autowired
+	private PropertyService propertyService;
 	
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -52,15 +57,6 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 			"Auth","AVS","CVV2","Error Code"};
 	private static final Object[] TRANSACTIONS_ACF_ERROR_FILE_HEADER = { "Date","Time","Invoice","Customer","Card Type","Card Number","Amount","Source",
 			"Error","AVS","CVV2","Error Code"};
-	
-	@Value("${spring.bluefin.mcm.legal.entity}")
-	private String mcmLatitude;
-	
-	@Value("${spring.bluefin.acf.legal.entity}")
-	private String acfLatitude;
-	
-	@Value("${spring.bluefin.jpf.legal.entity}")
-	private String jpfLatitude;
 
 	@Override
 	public void generateBatchReturnFile(String key, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord, String timeZone) throws IOException {
@@ -146,10 +142,7 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		File file;
 		boolean flag;
 		String fileName = "";
-		String legalEntityPrefix = jpfLatitude;
-		if(legalEntityName.contains(acfLatitude)) {
-			legalEntityPrefix = acfLatitude;
-		}
+		String legalEntityPrefix = legalEntityName.substring(0, 3);
 		try {
 			fileName = BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+legalEntityPrefix+"_"+headerObj.getKey();
 			File dir = new File(reportPath);
