@@ -43,7 +43,8 @@ public class BatchReturnFileObjectFactory {
 		}
 			
 		if(acfLatitudeConfig.equalsIgnoreCase(legalEntityName) || jpfLatitudeConfig.equalsIgnoreCase(legalEntityName)) {
-			return aCFBatchReturnFile;
+			//return aCFBatchReturnFile;
+			return mCMBatchReturnFile;
 		}
 		
 		throw new CustomException("Legal entity ["+legalEntityName+"] not available to generate batch return file");
