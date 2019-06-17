@@ -106,11 +106,11 @@
 		</dependency>
 
 		<!-- Dependency for MS SQL Server Java connector -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>sqljdbc</artifactId>
 			<version>4</version>
-		</dependency> -->
+		</dependency>
 
 		<!-- Apache commons CSV -->
 		<dependency>
