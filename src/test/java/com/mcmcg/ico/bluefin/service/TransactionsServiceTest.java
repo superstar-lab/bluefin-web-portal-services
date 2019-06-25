@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,7 +32,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mysema.query.types.Predicate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
+@SpringBootTest(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class TransactionsServiceTest {
 

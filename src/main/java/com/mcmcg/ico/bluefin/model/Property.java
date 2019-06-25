@@ -5,9 +5,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-
-@Data
 public class Property extends Common implements Serializable {
 
 	private static final long serialVersionUID = -3090586532808240374L;
@@ -43,5 +40,46 @@ public class Property extends Common implements Serializable {
 		return Objects.hash(applicationPropertyId, applicationPropertyName, applicationPropertyValue, dataType,
 				description);
 	}
+
+	public Long getApplicationPropertyId() {
+		return applicationPropertyId;
+	}
+
+	public void setApplicationPropertyId(Long applicationPropertyId) {
+		this.applicationPropertyId = applicationPropertyId;
+	}
+
+	public String getApplicationPropertyName() {
+		return applicationPropertyName;
+	}
+
+	public void setApplicationPropertyName(String applicationPropertyName) {
+		this.applicationPropertyName = applicationPropertyName;
+	}
+
+	public String getApplicationPropertyValue() {
+		return applicationPropertyValue;
+	}
+
+	public void setApplicationPropertyValue(String applicationPropertyValue) {
+		this.applicationPropertyValue = applicationPropertyValue;
+	}
+
+	public String getDataType() {
+		return dataType;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	
 }

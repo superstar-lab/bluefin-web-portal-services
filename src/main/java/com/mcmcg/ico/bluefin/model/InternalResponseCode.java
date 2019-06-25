@@ -9,9 +9,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import lombok.Data;
-
-@Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "internalResponseCodeId")
 public class InternalResponseCode extends Common implements Serializable {
 
@@ -36,4 +33,55 @@ public class InternalResponseCode extends Common implements Serializable {
         }
         paymentProcessorInternalResponseCodes.add(paymentProcessorInternalResponseCode);
     }
+
+	public Long getInternalResponseCodeId() {
+		return internalResponseCodeId;
+	}
+
+	public void setInternalResponseCodeId(Long internalResponseCodeId) {
+		this.internalResponseCodeId = internalResponseCodeId;
+	}
+
+	public String getInternalResponseCodeValue() {
+		return internalResponseCodeValue;
+	}
+
+	public void setInternalResponseCodeValue(String internalResponseCodeValue) {
+		this.internalResponseCodeValue = internalResponseCodeValue;
+	}
+
+	public String getInternalResponseCodeDescription() {
+		return internalResponseCodeDescription;
+	}
+
+	public void setInternalResponseCodeDescription(String internalResponseCodeDescription) {
+		this.internalResponseCodeDescription = internalResponseCodeDescription;
+	}
+
+	public Collection<PaymentProcessorInternalResponseCode> getPaymentProcessorInternalResponseCodes() {
+		return paymentProcessorInternalResponseCodes;
+	}
+
+	public void setPaymentProcessorInternalResponseCodes(
+			Collection<PaymentProcessorInternalResponseCode> paymentProcessorInternalResponseCodes) {
+		this.paymentProcessorInternalResponseCodes = paymentProcessorInternalResponseCodes;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	public String getTransactionTypeName() {
+		return transactionTypeName;
+	}
+
+	public void setTransactionTypeName(String transactionTypeName) {
+		this.transactionTypeName = transactionTypeName;
+	}
+    
+    
 }

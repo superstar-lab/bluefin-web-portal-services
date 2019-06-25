@@ -2,15 +2,11 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorMerchant;
 
-import lombok.Data;
-
-@Data
 public class PaymentProcessorMerchantResource implements Serializable {
     private static final long serialVersionUID = -6212668449240343946L;
 
@@ -29,4 +25,30 @@ public class PaymentProcessorMerchantResource implements Serializable {
 
         return paymentProcessorMerchant;
     }
+
+	public Long getLegalEntityAppId() {
+		return legalEntityAppId;
+	}
+
+	public void setLegalEntityAppId(Long legalEntityAppId) {
+		this.legalEntityAppId = legalEntityAppId;
+	}
+
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
+	}
+
+	public Short getTestOrProd() {
+		return testOrProd;
+	}
+
+	public void setTestOrProd(Short testOrProd) {
+		this.testOrProd = testOrProd;
+	}
+    
+    
 }

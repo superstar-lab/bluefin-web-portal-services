@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -48,7 +48,7 @@ import com.mcmcg.ico.bluefin.util.TestUtilClass;
 import com.mysema.query.types.expr.BooleanExpression;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
+@SpringBootTest(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class UserServiceTest {
 	@Mock

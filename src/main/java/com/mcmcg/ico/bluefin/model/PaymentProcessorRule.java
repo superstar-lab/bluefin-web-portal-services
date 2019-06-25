@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import lombok.Data;
-
-@Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorRuleId")
 public class PaymentProcessorRule implements Serializable {
     private static final long serialVersionUID = 255255719776828551L;
@@ -57,4 +54,77 @@ public class PaymentProcessorRule implements Serializable {
 				+ ", monthToDateCumulativeAmount=" + monthToDateCumulativeAmount + "]";
 	}
 
+	public Long getPaymentProcessorRuleId() {
+		return paymentProcessorRuleId;
+	}
+
+	public void setPaymentProcessorRuleId(Long paymentProcessorRuleId) {
+		this.paymentProcessorRuleId = paymentProcessorRuleId;
+	}
+
+	public PaymentProcessor getPaymentProcessor() {
+		return paymentProcessor;
+	}
+
+	public void setPaymentProcessor(PaymentProcessor paymentProcessor) {
+		this.paymentProcessor = paymentProcessor;
+	}
+
+	public CardType getCardType() {
+		return cardType;
+	}
+
+	public void setCardType(CardType cardType) {
+		this.cardType = cardType;
+	}
+
+	public BigDecimal getMaximumMonthlyAmount() {
+		return maximumMonthlyAmount;
+	}
+
+	public void setMaximumMonthlyAmount(BigDecimal maximumMonthlyAmount) {
+		this.maximumMonthlyAmount = maximumMonthlyAmount;
+	}
+
+	public Short getNoMaximumMonthlyAmountFlag() {
+		return noMaximumMonthlyAmountFlag;
+	}
+
+	public void setNoMaximumMonthlyAmountFlag(Short noMaximumMonthlyAmountFlag) {
+		this.noMaximumMonthlyAmountFlag = noMaximumMonthlyAmountFlag;
+	}
+
+	public Short getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Short priority) {
+		this.priority = priority;
+	}
+
+	public BigDecimal getMonthToDateCumulativeAmount() {
+		return monthToDateCumulativeAmount;
+	}
+
+	public void setMonthToDateCumulativeAmount(BigDecimal monthToDateCumulativeAmount) {
+		this.monthToDateCumulativeAmount = monthToDateCumulativeAmount;
+	}
+
+	public DateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(DateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	
 }

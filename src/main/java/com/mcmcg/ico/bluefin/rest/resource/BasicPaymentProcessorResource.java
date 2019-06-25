@@ -2,17 +2,13 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.sql.Time;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 
-import lombok.Data;
-
-@Data
 public class BasicPaymentProcessorResource {
     private static final long serialVersionUID = -602175101416750669L;
 
@@ -35,4 +31,46 @@ public class BasicPaymentProcessorResource {
         paymentProcessor.setLastModifiedBy(lastModifiedBy);
         return paymentProcessor;
     }
+
+	public String getProcessorName() {
+		return processorName;
+	}
+
+	public void setProcessorName(String processorName) {
+		this.processorName = processorName;
+	}
+
+	public Short getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Short isActive) {
+		this.isActive = isActive;
+	}
+
+	public Time getRemitTransactionOpenTime() {
+		return remitTransactionOpenTime;
+	}
+
+	public void setRemitTransactionOpenTime(Time remitTransactionOpenTime) {
+		this.remitTransactionOpenTime = remitTransactionOpenTime;
+	}
+
+	public Time getRemitTransactionCloseTime() {
+		return remitTransactionCloseTime;
+	}
+
+	public void setRemitTransactionCloseTime(Time remitTransactionCloseTime) {
+		this.remitTransactionCloseTime = remitTransactionCloseTime;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+    
+    
 }

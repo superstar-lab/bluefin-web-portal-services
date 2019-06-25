@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,7 +38,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.util.TestUtilClass;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
+@SpringBootTest(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class LegalEntityAppServiceTest {
 

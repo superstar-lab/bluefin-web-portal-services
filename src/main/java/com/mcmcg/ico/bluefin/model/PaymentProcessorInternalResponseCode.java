@@ -10,9 +10,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import lombok.Data;
-
-@Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorInternalResponseCodeId")
 public class PaymentProcessorInternalResponseCode implements Serializable {
 
@@ -34,4 +31,61 @@ public class PaymentProcessorInternalResponseCode implements Serializable {
     @JsonIgnore
     private String lastModifiedBy;
 
+	public Long getPaymentProcessorInternalResponseCodeId() {
+		return paymentProcessorInternalResponseCodeId;
+	}
+
+	public void setPaymentProcessorInternalResponseCodeId(Long paymentProcessorInternalResponseCodeId) {
+		this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
+	}
+
+	public Long getInternalResponseCodeId() {
+		return internalResponseCodeId;
+	}
+
+	public void setInternalResponseCodeId(Long internalResponseCodeId) {
+		this.internalResponseCodeId = internalResponseCodeId;
+	}
+
+	public InternalResponseCode getInternalResponseCode() {
+		return internalResponseCode;
+	}
+
+	public void setInternalResponseCode(InternalResponseCode internalResponseCode) {
+		this.internalResponseCode = internalResponseCode;
+	}
+
+	public Long getPaymentProcessorResponseCodeId() {
+		return paymentProcessorResponseCodeId;
+	}
+
+	public void setPaymentProcessorResponseCodeId(Long paymentProcessorResponseCodeId) {
+		this.paymentProcessorResponseCodeId = paymentProcessorResponseCodeId;
+	}
+
+	public PaymentProcessorResponseCode getPaymentProcessorResponseCode() {
+		return paymentProcessorResponseCode;
+	}
+
+	public void setPaymentProcessorResponseCode(PaymentProcessorResponseCode paymentProcessorResponseCode) {
+		this.paymentProcessorResponseCode = paymentProcessorResponseCode;
+	}
+
+	public DateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(DateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+    
 }

@@ -17,10 +17,18 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
+	<repositories>
+    	<repository>
+      		<id>maven-central</id>
+      		<name>maven central cglib</name>
+      		<url>https://repo1.maven.org/maven2/</url>
+    	</repository>
+  	</repositories>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>1.8</java.version>
-		<io.springfox.version>2.2.2</io.springfox.version>
+		<java.version>12</java.version>
+		<io.springfox.version>2.9.2</io.springfox.version>
 		<querydsl.version>3.7.2</querydsl.version>
 		<org.powermock.version>1.6.2</org.powermock.version>
 		<!-- <endpoint.email.wsdl.base.url>http://phxiowasq34.internal.mcmcg.com</endpoint.email.wsdl.base.url> -->
@@ -157,11 +165,11 @@
 		</dependency>
 
 		<!-- Utils -->
-		<dependency>
+		<!-- <dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.16.8</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -170,7 +178,6 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -205,7 +212,6 @@
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-core</artifactId>
-			<version>3.2.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -230,6 +236,52 @@
 			<artifactId>json-path</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+    		<groupId>org.javassist</groupId>
+    		<artifactId>javassist</artifactId>
+    		<version>3.23.1-GA</version>
+		</dependency>
+		<dependency>
+    		<groupId>cglib</groupId>
+    		<artifactId>cglib-nodep</artifactId>
+    		<version>3.2.12</version>
+		</dependency>
+		<dependency>
+    		<groupId>javax.annotation</groupId>
+    		<artifactId>javax.annotation-api</artifactId>
+		</dependency>
+		<dependency>
+    		<groupId>javax.xml.bind</groupId>
+    		<artifactId>jaxb-api</artifactId>
+		</dependency>
+		<dependency>
+    		<groupId>org.glassfish.jaxb</groupId>
+    		<artifactId>jaxb-runtime</artifactId>
+    		<version>2.3.2</version>
+		</dependency>
+		
+		<dependency>
+    		<groupId>com.sun.xml.bind</groupId>
+    		<artifactId>jaxb-core</artifactId>
+    		<version>2.2.11</version>
+		</dependency>
+		<dependency>
+    		<groupId>javax.activation</groupId>
+    		<artifactId>activation</artifactId>
+    		<version>1.1.1</version>
+		</dependency>
+		<dependency>
+    		<groupId>javax.xml.ws</groupId>
+    		<artifactId>jaxws-api</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.maven.surefire/surefire-testng -->
+		<dependency>
+    		<groupId>org.apache.maven.surefire</groupId>
+    		<artifactId>surefire-testng</artifactId>
+    		<version>2.22.0</version>
+		</dependency>
+		
 	</dependencies>
 
 	<!-- Required because we have two parent poms -->
@@ -239,7 +291,7 @@
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>1.3.6.RELEASE</version>
+				<version>2.1.5.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -269,7 +321,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5</version>
+				<version>3.8.0</version>
 				<!-- compile for Java 1.8 -->
 				<configuration>
 					<source>${java.version}</source>
@@ -282,7 +334,7 @@
 				<artifactId>cxf-codegen-plugin</artifactId>
 				<version>3.1.5</version>
 				<executions>
-					<execution>
+					<!-- <execution>
 						<id>generate-sources</id>
 						<phase>generate-sources</phase>
 						<configuration>
@@ -296,7 +348,7 @@
 						<goals>
 							<goal>wsdl2java</goal>
 						</goals>
-					</execution>
+					</execution> -->
 				</executions>
 			</plugin>
 			<plugin>
@@ -334,7 +386,7 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
-			<!-- <plugin>
+			<plugin>
 				<groupId>com.mysema.maven</groupId>
 				<artifactId>apt-maven-plugin</artifactId>
 				<version>1.1.3</version>
@@ -350,7 +402,38 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin> -->
+			</plugin>
+			
+			<plugin>
+    			<groupId>org.codehaus.mojo</groupId>
+    			<artifactId>versions-maven-plugin</artifactId>
+    			<version>2.5</version>
+    			<configuration>
+        			<generateBackupPoms>false</generateBackupPoms>
+    			</configuration>
+			</plugin>
+			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-surefire-plugin</artifactId>
+    			<version>2.22.1</version>
+    			<configuration>
+    				<skipTests>true</skipTests>
+        			<argLine>
+            			--illegal-access=permit
+        			</argLine>
+    			</configuration>
+			</plugin>
+			<plugin>
+    			<groupId>org.apache.maven.plugins</groupId>
+    			<artifactId>maven-failsafe-plugin</artifactId>
+    			<version>2.22.0</version>
+    			<configuration>
+        			<argLine>
+            			--illegal-access=permit
+        			</argLine>
+    			</configuration>
+			</plugin>
+			
 		</plugins>
 		<finalName>bluefin-wp-services</finalName>
 	</build>

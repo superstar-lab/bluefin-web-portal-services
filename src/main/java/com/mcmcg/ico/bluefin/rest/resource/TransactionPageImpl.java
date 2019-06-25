@@ -9,10 +9,9 @@ import org.springframework.data.domain.Pageable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mcmcg.ico.bluefin.model.BinDBDetails;
 
-import lombok.Data;
-
-@Data
 public class TransactionPageImpl<T> extends PageImpl<T> {
+
+	private static final long serialVersionUID = 1409745156033130199L;
 	
 	@JsonProperty("content-bindb-details")
 	private transient List<BinDBDetails> binDBDetails = new ArrayList<>();
@@ -21,5 +20,14 @@ public class TransactionPageImpl<T> extends PageImpl<T> {
 		super(content, pageable, total);
 		this.binDBDetails = binDBDetails;
 	}
+
+	public List<BinDBDetails> getBinDBDetails() {
+		return binDBDetails;
+	}
+
+	public void setBinDBDetails(List<BinDBDetails> binDBDetails) {
+		this.binDBDetails = binDBDetails;
+	}
+	
 	
 }

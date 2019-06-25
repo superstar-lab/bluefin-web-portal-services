@@ -18,7 +18,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,7 +45,7 @@ import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(TokenUtils.class)
-@SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
+@SpringBootTest(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 
 public class SessionServiceTest {

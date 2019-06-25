@@ -11,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.Data;
-
-@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ErrorResource implements Serializable {
     private static final long serialVersionUID = -998746769406083432L;
@@ -91,4 +88,46 @@ public class ErrorResource implements Serializable {
                 ErrorResource.buildErrorResource(uniqueId, exception, hasDevelopmentProfileHeader), new HttpHeaders(),
                 httpStatus);
     }
+
+	public UUID getUniqueId() {
+		return uniqueId;
+	}
+
+	public void setUniqueId(UUID uniqueId) {
+		this.uniqueId = uniqueId;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public String getException() {
+		return exception;
+	}
+
+	public void setException(String exception) {
+		this.exception = exception;
+	}
+
+	public String getTrace() {
+		return trace;
+	}
+
+	public void setTrace(String trace) {
+		this.trace = trace;
+	}
+    
+    
 }

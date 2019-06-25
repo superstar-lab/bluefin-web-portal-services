@@ -10,9 +10,6 @@ import javax.validation.constraints.NotNull;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 
-import lombok.Data;
-
-@Data
 public class PaymentProcessorRuleResource implements Serializable {
     private static final long serialVersionUID = -3192378815338636933L;
 
@@ -61,4 +58,46 @@ public class PaymentProcessorRuleResource implements Serializable {
 
         return rule;
     }
+
+	public Long getPaymentProcessorId() {
+		return paymentProcessorId;
+	}
+
+	public void setPaymentProcessorId(Long paymentProcessorId) {
+		this.paymentProcessorId = paymentProcessorId;
+	}
+
+	public CardType getCardType() {
+		return cardType;
+	}
+
+	public void setCardType(CardType cardType) {
+		this.cardType = cardType;
+	}
+
+	public BigDecimal getMaximumMonthlyAmount() {
+		return maximumMonthlyAmount;
+	}
+
+	public void setMaximumMonthlyAmount(BigDecimal maximumMonthlyAmount) {
+		this.maximumMonthlyAmount = maximumMonthlyAmount;
+	}
+
+	public Short getNoMaximumMonthlyAmountFlag() {
+		return noMaximumMonthlyAmountFlag;
+	}
+
+	public void setNoMaximumMonthlyAmountFlag(Short noMaximumMonthlyAmountFlag) {
+		this.noMaximumMonthlyAmountFlag = noMaximumMonthlyAmountFlag;
+	}
+
+	public Short getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Short priority) {
+		this.priority = priority;
+	}
+    
+    
 }

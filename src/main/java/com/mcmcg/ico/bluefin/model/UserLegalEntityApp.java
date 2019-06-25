@@ -3,9 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-import lombok.Data;
-
-@Data
 public class UserLegalEntityApp extends Common implements Serializable {
 
 	private static final long serialVersionUID = 5215039441336963323L;
@@ -36,4 +33,37 @@ public class UserLegalEntityApp extends Common implements Serializable {
 		return Objects.hash(userLegalEntityAppId, userId, legalEntityAppId);
 	}
 
+	public Long getUserLegalEntityAppId() {
+		return userLegalEntityAppId;
+	}
+
+	public void setUserLegalEntityAppId(Long userLegalEntityAppId) {
+		this.userLegalEntityAppId = userLegalEntityAppId;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getLegalEntityAppId() {
+		return legalEntityAppId;
+	}
+
+	public void setLegalEntityAppId(Long legalEntityAppId) {
+		this.legalEntityAppId = legalEntityAppId;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	
 }

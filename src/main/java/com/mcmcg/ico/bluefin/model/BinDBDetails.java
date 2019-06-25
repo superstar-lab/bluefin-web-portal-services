@@ -4,9 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.Data;
-
-@Data
 @JsonIgnoreProperties({"countryIso","country2Iso","country3Iso","self"})
 public class BinDBDetails {
 	
@@ -73,4 +70,118 @@ public class BinDBDetails {
 			this.phone = "";
 		}
 	}
+
+	public Long getBinDBId() {
+		return binDBId;
+	}
+
+	public void setBinDBId(Long binDBId) {
+		this.binDBId = binDBId;
+	}
+
+	public String getBin() {
+		return bin;
+	}
+
+	public void setBin(String bin) {
+		this.bin = bin;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public String getBank() {
+		return bank;
+	}
+
+	public void setBank(String bank) {
+		this.bank = bank;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getLevel() {
+		return level;
+	}
+
+	public void setLevel(String level) {
+		this.level = level;
+	}
+
+	public String getIsocountry() {
+		return isocountry;
+	}
+
+	public void setIsocountry(String isocountry) {
+		this.isocountry = isocountry;
+	}
+
+	public String getInfo() {
+		return info;
+	}
+
+	public void setInfo(String info) {
+		this.info = info;
+	}
+
+	public String getWww() {
+		return www;
+	}
+
+	public void setWww(String www) {
+		this.www = www;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getCountryIso() {
+		return countryIso;
+	}
+
+	public void setCountryIso(String countryIso) {
+		this.countryIso = countryIso;
+	}
+
+	public String getCountry2Iso() {
+		return country2Iso;
+	}
+
+	public void setCountry2Iso(String country2Iso) {
+		this.country2Iso = country2Iso;
+	}
+
+	public String getCountry3Iso() {
+		return country3Iso;
+	}
+
+	public void setCountry3Iso(String country3Iso) {
+		this.country3Iso = country3Iso;
+	}
+
+	public BinDBDetails getSelf() {
+		return self;
+	}
+
+	public void setSelf(BinDBDetails self) {
+		this.self = self;
+	}
+	
+	
 }

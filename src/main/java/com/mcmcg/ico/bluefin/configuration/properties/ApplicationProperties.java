@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import lombok.Data;
-
-@Data
 @Component
 public class ApplicationProperties {
     private final String artifact;
@@ -26,4 +23,26 @@ public class ApplicationProperties {
         this.version = version;
         this.gitProperties = gitProperties;
     }
+
+	public String getArtifact() {
+		return artifact;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public GitProperties getGitProperties() {
+		return gitProperties;
+	}
+    
+    
 }

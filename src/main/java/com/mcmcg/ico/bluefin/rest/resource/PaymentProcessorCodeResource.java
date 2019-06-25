@@ -2,9 +2,6 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import javax.validation.constraints.NotNull;
 
-import lombok.Data;
-
-@Data
 public class PaymentProcessorCodeResource {
 
     private String code;
@@ -14,4 +11,30 @@ public class PaymentProcessorCodeResource {
     private Long paymentProcessorId;
     // Value of field used to find already saved payment processor status code
     private Long paymentProcessorCodeId;
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public Long getPaymentProcessorId() {
+		return paymentProcessorId;
+	}
+	public void setPaymentProcessorId(Long paymentProcessorId) {
+		this.paymentProcessorId = paymentProcessorId;
+	}
+	public Long getPaymentProcessorCodeId() {
+		return paymentProcessorCodeId;
+	}
+	public void setPaymentProcessorCodeId(Long paymentProcessorCodeId) {
+		this.paymentProcessorCodeId = paymentProcessorCodeId;
+	}
+    
+    
 }
