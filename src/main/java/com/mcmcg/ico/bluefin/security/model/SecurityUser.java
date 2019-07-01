@@ -31,29 +31,37 @@ public class SecurityUser implements UserDetails {
 		this.authorities = authorities;
 	}
 
+	@Override
 	public String getPassword() {
 		return user == null ? null : user.getPassword();
 	}
 
+	@Override
 	public String getUsername() {
 		return user == null ? null : user.getUsername();
 	}
 
+	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return this.authorities;
 	}
 
+	@Override
 	public boolean isAccountNonExpired() {
 		return this.getAccountNonExpired();
 	}
+	
+	@Override
 	public boolean isAccountNonLocked() {
 		return !("INACTIVE".equals(user.getStatus()) || "LOCKED".equals(user.getStatus()));
 	}
 
+	@Override
 	public boolean isCredentialsNonExpired() {
 		return this.getCredentialsNonExpired();
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return "ACTIVE".equals(user.getStatus());
 	}
