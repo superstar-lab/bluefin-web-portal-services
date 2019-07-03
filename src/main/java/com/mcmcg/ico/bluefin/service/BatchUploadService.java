@@ -28,6 +28,7 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
 import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
@@ -56,6 +57,8 @@ public class BatchUploadService {
     private LegalEntityAppService legalEntityAppService;
 	@Autowired
 	private LegalEntityAppDAO legalEntityAppDAO;
+	@Autowired
+	private TransationBinDBDetailsService transationBinDBDetailsService;
 	
 
 	// Delimiter used in CSV file
@@ -204,6 +207,15 @@ public class BatchUploadService {
 		} else {
 			result = saleTransactionDAO.findByBatchUploadId(batchUploadId);
 			batchUpload = getBatchUploadById(batchUploadId);
+		}
+		
+		for(SaleTransaction saleTransactioData : result) {
+			if (saleTransactioData != null) {
+				LOGGER.debug("Record found for transactionId: {}", saleTransactioData.getApplicationTransactionId());
+				saleTransactioData.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransactioData.getCardNumberFirst6Char()));
+			} else {
+				LOGGER.debug("Sale Transaction Record not found");
+			}
 		}
 		
 		batchReturnFileModel.setResult(result);
