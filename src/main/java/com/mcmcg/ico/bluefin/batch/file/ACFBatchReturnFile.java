@@ -188,16 +188,22 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		saleTransactionDataRecord.add(saleTransaction.getFirstName()+" "+saleTransaction.getLastName());
 						
 		//Card Type
-		saleTransactionDataRecord.add(saleTransaction.getCardType());
+		String cardBrand = "";
+		if(saleTransaction.getBinDBDetails()!=null) {
+			cardBrand = saleTransaction.getBinDBDetails().getBrand();
+			
+		}
+		saleTransactionDataRecord.add(cardBrand);		
 						
 		//Card Number
-		String cardFirstDigits = StringUtils.isNotBlank(saleTransaction.getCardNumberFirst6Char()) ? saleTransaction.getCardNumberFirst6Char() : BluefinWebPortalConstants.CARDDIGITWITHSIXZERO;
+		/**String cardFirstDigits = StringUtils.isNotBlank(saleTransaction.getCardNumberFirst6Char()) ? saleTransaction.getCardNumberFirst6Char() : BluefinWebPortalConstants.CARDDIGITWITHSIXZERO;*/
+		String cardFirstDigits = BluefinWebPortalConstants.CARDDIGITWITHSIXZERO;
 		String cardLastDigits = StringUtils.isNotBlank(saleTransaction.getCardNumberLast4Char().replaceAll("XXXX-", "").replaceAll("null", "")) ? saleTransaction.getCardNumberLast4Char().replaceAll("XXXX-", "") : BluefinWebPortalConstants.CARDDIGITWITHFOURZERO;
 		String cardMiddleDigits = "";
 		String starsForCardMiddleDigits = BluefinWebPortalConstants.CARDDIGITWITHSIXZERO;
 		if(StringUtils.isNotBlank(saleTransaction.getToken())) {
 			cardMiddleDigits = saleTransaction.getToken().substring(6, saleTransaction.getToken().length()-4);
-			starsForCardMiddleDigits = StringUtils.repeat("0", cardMiddleDigits.length());
+			starsForCardMiddleDigits = StringUtils.repeat(BluefinWebPortalConstants.CARDMIDDLEDIGITREPLACEWITH, cardMiddleDigits.length());
 		}
 				
 		saleTransactionDataRecord.add(cardFirstDigits+starsForCardMiddleDigits+cardLastDigits);

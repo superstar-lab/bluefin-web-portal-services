@@ -157,6 +157,7 @@ public class BluefinWebPortalConstants {
 	public static final String BATCHRETURNFILENAMEFORACF = "Batch_Return_File_";
 	public static final String TRANSACTIONREPORTPATH = "TRANSACTIONS_REPORT_PATH";
 	public static final String CARDDIGITWITHSIXZERO = "000000";
+	public static final String CARDMIDDLEDIGITREPLACEWITH = "0";
 	public static final String CARDDIGITWITHFOURZERO = "0000";
 	public static final String UPLOADED = "uploaded";
 	public static final String BATCHRETURNFILES = "batch_return_file_";
