@@ -188,7 +188,7 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		saleTransactionDataRecord.add(saleTransaction.getFirstName()+" "+saleTransaction.getLastName());
 						
 		//Card Type
-		String cardBrand = "";
+		String cardBrand = BluefinWebPortalConstants.CARDBRAND;
 		if(saleTransaction.getBinDBDetails()!=null) {
 			cardBrand = saleTransaction.getBinDBDetails().getBrand();
 			
