@@ -109,6 +109,7 @@ public class LegalEntityAppRestController {
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityResource, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
     	final Short activeStatus=legalEntityResource.getIsActive();
+    	final Short activeForBatchUpload=legalEntityResource.getIsActiveForBatchUpload();
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -116,21 +117,28 @@ public class LegalEntityAppRestController {
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)), BluefinWebPortalConstants.SEPARATOR,
+            		
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
         }
-        if(activeStatus==null){
-        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+        if(activeStatus==null || activeForBatchUpload==null){
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App create Request:", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
-        			"Active/In-active status cannot be null");
-        	throw new CustomBadRequestException("Active/In-active status cannot be null");
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)), BluefinWebPortalConstants.SEPARATOR,
+        			"Active/In-active status Or Active/In-Active for batch cannot be null.");
+        	throw new CustomBadRequestException("value of Active/In-active status Or value of Active/In-Active for batch upload cannot be null.");
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName()));
+        		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)));
         
         return new ResponseEntity<>(
                 legalEntityAppService.createLegalEntity(legalEntityResource, authentication==null ? "":authentication.getName()),
@@ -149,27 +157,34 @@ public class LegalEntityAppRestController {
             @Validated @RequestBody BasicLegalEntityAppResource legalEntityAppToUpdate, @ApiIgnore Errors errors,
             @ApiIgnore Authentication authentication) {
     	final Short activeStatus=legalEntityAppToUpdate.getIsActive();
+    	final Short activeForBatchUpload=legalEntityAppToUpdate.getIsActiveForBatchUpload();
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
             
             throw new CustomBadRequestException(errorDescription);
         }
-        if(activeStatus==null){
-        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+        if(activeStatus==null || activeForBatchUpload==null){
+        	LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request:", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()), BluefinWebPortalConstants.SEPARATOR,
-        			"Active/In-active status cannot be null");
-        	throw new CustomBadRequestException("Active/In-active status cannot be null");
+            		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+        			BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)), BluefinWebPortalConstants.SEPARATOR,
+        			"Active/In-active status Or Active/In-Active for batch cannot be null.");
+        	throw new CustomBadRequestException("value of Active/In-active status Or value of Active/In-Active for batch upload cannot be null.");
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName()));
+        		BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppToUpdate.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)));
         
         return legalEntityAppService.updateLegalEntityApp(id, legalEntityAppToUpdate, authentication==null ? "":authentication.getName());
     }

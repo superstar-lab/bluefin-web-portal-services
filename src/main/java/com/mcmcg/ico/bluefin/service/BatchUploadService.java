@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.QuoteMode;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -23,7 +20,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +30,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
+import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
 import com.mcmcg.ico.bluefin.model.BatchUpload;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
-import com.mcmcg.ico.bluefin.model.StatusCode;
 import com.mcmcg.ico.bluefin.repository.BatchUploadDAO;
+import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
 import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.service.util.HttpsUtil;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 @Service
@@ -57,9 +57,11 @@ public class BatchUploadService {
 	private PropertyService propertyService;
 	@Autowired
     private LegalEntityAppService legalEntityAppService;
+	@Autowired
+	private LegalEntityAppDAO legalEntityAppDAO;
+	@Autowired
+	private TransationBinDBDetailsService transationBinDBDetailsService;
 	
-	@Value("${batch.upload.legal.entity.name}")
-    private String legalEntityAppName;
 
 	// Delimiter used in CSV file
 	private static final String NEW_LINE_SEPARATOR = "\n";
@@ -68,8 +70,6 @@ public class BatchUploadService {
 			"Batch Application", "Number Of Transactions", "Transactions Processed", "Approved Transactions",
 			"Declined Transactions", "Error Transactions", "Rejected Transactions", "Process Start", "Process End",
 			"UpLoadedBy" };
-	private static final Object[] TRANSACTIONS_FILE_HEADER = { "Date", "Time", "Invoice", "Amount", "Result",
-			"Error Message" };
 
 	public BatchUpload getBatchUploadById(Long id) {
 		BatchUpload batchUpload = batchUploadDAO.findOne(id);
@@ -79,6 +79,16 @@ public class BatchUploadService {
 			throw new CustomNotFoundException(String.format("Unable to find batch upload with id = [%s]", id));
 		}
 
+		LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppId(batchUpload.getLegalEntityAppId());
+		if (legalEntityApp == null) {
+			LOGGER.debug(LoggingUtil.adminAuditInfo("Legal Entity name not found", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Legal Entity with Id : ", String.valueOf(batchUpload.getLegalEntityAppId())));
+			batchUpload.setLegalEntityName("Not Found");
+		}
+		else {
+			batchUpload.setLegalEntityName(legalEntityApp.getLegalEntityAppName());
+		}
+		
 		return batchUpload;
 	}
 
@@ -106,14 +116,15 @@ public class BatchUploadService {
 		return result;
 	}
 
-	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines, String xAuthToken) {
+	public BatchUpload createBatchUpload(String username, String fileName, String fileStream, int lines, String xAuthToken, String legalEntityName) {
 		String batchProcessServiceUrl = propertyService.getPropertyValue("BATCH_PROCESS_SERVICE_URL");
 		LOGGER.info("Creating new basic Batch Upload");
-		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines);
+		LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppName(legalEntityName);
+		BatchUpload batchUpload = createBasicBatchUpload(username, fileName, lines, legalEntityName, legalEntityApp.getLegalEntityAppId());
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
-		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString(),
+		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() +"/"+ legalEntityName,
 				fileStream, xAuthToken);
 		LOGGER.debug("ACF response ={} ",response);
 
@@ -122,14 +133,16 @@ public class BatchUploadService {
 			objectMapper.registerModule(new JodaModule());
 			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 			LOGGER.info("Conveting ACF response into BatchUpload object");
-			return objectMapper.readValue(response, BatchUpload.class);
+			BatchUpload batchUploadResult = objectMapper.readValue(response, BatchUpload.class);
+			batchUploadResult.setLegalEntityName(legalEntityName);
+			return batchUploadResult;
 		} catch (IOException e) {
 			LOGGER.error("Unable to parse ACF batch process service response.", e);
 			throw new CustomException("Unable to parse ACF batch process service response.");
 		}
 	}
 
-	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines) {
+	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines, String legalEntityName, Long legalEntityAppId) {
 		BatchUpload batchUpload = new BatchUpload();
 		batchUpload.setDateUploaded(new DateTime().toDateTime(DateTimeZone.UTC));
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd_HHmmss");
@@ -140,6 +153,8 @@ public class BatchUploadService {
 		batchUpload.setBatchApplication("Latitude");
 		batchUpload.setProcessStart(new DateTime().toDateTime(DateTimeZone.UTC));
 		batchUpload.setNumberOfTransactions(lines);
+		batchUpload.setLegalEntityName(legalEntityName);
+		batchUpload.setLegalEntityAppId(legalEntityAppId);
 		return batchUpload;
 	}
 
@@ -250,109 +265,32 @@ public class BatchUploadService {
 		return file;
 	}
 
-	public File getBatchUploadTransactionsReport(Long batchUploadId, String timeZone) throws IOException {
+	public BatchReturnFileModel getBatchUploadTransactionsReport(Long batchUploadId) {
 		List<SaleTransaction> result;
-		File file;
-		String reportPath = propertyService.getPropertyValue("TRANSACTIONS_REPORT_PATH");
-		LOGGER.debug("reportPath: ={}",reportPath);
+		BatchUpload batchUpload = null;
+		BatchReturnFileModel batchReturnFileModel = new BatchReturnFileModel();
 
 		if (batchUploadId == null) {
 			result = saleTransactionDAO.findAll();
 		} else {
 			result = saleTransactionDAO.findByBatchUploadId(batchUploadId);
+			batchUpload = getBatchUploadById(batchUploadId);
 		}
 		
-		boolean flag;
-		try {
-			File dir = new File(reportPath);
-			dir.mkdirs();
-			file = new File(dir, UUID.randomUUID() + ".csv");
-			flag = file.createNewFile();
-			if(flag) {
-				LOGGER.info("Batch file Created {}", file.getName());
+		for(SaleTransaction saleTransactioData : result) {
+			if (saleTransactioData != null) {
+				LOGGER.debug("Record found for transactionId: {}", saleTransactioData.getApplicationTransactionId());
+				saleTransactioData.setBinDBDetails(transationBinDBDetailsService.fetchBinDBDetail(saleTransactioData.getCardNumberFirst6Char()));
+			} else {
+				LOGGER.debug("Sale Transaction Record not found");
 			}
-		} catch (Exception e) {
-			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
-			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
 		}
-
-		// Create CSV file header
-		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-		// initialize FileWriter object
-		FileWriter fileWriter = new FileWriter(file);
-		@SuppressWarnings("resource")
-		CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
-		csvFilePrinter.printRecord(TRANSACTIONS_FILE_HEADER);
-
-		// Create the CSVFormat object with "\n" as a record delimiter
-		csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withRecordSeparator(NEW_LINE_SEPARATOR);
-
-		try (CSVPrinter csvFilePrinterContent = new CSVPrinter(fileWriter, csvFileFormat);) {
-
-			// TransactionDateTime needs to be split into two parts.
-			DateTimeFormatter fmt1 = DateTimeFormat.forPattern("MM/dd/yyyy");
-			DateTimeFormatter fmt2 = DateTimeFormat.forPattern("hh:mm:ss.SSa");
-			LOGGER.debug("SaleTransaction size ={} ",result.size());
-			// Write a new transaction object list to the CSV file
-			for (SaleTransaction saleTransaction : result) {
-				List<String> saleTransactionDataRecord = new ArrayList<>();
-
-				// Batch Upload Date/Time (user's local time)
-				// The time zone (for example, "America/Costa_Rica" or
-				// "America/Los_Angeles") is passed as a parameter
-				// and applied to the UTC from the database.
-				if (saleTransaction.getTransactionDateTime() == null) {
-					saleTransactionDataRecord.add("");
-				} else {
-					DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
-					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
-					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
-					saleTransactionDataRecord.add(fmt1.print(dateTimeUser));
-				}
-
-				// Batch Upload Date/Time (user's local time)
-				// The time zone (for example, "America/Costa_Rica" or
-				// "America/Los_Angeles") is passed as a parameter
-				// and applied to the UTC from the database.
-				if (saleTransaction.getTransactionDateTime() == null) {
-					saleTransactionDataRecord.add("");
-				} else {
-					DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
-					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
-					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
-					saleTransactionDataRecord.add(fmt2.print(dateTimeUser));
-				}
-
-				// Invoice
-				saleTransactionDataRecord.add(saleTransaction.getInvoiceNumber());
-
-				BigDecimal amount = saleTransaction.getChargeAmount().setScale(2, BigDecimal.ROUND_DOWN);
-				DecimalFormat df = new DecimalFormat();
-				df.setMaximumFractionDigits(2);
-				df.setMinimumFractionDigits(0);
-				df.setGroupingUsed(false);
-
-				// Amount
-				saleTransactionDataRecord.add(saleTransaction.getChargeAmount() == null ? "" : df.format(amount));
-
-				// Result
-				saleTransactionDataRecord.add(StatusCode.getStatusCode(saleTransaction.getInternalStatusCode()));
-
-				// Error Message
-				String errorMessage = saleTransaction.getInternalResponseDescription() + "("
-						+ saleTransaction.getInternalResponseCode() + ")";
-				saleTransactionDataRecord.add(errorMessage.replaceAll("\r", "").replaceAll("\n", ""));
-
-				csvFilePrinterContent.printRecord(saleTransactionDataRecord);
-			}
-			LOGGER.info("CSV file report was created successfully !!!");
-		}
-		finally {
-	    	if(csvFilePrinter!=null) {
-	    		csvFilePrinter.close();
-	    	}
-	}
-		return file;
+		
+		batchReturnFileModel.setResult(result);
+		batchReturnFileModel.setBatchUpload(batchUpload);
+		
+		return batchReturnFileModel;
+		
 	}
 	
 	public ResponseEntity<String> deleteTempFile(File downloadFile, HttpServletResponse response, String deleteTempFile) {
@@ -383,7 +321,12 @@ public class BatchUploadService {
 		
 	}
 	
-	public boolean checkLegalEntityStatus() {
+	public boolean checkLegalEntityStatus(String legalEntityAppName) {
+		LegalEntityApp legalEntityApp = legalEntityAppService.getLegalEntityAppName(legalEntityAppName);
+		if(legalEntityApp == null) {
+			throw new CustomException("Legal Entity not found, Please provide a valid Legal Entity Name");
+		}
+		
 		return legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getIsActive().intValue() == 0;
 	}
 }

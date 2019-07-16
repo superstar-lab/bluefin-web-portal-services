@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,9 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.BatchUploadService;
-import com.mcmcg.ico.bluefin.service.LegalEntityAppService;
 
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -83,7 +84,10 @@ public class BatchUploadRestController {
 
     @ApiOperation(value = "createBatchUpload", nickname = "createBatchUpload")
     @RequestMapping(method = RequestMethod.POST, produces = "application/json")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+    @ApiImplicitParams({
+    	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
+        @ApiImplicitParam(name="LegalEntityName",value="Legal Entity", required = true, dataType = "string", paramType = "form")
+    })
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = BatchUpload.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -95,8 +99,12 @@ public class BatchUploadRestController {
         if (authentication == null) {
             throw new AccessDeniedException("An authorization token is required to request this resource");
         }
-        if (batchUploadService.checkLegalEntityStatus()) {
-        	throw new CustomException("Legal Entity MCM-LATITUDE is Inactive");
+        String legalEntityName = request.getParameter("legalEntityName");
+        if(StringUtils.isBlank(legalEntityName)) {
+        	throw new CustomException("Legal Entity name can not be blank");
+        }
+        if (batchUploadService.checkLegalEntityStatus(legalEntityName)) {
+        	throw new CustomException(String.format("Legal Entity = [%s] is Inactive", legalEntityName));
         }
         Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
@@ -104,6 +112,7 @@ public class BatchUploadRestController {
             throw new CustomBadRequestException("A file must be uploded");
         }
         MultipartFile file = filesArray[0];
+        
         byte[] bytes = null;
         int lines = 0;
         try {
@@ -118,7 +127,7 @@ public class BatchUploadRestController {
         LOGGER.info("Encoding file content to send it as stream");
         String stream = new String(Base64.encodeBase64(bytes));
         return batchUploadService.createBatchUpload(authentication.getName(), file.getOriginalFilename(), stream,
-                lines, request.getHeader("X-Auth-Token"));
+                lines, request.getHeader("X-Auth-Token"), legalEntityName);
     }
 
     private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {

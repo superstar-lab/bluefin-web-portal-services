@@ -132,26 +132,30 @@ public class LegalEntityAppService {
 	}
 
 	public LegalEntityApp createLegalEntity(BasicLegalEntityAppResource legalEntityResource, String modifiedBy) {
-		LOGGER.info("Entering to create Legal Entity : ");
+		LOGGER.info("Entering to create Legal Entity Service: ");
 		final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
 		final Short activeStatus =legalEntityResource.getIsActive();
+		final Short activeForBatchUpload =legalEntityResource.getIsActiveForBatchUpload();
 
 		if (existLegalEntityAppName(newLegalEntityAppName)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Request", BluefinWebPortalConstants.SEPARATOR,
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Service Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload), BluefinWebPortalConstants.SEPARATOR,
 					"Legal Entity App Name already exists."));
 			
 			throw new CustomBadRequestException(
 					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
 		}
-		if(isInValidStatus(activeStatus)){
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+		if(isInValidStatus(activeStatus) || isInValidStatus(activeForBatchUpload)){
+			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App create service Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
-					"Invalid Active/In-active status value : ", String.valueOf(activeStatus)));
+					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)));
         	throw new CustomBadRequestException(
-					String.format("Invalid Active/In-active status value= [%s]", activeStatus));
+					String.format("Invalid Active/In-active status value= [%s] Or Invalid Active/In-Active for batch value = [%s], value should be 0 Or 1", activeStatus, activeForBatchUpload));
         }
 		return legalEntityAppDAO.saveLegalEntityApp(legalEntityResource.toLegalEntityApp(), modifiedBy);
 	}
@@ -160,27 +164,32 @@ public class LegalEntityAppService {
 			String modifiedBy) {
 		LegalEntityApp legalEntityAppToUpdate = legalEntityAppDAO.findByLegalEntityAppId(id);
         final Short activeStatus =legalEntityAppResource.getIsActive();
+        final Short activeForBatchUpload=legalEntityAppResource.getIsActiveForBatchUpload();
 		LOGGER.debug("legalEntityAppToUpdate ={} ",legalEntityAppToUpdate);
 		if (legalEntityAppToUpdate == null) {
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload), BluefinWebPortalConstants.SEPARATOR,
 					"Unable to find legal entity app with id : ", String.valueOf(id)));
 			
 			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
 		}
-		if(isInValidStatus(activeStatus)){
+		if(isInValidStatus(activeStatus) || isInValidStatus(activeForBatchUpload)){
 			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
-					"Invalid Active/In-active status value : ", String.valueOf(activeStatus)));
+					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)));
         	throw new CustomBadRequestException(
-					String.format("Invalid Active/In-active status value= [%s]", activeStatus));
+					String.format("Invalid Active/In-active status value= [%s] Or Invalid Active/In-Active for batch value = [%s], value should be 0 Or 1", activeStatus, activeForBatchUpload));
         }
 		// Update fields for existing Legal Entity App
 		legalEntityAppToUpdate.setLegalEntityAppName(legalEntityAppResource.getLegalEntityAppName());
 		legalEntityAppToUpdate.setIsActive(legalEntityAppResource.getIsActive());
 		legalEntityAppToUpdate.setPrNumber(legalEntityAppResource.getPrNumber());
+		legalEntityAppToUpdate.setIsActiveForBatchUpload(legalEntityAppResource.getIsActiveForBatchUpload());
 
 		return legalEntityAppDAO.updateLegalEntityApp(legalEntityAppToUpdate, modifiedBy);
 	}
@@ -201,7 +210,7 @@ public class LegalEntityAppService {
 				LOGGER.debug("Failed to delete legal entity app",exp);
 			}
 			LOGGER.error("Legal Entity= {} with id = {} already in use.",id,legalEntityAppToDelete.getLegalEntityAppName() );
-			throw new CustomNotFoundException("Unable to delete this legal entity. There are active payment processor merchant ids that are mapped to this legal entity.");
+			throw new CustomNotFoundException("Unable to delete this legal entity. Either There are active payment processor merchant ids that are mapped to this legal entity OR legal entity is associated with a batch.");
 		}
 	}
 

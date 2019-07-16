@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
@@ -31,4 +32,7 @@ public class BatchUpload {
     private int numberOfDeclinedTransactions;
     private int numberOfErrorTransactions;
     private int numberOfRejected;
+    @JsonIgnore
+    private Long legalEntityAppId;
+    private String legalEntityName;
 }

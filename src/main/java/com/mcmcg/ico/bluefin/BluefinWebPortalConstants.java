@@ -148,7 +148,26 @@ public class BluefinWebPortalConstants {
 	public static final String USERVALUE = "?user=";
 	public static final String TOKENVALUE = "&token=";
 	public static final Short ACTIVELEGALENTITY = 1;
-
+	public static final String ACTIVESTATUS = "Is Legal Entity active : ";
+	public static final String ACTIVEFORBATCHUPLOAD = "Is Legal Entity active for batch :";
+	public static final String ACFAPPOCTSTREAM = "application/zip";
+	public static final String SUCCESS = "success";
+	public static final String DECLINED = "declined";
+	public static final String ERROR = "error";
+	public static final String BATCHRETURNFILENAMEFORACF = "Batch_Return_File_";
+	public static final String TRANSACTIONREPORTPATH = "TRANSACTIONS_REPORT_PATH";
+	public static final String CARDBRAND = "Credit";
+	public static final String CARDDIGITWITHSIXZERO = "000000";
+	public static final String CARDMIDDLEDIGITREPLACEWITH = "0";
+	public static final String CARDDIGITWITHFOURZERO = "0000";
+	public static final String UPLOADED = "uploaded";
+	public static final String BATCHRETURNFILES = "batch_return_file_";
+	public static final String MCMLEGALENTITYNAMECONFIG = "MCM_LEGALENTITYNAME_CONFIG";
+	public static final String ACFLEGALENTITYNAMECONFIG = "ACF_LEGALENTITYNAME_CONFIG";
+	public static final String JPFLEGALENTITYNAMECONFIG = "JPF_LEGALENTITYNAME_CONFIG";
+	public static final String MCMLEGALENTITYPREFIX = "MCM";
+	public static final String ACFLEGALENTITYPREFIX = "ACF";
+	public static final String JPFLEGALENTITYPREFIX = "JPF";
 	
 	private BluefinWebPortalConstants(){
 		
