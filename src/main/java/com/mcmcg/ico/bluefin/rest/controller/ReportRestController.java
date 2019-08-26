@@ -240,10 +240,10 @@ public class ReportRestController {
 			LOGGER.info("Legal Entity Name for batch return = [{}]", legalEntityName);
 			BatchReturnFile batchReturnFile = batchReturnFileObjectFactory.getBatchFileObject(legalEntityName);
 			Map<String, Object[]> fileHeadersMap = batchReturnFile.createFileHeader();
-			Map<String, BatchFileObjects> batchFileObjectsMap = batchReturnFile.createFileMap(batchReturnFile,fileHeadersMap,legalEntityName);
+			Map<String, BatchFileObjects> batchFileObjectsMap = batchReturnFile.createFileMap(batchReturnFile,fileHeadersMap,legalEntityName, batchUploadId);
 			Map<String, File> downloadFileMap = batchReturnFile.generateFile(batchReturnFile, batchReturnFileModel, batchFileObjectsMap, timeZone);
 
-			return batchReturnFile.deleteTempFile(downloadFileMap, response, DELETETEMPFILE, batchUploadId);
+			return batchReturnFile.deleteTempFile(downloadFileMap, response, DELETETEMPFILE, batchUploadId, legalEntityName);
 			
 		}
 		catch(Exception e) {

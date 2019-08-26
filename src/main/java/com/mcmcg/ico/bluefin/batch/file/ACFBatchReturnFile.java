@@ -87,10 +87,11 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	}
 	
 	@Override
-	public ResponseEntity<String> deleteTempFile(Map<String, File> downloadFileMap, HttpServletResponse response, String deleteTempFile, Long batchUploadId) throws IOException {
+	public ResponseEntity<String> deleteTempFile(Map<String, File> downloadFileMap, HttpServletResponse response, String deleteTempFile, Long batchUploadId, String legalEntityName) throws IOException {
 		SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
 		response.setContentType(BluefinWebPortalConstants.ACFAPPOCTSTREAM);
-	    response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, BluefinWebPortalConstants.ATTACHMENTFILENAME+BluefinWebPortalConstants.BATCHRETURNFILES+batchUploadId+"_"+ft.format(new Date())+".zip");
+	    response.setHeader(BluefinWebPortalConstants.CONTENTDISPOSITION, 
+	    		BluefinWebPortalConstants.ATTACHMENTFILENAME+BluefinWebPortalConstants.BATCHRETURNFILES+batchUploadId+"_"+legalEntityName+"_"+ft.format(new Date())+".zip");
 	    response.setStatus(HttpServletResponse.SC_OK);
 
 
@@ -131,14 +132,13 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	
 	@Override
 	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, 
-			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj) throws IOException {
+			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj, Long batchUploadId) throws IOException {
 		
 		File file;
 		boolean flag;
 		String fileName = "";
-		String legalEntityPrefix = legalEntityName.substring(0, 3);
 		try {
-			fileName = BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+legalEntityPrefix+"_"+headerObj.getKey();
+			fileName = BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+batchUploadId+"_"+legalEntityName+"_"+headerObj.getKey();
 			File dir = new File(reportPath);
 			dir.mkdirs();
 			file = new File(dir, fileName + ".csv");

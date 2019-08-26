@@ -30,11 +30,11 @@ public abstract class BatchReturnFile {
 	
 	public abstract Map<String, Object[]> createFileHeader();
 	
-	public abstract Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj) throws IOException;
+	public abstract Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj, Long batchUploadId) throws IOException;
 	
 	public abstract void generateBatchReturnFile(String key, SaleTransaction saleTransaction, List<String> saleTransactionDataRecord, String timeZone) throws IOException;
 	
-	public abstract ResponseEntity<String> deleteTempFile(Map<String, File>  downloadFileMap, HttpServletResponse response, String deleteTempFile, Long batchUploadId) throws IOException;
+	public abstract ResponseEntity<String> deleteTempFile(Map<String, File>  downloadFileMap, HttpServletResponse response, String deleteTempFile, Long batchUploadId, String legalEntityName) throws IOException;
 	
 	public Map<String, File> generateFile(BatchReturnFile batchReturnFile, BatchReturnFileModel batchReturnFileModel, Map<String, BatchFileObjects> batchFileObjectsMap, String timeZone) throws IOException {
 		Map<String, File> fileMap = new HashMap<>();
@@ -67,14 +67,14 @@ public abstract class BatchReturnFile {
 		return fileMap;
 	}
 	
-	public Map<String, BatchFileObjects> createFileMap(BatchReturnFile batchReturnFile, Map<String, Object[]> fileHeadersMap, String legalEntityName) throws IOException {
+	public Map<String, BatchFileObjects> createFileMap(BatchReturnFile batchReturnFile, Map<String, Object[]> fileHeadersMap, String legalEntityName, Long batchUploadId) throws IOException {
 		Map<String, BatchFileObjects> batchFileObjectsMap = new HashMap<>();
 		String reportPath = propertyService.getPropertyValue(BluefinWebPortalConstants.TRANSACTIONREPORTPATH);
 		LOGGER.info("legal Entity : ={}",legalEntityName);
 		LOGGER.debug("reportPath for batch return file : ={}",reportPath);
 		
 		for(Map.Entry<String,Object[]> headerObj : fileHeadersMap.entrySet()) {
-			batchReturnFile.createFile(fileHeadersMap,legalEntityName,reportPath,batchFileObjectsMap,headerObj);
+			batchReturnFile.createFile(fileHeadersMap,legalEntityName,reportPath,batchFileObjectsMap,headerObj,batchUploadId);
 		}
 		
 		return batchFileObjectsMap;

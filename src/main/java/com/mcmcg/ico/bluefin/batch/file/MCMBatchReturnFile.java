@@ -83,7 +83,7 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 	}
 
 	@Override
-	public ResponseEntity<String> deleteTempFile(Map<String, File> downloadFileMap, HttpServletResponse response, String deleteTempFile, Long batchUploadId) {
+	public ResponseEntity<String> deleteTempFile(Map<String, File> downloadFileMap, HttpServletResponse response, String deleteTempFile, Long batchUploadId, String legalEntityName) {
 		File downloadFile = downloadFileMap.get("success");
 		InputStream inputStream = null;
 		try {
@@ -114,20 +114,20 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 
 	@Override
 	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, 
-			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj) throws IOException {
+			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj, Long batchUploadId) throws IOException {
 		
 		File file;
 		boolean flag;
 		try {
 			File dir = new File(reportPath);
 			dir.mkdirs();
-			file = new File(dir, UUID.randomUUID() + ".csv");
+			file = new File(dir, BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+batchUploadId+"_"+legalEntityName + ".csv");
 			flag = file.createNewFile();
 			if(flag) {
 				LOGGER.info("Batch return file Created  {}", file.getName());
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error creating batch return file : {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			LOGGER.error("Error creating batch return file : {}{}{}", reportPath, BluefinWebPortalConstants.BATCHRETURNFILENAMEFORACF+legalEntityName, ".csv", e);
 			throw new CustomException("Error creating file batch return file : " + reportPath + UUID.randomUUID() + ".csv");
 		}
 
