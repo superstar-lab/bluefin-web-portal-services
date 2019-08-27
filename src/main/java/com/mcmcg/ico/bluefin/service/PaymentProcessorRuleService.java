@@ -271,8 +271,8 @@ public class PaymentProcessorRuleService {
     }
     
     public void validatePaymentProcessorRuleData(PaymentProcessorRuleResource paymentProcessorRuleResource){
-    	validateTargetPercentageWithAmount(paymentProcessorRuleResource);
     	validateCardTypeWithTargetPercentage(paymentProcessorRuleResource);
+    	validateTargetPercentageWithAmount(paymentProcessorRuleResource);
     }
     
     private void validateTargetPercentageWithAmount(PaymentProcessorRuleResource paymentProcessorRuleResource){
@@ -301,6 +301,45 @@ public class PaymentProcessorRuleService {
     }
     
     private void validateCardTypeWithTargetPercentage(PaymentProcessorRuleResource paymentProcessorRuleResource){
+    	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
+    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();
+    	BigDecimal creditValue = new BigDecimal(0);
+    	BigDecimal debitValue = new BigDecimal(0);
+    	BigDecimal creditPercentageValue = new BigDecimal(0);
+    	BigDecimal debitPercentageValue = new BigDecimal(0);
+    	BigDecimal hundred = new BigDecimal(100);
+    	
+    	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
+    		BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
+        	BigDecimal targetAmount = processRuleResource.getTargetAmount();
+        	if("DEBIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+        		debitValue = debitValue.add(targetAmount);
+        		debitPercentageValue = debitPercentageValue.add(targetPercentage);
+        	}
+        	if("CREDIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+        		creditValue = creditValue.add(targetAmount);
+        		creditPercentageValue = creditPercentageValue.add(targetPercentage);
+        	}
+    	} 
+    	
+    	int totalDebitCardValue = debitValue.compareTo(maxDebitLimit);
+        int totalCreditCardValue = creditValue.compareTo(maxCreditLimit);
+        int totalDebitCardPercentage = debitPercentageValue.compareTo(hundred);
+        int totalCreditCardPercentage = creditPercentageValue.compareTo(hundred);
+
+        if(totalDebitCardValue != 0) {
+        	throw new CustomBadRequestException("Sum of Debit Card Amount exceed with Defined Limit");
+        }
+        if(totalCreditCardValue != 0) {
+        	throw new CustomBadRequestException("Sum of Credit Card Amount exceed with Defined Limit");
+        }
+        if(totalDebitCardPercentage != 0) {
+        	throw new CustomBadRequestException("Total Percentage for Debit Card can not more than 100");
+        }
+        
+        if(totalCreditCardPercentage != 0) {
+        	throw new CustomBadRequestException("Total Percentage for Credit Card can not more than 100");
+        }
     	
     }
 }
