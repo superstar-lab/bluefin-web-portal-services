@@ -101,14 +101,16 @@ public class PaymentProcessorRuleRestController {
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getPaymentProcessorId()), BluefinWebPortalConstants.SEPARATOR,
+            		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getId()), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription));
             
             throw new CustomBadRequestException(errorDescription);
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getPaymentProcessorId())));
+        		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getId())));
+        
+        paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
         
         return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRule(
                 paymentProcessorRuleResource.getPaymentProcessorId().longValue(),

@@ -28,13 +28,17 @@ public class PaymentProcessorRule implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private CardType cardType;
 
-    private BigDecimal maximumMonthlyAmount = BigDecimal.ZERO;
+    private BigDecimal maximumMonthlyAmountForDebit = BigDecimal.ZERO;
+    
+    private BigDecimal maximumMonthlyAmountForCredit = BigDecimal.ZERO;
 
     private Short noMaximumMonthlyAmountFlag = (short) 0;
 
-    private Short priority;
-
     private BigDecimal monthToDateCumulativeAmount;
+    
+    private BigDecimal targetPercentage = BigDecimal.ZERO;
+    
+    private BigDecimal targetAmount = BigDecimal.ZERO;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -51,10 +55,16 @@ public class PaymentProcessorRule implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PaymentProcessorRule [paymentProcessorRuleId=" + paymentProcessorRuleId + ", paymentProcessor="
-				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmount=" + maximumMonthlyAmount
-				+ ", noMaximumMonthlyAmountFlag=" + noMaximumMonthlyAmountFlag + ", priority=" + priority
-				+ ", monthToDateCumulativeAmount=" + monthToDateCumulativeAmount + "]";
+		return "PaymentProcessorRule [paymentProcessorRuleId=" 
+				+ paymentProcessorRuleId + ", paymentProcessor="
+				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmountForDebit=" 
+				+ maximumMonthlyAmountForDebit + ", maximumMonthlyAmountForCredit=" 
+				+ maximumMonthlyAmountForCredit + ", noMaximumMonthlyAmountFlag="
+				+ noMaximumMonthlyAmountFlag + ", monthToDateCumulativeAmount=" 
+				+ monthToDateCumulativeAmount + ", targetPercentage="
+				+ targetPercentage + ", targetAmount="
+				+ targetAmount
+				+ "]";
 	}
 
 }

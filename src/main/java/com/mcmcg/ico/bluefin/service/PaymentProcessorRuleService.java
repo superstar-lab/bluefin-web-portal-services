@@ -18,6 +18,8 @@ import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
+import com.mcmcg.ico.bluefin.rest.resource.ProcessRuleResource;
 import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
@@ -266,5 +268,39 @@ public class PaymentProcessorRuleService {
             throw new CustomBadRequestException(
                     "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.");
         }
+    }
+    
+    public void validatePaymentProcessorRuleData(PaymentProcessorRuleResource paymentProcessorRuleResource){
+    	validateTargetPercentageWithAmount(paymentProcessorRuleResource);
+    	validateCardTypeWithTargetPercentage(paymentProcessorRuleResource);
+    }
+    
+    private void validateTargetPercentageWithAmount(PaymentProcessorRuleResource paymentProcessorRuleResource){
+    	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
+    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();
+    	BigDecimal hundred = new BigDecimal(100);
+    	BigDecimal targetAmountBasedOnPercentage = new BigDecimal(0);
+    	
+    	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
+    		BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
+        	BigDecimal targetAmount = processRuleResource.getTargetAmount();
+        	BigDecimal percentageFactor = targetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
+        	if("DEBIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+        		targetAmountBasedOnPercentage = maxDebitLimit.multiply(percentageFactor);
+        	}
+        	if("CREDIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+        		targetAmountBasedOnPercentage = maxCreditLimit.multiply(percentageFactor);
+        	}
+     
+            int res = targetAmountBasedOnPercentage.compareTo(targetAmount);
+
+            if(res != 0) {
+            	throw new CustomBadRequestException("Target Amount calculation does not matched with calculation on UI");
+            }
+    	} 
+    }
+    
+    private void validateCardTypeWithTargetPercentage(PaymentProcessorRuleResource paymentProcessorRuleResource){
+    	
     }
 }
