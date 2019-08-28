@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -279,29 +280,47 @@ public class PaymentProcessorRuleService {
     private void validateprocessorRuleInputData(PaymentProcessorRuleResource paymentProcessorRuleResource){
     	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
     	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();
+    	PaymentProcessorRule paymentProcessorRule = null;
+    	BigDecimal consumedAmount;
+    	BigDecimal hundred = new BigDecimal(100);
 
         if((maxDebitLimit.compareTo(BigDecimal.ZERO) <= 0) || (maxCreditLimit.compareTo(BigDecimal.ZERO) <= 0)) {
-        	throw new CustomBadRequestException("Maximum monthly amount for Debit/Credit Card can not be less than or equal to zero");
+        	throw new CustomBadRequestException("Maximum amount for Debit/Credit Card can not be less than or equal to zero");
         }
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
-    		BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
-        	BigDecimal targetAmount = processRuleResource.getTargetAmount();
-        	BigDecimal hundred = new BigDecimal(100);
-        	
-        	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
-        	if(paymentProcessorId == null || paymentProcessorId<=0) {
-        		throw new CustomBadRequestException("The payment processor cannot be blank");
-        	}
-        	if(StringUtils.isBlank(processRuleResource.getCardType().toString())) {
-        		throw new CustomBadRequestException("The card type cannot be blank");
-        	}
-        	if((targetPercentage.compareTo(BigDecimal.ONE)) < 1 || (targetPercentage.compareTo(hundred)>100)) {
-        		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
-        	}
-        	if((targetAmount.compareTo(BigDecimal.ZERO)) <=0 || (targetPercentage.compareTo(hundred)>100)) {
-        		throw new CustomBadRequestException("Target amount must be greater than zero");
-        	}
+    		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
+    			if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
+    				paymentProcessorRule = getPaymentProcessorRule(processRuleResource.getPaymentProcessorRuleId());
+    				
+    				consumedAmount = paymentProcessorRule.getConsumedAmount();
+    				
+    				BigDecimal newTargetPercentage = processRuleResource.getTargetPercentage();
+                	BigDecimal newPercentageFactor = newTargetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
+                	BigDecimal newTargetAmountBasedOnPercentage = maxDebitLimit.multiply(newPercentageFactor);
+                	
+                	int diffInAmount = newTargetAmountBasedOnPercentage.compareTo(consumedAmount);
+    				if(diffInAmount<=0) {
+    					throw new CustomBadRequestException("New target percentage/amount can't be less or equal to consumed percentage/amount");
+    				}
+    			}
+    			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
+            	BigDecimal targetAmount = processRuleResource.getTargetAmount();
+            	
+            	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
+            	if(paymentProcessorId == null || paymentProcessorId<=0) {
+            		throw new CustomBadRequestException("The payment processor cannot be blank");
+            	}
+            	if(StringUtils.isBlank(processRuleResource.getCardType().toString())) {
+            		throw new CustomBadRequestException("The card type cannot be blank");
+            	}
+            	if((targetPercentage.compareTo(BigDecimal.ONE)) < 1 || (targetPercentage.compareTo(hundred)>100)) {
+            		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
+            	}
+            	if((targetAmount.compareTo(BigDecimal.ZERO)) <=0 || (targetPercentage.compareTo(hundred)>100)) {
+            		throw new CustomBadRequestException("Target amount must be greater than zero");
+            	}
+    		}
     	}
     }
     
@@ -362,10 +381,10 @@ public class PaymentProcessorRuleService {
         int totalCreditCardPercentage = creditPercentageValue.compareTo(hundred);
 
         if(totalDebitCardValue != 0) {
-        	throw new CustomBadRequestException("Sum of target amount for Debit Card does not match with defined monthly limit");
+        	throw new CustomBadRequestException("Sum of target amount for Debit Card does not match with defined limit");
         }
         if(totalCreditCardValue != 0) {
-        	throw new CustomBadRequestException("Sum of target amount for Credit Card does not match with defined monthly limit");
+        	throw new CustomBadRequestException("Sum of target amount for Credit Card does not match with defined limit");
         }
         if(totalDebitCardPercentage != 0) {
         	throw new CustomBadRequestException("Sum of target percentage must equal to 100 for debit card type ");
