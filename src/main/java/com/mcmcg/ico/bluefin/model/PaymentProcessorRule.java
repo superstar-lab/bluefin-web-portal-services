@@ -33,6 +33,8 @@ public class PaymentProcessorRule implements Serializable {
     private BigDecimal maximumMonthlyAmountForCredit = BigDecimal.ZERO;
 
     private Short noMaximumMonthlyAmountFlag = (short) 0;
+    
+    private Short priority;
 
     private BigDecimal monthToDateCumulativeAmount;
     
@@ -40,9 +42,9 @@ public class PaymentProcessorRule implements Serializable {
     
     private BigDecimal targetAmount = BigDecimal.ZERO;
     
-    private BigDecimal consumedPercentage;
+    private BigDecimal consumedPercentage = BigDecimal.ZERO;
     
-    private BigDecimal consumedAmount;
+    private BigDecimal consumedAmount = BigDecimal.ZERO;
 
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

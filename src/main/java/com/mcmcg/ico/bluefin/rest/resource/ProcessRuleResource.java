@@ -7,6 +7,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.mcmcg.ico.bluefin.model.CardType;
+import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 
 import lombok.Data;
 
@@ -17,8 +18,8 @@ public class ProcessRuleResource {
 	private Long paymentProcessorRuleId;
     private int paymentProcessorRuleIdDelete = 0;
     
-    @NotNull(message = "Please provide a payment processor id for the payment processor rule")
-    private Long paymentProcessorId;
+    @NotNull(message = "Please provide a payment processor for the payment processor rule")
+    private PaymentProcessor paymentProcessor;
 
     @NotNull(message = "Please provide a card type for the payment processor rule")
     private CardType cardType;
@@ -35,4 +36,10 @@ public class ProcessRuleResource {
     @NotNull(message = "Please provide a target amount for the payment processor rule")
     @Min(value = 0, message = "Attribute targetAmount shall never be null and must higher than 0")
     private BigDecimal targetAmount = new BigDecimal("0.00");
+    
+    private BigDecimal consumePercentage = new BigDecimal("0.00");
+    
+    private BigDecimal consumeAmount = new BigDecimal("0.00");
+    
+    private Short priority;
 }

@@ -16,7 +16,9 @@ import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorThreshold;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorThresholdDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
@@ -33,6 +35,9 @@ public class PaymentProcessorRuleService {
     
     @Autowired
     private PaymentProcessorService paymentProcessorService;
+    
+    @Autowired
+    private PaymentProcessorThresholdDAO paymentProcessorThresholdDAO;
 
     /**
      * Create new payment processor rule
@@ -64,7 +69,8 @@ public class PaymentProcessorRuleService {
     	LOGGER.info("ready to save payment Processor Rule");
     	return paymentProcessorRuleDAO.save(paymentProcessorRule);
     }
-
+    
+    
     /**
      * Update existing payment processor rule
      * 
@@ -91,7 +97,7 @@ public class PaymentProcessorRuleService {
 
         // Update fields
         paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
-        paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(paymentProcessorRule.getMaximumMonthlyAmount());
+   //     paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(paymentProcessorRule.getMaximumMonthlyAmount());
         paymentProcessorRuleToUpdate
                 .setNoMaximumMonthlyAmountFlag(paymentProcessorRule.getNoMaximumMonthlyAmountFlag());
         paymentProcessorRuleToUpdate.setPriority(paymentProcessorRule.getPriority());
@@ -307,7 +313,7 @@ public class PaymentProcessorRuleService {
     			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
             	BigDecimal targetAmount = processRuleResource.getTargetAmount();
             	
-            	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
+            	Long paymentProcessorId = processRuleResource.getPaymentProcessor().getPaymentProcessorId();
             	if(paymentProcessorId == null || paymentProcessorId<=0) {
             		throw new CustomBadRequestException("The payment processor cannot be blank");
             	}
@@ -394,4 +400,92 @@ public class PaymentProcessorRuleService {
         	throw new CustomBadRequestException("Sum of target percentage must equal to 100 for credit card type ");
         }
     }
+    
+    private PaymentProcessorThreshold handlePaymentProcessorThreshold(
+			PaymentProcessorThreshold paymentProcessorThreshold) {
+		if (paymentProcessorThreshold != null) {
+			if (paymentProcessorThreshold.getPaymentProcessorThresholdId() != null) {
+				return paymentProcessorThresholdDAO.save(paymentProcessorThreshold);
+			} else {
+				return paymentProcessorThresholdDAO.updatepaymentProcessorThreshold(paymentProcessorThreshold);
+			}
+		} else {
+			throw new CustomBadRequestException("Unable to set credit/debit threshold.");
+		}
+	}
+	
+	private PaymentProcessorRule handlePaymentProcessorProcessorRuleActionCall(
+			ProcessRuleResource processRuleResource) {
+		PaymentProcessorRule ppr = processRuleResourceToPaymentProcessorRule(processRuleResource);
+		// Verify if payment processor exists
+    	PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processRuleResource.getPaymentProcessor().getPaymentProcessorId());
+
+    	// Payment processor must has merchants associate to it
+    	if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
+    		LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
+    				"Unable to create payment processor rule. Payment processor must have at least one merchant associated. Payment processor id : ", 
+    				String.valueOf(loadedPaymentProcessor.getPaymentProcessorId())));
+    		
+    		throw new CustomNotFoundException(String.format(
+    				"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
+    				loadedPaymentProcessor.getPaymentProcessorId()));
+    	}
+		if (processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()!=0) {
+			if (processRuleResource.getPaymentProcessorRuleIdDelete()==1) {
+			//	return paymentProcessorThresholdDAO.save(paymentProcessorThreshold);
+			} else {
+			//	return paymentProcessorThresholdDAO.updatepaymentProcessorThreshold(paymentProcessorThreshold);
+			}
+		} else {
+			ppr.setPaymentProcessor(loadedPaymentProcessor);
+			ppr.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
+			LOGGER.info("ready to save payment Processor Rule");
+		  return  paymentProcessorRuleDAO.save(ppr);
+		}
+		return null;
+	}
+    
+	private PaymentProcessorThreshold paymentProcessorRuleResourceToPaymentProcessorThreshold(
+			PaymentProcessorRuleResource paymentProcessorRuleResource) {
+		PaymentProcessorThreshold paymentProcessorThreshold = new PaymentProcessorThreshold();
+		if (paymentProcessorRuleResource != null) {
+			paymentProcessorThreshold
+					.setCreditAmountThreshold(paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit());
+			paymentProcessorThreshold
+					.setDebitAmountThreshold(paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit());
+		}
+		return paymentProcessorThreshold;
+	}
+	
+	public PaymentProcessorThreshold createPaymentProcessorRuleConfig(
+    		PaymentProcessorRuleResource paymentProcessorRuleResource,String userName) {
+    	LOGGER.info("Entering to create Payment Processor Rule");
+    	PaymentProcessorThreshold paymentProcessorThreshold=paymentProcessorRuleResourceToPaymentProcessorThreshold(paymentProcessorRuleResource);
+    	paymentProcessorThreshold.setLastModifiedBy(userName);
+    	PaymentProcessorThreshold insertedRecord=handlePaymentProcessorThreshold(paymentProcessorThreshold);
+    	List<PaymentProcessorRule> paymentProcessorRuleList= new ArrayList<>();
+		for (ProcessRuleResource prr : paymentProcessorRuleResource.getProcessRuleResource()) {
+			paymentProcessorRuleList.add(handlePaymentProcessorProcessorRuleActionCall(prr));
+		}
+		insertedRecord.setPaymentProcessorRuleList(paymentProcessorRuleList);
+    	return insertedRecord;
+    }
+
+	//ProcessRuleResource  PaymentProcessorRule
+	private PaymentProcessorRule processRuleResourceToPaymentProcessorRule(
+			ProcessRuleResource processRuleResource) {
+		PaymentProcessorRule paymentProcessorRule = new PaymentProcessorRule();
+		if (processRuleResource != null) {
+			paymentProcessorRule.setPaymentProcessorRuleId(processRuleResource.getPaymentProcessorRuleId());
+		//	paymentProcessorRule.setTargetAmount(processRuleResource.getTargetAmount());
+			paymentProcessorRule.setTargetPercentage(processRuleResource.getTargetPercentage());
+            paymentProcessorRule.setPriority(processRuleResource.getPriority());
+            paymentProcessorRule.setNoMaximumMonthlyAmountFlag(processRuleResource.getNoMaximumMonthlyAmountFlag());
+            paymentProcessorRule.setConsumedAmount(processRuleResource.getConsumeAmount());
+            paymentProcessorRule.setConsumedPercentage(processRuleResource.getConsumePercentage());
+            paymentProcessorRule.setCardType(processRuleResource.getCardType());
+            paymentProcessorRule.setPaymentProcessor(processRuleResource.getPaymentProcessor());
+		}
+		return paymentProcessorRule;
+	}
 }

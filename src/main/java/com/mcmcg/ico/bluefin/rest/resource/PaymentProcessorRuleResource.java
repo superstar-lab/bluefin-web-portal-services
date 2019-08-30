@@ -5,11 +5,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 
 import lombok.Data;
@@ -18,7 +16,7 @@ import lombok.Data;
 public class PaymentProcessorRuleResource implements Serializable {
     private static final long serialVersionUID = -3192378815338636933L;
 
-    private int id;
+    private Long id;
     
     @NotNull(message = "Please provide a maximum monthly amount for Debit card to set the payment processor rule")
     @Min(value = 0, message = "Attribute maximumMonthlyAmountForDebit shall never be null and must higher than 0")
@@ -47,7 +45,7 @@ public class PaymentProcessorRuleResource implements Serializable {
             rule.setNoMaximumMonthlyAmountFlag(processRuleRes.getNoMaximumMonthlyAmountFlag());
             rule.setTargetPercentage(processRuleRes.getTargetPercentage());
             rule.setTargetAmount(processRuleRes.getTargetAmount());
-            
+   //         rule.setPaymentProcessor(processRuleRes.getpay);
             paymentProcessorRuleList.add(rule);
     	}
         return paymentProcessorRuleList;
