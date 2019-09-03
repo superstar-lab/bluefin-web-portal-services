@@ -324,7 +324,7 @@ public class PaymentProcessorRuleService {
                 	
                 	int diffInAmount = newTargetPercentage.compareTo(consumedTargetPercentage);
     				if(diffInAmount<=0) {
-    					throw new CustomBadRequestException("New target percentage" + newTargetPercentage + "can't be less or equal to consumed percentage "+consumedTargetPercentage);
+    					throw new CustomBadRequestException("New target percentage [" + newTargetPercentage + "] can't be less or equal to consumed percentage [" + consumedTargetPercentage + "]");
     				}
     			}
     		}
