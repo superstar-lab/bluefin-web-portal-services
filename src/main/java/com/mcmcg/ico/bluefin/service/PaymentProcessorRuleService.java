@@ -299,14 +299,17 @@ public class PaymentProcessorRuleService {
             	if(StringUtils.isBlank(processRuleResource.getCardType().toString())) {
             		throw new CustomBadRequestException("The card type cannot be blank");
             	}
-            	if((targetPercentage.compareTo(BigDecimal.ONE)) < 1 || (targetPercentage.compareTo(hundred)>100)) {
+            	if((targetPercentage.compareTo(BigDecimal.ONE)) < 0 || (targetPercentage.compareTo(hundred) > 0)) {
             		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
             	}
             	if((processRuleResource.getMaximumMonthlyAmount()).compareTo(BigDecimal.ZERO) == -1) {
             		throw new CustomBadRequestException("Monthly maximum amount can't be less than zero");
             	}
-            	if((processRuleResource.getNoMaximumMonthlyAmountFlag())!=0 || (processRuleResource.getNoMaximumMonthlyAmountFlag())!=1) {
+            	if((processRuleResource.getNoMaximumMonthlyAmountFlag())<0 || (processRuleResource.getNoMaximumMonthlyAmountFlag())>1) {
             		throw new CustomBadRequestException("No limit flag can't be other than 0 or 1");
+            	}
+            	if(processRuleResource.getPaymentProcessorRuleIdDelete()<0 || processRuleResource.getPaymentProcessorRuleIdDelete()>1) {
+            		throw new CustomBadRequestException("Delete flag can't be other than 0 or 1");
             	}
             	
     			if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
@@ -334,7 +337,11 @@ public class PaymentProcessorRuleService {
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
     		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
     			monthlyMaxAmount = processRuleResource.getMaximumMonthlyAmount();
-    			if(monthlyMaxAmount.compareTo(BigDecimal.ZERO) > 1 && processRuleResource.hasNoLimit()) {
+    			
+    			if(monthlyMaxAmount.compareTo(BigDecimal.ZERO) == 0 && !processRuleResource.hasNoLimit()) {
+    				throw new CustomBadRequestException("Select maximum monthly amount or noLimit flag to create payment processor rule");
+    			}
+    			if(monthlyMaxAmount.compareTo(BigDecimal.ZERO) > 0 && processRuleResource.hasNoLimit()) {
     				throw new CustomBadRequestException("Maximum monthly amount and noLimit flag can't be select together");
     			}
     		}
