@@ -404,8 +404,9 @@ public class PaymentProcessorRuleService {
 			//	return paymentProcessorThresholdDAO.save(paymentProcessorThreshold);
 			} else {
 			//	Code Block for Updating Existing Processor Rule.
-			//	return paymentProcessorThresholdDAO.updatepaymentProcessorThreshold(paymentProcessorThreshold);
-				
+				ppr.setPaymentProcessor(loadedPaymentProcessor);
+				LOGGER.info("ready to update payment Processor Rule");
+			  return  paymentProcessorRuleDAO.updatepaymentProcessorRule(ppr);	
 			}
 		} else {
 		// Code Block for saving New Processor Rule.

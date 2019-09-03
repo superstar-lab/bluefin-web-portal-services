@@ -135,9 +135,13 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 	//		paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(BigDecimal.ZERO);
 		}
 		int rows = jdbcTemplate.update(Queries.UPDATEPAYMENTPROCESSORRULE,
-					new Object[] { 	paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(), paymentProcessorRuleToUpdate.getCardType().name(), 
-							paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(), paymentProcessorRuleToUpdate.getPriority(),paymentProcessorRuleToUpdate.getPaymentProcessorRuleId()
-								 });
+				new Object[] { paymentProcessorRuleToUpdate.getPaymentProcessor().getPaymentProcessorId(),
+						paymentProcessorRuleToUpdate.getCardType().name(),
+						paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(),
+						paymentProcessorRuleToUpdate.getTargetPercentage(),
+						paymentProcessorRuleToUpdate.getConsumedPercentage(),
+						paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(),
+						paymentProcessorRuleToUpdate.getPaymentProcessorRuleId() });
 		LOGGER.debug("Updated PaymentProcessorRule with ID ={} , rows affected ={} ", paymentProcessorRuleToUpdate.getPaymentProcessorRuleId(), rows);
 		return paymentProcessorRuleToUpdate;
 	}

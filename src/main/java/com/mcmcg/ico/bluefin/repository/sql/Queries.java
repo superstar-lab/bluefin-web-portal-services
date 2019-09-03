@@ -112,7 +112,7 @@ public class Queries {
 	public static final String SAVEPAYMENTPROCESSORTHRESHOLD = "INSERT INTO PaymentProcessorThreshold_Lookup (CreditThreshold, DebitThreshold, DateCreated,CreatedBy) VALUES (?,?,?,?)";
 	public static final String DELETEPAYMENTPROCESSORRULEBYID = "DELETE FROM PaymentProcessor_Rule WHERE PaymentProcessorRuleID = ?";
 	public static final String FINDPAYMENTPROCESSORRULESBYPAYMENTPROCESSORID = "SELECT PaymentProcessorRuleID, PaymentProcessorID, CardType, NoMaximumMonthlyAmountFlag, Priority, MonthToDateCumulativeAmount, CurrentYear, CurrentMonth, DateCreated, ModifiedBy FROM PaymentProcessor_Rule WHERE PaymentProcessorID = ?";
-	public static final String UPDATEPAYMENTPROCESSORRULE = "UPDATE PaymentProcessor_Rule SET PaymentProcessorID= ?, CardType= ?,NoMaximumMonthlyAmountFlag=?,Priority=? WHERE PaymentProcessorRuleID= ?";
+	public static final String UPDATEPAYMENTPROCESSORRULE = "UPDATE PaymentProcessor_Rule SET PaymentProcessorID= ?, CardType= ?, MaximumMonthlyAmount=?, Targetpercentage=?, ConsumedPercentage=?, NoMaximumMonthlyAmountFlag=? WHERE PaymentProcessorRuleID= ?";
 	public static final String UPDATEPAYMENTPROCESSORTHRESHOLD = "UPDATE PaymentProcessorThreshold_Lookup SET CreditThreshold= ?, DebitThreshold= ?,DateModified=?, ModifiedBy=? WHERE PaymentProcessorthresholdId= ?";
 
 	//Below queries has been used for InternalResponseCode/PaymentProcessorInternalResponseCode
