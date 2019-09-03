@@ -102,14 +102,12 @@ public class PaymentProcessorRuleRestController {
             
             LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getId()), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription));
             
             throw new CustomBadRequestException(errorDescription);
         }
         LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		"Payment Processor Id : ", String.valueOf(paymentProcessorRuleResource.getId())));
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName())));
         
         paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
         
@@ -181,7 +179,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<PaymentProcessorThreshold> genericApiForPaymentProcessorRule(
+    public ResponseEntity<List<PaymentProcessorRule>> genericApiForPaymentProcessorRule(
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         // First checks if all required fields are set

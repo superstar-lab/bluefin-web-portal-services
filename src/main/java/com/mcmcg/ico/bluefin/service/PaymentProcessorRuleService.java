@@ -16,7 +16,6 @@ import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorThreshold;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorThresholdDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
@@ -284,36 +283,36 @@ public class PaymentProcessorRuleService {
     }
     
     private void validateprocessorRuleInputData(PaymentProcessorRuleResource paymentProcessorRuleResource){
-    	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
-    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();
+    	/*BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
+    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();*/
     	PaymentProcessorRule paymentProcessorRule = null;
     	BigDecimal consumedAmount;
     	BigDecimal hundred = new BigDecimal(100);
 
-        if((maxDebitLimit.compareTo(BigDecimal.ZERO) <= 0) || (maxCreditLimit.compareTo(BigDecimal.ZERO) <= 0)) {
+        /*if((maxDebitLimit.compareTo(BigDecimal.ZERO) <= 0) || (maxCreditLimit.compareTo(BigDecimal.ZERO) <= 0)) {
         	throw new CustomBadRequestException("Maximum amount for Debit/Credit Card can not be less than or equal to zero");
-        }
+        }*/
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
     		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
     			if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
     				paymentProcessorRule = getPaymentProcessorRule(processRuleResource.getPaymentProcessorRuleId());
     				
-    				consumedAmount = paymentProcessorRule.getConsumedAmount();
+    				consumedAmount = paymentProcessorRule.getMonthToDateCumulativeAmount();
     				
     				BigDecimal newTargetPercentage = processRuleResource.getTargetPercentage();
                 	BigDecimal newPercentageFactor = newTargetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
-                	BigDecimal newTargetAmountBasedOnPercentage = maxDebitLimit.multiply(newPercentageFactor);
+         //       	BigDecimal newTargetAmountBasedOnPercentage = maxDebitLimit.multiply(newPercentageFactor);
                 	
-                	int diffInAmount = newTargetAmountBasedOnPercentage.compareTo(consumedAmount);
+                	/*int diffInAmount = newTargetAmountBasedOnPercentage.compareTo(consumedAmount);
     				if(diffInAmount<=0) {
     					throw new CustomBadRequestException("New target percentage/amount can't be less or equal to consumed percentage/amount");
-    				}
+    				}*/
     			}
     			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
-            	BigDecimal targetAmount = processRuleResource.getTargetAmount();
+           // 	BigDecimal targetAmount = processRuleResource.getTargetAmount();
             	
-            	Long paymentProcessorId = processRuleResource.getPaymentProcessor().getPaymentProcessorId();
+            	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
             	if(paymentProcessorId == null || paymentProcessorId<=0) {
             		throw new CustomBadRequestException("The payment processor cannot be blank");
             	}
@@ -323,43 +322,43 @@ public class PaymentProcessorRuleService {
             	if((targetPercentage.compareTo(BigDecimal.ONE)) < 1 || (targetPercentage.compareTo(hundred)>100)) {
             		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
             	}
-            	if((targetAmount.compareTo(BigDecimal.ZERO)) <=0 || (targetPercentage.compareTo(hundred)>100)) {
+            	/*if((targetAmount.compareTo(BigDecimal.ZERO)) <=0 || (targetPercentage.compareTo(hundred)>100)) {
             		throw new CustomBadRequestException("Target amount must be greater than zero");
-            	}
+            	}*/
     		}
     	}
     }
     
     private void validateTargetPercentageWithAmount(PaymentProcessorRuleResource paymentProcessorRuleResource){
-    	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
-    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();
+    	/*BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
+    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();*/
     	BigDecimal hundred = new BigDecimal(100);
     	BigDecimal targetAmountBasedOnPercentage = new BigDecimal(0);
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
     		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
     			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
-            	BigDecimal targetAmount = processRuleResource.getTargetAmount();
+        //    	BigDecimal targetAmount = processRuleResource.getTargetAmount();
             	BigDecimal percentageFactor = targetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
-            	if("DEBIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+            	/*if("DEBIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
             		targetAmountBasedOnPercentage = maxDebitLimit.multiply(percentageFactor);
             	}
             	if("CREDIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
             		targetAmountBasedOnPercentage = maxCreditLimit.multiply(percentageFactor);
-            	}
+            	}*/
          
-                int res = targetAmountBasedOnPercentage.compareTo(targetAmount);
+              /*  int res = targetAmountBasedOnPercentage.compareTo(targetAmount);
 
                 if(res != 0) {
                 	throw new CustomBadRequestException("Target amount calculation does not matched with calculation on UI for Credit/Debit Card");
-                }
+                }*/
     		}
     	} 
     }
     
     private void validateCardTypeWithTargetPercentage(PaymentProcessorRuleResource paymentProcessorRuleResource){
-    	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
-    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();
+    /*	BigDecimal maxDebitLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit();
+    	BigDecimal maxCreditLimit = paymentProcessorRuleResource.getMaximumMonthlyAmountForCredit();*/
     	BigDecimal creditValue = new BigDecimal(0);
     	BigDecimal debitValue = new BigDecimal(0);
     	BigDecimal creditPercentageValue = new BigDecimal(0);
@@ -369,29 +368,29 @@ public class PaymentProcessorRuleService {
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
     		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
     			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
-            	BigDecimal targetAmount = processRuleResource.getTargetAmount();
+      //      	BigDecimal targetAmount = processRuleResource.getTargetAmount();
             	if("DEBIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
-            		debitValue = debitValue.add(targetAmount);
+       //     		debitValue = debitValue.add(targetAmount);
             		debitPercentageValue = debitPercentageValue.add(targetPercentage);
             	}
             	if("CREDIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
-            		creditValue = creditValue.add(targetAmount);
+    //        		creditValue = creditValue.add(targetAmount);
             		creditPercentageValue = creditPercentageValue.add(targetPercentage);
             	}
         	} 
     	}
     	
-    	int totalDebitCardValue = debitValue.compareTo(maxDebitLimit);
-        int totalCreditCardValue = creditValue.compareTo(maxCreditLimit);
+    	/*int totalDebitCardValue = debitValue.compareTo(maxDebitLimit);
+        int totalCreditCardValue = creditValue.compareTo(maxCreditLimit);*/
         int totalDebitCardPercentage = debitPercentageValue.compareTo(hundred);
         int totalCreditCardPercentage = creditPercentageValue.compareTo(hundred);
 
-        if(totalDebitCardValue != 0) {
+       /* if(totalDebitCardValue != 0) {
         	throw new CustomBadRequestException("Sum of target amount for Debit Card does not match with defined limit");
         }
         if(totalCreditCardValue != 0) {
         	throw new CustomBadRequestException("Sum of target amount for Credit Card does not match with defined limit");
-        }
+        }*/
         if(totalDebitCardPercentage != 0) {
         	throw new CustomBadRequestException("Sum of target percentage must equal to 100 for debit card type ");
         }
@@ -401,7 +400,7 @@ public class PaymentProcessorRuleService {
         }
     }
     
-    private PaymentProcessorThreshold handlePaymentProcessorThreshold(
+  /*  private PaymentProcessorThreshold handlePaymentProcessorThreshold(
 			PaymentProcessorThreshold paymentProcessorThreshold) {
 		if (paymentProcessorThreshold != null) {
 			if (paymentProcessorThreshold.getPaymentProcessorThresholdId() != null) {
@@ -412,13 +411,13 @@ public class PaymentProcessorRuleService {
 		} else {
 			throw new CustomBadRequestException("Unable to set credit/debit threshold.");
 		}
-	}
+	}*/
 	
 	private PaymentProcessorRule handlePaymentProcessorProcessorRuleActionCall(
 			ProcessRuleResource processRuleResource) {
 		PaymentProcessorRule ppr = processRuleResourceToPaymentProcessorRule(processRuleResource);
 		// Verify if payment processor exists
-    	PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processRuleResource.getPaymentProcessor().getPaymentProcessorId());
+    	PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processRuleResource.getPaymentProcessorId());
 
     	// Payment processor must has merchants associate to it
     	if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
@@ -434,9 +433,12 @@ public class PaymentProcessorRuleService {
 			if (processRuleResource.getPaymentProcessorRuleIdDelete()==1) {
 			//	return paymentProcessorThresholdDAO.save(paymentProcessorThreshold);
 			} else {
+			//	Code Block for Updating Existing Processor Rule.
 			//	return paymentProcessorThresholdDAO.updatepaymentProcessorThreshold(paymentProcessorThreshold);
+				
 			}
 		} else {
+		// Code Block for saving New Processor Rule.
 			ppr.setPaymentProcessor(loadedPaymentProcessor);
 			ppr.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
 			LOGGER.info("ready to save payment Processor Rule");
@@ -445,7 +447,7 @@ public class PaymentProcessorRuleService {
 		return null;
 	}
     
-	private PaymentProcessorThreshold paymentProcessorRuleResourceToPaymentProcessorThreshold(
+	/*private PaymentProcessorThreshold paymentProcessorRuleResourceToPaymentProcessorThreshold(
 			PaymentProcessorRuleResource paymentProcessorRuleResource) {
 		PaymentProcessorThreshold paymentProcessorThreshold = new PaymentProcessorThreshold();
 		if (paymentProcessorRuleResource != null) {
@@ -455,20 +457,20 @@ public class PaymentProcessorRuleService {
 					.setDebitAmountThreshold(paymentProcessorRuleResource.getMaximumMonthlyAmountForDebit());
 		}
 		return paymentProcessorThreshold;
-	}
+	}*/
 	
-	public PaymentProcessorThreshold createPaymentProcessorRuleConfig(
+	public List<PaymentProcessorRule> createPaymentProcessorRuleConfig(
     		PaymentProcessorRuleResource paymentProcessorRuleResource,String userName) {
     	LOGGER.info("Entering to create Payment Processor Rule");
-    	PaymentProcessorThreshold paymentProcessorThreshold=paymentProcessorRuleResourceToPaymentProcessorThreshold(paymentProcessorRuleResource);
+    	/*PaymentProcessorThreshold paymentProcessorThreshold=paymentProcessorRuleResourceToPaymentProcessorThreshold(paymentProcessorRuleResource);
     	paymentProcessorThreshold.setLastModifiedBy(userName);
-    	PaymentProcessorThreshold insertedRecord=handlePaymentProcessorThreshold(paymentProcessorThreshold);
+    	PaymentProcessorThreshold insertedRecord=handlePaymentProcessorThreshold(paymentProcessorThreshold);*/
     	List<PaymentProcessorRule> paymentProcessorRuleList= new ArrayList<>();
 		for (ProcessRuleResource prr : paymentProcessorRuleResource.getProcessRuleResource()) {
 			paymentProcessorRuleList.add(handlePaymentProcessorProcessorRuleActionCall(prr));
 		}
-		insertedRecord.setPaymentProcessorRuleList(paymentProcessorRuleList);
-    	return insertedRecord;
+	//	insertedRecord.setPaymentProcessorRuleList(paymentProcessorRuleList);
+    	return paymentProcessorRuleList;
     }
 
 	//ProcessRuleResource  PaymentProcessorRule
@@ -477,14 +479,12 @@ public class PaymentProcessorRuleService {
 		PaymentProcessorRule paymentProcessorRule = new PaymentProcessorRule();
 		if (processRuleResource != null) {
 			paymentProcessorRule.setPaymentProcessorRuleId(processRuleResource.getPaymentProcessorRuleId());
-		//	paymentProcessorRule.setTargetAmount(processRuleResource.getTargetAmount());
 			paymentProcessorRule.setTargetPercentage(processRuleResource.getTargetPercentage());
-            paymentProcessorRule.setPriority(processRuleResource.getPriority());
             paymentProcessorRule.setNoMaximumMonthlyAmountFlag(processRuleResource.getNoMaximumMonthlyAmountFlag());
-            paymentProcessorRule.setConsumedAmount(processRuleResource.getConsumeAmount());
-            paymentProcessorRule.setConsumedPercentage(processRuleResource.getConsumePercentage());
+            paymentProcessorRule.setMonthToDateCumulativeAmount(processRuleResource.getMonthToDateCumulativeAmount());
+            paymentProcessorRule.setConsumedPercentage(processRuleResource.getConsumedPercentage());
             paymentProcessorRule.setCardType(processRuleResource.getCardType());
-            paymentProcessorRule.setPaymentProcessor(processRuleResource.getPaymentProcessor());
+            paymentProcessorRule.setMaximumMonthlyAmount(processRuleResource.getMaximumMonthlyAmount());
 		}
 		return paymentProcessorRule;
 	}

@@ -91,15 +91,14 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 						Statement.RETURN_GENERATED_KEYS);
 				ps.setLong(1, paymentProcessorRule.getPaymentProcessor().getPaymentProcessorId()); // PaymentProcessorID
 				ps.setString(2, paymentProcessorRule.getCardType().name()); // DateCreated
-	//			ps.setBigDecimal(3, paymentProcessorRule.getMaximumMonthlyAmount()); // DateModified
 				ps.setShort(3, paymentProcessorRule.getNoMaximumMonthlyAmountFlag()); 
-				ps.setShort(4, paymentProcessorRule.getPriority()); // ModifiedBy
+				ps.setBigDecimal(4, paymentProcessorRule.getMaximumMonthlyAmount()); 
+	//			ps.setShort(4, paymentProcessorRule.getPriority()); // ModifiedBy
 				ps.setBigDecimal(5, paymentProcessorRule.getMonthToDateCumulativeAmount());
-				ps.setBigDecimal(6, paymentProcessorRule.getConsumedAmount());
-				ps.setBigDecimal(7, paymentProcessorRule.getConsumedPercentage());
-				ps.setBigDecimal(8, paymentProcessorRule.getTargetPercentage());
-				ps.setTimestamp(9, dateCreated);
-				ps.setString(10, paymentProcessorRule.getLastModifiedBy());
+				ps.setBigDecimal(6, paymentProcessorRule.getConsumedPercentage());
+				ps.setBigDecimal(7, paymentProcessorRule.getTargetPercentage());
+				ps.setTimestamp(8, dateCreated);
+				ps.setString(9, paymentProcessorRule.getLastModifiedBy());
 				return ps;
 		}, holder);
 

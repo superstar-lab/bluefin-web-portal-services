@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -28,24 +29,18 @@ public class PaymentProcessorRule implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private CardType cardType;
 
-    private BigDecimal maximumMonthlyAmountForDebit = BigDecimal.ZERO;
-    
-    private BigDecimal maximumMonthlyAmountForCredit = BigDecimal.ZERO;
-
     private Short noMaximumMonthlyAmountFlag = (short) 0;
     
     private Short priority;
 
     private BigDecimal monthToDateCumulativeAmount;
     
-    private BigDecimal targetPercentage = BigDecimal.ZERO;
+    private BigDecimal maximumMonthlyAmount;
     
-    private BigDecimal targetAmount = BigDecimal.ZERO;
+    private BigDecimal targetPercentage = BigDecimal.ZERO;
     
     private BigDecimal consumedPercentage = BigDecimal.ZERO;
     
-    private BigDecimal consumedAmount = BigDecimal.ZERO;
-
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -64,12 +59,11 @@ public class PaymentProcessorRule implements Serializable {
 		return "PaymentProcessorRule [paymentProcessorRuleId=" 
 				+ paymentProcessorRuleId + ", paymentProcessor="
 				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmountForDebit=" 
-				+ maximumMonthlyAmountForDebit + ", maximumMonthlyAmountForCredit=" 
-				+ maximumMonthlyAmountForCredit + ", noMaximumMonthlyAmountFlag="
+			/*	+ maximumMonthlyAmountForDebit + ", maximumMonthlyAmountForCredit=" 
+				+ maximumMonthlyAmountForCredit + ", noMaximumMonthlyAmountFlag="*/
 				+ noMaximumMonthlyAmountFlag + ", monthToDateCumulativeAmount=" 
 				+ monthToDateCumulativeAmount + ", targetPercentage="
-				+ targetPercentage + ", targetAmount="
-				+ targetAmount
+				+ targetPercentage  
 				+ "]";
 	}
 

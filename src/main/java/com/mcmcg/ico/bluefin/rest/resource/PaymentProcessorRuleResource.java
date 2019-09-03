@@ -1,11 +1,9 @@
 package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
@@ -16,7 +14,7 @@ import lombok.Data;
 public class PaymentProcessorRuleResource implements Serializable {
     private static final long serialVersionUID = -3192378815338636933L;
 
-    private Long id;
+   /* private Long id;
     
     @NotNull(message = "Please provide a maximum monthly amount for Debit card to set the payment processor rule")
     @Min(value = 0, message = "Attribute maximumMonthlyAmountForDebit shall never be null and must higher than 0")
@@ -24,7 +22,7 @@ public class PaymentProcessorRuleResource implements Serializable {
     
     @NotNull(message = "Please provide a maximum monthly amount for Credit card to set the payment processor rule")
     @Min(value = 0, message = "Attribute maximumMonthlyAmountForCredit shall never be null and must higher than 0")
-    private BigDecimal maximumMonthlyAmountForCredit = new BigDecimal("0.00");
+    private BigDecimal maximumMonthlyAmountForCredit = new BigDecimal("0.00");*/
     
     @NotNull(message = "Please provide a payment processor rule data")
     List <ProcessRuleResource> processRuleResource;
@@ -40,12 +38,12 @@ public class PaymentProcessorRuleResource implements Serializable {
     		PaymentProcessorRule rule = new PaymentProcessorRule();
         	rule.setPaymentProcessorRuleId(processRuleRes.getPaymentProcessorRuleId());
             rule.setCardType(processRuleRes.getCardType());
-            rule.setMaximumMonthlyAmountForDebit(maximumMonthlyAmountForDebit);
-            rule.setMaximumMonthlyAmountForCredit(maximumMonthlyAmountForCredit);
             rule.setNoMaximumMonthlyAmountFlag(processRuleRes.getNoMaximumMonthlyAmountFlag());
             rule.setTargetPercentage(processRuleRes.getTargetPercentage());
-            rule.setTargetAmount(processRuleRes.getTargetAmount());
-   //         rule.setPaymentProcessor(processRuleRes.getpay);
+            rule.setMonthToDateCumulativeAmount(processRuleRes.getMonthToDateCumulativeAmount());
+            rule.setConsumedPercentage(processRuleRes.getConsumedPercentage());
+            rule.setMaximumMonthlyAmount(processRuleRes.getMaximumMonthlyAmount());
+          //  rule.setPaymentProcessor(processRuleRes.getPaymentProces);
             paymentProcessorRuleList.add(rule);
     	}
         return paymentProcessorRuleList;
