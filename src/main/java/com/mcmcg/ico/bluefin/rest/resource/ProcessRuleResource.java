@@ -6,6 +6,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcmcg.ico.bluefin.model.CardType;
 
 import lombok.Data;
@@ -39,4 +40,9 @@ public class ProcessRuleResource {
     private BigDecimal maximumMonthlyAmount = new BigDecimal("0.00");
     
     //private Short priority;
+    
+    @JsonIgnore
+    public boolean hasNoLimit() {
+        return noMaximumMonthlyAmountFlag.equals((short) 1);
+    }
 }
