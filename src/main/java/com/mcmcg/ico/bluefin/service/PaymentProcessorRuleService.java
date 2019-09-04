@@ -289,7 +289,7 @@ public class PaymentProcessorRuleService {
     	BigDecimal hundred = new BigDecimal(100);
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
-    		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
+    		if(processRuleResource.getIsRuleDeleted() != 1) {
     			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
             	
             	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
@@ -308,7 +308,7 @@ public class PaymentProcessorRuleService {
             	if((processRuleResource.getNoMaximumMonthlyAmountFlag())<0 || (processRuleResource.getNoMaximumMonthlyAmountFlag())>1) {
             		throw new CustomBadRequestException("No limit flag can't be other than 0 or 1");
             	}
-            	if(processRuleResource.getPaymentProcessorRuleIdDelete()<0 || processRuleResource.getPaymentProcessorRuleIdDelete()>1) {
+            	if(processRuleResource.getIsRuleDeleted()<0 || processRuleResource.getIsRuleDeleted()>1) {
             		throw new CustomBadRequestException("Delete flag can't be other than 0 or 1");
             	}
             	
@@ -335,7 +335,7 @@ public class PaymentProcessorRuleService {
     	BigDecimal monthlyMaxAmount;
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
-    		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
+    		if(processRuleResource.getIsRuleDeleted() != 1) {
     			monthlyMaxAmount = processRuleResource.getMaximumMonthlyAmount();
     			
     			if(monthlyMaxAmount.compareTo(BigDecimal.ZERO) == 0 && !processRuleResource.hasNoLimit()) {
@@ -354,7 +354,7 @@ public class PaymentProcessorRuleService {
     	BigDecimal hundred = new BigDecimal(100);
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
-    		if(processRuleResource.getPaymentProcessorRuleIdDelete() != 1) {
+    		if(processRuleResource.getIsRuleDeleted() != 1) {
     			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
             	if("DEBIT".equalsIgnoreCase(processRuleResource.getCardType().toString())) {
             		debitPercentageValue = debitPercentageValue.add(targetPercentage);
@@ -407,7 +407,7 @@ public class PaymentProcessorRuleService {
     				loadedPaymentProcessor.getPaymentProcessorId()));
     	}
 		if (processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()!=0) {
-			if (processRuleResource.getPaymentProcessorRuleIdDelete()==1) {
+			if (processRuleResource.getIsRuleDeleted()==1) {
 			//	return paymentProcessorThresholdDAO.save(paymentProcessorThreshold);
 			} else {
 			//	Code Block for Updating Existing Processor Rule.

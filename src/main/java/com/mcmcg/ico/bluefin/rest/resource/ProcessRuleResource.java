@@ -16,7 +16,10 @@ public class ProcessRuleResource {
 	private static final long serialVersionUID = -3192377590338636933L;
 
 	private Long paymentProcessorRuleId;
-    private int paymentProcessorRuleIdDelete = 0;
+	
+    private int isRuleDeleted = 0;
+    
+    private int isRuleActive=0;
     
     @NotNull(message = "Please provide a payment processor for the payment processor rule")
     private Long paymentProcessorId;
