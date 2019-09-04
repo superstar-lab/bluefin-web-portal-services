@@ -43,6 +43,8 @@ public class PaymentProcessorRuleResource implements Serializable {
             rule.setMonthToDateCumulativeAmount(processRuleRes.getMonthToDateCumulativeAmount());
             rule.setConsumedPercentage(processRuleRes.getConsumedPercentage());
             rule.setMaximumMonthlyAmount(processRuleRes.getMaximumMonthlyAmount());
+            rule.setIsRuleDeleted(processRuleRes.getIsRuleDeleted());
+            rule.setIsRuleActive(processRuleRes.getIsRuleActive());
           //  rule.setPaymentProcessor(processRuleRes.getPaymentProces);
             paymentProcessorRuleList.add(rule);
     	}

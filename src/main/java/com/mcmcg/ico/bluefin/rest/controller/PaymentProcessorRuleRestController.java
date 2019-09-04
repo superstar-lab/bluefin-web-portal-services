@@ -92,7 +92,7 @@ public class PaymentProcessorRuleRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<PaymentProcessorRule> create(
+    public ResponseEntity<List<PaymentProcessorRule>> create(
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         // First checks if all required fields are set
@@ -111,10 +111,7 @@ public class PaymentProcessorRuleRestController {
         
         paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
         
-        /*return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRule(
-                paymentProcessorRuleResource.getPaymentProcessorId().longValue(),
-                paymentProcessorRuleResource.toPaymentProcessorRule()), HttpStatus.CREATED);*/
-        return null;
+        return new ResponseEntity<>(paymentProcessorRuleResource.toPaymentProcessorRule(), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Update payment processor rule", nickname = "updatePaymentProcessor")

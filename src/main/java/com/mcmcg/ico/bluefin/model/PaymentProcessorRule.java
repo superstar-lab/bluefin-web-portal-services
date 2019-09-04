@@ -41,6 +41,10 @@ public class PaymentProcessorRule implements Serializable {
     
     private BigDecimal consumedPercentage = BigDecimal.ZERO;
     
+    private int isRuleDeleted = 0;
+    
+    private int isRuleActive=0;
+    
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
