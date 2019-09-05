@@ -99,6 +99,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 				ps.setBigDecimal(7, paymentProcessorRule.getTargetPercentage());
 				ps.setTimestamp(8, dateCreated);
 				ps.setString(9, paymentProcessorRule.getLastModifiedBy());
+				ps.setInt(10, paymentProcessorRule.getIsRuleActive());
 				return ps;
 		}, holder);
 
@@ -139,8 +140,8 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 						paymentProcessorRuleToUpdate.getCardType().name(),
 						paymentProcessorRuleToUpdate.getMaximumMonthlyAmount(),
 						paymentProcessorRuleToUpdate.getTargetPercentage(),
-						paymentProcessorRuleToUpdate.getConsumedPercentage(),
 						paymentProcessorRuleToUpdate.getNoMaximumMonthlyAmountFlag(),
+						paymentProcessorRuleToUpdate.getIsRuleActive(),
 						paymentProcessorRuleToUpdate.getPaymentProcessorRuleId() });
 		LOGGER.debug("Updated PaymentProcessorRule with ID ={} , rows affected ={} ", paymentProcessorRuleToUpdate.getPaymentProcessorRuleId(), rows);
 		return paymentProcessorRuleToUpdate;
