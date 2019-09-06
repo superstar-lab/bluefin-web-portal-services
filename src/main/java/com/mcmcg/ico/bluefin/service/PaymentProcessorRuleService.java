@@ -451,6 +451,9 @@ public class PaymentProcessorRuleService {
             paymentProcessorRule.setMaximumMonthlyAmount(processRuleResource.getMaximumMonthlyAmount());
             paymentProcessorRule.setIsRuleActive(processRuleResource.getIsRuleActive());
 		}
+		if(processRuleResource != null && processRuleResource.getIsRuleDeleted()==1){
+			paymentProcessorRule.setPaymentProcessorRuleId(processRuleResource.getPaymentProcessorRuleId());
+		}
 		return paymentProcessorRule;
 	}
 }

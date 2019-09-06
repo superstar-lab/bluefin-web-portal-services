@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorThreshold;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
@@ -111,7 +110,8 @@ public class PaymentProcessorRuleRestController {
         
         paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
         
-        return new ResponseEntity<>(paymentProcessorRuleResource.toPaymentProcessorRule(), HttpStatus.CREATED);
+        return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRuleConfig(
+        		paymentProcessorRuleResource,authentication.getName()), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Update payment processor rule", nickname = "updatePaymentProcessor")
