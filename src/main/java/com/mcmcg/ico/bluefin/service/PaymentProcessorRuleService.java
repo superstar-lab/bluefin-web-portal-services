@@ -3,7 +3,9 @@ package com.mcmcg.ico.bluefin.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -287,6 +289,7 @@ public class PaymentProcessorRuleService {
     	BigDecimal consumedPercentage;
     	BigDecimal oldTargetPercentage;
     	BigDecimal hundred = new BigDecimal(100);
+    	Map<Long, String> processorWithCardTypeMap = new HashMap<>();
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
     		if(processRuleResource.getIsRuleDeleted()<0 || processRuleResource.getIsRuleDeleted()>1) {
@@ -316,6 +319,12 @@ public class PaymentProcessorRuleService {
             		throw new CustomBadRequestException("No limit flag can't be other than 0 or 1");
             	}
             	
+            	if((!processorWithCardTypeMap.isEmpty()) && StringUtils.isNotBlank(processorWithCardTypeMap.get(processRuleResource.getPaymentProcessorId())) &&
+            			processorWithCardTypeMap.get(processRuleResource.getPaymentProcessorId()).equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+            		throw new CustomBadRequestException("Payment processor rule can't be created for same payment processor and card type");
+            	}
+            	
+            	processorWithCardTypeMap.put(processRuleResource.getPaymentProcessorId(), processRuleResource.getCardType().toString());
             	
     			if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
     				paymentProcessorRule = getPaymentProcessorRule(processRuleResource.getPaymentProcessorRuleId());
