@@ -188,11 +188,9 @@ class PaymentProcessorRuleRowMapper implements RowMapper<PaymentProcessorRule> {
 		paymentProcessorRule.setCardType(CardType.valueOf(rs.getString("CardType")));
 		paymentProcessorRule.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
 		paymentProcessorRule.setLastModifiedBy(rs.getString("ModifiedBy"));
-	//	paymentProcessorRule.setMaximumMonthlyAmount(rs.getBigDecimal("MaximumMonthlyAmount"));
+		paymentProcessorRule.setMaximumMonthlyAmount(rs.getBigDecimal("MaximumMonthlyAmount"));
 		paymentProcessorRule.setMonthToDateCumulativeAmount(rs.getBigDecimal("MonthToDateCumulativeAmount"));
 		paymentProcessorRule.setNoMaximumMonthlyAmountFlag(rs.getShort("NoMaximumMonthlyAmountFlag"));
-		paymentProcessorRule.setPriority(rs.getShort("Priority"));
-
 		return paymentProcessorRule;
 	}
 }

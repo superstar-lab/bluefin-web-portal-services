@@ -42,7 +42,6 @@ public class ProcessRuleResource {
     
     private BigDecimal maximumMonthlyAmount = new BigDecimal("0.00");
     
-    //private Short priority;
     
     @JsonIgnore
     public boolean hasNoLimit() {

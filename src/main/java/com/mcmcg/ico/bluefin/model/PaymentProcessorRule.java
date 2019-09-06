@@ -31,8 +31,6 @@ public class PaymentProcessorRule implements Serializable {
 
     private Short noMaximumMonthlyAmountFlag = (short) 0;
     
-    private Short priority;
-
     private BigDecimal monthToDateCumulativeAmount;
     
     private BigDecimal maximumMonthlyAmount;
@@ -63,8 +61,6 @@ public class PaymentProcessorRule implements Serializable {
 		return "PaymentProcessorRule [paymentProcessorRuleId=" 
 				+ paymentProcessorRuleId + ", paymentProcessor="
 				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmountForDebit=" 
-			/*	+ maximumMonthlyAmountForDebit + ", maximumMonthlyAmountForCredit=" 
-				+ maximumMonthlyAmountForCredit + ", noMaximumMonthlyAmountFlag="*/
 				+ noMaximumMonthlyAmountFlag + ", monthToDateCumulativeAmount=" 
 				+ monthToDateCumulativeAmount + ", targetPercentage="
 				+ targetPercentage  
