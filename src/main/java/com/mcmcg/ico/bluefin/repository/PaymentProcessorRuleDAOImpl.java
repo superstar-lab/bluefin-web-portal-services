@@ -95,11 +95,10 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 				ps.setBigDecimal(4, paymentProcessorRule.getMaximumMonthlyAmount()); 
 	//			ps.setShort(4, paymentProcessorRule.getPriority()); // ModifiedBy
 				ps.setBigDecimal(5, paymentProcessorRule.getMonthToDateCumulativeAmount());
-				ps.setBigDecimal(6, paymentProcessorRule.getConsumedPercentage());
-				ps.setBigDecimal(7, paymentProcessorRule.getTargetPercentage());
-				ps.setTimestamp(8, dateCreated);
-				ps.setString(9, paymentProcessorRule.getLastModifiedBy());
-				ps.setInt(10, paymentProcessorRule.getIsRuleActive());
+				ps.setBigDecimal(6, paymentProcessorRule.getTargetPercentage());
+				ps.setTimestamp(7, dateCreated);
+				ps.setString(8, paymentProcessorRule.getLastModifiedBy());
+				ps.setInt(9, paymentProcessorRule.getIsRuleActive());
 				return ps;
 		}, holder);
 
@@ -188,6 +187,9 @@ class PaymentProcessorRuleRowMapper implements RowMapper<PaymentProcessorRule> {
 		paymentProcessorRule.setCardType(CardType.valueOf(rs.getString("CardType")));
 		paymentProcessorRule.setCreatedDate(new DateTime(rs.getTimestamp("DateCreated")));
 		paymentProcessorRule.setLastModifiedBy(rs.getString("ModifiedBy"));
+		paymentProcessorRule.setConsumedPercentage(rs.getBigDecimal("ConsumedPercentage"));
+		paymentProcessorRule.setTargetPercentage(rs.getBigDecimal("TargetPercentage"));
+		paymentProcessorRule.setIsRuleActive(rs.getInt("IsActive"));
 		paymentProcessorRule.setMaximumMonthlyAmount(rs.getBigDecimal("MaximumMonthlyAmount"));
 		paymentProcessorRule.setMonthToDateCumulativeAmount(rs.getBigDecimal("MonthToDateCumulativeAmount"));
 		paymentProcessorRule.setNoMaximumMonthlyAmountFlag(rs.getShort("NoMaximumMonthlyAmountFlag"));
