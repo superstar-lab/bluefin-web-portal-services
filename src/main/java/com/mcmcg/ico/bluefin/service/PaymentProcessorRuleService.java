@@ -291,6 +291,8 @@ public class PaymentProcessorRuleService {
     	Map<Long, String> processorWithCardTypeMap = new HashMap<>();
     	
     	for(ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
+    		PaymentProcessor loadedPaymentProcessor = paymentProcessorService
+					.getPaymentProcessorById(processRuleResource.getPaymentProcessorId());
     		if(processRuleResource.getIsRuleDeleted()<0 || processRuleResource.getIsRuleDeleted()>1) {
         		throw new CustomBadRequestException("Delete flag can't be other than 0 or 1");
         	}
@@ -298,47 +300,62 @@ public class PaymentProcessorRuleService {
         		throw new CustomBadRequestException("Active flag can't be other than 0 or 1");
         	}
     		
-    		if(processRuleResource.getIsRuleDeleted() != 1 && processRuleResource.getIsRuleActive() != 0) {
-    			BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
-            	
-            	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
-            	if(paymentProcessorId == null || paymentProcessorId<=0) {
-            		throw new CustomBadRequestException("The payment processor cannot be blank");
-            	}
-            	if(StringUtils.isBlank(processRuleResource.getCardType().toString())) {
-            		throw new CustomBadRequestException("The card type cannot be blank");
-            	}
-            	if((targetPercentage.compareTo(BigDecimal.ONE)) < 0 || (targetPercentage.compareTo(hundred) > 0)) {
-            		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
-            	}
-            	if((processRuleResource.getMaximumMonthlyAmount()).compareTo(BigDecimal.ZERO) == -1) {
-            		throw new CustomBadRequestException("Monthly maximum amount can't be less than zero");
-            	}
-            	if((processRuleResource.getNoMaximumMonthlyAmountFlag())<0 || (processRuleResource.getNoMaximumMonthlyAmountFlag())>1) {
-            		throw new CustomBadRequestException("No limit flag can't be other than 0 or 1");
-            	}
-            	
-            	if((!processorWithCardTypeMap.isEmpty()) && StringUtils.isNotBlank(processorWithCardTypeMap.get(processRuleResource.getPaymentProcessorId())) &&
-            			processorWithCardTypeMap.get(processRuleResource.getPaymentProcessorId()).equalsIgnoreCase(processRuleResource.getCardType().toString())) {
-            		throw new CustomBadRequestException("Payment processor rule can't be created for same payment processor and card type");
-            	}
-            	
-            	processorWithCardTypeMap.put(processRuleResource.getPaymentProcessorId(), processRuleResource.getCardType().toString());
-            	
-    			if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
-    				paymentProcessorRule = getPaymentProcessorRule(processRuleResource.getPaymentProcessorRuleId());
-    				
-    				BigDecimal newTargetPercentage = processRuleResource.getTargetPercentage();
-    				
-    				consumedPercentage = paymentProcessorRule.getConsumedPercentage();
-    				oldTargetPercentage = paymentProcessorRule.getTargetPercentage();
-                	BigDecimal newPercentageFactor = oldTargetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
-                	BigDecimal consumedTargetPercentage = consumedPercentage.multiply(newPercentageFactor);
+    		if(processRuleResource.getIsRuleDeleted() != 1) {
+    			
+				if ((!processorWithCardTypeMap.isEmpty())
+						&& StringUtils
+								.isNotBlank(processorWithCardTypeMap.get(processRuleResource.getPaymentProcessorId()))
+						&& processorWithCardTypeMap.get(processRuleResource.getPaymentProcessorId())
+								.equalsIgnoreCase(processRuleResource.getCardType().toString())) {
+					
+					throw new CustomBadRequestException(
+							"Payment processor rule can't be created for same payment processor "
+									+ loadedPaymentProcessor.getProcessorName() + "  and " + processRuleResource.getCardType()
+									+ " card type");
+				}
+				processorWithCardTypeMap.put(processRuleResource.getPaymentProcessorId(), processRuleResource.getCardType().toString());
+    			
+    			if(processRuleResource.getIsRuleActive() != 0) {
+    				BigDecimal targetPercentage = processRuleResource.getTargetPercentage();
                 	
-                	int diffInAmount = newTargetPercentage.compareTo(consumedTargetPercentage);
-    				if(diffInAmount<=0) {
-    					throw new CustomBadRequestException("New target percentage [" + newTargetPercentage + "] can't be less or equal to consumed percentage [" + consumedTargetPercentage + "]");
-    				}
+                	Long paymentProcessorId = processRuleResource.getPaymentProcessorId();
+                	if(paymentProcessorId == null || paymentProcessorId<=0) {
+                		throw new CustomBadRequestException("The payment processor cannot be blank");
+                	}
+                	if(StringUtils.isBlank(processRuleResource.getCardType().toString())) {
+                		throw new CustomBadRequestException("The card type cannot be blank");
+                	}
+                	if((targetPercentage.compareTo(BigDecimal.ONE)) < 0 || (targetPercentage.compareTo(hundred) > 0)) {
+                		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
+                	}
+                	if((processRuleResource.getMaximumMonthlyAmount()).compareTo(BigDecimal.ZERO) == -1) {
+                		throw new CustomBadRequestException("Monthly maximum amount can't be less than zero");
+                	}
+                	if((processRuleResource.getNoMaximumMonthlyAmountFlag())<0 || (processRuleResource.getNoMaximumMonthlyAmountFlag())>1) {
+                		throw new CustomBadRequestException("No limit flag can't be other than 0 or 1");
+                	}
+                	
+                	processorWithCardTypeMap.put(processRuleResource.getPaymentProcessorId(), processRuleResource.getCardType().toString());
+                	
+        			if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
+        				paymentProcessorRule = getPaymentProcessorRule(processRuleResource.getPaymentProcessorRuleId());
+        				
+        				BigDecimal newTargetPercentage = processRuleResource.getTargetPercentage();
+        				
+        				consumedPercentage = paymentProcessorRule.getConsumedPercentage();
+        				oldTargetPercentage = paymentProcessorRule.getTargetPercentage();
+                    	BigDecimal newPercentageFactor = oldTargetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
+                    	BigDecimal consumedTargetPercentage = consumedPercentage.multiply(newPercentageFactor);
+                    	
+                    	int diffInAmount = newTargetPercentage.compareTo(consumedTargetPercentage);
+						if (diffInAmount <= 0) {
+							throw new CustomBadRequestException("New target percentage [" + newTargetPercentage
+									+ "] for " + loadedPaymentProcessor.getProcessorName() + " and "
+									+ processRuleResource.getCardType()
+									+ " cardtype can't be less or equal to consumed percentage ["
+									+ consumedTargetPercentage + "]");
+						}
+        			}
     			}
     		}
     	}
@@ -390,7 +407,7 @@ public class PaymentProcessorRuleService {
         }
     }
     
-	private PaymentProcessorRule handlePaymentProcessorProcessorRuleActionCall(
+	private PaymentProcessorRule handlePaymentProcessorProcessorRuleForInsertCall(
 			ProcessRuleResource processRuleResource) {
 		PaymentProcessorRule ppr = processRuleResourceToPaymentProcessorRule(processRuleResource);
 		// Verify if payment processor exists
@@ -408,43 +425,67 @@ public class PaymentProcessorRuleService {
 					"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
 					loadedPaymentProcessor.getPaymentProcessorId()));
 		}
-		// Check for operation
-		if (processRuleResource.getPaymentProcessorRuleId() != null
-				&& processRuleResource.getPaymentProcessorRuleId() != 0) {
-			if (processRuleResource.getIsRuleDeleted() == 1) {
-				LOGGER.info("ready to delete payment Processor Rule");
-				paymentProcessorRuleDAO.delete(ppr.getPaymentProcessorRuleId());
-			}
-			// Code Block for Updating Existing Processor Rule.
-			if (processRuleResource.getIsRuleDeleted() == 0) {
-				ppr.setPaymentProcessor(loadedPaymentProcessor);
-				LOGGER.info("ready to update payment Processor Rule");
-				return paymentProcessorRuleDAO.updatepaymentProcessorRule(ppr);
-			}
-		}
-		// Code Block for saving New Processor Rule.
-		if (processRuleResource.getPaymentProcessorRuleId() == null
-				|| processRuleResource.getPaymentProcessorRuleId() == 0) {
 			ppr.setPaymentProcessor(loadedPaymentProcessor);
 			ppr.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
 			LOGGER.info("ready to save payment Processor Rule");
 			return paymentProcessorRuleDAO.save(ppr);
+	}
+	
+	
+	private PaymentProcessorRule handlePaymentProcessorProcessorRuleForUpdateCall(
+			ProcessRuleResource processRuleResource) {
+		PaymentProcessorRule ppr = processRuleResourceToPaymentProcessorRule(processRuleResource);
+		// Verify if payment processor exists
+		PaymentProcessor loadedPaymentProcessor = paymentProcessorService
+				.getPaymentProcessorById(processRuleResource.getPaymentProcessorId());
+
+		// Payment processor must has merchants associate to it
+		if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
+			LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request",
+					BluefinWebPortalConstants.SEPARATOR,
+					"Unable to create payment processor rule. Payment processor must have at least one merchant associated. Payment processor id : ",
+					String.valueOf(loadedPaymentProcessor.getPaymentProcessorId())));
+
+			throw new CustomNotFoundException(String.format(
+					"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
+					loadedPaymentProcessor.getPaymentProcessorId()));
 		}
-		return null;
+		ppr.setPaymentProcessor(loadedPaymentProcessor);
+		LOGGER.info("ready to update payment Processor Rule");
+		return paymentProcessorRuleDAO.updatepaymentProcessorRule(ppr);
+
 	}
     
 	public List<PaymentProcessorRule> createPaymentProcessorRuleConfig(
-    		PaymentProcessorRuleResource paymentProcessorRuleResource,String userName) {
-    	LOGGER.info("Entering to create Payment Processor Rule");
-    	List<PaymentProcessorRule> paymentProcessorRuleList= new ArrayList<>();
-		for (ProcessRuleResource prr : paymentProcessorRuleResource.getProcessRuleResource()) {
-			PaymentProcessorRule paymentProcessorRule = handlePaymentProcessorProcessorRuleActionCall(prr);
-			if (paymentProcessorRule != null) {
-				paymentProcessorRuleList.add(paymentProcessorRule);
+			PaymentProcessorRuleResource paymentProcessorRuleResource, String userName) {
+		LOGGER.info("Entering to create Payment Processor Rule");
+		List<ProcessRuleResource> paymentProcessorRuleListForSave = new ArrayList<>();
+		List<ProcessRuleResource> paymentProcessorRuleListForUpdate = new ArrayList<>();
+		List<ProcessRuleResource> paymentProcessorRuleListForDelete = new ArrayList<>();
+		for (ProcessRuleResource processRuleResource : paymentProcessorRuleResource.getProcessRuleResource()) {
+			if (processRuleResource.getIsRuleDeleted() == 1) {
+				paymentProcessorRuleListForDelete.add(processRuleResource);
+			} else if (processRuleResource.getIsRuleDeleted() != 1
+					&& processRuleResource.getPaymentProcessorRuleId() == 0) {
+				paymentProcessorRuleListForSave.add(processRuleResource);
+			} else if (processRuleResource.getIsRuleDeleted() != 1
+					&& processRuleResource.getPaymentProcessorRuleId() != 0) {
+				paymentProcessorRuleListForUpdate.add(processRuleResource);
 			}
 		}
-    	return paymentProcessorRuleList;
-    }
+		for (ProcessRuleResource recordForDelete : paymentProcessorRuleListForDelete) {
+			LOGGER.info("ready to delete payment Processor Rule");
+			paymentProcessorRuleDAO.delete(recordForDelete.getPaymentProcessorRuleId());
+		}
+		for (ProcessRuleResource recordForUpdate : paymentProcessorRuleListForUpdate) {
+			handlePaymentProcessorProcessorRuleForUpdateCall(recordForUpdate);
+		}
+		for (ProcessRuleResource recordForInsert : paymentProcessorRuleListForSave) {
+			handlePaymentProcessorProcessorRuleForInsertCall(recordForInsert);
+		}
+		return getPaymentProcessorRules();
+	}
+
 
 	private PaymentProcessorRule processRuleResourceToPaymentProcessorRule(
 			ProcessRuleResource processRuleResource) {

@@ -3,7 +3,6 @@
  */
 package com.mcmcg.ico.bluefin.repository;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -75,7 +74,7 @@ public class PaymentProcessorRuleDAOImpl implements PaymentProcessorRuleDAO {
 		LOGGER.debug("Number of rows ={}", list.size());
 		return list;
 	}
-
+	
 	@Override
 	public PaymentProcessorRule save(PaymentProcessorRule paymentProcessorRule) {
 		KeyHolder holder = new GeneratedKeyHolder();
