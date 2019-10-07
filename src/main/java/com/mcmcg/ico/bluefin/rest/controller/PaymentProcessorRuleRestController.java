@@ -111,7 +111,7 @@ public class PaymentProcessorRuleRestController {
         paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
         
         return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRuleConfig(
-        		paymentProcessorRuleResource,authentication.getName()), HttpStatus.CREATED);
+        		paymentProcessorRuleResource,authentication==null ? "":authentication.getName()), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "Update payment processor rule", nickname = "updatePaymentProcessor")
@@ -194,6 +194,6 @@ public class PaymentProcessorRuleRestController {
         LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR	));
         return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRuleConfig(
-        		paymentProcessorRuleResource,authentication.getName()), HttpStatus.CREATED);
+        		paymentProcessorRuleResource,authentication==null ? "":authentication.getName()), HttpStatus.CREATED);
     }
 }
