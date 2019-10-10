@@ -114,7 +114,8 @@ public class Queries {
 	public static final String FINDPAYMENTPROCESSORRULESBYPAYMENTPROCESSORID = "SELECT PaymentProcessorRuleID, PaymentProcessorID, CardType, NoMaximumMonthlyAmountFlag, Priority, MonthToDateCumulativeAmount, CurrentYear, CurrentMonth, DateCreated, ModifiedBy FROM PaymentProcessor_Rule WHERE PaymentProcessorID = ?";
 	public static final String UPDATEPAYMENTPROCESSORRULE = "UPDATE PaymentProcessor_Rule SET PaymentProcessorID= ?, CardType= ?, MaximumMonthlyAmount=?, TargetPercentage=?, NoMaximumMonthlyAmountFlag=?, IsActive=? WHERE PaymentProcessorRuleID= ?";
 	public static final String UPDATEPAYMENTPROCESSORTHRESHOLD = "UPDATE PaymentProcessorThreshold_Lookup SET CreditThreshold= ?, DebitThreshold= ?,DateModified=?, ModifiedBy=? WHERE PaymentProcessorthresholdId= ?";
-
+	public static final String FINDTRENDSBYFREQUENCY = "SELECT PaymentProcessorRuleID, PaymentProcessorID, CardType,ResetFrequency,HistoryDateCreated, MaximumMonthlyAmount, NoMaximumMonthlyAmountFlag, ConsumedPercentage, TargetPercentage, IsActive, MonthToDateCumulativeAmount, CurrentYear,CurrentMonth,DateCreated,ModifiedBy FROM PaymentProcessor_Rule_History WHERE ResetFrequency = ? and HistoryDateCreated between ? and ?";
+	
 	//Below queries has been used for InternalResponseCode/PaymentProcessorInternalResponseCode
 	public static final String FINDBYINTERNALRESPONSECODEANDTRANSACTIONTYPENAME ="SELECT * FROM InternalResponseCode_Lookup WHERE InternalResponseCode = ? AND TransactionType = ?";
 	public static final String FINDALLINTERNALRESPONSECODE = "SELECT InternalResponseCodeID,InternalResponseCode,InternalResponseCodeDescription,ModifiedBy,DatedModified,TransactionType,DateCreated FROM InternalResponseCode_Lookup";

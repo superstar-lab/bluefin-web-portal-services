@@ -44,9 +44,17 @@ public class PaymentProcessorRule implements Serializable {
     private int isRuleActive=0;
     
     @JsonIgnore
+    private String resetFrequency;
+    
+    @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private DateTime createdDate;
+    
+    @JsonIgnore
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    private DateTime historyCreationDate;
 
     @JsonIgnore
     private String lastModifiedBy;

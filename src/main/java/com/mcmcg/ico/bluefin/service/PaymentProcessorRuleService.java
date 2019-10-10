@@ -1,13 +1,20 @@
 package com.mcmcg.ico.bluefin.service;
 
 import java.math.BigDecimal;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +25,13 @@ import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.CardType;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRuleDateWiseTrends;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRuleTrends;
+import com.mcmcg.ico.bluefin.model.PaymentProcessorRuleTrendsRequest;
 import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleDAO;
-import com.mcmcg.ico.bluefin.repository.PaymentProcessorThresholdDAO;
+import com.mcmcg.ico.bluefin.repository.PaymentProcessorRuleTrendsDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.PaymentProcessorRuleResource;
 import com.mcmcg.ico.bluefin.rest.resource.ProcessRuleResource;
@@ -38,7 +49,7 @@ public class PaymentProcessorRuleService {
     private PaymentProcessorService paymentProcessorService;
     
     @Autowired
-    private PaymentProcessorThresholdDAO paymentProcessorThresholdDAO;
+    private PaymentProcessorRuleTrendsDAO paymentProcessorRuleTrendsDAO;
 
     /**
      * Create new payment processor rule
@@ -505,4 +516,124 @@ public class PaymentProcessorRuleService {
 		}
 		return paymentProcessorRule;
 	}
+	
+	public PaymentProcessorRuleTrends getProcessorRuleTrendsListByFrequency(
+			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest) {
+		LOGGER.info("Inside Service method");
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+		Format format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		validationForDate(paymentProcessorRuleTrendsRequest, formatter);
+		resetingTimeForStartAndEndDate(paymentProcessorRuleTrendsRequest, formatter, format);
+		paymentProcessorRuleTrendsRequest = getDateFilterByFrequency(paymentProcessorRuleTrendsRequest, formatter,format);
+		List<PaymentProcessorRule> list = paymentProcessorRuleTrendsDAO
+				.getTrendsByFrequencyandDateRange(paymentProcessorRuleTrendsRequest);
+		PaymentProcessorRuleTrends processorRuleTrends = new PaymentProcessorRuleTrends();
+		List<PaymentProcessorRuleDateWiseTrends> processorruleDatewiseTrendsList = new ArrayList<>();
+		List<PaymentProcessorRule> processorRuleTrendsList = new ArrayList<>();
+		PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
+		DateTime histroyDate = null;
+		for (PaymentProcessorRule lst : list) {
+			if (histroyDate == null) {
+				histroyDate = lst.getHistoryCreationDate();
+			}
+			if (histroyDate.equals(lst.getHistoryCreationDate())) {
+				processorRuleTrendsList.add(lst);
+			} else {
+				paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
+				paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
+				paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
+				processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
+				histroyDate = lst.getHistoryCreationDate();
+				processorRuleTrendsList = new ArrayList<>();
+				processorRuleTrendsList.add(lst);
+			}
+
+		}
+		paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
+		paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
+		paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
+		processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
+		processorRuleTrends.setPaymentProcessorRuleDateWiseTrends(processorruleDatewiseTrendsList);
+		processorRuleTrends.setFrequencyType(paymentProcessorRuleTrendsRequest.getFrequencyType());
+		return processorRuleTrends;
+	}
+
+	public PaymentProcessorRuleTrendsRequest getDateFilterByFrequency(
+			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest, DateTimeFormatter formatter,
+			Format format) {
+
+		LOGGER.info("Setting StartDate for {} frequency type", paymentProcessorRuleTrendsRequest.getFrequencyType());
+		switch (paymentProcessorRuleTrendsRequest.getFrequencyType()) {
+		case "DAILY":
+			break;
+		case "WEEKLY":
+			manageStartDateforWeeklyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
+			break;
+		case "MONTHLY":
+			manageStartDateforMonthlyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
+			break;
+		default:
+			manageStartDateforMonthlyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
+			paymentProcessorRuleTrendsRequest.setFrequencyType("MONTHLY");
+			break;
+		}
+		return paymentProcessorRuleTrendsRequest;
+	}
+    
+	private PaymentProcessorRuleTrendsRequest resetingTimeForStartAndEndDate(
+			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest, DateTimeFormatter formatter,
+			Format format) {
+		DateTime dateTime = null;
+		Date startDate = null;
+		Date endDate = null;
+		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getStartDate());
+		dateTime = dateTime.withHourOfDay(00).withMinuteOfHour(00).withSecondOfMinute(00);
+		startDate = dateTime.toDate();
+		paymentProcessorRuleTrendsRequest.setStartDate(format.format(startDate));
+		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getEndDate());
+		dateTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
+		endDate = dateTime.toDate();
+		paymentProcessorRuleTrendsRequest.setEndDate(format.format(endDate));
+		return paymentProcessorRuleTrendsRequest;
+	}
+	
+	private PaymentProcessorRuleTrendsRequest manageStartDateforMonthlyFrequency(
+			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest, DateTimeFormatter formatter,
+			Format format) {
+		DateTime dateTime = null;
+		Date startDate = null;
+		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getStartDate());
+		dateTime = dateTime.withDayOfMonth(1);
+		startDate = dateTime.toDate();
+		paymentProcessorRuleTrendsRequest.setStartDate(format.format(startDate));
+		return paymentProcessorRuleTrendsRequest;
+	}
+	
+	private PaymentProcessorRuleTrendsRequest manageStartDateforWeeklyFrequency(
+			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest, DateTimeFormatter formatter,
+			Format format) {
+		DateTime dateTime = null;
+		Date startDate = null;
+		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getStartDate());
+		dateTime = dateTime.withDayOfWeek(DateTimeConstants.MONDAY);
+		startDate = dateTime.toDate();
+		paymentProcessorRuleTrendsRequest.setStartDate(format.format(startDate));
+		return paymentProcessorRuleTrendsRequest;
+	}
+	
+	private void validationForDate(PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest,
+			DateTimeFormatter formatter) {
+		LOGGER.info("Inside Validation code for start and end date ");
+		try {
+			formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getStartDate());
+		} catch (IllegalArgumentException e) {
+			throw new CustomException("Invalid Format of Start Date");
+		}
+		try {
+			formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getEndDate());
+		} catch (IllegalArgumentException e) {
+			throw new CustomException("Invalid Format of End Date");
+		}
+	}
+	
 }
