@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 	public List<SaleTransaction> findByBatchUploadId(Long batchUploadId) {
 		ArrayList<SaleTransaction> list = (ArrayList<SaleTransaction>) jdbcTemplate.query(
 				Queries.FINDSALETRANSACTIONBYBATCHUPLOADID, new Object[] { batchUploadId },
-				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper()));
+				new RowMapperResultSetExtractor<SaleTransaction>(new SaleTransactionRowMapper(BluefinWebPortalConstants.BATCH_UPLOAD_CARD_MASK)));
 		LOGGER.debug("Number of batch uploads: {}", list.size());
 		return list;
 	}
@@ -80,6 +81,15 @@ public class SaleTransactionDAOImpl implements SaleTransactionDAO {
 }
 
 class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
+	private String masker;
+	public SaleTransactionRowMapper(){
+		
+	}
+	
+	public SaleTransactionRowMapper(String masker){
+		this.masker=masker;
+	}
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SaleTransactionRowMapper.class);
 	@Override
 	public SaleTransaction mapRow(ResultSet rs, int row) throws SQLException {
@@ -96,7 +106,7 @@ class SaleTransactionRowMapper implements RowMapper<SaleTransaction> {
 		saleTransaction.setPostalCode(rs.getString("PostalCode"));
 		saleTransaction.setCountry(rs.getString("Country"));
 		saleTransaction.setCardNumberFirst6Char(rs.getString("CardNumberFirst6Char"));
-		saleTransaction.setCardNumberLast4Char(BluefinWebPortalConstants.CARDMASK+rs.getString("CardNumberLast4Char"));
+		saleTransaction.setCardNumberLast4Char((StringUtils.isNotBlank(this.masker) ? this.masker : BluefinWebPortalConstants.CARDMASK ) +rs.getString("CardNumberLast4Char"));
 		saleTransaction.setCardType(rs.getString("CardType"));
 		try {
 			saleTransaction.setExpiryDate(rs.getTimestamp("ExpiryDate"));
