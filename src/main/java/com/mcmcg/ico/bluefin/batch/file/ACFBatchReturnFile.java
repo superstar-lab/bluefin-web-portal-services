@@ -185,7 +185,9 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		df.setGroupingUsed(false);
 						
 		//Customer Name
-		saleTransactionDataRecord.add(saleTransaction.getFirstName()+" "+saleTransaction.getLastName());
+		String customerName = saleTransaction.getFirstName()+" "+saleTransaction.getLastName();
+		customerName=customerName.replace(",", " ");
+		saleTransactionDataRecord.add(customerName);
 						
 		//Card Type
 		String cardBrand = BluefinWebPortalConstants.CARDBRAND;
