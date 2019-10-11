@@ -593,6 +593,9 @@ public class PaymentProcessorRuleService {
 		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getEndDate());
 		dateTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
 		endDate = dateTime.toDate();
+		if(!endDate.after(startDate)){
+			throw new CustomException(" Start Date cannot be greater than End Date");
+		}
 		paymentProcessorRuleTrendsRequest.setEndDate(format.format(endDate));
 		return paymentProcessorRuleTrendsRequest;
 	}
