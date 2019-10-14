@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 @RestController
-@RequestMapping(value = "/api/payment-processor-rule-reports")
+@RequestMapping(value = "/api/payment-processor-rule-trends")
 public class PaymentProcessorRuleReportController {
 
 	@Autowired
