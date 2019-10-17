@@ -166,34 +166,4 @@ public class PaymentProcessorRuleRestController {
 
         return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
-    
-    @ApiOperation(value = "Manage payment processor rule", nickname = "managePaymentProcessorRule")
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json", value="/genericCall")
-    @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = PaymentProcessorRule.class),
-            @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
-            @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
-            @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public ResponseEntity<List<PaymentProcessorRule>> genericApiForPaymentProcessorRule(
-            @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
-            @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
-        // First checks if all required fields are set
-        if (errors.hasErrors()) {
-            String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
-            
-            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		errorDescription));
-            
-            throw new CustomBadRequestException(errorDescription);
-        }
-  //      paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
-        LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR	));
-        return new ResponseEntity<>(paymentProcessorRuleService.createPaymentProcessorRuleConfig(
-        		paymentProcessorRuleResource,authentication==null ? "":authentication.getName()), HttpStatus.CREATED);
-    }
 }

@@ -37,16 +37,11 @@ public class PaymentProcessorRuleReportController {
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public PaymentProcessorRuleTrends get(
-			@RequestParam(value = "frequency") String frequency,
+	public PaymentProcessorRuleTrends get(@RequestParam(value = "frequency") String frequency,
 			@RequestParam(value = "startDate", required = true) String startDate,
 			@RequestParam(value = "endDate", required = true) String endDate) {
 		LOGGER.info("Getting Trends for Payment Processor");
-		PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest =new PaymentProcessorRuleTrendsRequest();
-		paymentProcessorRuleTrendsRequest.setStartDate(startDate);
-		paymentProcessorRuleTrendsRequest.setEndDate(endDate);
-		paymentProcessorRuleTrendsRequest.setFrequencyType(frequency);
-		return paymentProcessorRuleService.getProcessorRuleTrendsListByFrequency(paymentProcessorRuleTrendsRequest);
+		return paymentProcessorRuleService.getProcessorRuleTrendsListByFrequency(startDate, endDate, frequency);
 	}
 
 }

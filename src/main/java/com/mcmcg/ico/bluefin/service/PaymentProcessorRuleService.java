@@ -438,7 +438,7 @@ public class PaymentProcessorRuleService {
 		}
 			ppr.setPaymentProcessor(loadedPaymentProcessor);
 			ppr.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
-			LOGGER.info("ready to save payment Processor Rule");
+			LOGGER.debug("Ready to save payment Processor Rule");
 			return paymentProcessorRuleDAO.save(ppr);
 	}
 	
@@ -462,14 +462,14 @@ public class PaymentProcessorRuleService {
 					loadedPaymentProcessor.getPaymentProcessorId()));
 		}
 		ppr.setPaymentProcessor(loadedPaymentProcessor);
-		LOGGER.info("ready to update payment Processor Rule");
+		LOGGER.debug("Ready to update payment Processor Rule");
 		return paymentProcessorRuleDAO.updatepaymentProcessorRule(ppr);
 
 	}
     
 	public List<PaymentProcessorRule> createPaymentProcessorRuleConfig(
 			PaymentProcessorRuleResource paymentProcessorRuleResource, String userName) {
-		LOGGER.info("Entering to create Payment Processor Rule");
+		LOGGER.debug("Grouping of Rules depanding upon their operations");
 		List<ProcessRuleResource> paymentProcessorRuleListForSave = new ArrayList<>();
 		List<ProcessRuleResource> paymentProcessorRuleListForUpdate = new ArrayList<>();
 		List<ProcessRuleResource> paymentProcessorRuleListForDelete = new ArrayList<>();
@@ -485,13 +485,15 @@ public class PaymentProcessorRuleService {
 			}
 		}
 		for (ProcessRuleResource recordForDelete : paymentProcessorRuleListForDelete) {
-			LOGGER.info("ready to delete payment Processor Rule");
+			LOGGER.debug("Ready to delete payment Processor Rule with {} ruleid",recordForDelete.getPaymentProcessorRuleId());
 			paymentProcessorRuleDAO.delete(recordForDelete.getPaymentProcessorRuleId());
 		}
 		for (ProcessRuleResource recordForUpdate : paymentProcessorRuleListForUpdate) {
+			LOGGER.debug("Ready to Update payment Processor Rule with {} ruleid",recordForUpdate.getPaymentProcessorRuleId());
 			handlePaymentProcessorProcessorRuleForUpdateCall(recordForUpdate);
 		}
 		for (ProcessRuleResource recordForInsert : paymentProcessorRuleListForSave) {
+			LOGGER.debug("Ready to create new payment processor rule");
 			handlePaymentProcessorProcessorRuleForInsertCall(recordForInsert);
 		}
 		return getPaymentProcessorRules();
@@ -518,8 +520,12 @@ public class PaymentProcessorRuleService {
 	}
 	
 	public PaymentProcessorRuleTrends getProcessorRuleTrendsListByFrequency(
-			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest) {
+			String startDate,String endDate,String frequency) {
 		LOGGER.info("Inside Service method");
+		PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest =new PaymentProcessorRuleTrendsRequest();
+		paymentProcessorRuleTrendsRequest.setStartDate(startDate);
+		paymentProcessorRuleTrendsRequest.setEndDate(endDate);
+		paymentProcessorRuleTrendsRequest.setFrequencyType(frequency);
 		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 		Format format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		validationForDate(paymentProcessorRuleTrendsRequest, formatter);
@@ -530,7 +536,7 @@ public class PaymentProcessorRuleService {
 		PaymentProcessorRuleTrends processorRuleTrends = new PaymentProcessorRuleTrends();
 		List<PaymentProcessorRuleDateWiseTrends> processorruleDatewiseTrendsList = new ArrayList<>();
 		List<PaymentProcessorRule> processorRuleTrendsList = new ArrayList<>();
-		PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
+		PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends;
 		DateTime histroyDate = null;
 		for (PaymentProcessorRule lst : list) {
 			if (histroyDate == null) {
@@ -563,7 +569,9 @@ public class PaymentProcessorRuleService {
 			Format format) {
 
 		LOGGER.info("Setting StartDate for {} frequency type", paymentProcessorRuleTrendsRequest.getFrequencyType());
-		switch (paymentProcessorRuleTrendsRequest.getFrequencyType()) {
+		switch (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
+				? paymentProcessorRuleTrendsRequest.getFrequencyType().toUpperCase()
+				: paymentProcessorRuleTrendsRequest.getFrequencyType()) {
 		case "DAILY":
 			break;
 		case "WEEKLY":
