@@ -359,7 +359,7 @@ public class PaymentProcessorRuleService {
                     	BigDecimal consumedTargetPercentage = consumedPercentage.multiply(newPercentageFactor);
                     	
                     	int diffInAmount = newTargetPercentage.compareTo(consumedTargetPercentage);
-						if (diffInAmount <= 0) {
+						if (diffInAmount < 0) {
 							throw new CustomBadRequestException("New target percentage [" + newTargetPercentage
 									+ "] for " + loadedPaymentProcessor.getProcessorName() + " and "
 									+ processRuleResource.getCardType()
