@@ -487,17 +487,23 @@ public class PaymentProcessorRuleService {
 		for (ProcessRuleResource recordForDelete : paymentProcessorRuleListForDelete) {
 			LOGGER.debug("Ready to delete payment Processor Rule with {} ruleid",
 					recordForDelete.getPaymentProcessorRuleId());
-			paymentProcessorRuleDAO.delete(recordForDelete.getPaymentProcessorRuleId());
+			if (recordForDelete != null && recordForDelete.getPaymentProcessorRuleId() != null) {
+				paymentProcessorRuleDAO.delete(recordForDelete.getPaymentProcessorRuleId());
+			}
 		}
 		for (ProcessRuleResource recordForUpdate : paymentProcessorRuleListForUpdate) {
 			LOGGER.debug("Ready to Update payment Processor Rule with {} ruleid",
 					recordForUpdate.getPaymentProcessorRuleId());
-			handlePaymentProcessorProcessorRuleForUpdateCall(recordForUpdate);
+			if (recordForUpdate != null) {
+				handlePaymentProcessorProcessorRuleForUpdateCall(recordForUpdate);
+			}
 		}
 		for (ProcessRuleResource recordForInsert : paymentProcessorRuleListForSave) {
 			LOGGER.debug("Ready to create new payment processor rule with processor id is {}, target percentage is {}",
 					recordForInsert.getPaymentProcessorId(), recordForInsert.getTargetPercentage());
-			handlePaymentProcessorProcessorRuleForInsertCall(recordForInsert);
+			if (recordForInsert != null) {
+				handlePaymentProcessorProcessorRuleForInsertCall(recordForInsert);
+			}
 		}
 		return getPaymentProcessorRules();
 	}

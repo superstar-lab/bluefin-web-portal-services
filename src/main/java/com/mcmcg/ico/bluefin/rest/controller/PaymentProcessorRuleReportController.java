@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRuleTrends;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorRuleTrendsRequest;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorRuleService;
 
