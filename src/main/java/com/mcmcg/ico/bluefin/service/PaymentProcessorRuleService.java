@@ -57,30 +57,7 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorRule
      * @return
      */
-    public PaymentProcessorRule createPaymentProcessorRule(final long processorId,
-    		PaymentProcessorRule paymentProcessorRule) {
-    	LOGGER.info("Entering to create Payment Processor Rule");
-    	// Verify if payment processor exists
-    	PaymentProcessor  loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-
-    	// Payment processor must has merchants associate to it
-    	if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
-    		LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
-    				"Unable to create payment processor rule. Payment processor must have at least one merchant associated. Payment processor id : ", 
-    				String.valueOf(loadedPaymentProcessor.getPaymentProcessorId())));
-    		
-    		throw new CustomNotFoundException(String.format(
-    				"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
-    				loadedPaymentProcessor.getPaymentProcessorId()));
-    	}
-
-    	validatePaymentProcessorRule(paymentProcessorRule);
-
-    	paymentProcessorRule.setPaymentProcessor(loadedPaymentProcessor);
-    	paymentProcessorRule.setMonthToDateCumulativeAmount(BigDecimal.ZERO);
-    	LOGGER.info("ready to save payment Processor Rule");
-    	return paymentProcessorRuleDAO.save(paymentProcessorRule);
-    }
+    
     
     
     /**
@@ -95,28 +72,6 @@ public class PaymentProcessorRuleService {
      * @throws CustomNotFoundException
      *             when payment processor rule is not found
      */
-    public PaymentProcessorRule updatePaymentProcessorRule(PaymentProcessorRule paymentProcessorRule,
-            long processorId) {
-
-    	LOGGER.info("Entering to update Payment Processor Rule ");
-    	PaymentProcessorRule paymentProcessorRuleToUpdate = getPaymentProcessorRule(
-                paymentProcessorRule.getPaymentProcessorRuleId());
-
-        // Verify if processor exists
-    	PaymentProcessor loadedPaymentProcessor = paymentProcessorService.getPaymentProcessorById(processorId);
-    	LOGGER.debug("loadedPaymentProcessor ={} ",loadedPaymentProcessor);
-       validatePaymentProcessorRule(paymentProcessorRule);
-
-        // Update fields
-        paymentProcessorRuleToUpdate.setCardType(paymentProcessorRule.getCardType());
-   //     paymentProcessorRuleToUpdate.setMaximumMonthlyAmount(paymentProcessorRule.getMaximumMonthlyAmount());
-        paymentProcessorRuleToUpdate
-                .setNoMaximumMonthlyAmountFlag(paymentProcessorRule.getNoMaximumMonthlyAmountFlag());
-        paymentProcessorRuleToUpdate.setPaymentProcessor(loadedPaymentProcessor);
-
-        LOGGER.info("ready to update paymentProcessorRuleToUpdate");
-        return paymentProcessorRuleDAO.updatepaymentProcessorRule(paymentProcessorRuleToUpdate);
-    }
 
     /**
      * Get all payment processor rules
@@ -196,97 +151,7 @@ public class PaymentProcessorRuleService {
      * @param paymentProcessorId,
      *            payment processor id
      */
-    private void validatePaymentProcessorRule(PaymentProcessorRule newPaymentProcessorRule) {
-		LOGGER.info("Entering to validate Payment Processor Rule : ");
-        validatePaymentProcessorRuleForCreditDebitCardType(newPaymentProcessorRule);
-    }
-
-    private void validatePaymentProcessorRuleForCreditDebitCardType(PaymentProcessorRule newPaymentProcessorRule) {
-        List<PaymentProcessorRule> paymentProcessorRules = paymentProcessorRuleDAO
-                .findByCardType(newPaymentProcessorRule.getCardType().name());
-
-        LOGGER.debug("PaymentProcessorRules size : {}",paymentProcessorRules.size());
-        if (paymentProcessorRules == null || paymentProcessorRules.isEmpty()) {
-            // No validation because there is no rules
-            return;
-        }
-
-        // Record highest priority from the existing rules
-        short highestPriority = 0;
-        // Exist a no maximum amount limit
-        boolean existsNoLimitPaymentProcessorRule = false;
-
-        for (PaymentProcessorRule current : paymentProcessorRules) {
-            if (newPaymentProcessorRule.getPaymentProcessorRuleId() == null || !current.getPaymentProcessorRuleId()
-                    .equals(newPaymentProcessorRule.getPaymentProcessorRuleId())) {
-                // Priority already assigned for the same transaction type
-   //         	validatePriority(current,newPaymentProcessorRule);
-
-                // Do not allow adding or editing if already exist a no
-                // maximum monthly amount
-            	validateNoLimit(current,newPaymentProcessorRule);
-
-                // Find the highest priority of the existing rules
-               /* highestPriority = highestPriority > current.getPriority().shortValue() ? highestPriority
-                        : current.getPriority().shortValue();*/
-
-                // There is a no maximum monthly amount ?
-                if (current.hasNoLimit()) {
-                    existsNoLimitPaymentProcessorRule = true;
-                }
-            }
-        }
-
-   //     validatePriorityAndHighestPriority(newPaymentProcessorRule,highestPriority,existsNoLimitPaymentProcessorRule);
-        
-    //    validatePriorityAndHighestPriority(newPaymentProcessorRule,highestPriority);
-        
-    }
     
-   /* private void validatePriority(PaymentProcessorRule current,PaymentProcessorRule newPaymentProcessorRule){
-    	if (current.getPriority().equals(newPaymentProcessorRule.getPriority())) {
-            LOGGER.error(
-                    "Unable to create/update payment processor rule with an existing priority.  Details: [{}]",
-                    newPaymentProcessorRule);
-            throw new CustomBadRequestException(
-                    "Unable to create/update payment processor rule with an existing priority.");
-        }
-    }*/
-    
-    private void validateNoLimit(PaymentProcessorRule current,PaymentProcessorRule newPaymentProcessorRule){
-    	if (newPaymentProcessorRule.hasNoLimit() && current.hasNoLimit()) {
-            LOGGER.error(
-                    "Unable to create/update payment processor rule with no maximum amount because already exist one.  Details: [{}]",
-                    newPaymentProcessorRule);
-            throw new CustomBadRequestException(
-                    "Unable to create/update payment processor rule with no maximum amount because already exist one.");
-        }
-    }
-    /*private void validatePriorityAndHighestPriority(PaymentProcessorRule newPaymentProcessorRule,short highestPriority,boolean existsNoLimitPaymentProcessorRule){
-    	
-         * When the new payment processor rule has noMaximumMonthlyAmountFlag ON
-         * then we need to make sure that has the lowest priority (which means
-         * that MUST has the highest number)
-         
-        if (existsNoLimitPaymentProcessorRule && newPaymentProcessorRule.getPriority().shortValue() > highestPriority) {
-            LOGGER.error(
-                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: [{}]",
-                    newPaymentProcessorRule);
-            throw new CustomBadRequestException(
-                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.");
-        }
-    }*/
-    
-    /*private void validatePriorityAndHighestPriority(PaymentProcessorRule newPaymentProcessorRule,short highestPriority){
-    	if (newPaymentProcessorRule.hasNoLimit()
-                && newPaymentProcessorRule.getPriority().shortValue() < highestPriority) {
-            LOGGER.error(
-                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.  Details: [{}]",
-                    newPaymentProcessorRule);
-            throw new CustomBadRequestException(
-                    "Unable to create payment processor rule with no maximum amount because the priority is not the lowest value.");
-        }
-    }*/
     
     public void validatePaymentProcessorRuleData(PaymentProcessorRuleResource paymentProcessorRuleResource){
     	validateprocessorRuleInputData(paymentProcessorRuleResource);
@@ -534,8 +399,8 @@ public class PaymentProcessorRuleService {
 		paymentProcessorRuleTrendsRequest.setStartDate(startDate);
 		paymentProcessorRuleTrendsRequest.setEndDate(endDate);
 		paymentProcessorRuleTrendsRequest.setFrequencyType(frequency);
-		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-		Format format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd");
+		Format format = new SimpleDateFormat("yyyy-MM-dd");
 		validationForDate(paymentProcessorRuleTrendsRequest, formatter);
 		resetingTimeForStartAndEndDate(paymentProcessorRuleTrendsRequest, formatter, format);
 		paymentProcessorRuleTrendsRequest = getDateFilterByFrequency(paymentProcessorRuleTrendsRequest, formatter,format);
@@ -603,14 +468,15 @@ public class PaymentProcessorRuleService {
 		Date startDate = null;
 		Date endDate = null;
 		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getStartDate());
-		dateTime = dateTime.withHourOfDay(00).withMinuteOfHour(00).withSecondOfMinute(00);
+	//	dateTime = dateTime.withHourOfDay(00).withMinuteOfHour(00).withSecondOfMinute(00);
 		startDate = dateTime.toDate();
 		paymentProcessorRuleTrendsRequest.setStartDate(format.format(startDate));
 		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getEndDate());
-		dateTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
+	//	dateTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
+		dateTime= dateTime.plusDays(1);
 		endDate = dateTime.toDate();
 		if(!endDate.after(startDate)){
-			throw new CustomException(" Start Date cannot be greater than End Date");
+			throw new CustomException("Start Date cannot be greater than End Date");
 		}
 		paymentProcessorRuleTrendsRequest.setEndDate(format.format(endDate));
 		return paymentProcessorRuleTrendsRequest;
