@@ -468,11 +468,9 @@ public class PaymentProcessorRuleService {
 		Date startDate = null;
 		Date endDate = null;
 		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getStartDate());
-	//	dateTime = dateTime.withHourOfDay(00).withMinuteOfHour(00).withSecondOfMinute(00);
 		startDate = dateTime.toDate();
 		paymentProcessorRuleTrendsRequest.setStartDate(format.format(startDate));
 		dateTime = formatter.parseDateTime(paymentProcessorRuleTrendsRequest.getEndDate());
-	//	dateTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
 		dateTime= dateTime.plusDays(1);
 		endDate = dateTime.toDate();
 		if(!endDate.after(startDate)){
