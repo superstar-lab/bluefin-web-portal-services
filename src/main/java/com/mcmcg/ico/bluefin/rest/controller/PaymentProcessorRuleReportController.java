@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRuleTrends;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.PaymentProcessorRuleService;
@@ -31,7 +30,7 @@ public class PaymentProcessorRuleReportController {
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
-			@ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class, responseContainer = "List"),
+			@ApiResponse(code = 200, message = "OK", response = PaymentProcessorRuleTrends.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),

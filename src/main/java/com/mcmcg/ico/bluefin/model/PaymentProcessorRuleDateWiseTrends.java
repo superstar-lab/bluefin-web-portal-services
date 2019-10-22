@@ -23,5 +23,7 @@ public class PaymentProcessorRuleDateWiseTrends implements Serializable {
 	private DateTime histroyDateCreation;
 	
 	private List<PaymentProcessorRule> paymentProcessorRule;
+	
+	private String  weekStartEndDate;
 
 }

@@ -421,6 +421,10 @@ public class PaymentProcessorRuleService {
 				paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
 				paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
 				paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
+				if (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
+						&& paymentProcessorRuleTrendsRequest.getFrequencyType().equals("WEEKLY") && histroyDate!=null) {
+					setStartAndEndDateForWeeklyFrequency(paymentProcessorRuleDateWiseTrends, formatter, format);
+				}
 				processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
 				histroyDate = lst.getHistoryCreationDate();
 				processorRuleTrendsList = new ArrayList<>();
@@ -431,6 +435,10 @@ public class PaymentProcessorRuleService {
 		paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
 		paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
 		paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
+		if (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
+				&& paymentProcessorRuleTrendsRequest.getFrequencyType().equals("WEEKLY") && histroyDate!=null) {
+			setStartAndEndDateForWeeklyFrequency(paymentProcessorRuleDateWiseTrends, formatter, format);
+		}
 		processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
 		processorRuleTrends.setPaymentProcessorRuleDateWiseTrends(processorruleDatewiseTrendsList);
 		processorRuleTrends.setFrequencyType(paymentProcessorRuleTrendsRequest.getFrequencyType());
@@ -446,12 +454,15 @@ public class PaymentProcessorRuleService {
 				? paymentProcessorRuleTrendsRequest.getFrequencyType().toUpperCase()
 				: paymentProcessorRuleTrendsRequest.getFrequencyType()) {
 		case "DAILY":
+			paymentProcessorRuleTrendsRequest.setFrequencyType("DAILY");
 			break;
 		case "WEEKLY":
 			manageStartDateforWeeklyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
+			paymentProcessorRuleTrendsRequest.setFrequencyType("WEEKLY");
 			break;
 		case "MONTHLY":
 			manageStartDateforMonthlyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
+			paymentProcessorRuleTrendsRequest.setFrequencyType("MONTHLY");
 			break;
 		default:
 			manageStartDateforMonthlyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
@@ -517,6 +528,21 @@ public class PaymentProcessorRuleService {
 		} catch (IllegalArgumentException e) {
 			throw new CustomException("Invalid Format of End Date");
 		}
+	}
+	
+	private void setStartAndEndDateForWeeklyFrequency(PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends,
+			DateTimeFormatter formatter, Format format) {
+		LOGGER.info("Setting Start and End Date for Weekly Frequency");
+		DateTime dateTime = null;
+		Date startDate = null;
+		Date endDate = null;
+		String weeklyDateHeader;
+		dateTime = paymentProcessorRuleDateWiseTrends.getHistroyDateCreation().withDayOfWeek(DateTimeConstants.MONDAY);
+		startDate = dateTime.toDate();
+		dateTime = paymentProcessorRuleDateWiseTrends.getHistroyDateCreation().withDayOfWeek(DateTimeConstants.SUNDAY);
+		endDate = dateTime.toDate();
+		weeklyDateHeader= format.format(startDate)  + " - " + format.format(endDate);
+		paymentProcessorRuleDateWiseTrends.setWeekStartEndDate(weeklyDateHeader);
 	}
 	
 }
