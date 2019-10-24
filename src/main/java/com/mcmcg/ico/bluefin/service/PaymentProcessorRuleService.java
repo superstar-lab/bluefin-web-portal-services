@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -421,9 +422,9 @@ public class PaymentProcessorRuleService {
 				paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
 				paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
 				paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
-				if (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
-						&& paymentProcessorRuleTrendsRequest.getFrequencyType().equals("WEEKLY") && histroyDate!=null) {
-					setStartAndEndDateForWeeklyFrequency(paymentProcessorRuleDateWiseTrends, formatter, format);
+				if(histroyDate!=null){
+				manageTrendsDateHeaderByFrequency(paymentProcessorRuleDateWiseTrends, paymentProcessorRuleTrendsRequest,
+						format);
 				}
 				processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
 				histroyDate = lst.getHistoryCreationDate();
@@ -435,10 +436,10 @@ public class PaymentProcessorRuleService {
 		paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
 		paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
 		paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
-		if (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
-				&& paymentProcessorRuleTrendsRequest.getFrequencyType().equals("WEEKLY") && histroyDate!=null) {
-			setStartAndEndDateForWeeklyFrequency(paymentProcessorRuleDateWiseTrends, formatter, format);
-		}
+		if(histroyDate!=null){
+			manageTrendsDateHeaderByFrequency(paymentProcessorRuleDateWiseTrends, paymentProcessorRuleTrendsRequest,
+					format);
+			}
 		processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
 		processorRuleTrends.setPaymentProcessorRuleDateWiseTrends(processorruleDatewiseTrendsList);
 		processorRuleTrends.setFrequencyType(paymentProcessorRuleTrendsRequest.getFrequencyType());
@@ -530,9 +531,9 @@ public class PaymentProcessorRuleService {
 		}
 	}
 	
-	private void setStartAndEndDateForWeeklyFrequency(PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends,
-			DateTimeFormatter formatter, Format format) {
-		LOGGER.info("Setting Start and End Date for Weekly Frequency");
+	private void setTrendsDateHeaderForWeeklyFrequency(PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends,
+			 Format format) {
+		LOGGER.info("Setting Trends Date Header for Weekly Frequency");
 		DateTime dateTime = null;
 		Date startDate = null;
 		Date endDate = null;
@@ -542,7 +543,54 @@ public class PaymentProcessorRuleService {
 		dateTime = paymentProcessorRuleDateWiseTrends.getHistroyDateCreation().withDayOfWeek(DateTimeConstants.SUNDAY);
 		endDate = dateTime.toDate();
 		weeklyDateHeader= format.format(startDate)  + " - " + format.format(endDate);
-		paymentProcessorRuleDateWiseTrends.setWeekStartEndDate(weeklyDateHeader);
+		paymentProcessorRuleDateWiseTrends.setTrendsDateHeader(weeklyDateHeader);
+	}
+	
+	private void setTrendsDateHeaderForMonthlyFrequency(
+			PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends) {
+		LOGGER.info("Setting Trends Date Header for Monthly Frequency");
+		DateTime dateTime = null;
+		Date startDate = null;
+		Format formatter = new SimpleDateFormat("MMM,yyy");
+		String dateHeader;
+		dateTime = paymentProcessorRuleDateWiseTrends.getHistroyDateCreation();
+		startDate = dateTime.toDate();
+		dateHeader = formatter.format(startDate);
+		paymentProcessorRuleDateWiseTrends.setTrendsDateHeader(dateHeader);
+	}
+	
+	private void setTrendsDateHeaderForDailyFrequency(PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends,
+			 Format format) {
+		LOGGER.info("Setting Trends Date Header for Daily Frequency");
+		DateTime dateTime = null;
+		Date startDate = null;
+		String dateHeader;
+		dateTime = paymentProcessorRuleDateWiseTrends.getHistroyDateCreation();
+		startDate = dateTime.toDate();
+		dateHeader =format.format(startDate);
+		paymentProcessorRuleDateWiseTrends.setTrendsDateHeader(dateHeader);
+	}
+	
+	private void manageTrendsDateHeaderByFrequency(
+			PaymentProcessorRuleDateWiseTrends paymentProcessorRuleDateWiseTrends,
+			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest, Format format) {
+		LOGGER.debug("Setting Trends Date Header for {} frequency type", paymentProcessorRuleTrendsRequest.getFrequencyType());
+		switch (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
+				? paymentProcessorRuleTrendsRequest.getFrequencyType().toUpperCase()
+				: paymentProcessorRuleTrendsRequest.getFrequencyType()) {
+		case "DAILY":
+			setTrendsDateHeaderForDailyFrequency(paymentProcessorRuleDateWiseTrends, format);
+			break;
+		case "WEEKLY":
+			setTrendsDateHeaderForWeeklyFrequency(paymentProcessorRuleDateWiseTrends, format);
+			break;
+		case "MONTHLY":
+			setTrendsDateHeaderForMonthlyFrequency(paymentProcessorRuleDateWiseTrends);
+			break;
+		default:
+			setTrendsDateHeaderForMonthlyFrequency(paymentProcessorRuleDateWiseTrends);
+			break;
+		}
 	}
 	
 }
