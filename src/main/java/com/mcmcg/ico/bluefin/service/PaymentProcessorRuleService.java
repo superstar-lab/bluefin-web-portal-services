@@ -213,26 +213,6 @@ public class PaymentProcessorRuleService {
                 	}
                 	
                 	processorWithCardTypeMap.put(processRuleResource.getPaymentProcessorId(), processRuleResource.getCardType().toString());
-                	
-        			/*if(processRuleResource.getPaymentProcessorRuleId()!=null && processRuleResource.getPaymentProcessorRuleId()>0) {
-        				paymentProcessorRule = getPaymentProcessorRule(processRuleResource.getPaymentProcessorRuleId());
-        				
-        				BigDecimal newTargetPercentage = processRuleResource.getTargetPercentage();
-        				
-        				consumedPercentage = paymentProcessorRule.getConsumedPercentage();
-        				oldTargetPercentage = paymentProcessorRule.getTargetPercentage();
-                    	BigDecimal newPercentageFactor = oldTargetPercentage.divide(hundred,3, BigDecimal.ROUND_UNNECESSARY);
-                    	BigDecimal consumedTargetPercentage = consumedPercentage.multiply(newPercentageFactor);
-                    	
-                    	int diffInAmount = newTargetPercentage.compareTo(consumedTargetPercentage);
-						if (diffInAmount < 0) {
-							throw new CustomBadRequestException("New target percentage [" + newTargetPercentage
-									+ "] for " + loadedPaymentProcessor.getProcessorName() + " and "
-									+ processRuleResource.getCardType()
-									+ " cardtype can't be less or equal to consumed percentage ["
-									+ consumedTargetPercentage + "]");
-						}
-        			}*/
     			}
     		}
     	}
