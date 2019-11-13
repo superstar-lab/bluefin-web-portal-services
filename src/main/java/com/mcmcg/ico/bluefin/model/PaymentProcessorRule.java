@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+
 import org.joda.time.DateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -28,18 +29,32 @@ public class PaymentProcessorRule implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private CardType cardType;
 
-    private BigDecimal maximumMonthlyAmount = BigDecimal.ZERO;
-
     private Short noMaximumMonthlyAmountFlag = (short) 0;
-
-    private Short priority;
-
+    
     private BigDecimal monthToDateCumulativeAmount;
-
+    
+    private BigDecimal maximumMonthlyAmount;
+    
+    private BigDecimal targetPercentage = BigDecimal.ZERO;
+    
+    private BigDecimal consumedPercentage = BigDecimal.ZERO;
+    
+    private int isRuleDeleted = 0;
+    
+    private int isRuleActive=0;
+    
+    @JsonIgnore
+    private String resetFrequency;
+    
     @JsonIgnore
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private DateTime createdDate;
+    
+    @JsonIgnore
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    private DateTime historyCreationDate;
 
     @JsonIgnore
     private String lastModifiedBy;
@@ -51,10 +66,13 @@ public class PaymentProcessorRule implements Serializable {
 
 	@Override
 	public String toString() {
-		return "PaymentProcessorRule [paymentProcessorRuleId=" + paymentProcessorRuleId + ", paymentProcessor="
-				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmount=" + maximumMonthlyAmount
-				+ ", noMaximumMonthlyAmountFlag=" + noMaximumMonthlyAmountFlag + ", priority=" + priority
-				+ ", monthToDateCumulativeAmount=" + monthToDateCumulativeAmount + "]";
+		return "PaymentProcessorRule [paymentProcessorRuleId=" 
+				+ paymentProcessorRuleId + ", paymentProcessor="
+				+ paymentProcessor + ", cardType=" + cardType + ", maximumMonthlyAmountForDebit=" 
+				+ noMaximumMonthlyAmountFlag + ", monthToDateCumulativeAmount=" 
+				+ monthToDateCumulativeAmount + ", targetPercentage="
+				+ targetPercentage  
+				+ "]";
 	}
 
 }

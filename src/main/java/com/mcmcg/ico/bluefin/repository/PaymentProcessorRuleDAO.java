@@ -22,7 +22,7 @@ public interface PaymentProcessorRuleDAO {
 	public void deletePaymentProcessorRules(Long paymentProcessorId);
 
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByCardType(String cardType);
-
+	
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule save(com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRule);
 
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule findOne(long id);
@@ -31,7 +31,7 @@ public interface PaymentProcessorRuleDAO {
 
 	public com.mcmcg.ico.bluefin.model.PaymentProcessorRule updatepaymentProcessorRule(
 			com.mcmcg.ico.bluefin.model.PaymentProcessorRule paymentProcessorRuleToUpdate);
-
+	
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findByPaymentProcessor(Long paymentProcessorId);
 	
 	public List<com.mcmcg.ico.bluefin.model.PaymentProcessorRule> findAll();
