@@ -43,13 +43,6 @@
    		</repository>
   	</repositories>
 
-	<defaultOptions>
-    <extraargs>
-        <extraarg>-frontend</extraarg>
-        <extraarg>jaxws21</extraarg>
-    </extraargs>
-</defaultOptions>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>12</java.version>
@@ -417,6 +410,12 @@
 									<wsdl>${endpoint.email.wsdl.uri}?wsdl</wsdl>
 								</wsdlOption>
 							</wsdlOptions>
+							<defaultOptions>
+    <extraargs>
+        <extraarg>-frontend</extraarg>
+        <extraarg>jaxws21</extraarg>
+    </extraargs>
+</defaultOptions>
 						</configuration>
 						<goals>
 							<goal>wsdl2java</goal>
