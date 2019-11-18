@@ -25,7 +25,7 @@ public class BluefinAppContextAware implements ApplicationContextAware {
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
 		LOGGER.info("Setting cookie setting to servlet context");
-		if (servletContext != null) {
+		/**if (servletContext != null) {
 			if (servletContext.getSessionCookieConfig() != null) {
 				if (cookieConfig != null) {
 					LOGGER.info("The Cookie config secure , set as={}",cookieConfig.isSecure());
@@ -38,7 +38,7 @@ public class BluefinAppContextAware implements ApplicationContextAware {
 			}
 		} else {
 			LOGGER.error("Servlet Context found null hence not setting cookie properties (secure)");
-		}
+		}*/
 	}
 
 }
