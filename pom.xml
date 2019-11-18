@@ -43,6 +43,13 @@
    		</repository>
   	</repositories>
 
+	<defaultOptions>
+    <extraargs>
+        <extraarg>-frontend</extraarg>
+        <extraarg>jaxws21</extraarg>
+    </extraargs>
+</defaultOptions>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>12</java.version>
