@@ -33,15 +33,18 @@
       		<name>maven central taglibs</name>
       		<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
     	</repository>
-		<repository>
-      		<id>apache.snapshots</id>
-      		<name>Maven Plugin Snapshots</name>
-      		<url>http://repository.apache.org/snapshots/</url>
-      		<snapshots>
-        		<enabled>true</enabled>
-      		</snapshots>
-    	</repository>
   	</repositories>
+
+	<pluginRepositories>         
+   <pluginRepository>
+      <id>apache.snapshots</id>
+      <name>Maven Plugin Snapshots</name>
+      <url>http://repository.apache.org/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+</pluginRepositories>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
