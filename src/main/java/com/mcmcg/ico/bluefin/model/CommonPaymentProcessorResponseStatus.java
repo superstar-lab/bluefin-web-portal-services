@@ -3,9 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
-
-@Data
 public class CommonPaymentProcessorResponseStatus extends Common {
 
 	@JsonIgnore
@@ -27,6 +24,30 @@ public class CommonPaymentProcessorResponseStatus extends Common {
     public String getProcessoName() {
         return this.paymentProcessor.getProcessorName();
     }
+
+	public PaymentProcessor getPaymentProcessor() {
+		return paymentProcessor;
+	}
+
+	public void setPaymentProcessor(PaymentProcessor paymentProcessor) {
+		this.paymentProcessor = paymentProcessor;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	public String getTransactionTypeName() {
+		return transactionTypeName;
+	}
+
+	public void setTransactionTypeName(String transactionTypeName) {
+		this.transactionTypeName = transactionTypeName;
+	}
     
 	
 

@@ -3,9 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-import lombok.Data;
-
-@Data
 public class TransactionType extends Common implements Serializable {
 
 	private static final long serialVersionUID = -1192867359830305926L;
@@ -50,5 +47,30 @@ public class TransactionType extends Common implements Serializable {
 	public int hashCode() {
 		return Objects.hash(transactionTypeId, transactionTypeName, description);
 	}
+
+	public Long getTransactionTypeId() {
+		return transactionTypeId;
+	}
+
+	public void setTransactionTypeId(Long transactionTypeId) {
+		this.transactionTypeId = transactionTypeId;
+	}
+
+	public String getTransactionTypeName() {
+		return transactionTypeName;
+	}
+
+	public void setTransactionTypeName(String transactionTypeName) {
+		this.transactionTypeName = transactionTypeName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	
 }

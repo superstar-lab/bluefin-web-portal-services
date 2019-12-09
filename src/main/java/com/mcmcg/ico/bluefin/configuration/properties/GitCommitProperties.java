@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import lombok.Data;
-
-@Data
 @Component
 public class GitCommitProperties {
 
@@ -31,4 +28,30 @@ public class GitCommitProperties {
         this.userEmail = userEmail;
         this.userName = userName;
     }
+
+	public String getId() {
+		return id;
+	}
+
+	public String getIdAbbrev() {
+		return idAbbrev;
+	}
+
+	public String getShortMessage() {
+		return shortMessage;
+	}
+
+	public String getTime() {
+		return time;
+	}
+
+	public String getUserEmail() {
+		return userEmail;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+    
+    
 }

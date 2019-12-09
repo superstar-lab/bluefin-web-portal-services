@@ -25,10 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
 import com.mcmcg.ico.bluefin.model.BatchReturnFileModel;
@@ -124,22 +122,8 @@ public class BatchUploadService {
 		batchUpload = batchUploadDAO.saveBasicBatchUpload(batchUpload);
 		// call new application to process file content (fileStream)
 		LOGGER.info("Calling ACF application to process file content");
-		String response = HttpsUtil.sendPostRequest(batchProcessServiceUrl + batchUpload.getBatchUploadId().toString() +"/"+ legalEntityName,
-				fileStream, xAuthToken);
-		LOGGER.debug("ACF response ={} ",response);
-
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.registerModule(new JodaModule());
-			objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-			LOGGER.info("Conveting ACF response into BatchUpload object");
-			BatchUpload batchUploadResult = objectMapper.readValue(response, BatchUpload.class);
-			batchUploadResult.setLegalEntityName(legalEntityName);
-			return batchUploadResult;
-		} catch (IOException e) {
-			LOGGER.error("Unable to parse ACF batch process service response.", e);
-			throw new CustomException("Unable to parse ACF batch process service response.");
-		}
+		return HttpsUtil.sendPostRequest(batchProcessServiceUrl, batchUpload.getBatchUploadId(),
+				fileStream, xAuthToken, batchUpload.getLegalEntityName());
 	}
 
 	private BatchUpload createBasicBatchUpload(String username, String fileName, int lines, String legalEntityName, Long legalEntityAppId) {
@@ -205,59 +189,7 @@ public class BatchUploadService {
 			LOGGER.debug("BatchUpload result size ={} ",result.size());
 			// Write a new transaction object list to the CSV file
 			for (BatchUpload batchUpload : result) {
-				List<String> batchUploadDataRecord = new ArrayList<>();
-				batchUploadDataRecord
-						.add(batchUpload.getBatchUploadId() == null ? " " : batchUpload.getBatchUploadId().toString());
-				batchUploadDataRecord.add(batchUpload.getFileName());
-				batchUploadDataRecord.add(batchUpload.getName());
-				// Batch Upload Date/Time (user's local time)
-				// The time zone (for example, "America/Costa_Rica" or
-				// "America/Los_Angeles") is passed as a parameter
-				// and applied to the UTC from the database.
-				if (batchUpload.getDateUploaded() == null) {
-					batchUploadDataRecord.add("");
-				} else {
-					DateTime dateTimeUTC = batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC);
-					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
-					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
-					batchUploadDataRecord.add(fmt.print(dateTimeUser));
-				}
-				batchUploadDataRecord.add(batchUpload.getBatchApplication());
-				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactions()));
-				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactionsProcessed()));
-				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfApprovedTransactions()));
-				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfDeclinedTransactions()));
-				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfErrorTransactions()));
-				batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfRejected()));
-
-				// Batch Upload Date/Time (user's local time)
-				// The time zone (for example, "America/Costa_Rica" or
-				// "America/Los_Angeles") is passed as a parameter
-				// and applied to the UTC from the database.
-				if (batchUpload.getProcessStart() == null) {
-					batchUploadDataRecord.add("");
-				} else {
-					DateTime dateTimeUTC = batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC);
-					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
-					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
-					batchUploadDataRecord.add(fmt.print(dateTimeUser));
-				}
-
-				// Batch Upload Date/Time (user's local time)
-				// The time zone (for example, "America/Costa_Rica" or
-				// "America/Los_Angeles") is passed as a parameter
-				// and applied to the UTC from the database.
-				if (batchUpload.getProcessEnd() == null) {
-					batchUploadDataRecord.add("");
-				} else {
-					DateTime dateTimeUTC = batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC);
-					DateTimeZone dtZone = DateTimeZone.forID(timeZone);
-					DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
-					batchUploadDataRecord.add(fmt.print(dateTimeUser));
-				}
-
-				batchUploadDataRecord.add(batchUpload.getUpLoadedBy());
-
+				List<String> batchUploadDataRecord = setBatchReportValues(batchUpload, timeZone, fmt);
 				csvFilePrinter.printRecord(batchUploadDataRecord);
 			}
 			LOGGER.info("CSV file report was created successfully !!!");
@@ -306,7 +238,7 @@ public class BatchUploadService {
 			LOGGER.debug("File deleted ? {}",deleted);
 			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 		} catch(Exception e) {
-			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
+			LOGGER.error("An error occured to during getRemittanceTransactionsReport file ",e);
 			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
 		}
 		finally {
@@ -314,7 +246,7 @@ public class BatchUploadService {
 		    		try {
 		    			inputStream.close();
 					} catch (IOException e) {
-						LOGGER.error("An error occured to close input stream= "+e);
+						LOGGER.error("An error occured to close input stream", e);
 					}
 		    	}
 		}
@@ -328,5 +260,62 @@ public class BatchUploadService {
 		}
 		
 		return legalEntityAppService.getLegalEntityAppName(legalEntityAppName).getIsActive().intValue() == 0;
+	}
+	
+	public List<String> setBatchReportValues(BatchUpload batchUpload, String timeZone, DateTimeFormatter fmt) {
+		List<String> batchUploadDataRecord = new ArrayList<>();
+		batchUploadDataRecord
+				.add(batchUpload.getBatchUploadId() == null ? " " : batchUpload.getBatchUploadId().toString());
+		batchUploadDataRecord.add(batchUpload.getFileName());
+		batchUploadDataRecord.add(batchUpload.getName());
+		// Batch Upload Date/Time (user's local time)
+		// The time zone (for example, "America/Costa_Rica" or
+		// "America/Los_Angeles") is passed as a parameter
+		// and applied to the UTC from the database.
+		if (batchUpload.getDateUploaded() == null) {
+			batchUploadDataRecord.add("");
+		} else {
+			DateTime dateTimeUTC = batchUpload.getDateUploaded().toDateTime(DateTimeZone.UTC);
+			DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+			DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+			batchUploadDataRecord.add(fmt.print(dateTimeUser));
+		}
+		batchUploadDataRecord.add(batchUpload.getBatchApplication());
+		batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactions()));
+		batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfTransactionsProcessed()));
+		batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfApprovedTransactions()));
+		batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfDeclinedTransactions()));
+		batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfErrorTransactions()));
+		batchUploadDataRecord.add(Integer.toString(batchUpload.getNumberOfRejected()));
+
+		// Batch Upload Date/Time (user's local time)
+		// The time zone (for example, "America/Costa_Rica" or
+		// "America/Los_Angeles") is passed as a parameter
+		// and applied to the UTC from the database.
+		if (batchUpload.getProcessStart() == null) {
+			batchUploadDataRecord.add("");
+		} else {
+			DateTime dateTimeUTC = batchUpload.getProcessStart().toDateTime(DateTimeZone.UTC);
+			DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+			DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+			batchUploadDataRecord.add(fmt.print(dateTimeUser));
+		}
+
+		// Batch Upload Date/Time (user's local time)
+		// The time zone (for example, "America/Costa_Rica" or
+		// "America/Los_Angeles") is passed as a parameter
+		// and applied to the UTC from the database.
+		if (batchUpload.getProcessEnd() == null) {
+			batchUploadDataRecord.add("");
+		} else {
+			DateTime dateTimeUTC = batchUpload.getProcessEnd().toDateTime(DateTimeZone.UTC);
+			DateTimeZone dtZone = DateTimeZone.forID(timeZone);
+			DateTime dateTimeUser = dateTimeUTC.withZone(dtZone);
+			batchUploadDataRecord.add(fmt.print(dateTimeUser));
+		}
+
+		batchUploadDataRecord.add(batchUpload.getUpLoadedBy());
+		
+		return batchUploadDataRecord;
 	}
 }

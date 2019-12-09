@@ -5,9 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import lombok.Data;
-
-@Data
 @JsonInclude(Include.NON_NULL)
 public class ItemStatusResource {
 
@@ -32,4 +29,38 @@ public class ItemStatusResource {
         this.codeStatus = codeStatus;
         this.completed = completed;
     }
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getTask() {
+		return task;
+	}
+
+	public void setTask(String task) {
+		this.task = task;
+	}
+
+	public List<ItemStatusCodeResource> getCodeStatus() {
+		return codeStatus;
+	}
+
+	public void setCodeStatus(List<ItemStatusCodeResource> codeStatus) {
+		this.codeStatus = codeStatus;
+	}
+
+	public Boolean getCompleted() {
+		return completed;
+	}
+
+	public void setCompleted(Boolean completed) {
+		this.completed = completed;
+	}
+    
+    
 }

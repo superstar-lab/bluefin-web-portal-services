@@ -13,9 +13,6 @@ import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserRole;
 
-import lombok.Data;
-
-@Data
 public class UserResource extends CommonUserResource implements Serializable {
 
 	private static final long serialVersionUID = 2895903899201191359L;
@@ -74,5 +71,39 @@ public class UserResource extends CommonUserResource implements Serializable {
 
 		return user;
 	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+	public Set<LegalEntityApp> getLegalEntityApps() {
+		return legalEntityApps;
+	}
+
+	public void setLegalEntityApps(Set<LegalEntityApp> legalEntityApps) {
+		this.legalEntityApps = legalEntityApps;
+	}
+
+	public String getSelectedTimeZone() {
+		return selectedTimeZone;
+	}
+
+	public void setSelectedTimeZone(String selectedTimeZone) {
+		this.selectedTimeZone = selectedTimeZone;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	
 	
 }

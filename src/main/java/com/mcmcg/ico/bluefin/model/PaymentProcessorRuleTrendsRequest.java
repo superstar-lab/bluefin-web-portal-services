@@ -2,14 +2,11 @@ package com.mcmcg.ico.bluefin.model;
 
 import java.io.Serializable;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import lombok.Data;
-
-@Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorRuleId")
 public class PaymentProcessorRuleTrendsRequest implements Serializable {
 
@@ -26,4 +23,28 @@ public class PaymentProcessorRuleTrendsRequest implements Serializable {
 	
 	@NotBlank
 	private String endDate;
+
+	public String getFrequencyType() {
+		return frequencyType;
+	}
+
+	public void setFrequencyType(String frequencyType) {
+		this.frequencyType = frequencyType;
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+
+	public String getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(String endDate) {
+		this.endDate = endDate;
+	}
 }

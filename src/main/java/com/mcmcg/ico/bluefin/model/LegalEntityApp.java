@@ -3,9 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-import lombok.Data;
-
-@Data
 public class LegalEntityApp extends Common implements Serializable {
 
 	private static final long serialVersionUID = 3424245887382516199L;
@@ -43,4 +40,46 @@ public class LegalEntityApp extends Common implements Serializable {
 	public int hashCode() {
 		return Objects.hash(legalEntityAppId, legalEntityAppName);
 	}
+
+	public Long getLegalEntityAppId() {
+		return legalEntityAppId;
+	}
+
+	public void setLegalEntityAppId(Long legalEntityAppId) {
+		this.legalEntityAppId = legalEntityAppId;
+	}
+
+	public String getLegalEntityAppName() {
+		return legalEntityAppName;
+	}
+
+	public void setLegalEntityAppName(String legalEntityAppName) {
+		this.legalEntityAppName = legalEntityAppName;
+	}
+
+	public Short getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Short isActive) {
+		this.isActive = isActive;
+	}
+
+	public String getPrNumber() {
+		return prNumber;
+	}
+
+	public void setPrNumber(String prNumber) {
+		this.prNumber = prNumber;
+	}
+
+	public Short getIsActiveForBatchUpload() {
+		return isActiveForBatchUpload;
+	}
+
+	public void setIsActiveForBatchUpload(Short isActiveForBatchUpload) {
+		this.isActiveForBatchUpload = isActiveForBatchUpload;
+	}
+	
+	
 }

@@ -8,21 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRule;
 
-import lombok.Data;
-
-@Data
 public class PaymentProcessorRuleResource implements Serializable {
     private static final long serialVersionUID = -3192378815338636933L;
-
-   /* private Long id;
-    
-    @NotNull(message = "Please provide a maximum monthly amount for Debit card to set the payment processor rule")
-    @Min(value = 0, message = "Attribute maximumMonthlyAmountForDebit shall never be null and must higher than 0")
-    private BigDecimal maximumMonthlyAmountForDebit = new BigDecimal("0.00");
-    
-    @NotNull(message = "Please provide a maximum monthly amount for Credit card to set the payment processor rule")
-    @Min(value = 0, message = "Attribute maximumMonthlyAmountForCredit shall never be null and must higher than 0")
-    private BigDecimal maximumMonthlyAmountForCredit = new BigDecimal("0.00");*/
     
     @NotNull(message = "Please provide a payment processor rule data")
     List <ProcessRuleResource> processRuleResource;
@@ -51,16 +38,12 @@ public class PaymentProcessorRuleResource implements Serializable {
         return paymentProcessorRuleList;
     }
 
-   /* public PaymentProcessorRule toPaymentProcessorRule(Long paymentProcessorRuleId) {
-    	PaymentProcessorRule rule = new PaymentProcessorRule();
-        rule.setPaymentProcessorRuleId(paymentProcessorRuleId);
-        rule.setCardType(cardType);
-        rule.setMaximumMonthlyAmountForDebit(maximumMonthlyAmountForDebit);
-        rule.setMaximumMonthlyAmountForCredit(maximumMonthlyAmountForCredit);
-        rule.setNoMaximumMonthlyAmountFlag(noMaximumMonthlyAmountFlag);
-        rule.setTargetPercentage(targetPercentage);
-        rule.setTargetAmount(targetAmount);
+	public List<ProcessRuleResource> getProcessRuleResource() {
+		return processRuleResource;
+	}
 
-        return rule;
-    }*/
+	public void setProcessRuleResource(List<ProcessRuleResource> processRuleResource) {
+		this.processRuleResource = processRuleResource;
+	}   
+  
 }

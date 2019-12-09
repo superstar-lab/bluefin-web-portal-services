@@ -48,8 +48,6 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.TransactionPageImpl;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
-import lombok.Data;
-
 @Repository
 public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
@@ -420,8 +418,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return prepareStatementWithWhere(statement);
 	}
 
-	
-	@Data
 	private class WhereCalValues {
 		String attribute;
 		String prefix;
@@ -440,6 +436,52 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			this.operator = operator;
 			this.predicate = predicate;
 		}
+		
+		public String getAttribute() {
+			return attribute;
+		}
+		public void setAttribute(String attribute) {
+			this.attribute = attribute;
+		}
+		public String getPrefix() {
+			return prefix;
+		}
+		public void setPrefix(String prefix) {
+			this.prefix = prefix;
+		}
+		public String getValue() {
+			return value;
+		}
+		public void setValue(String value) {
+			this.value = value;
+		}
+		public List<String> getAccountList() {
+			return accountList;
+		}
+		public void setAccountList(List<String> accountList) {
+			this.accountList = accountList;
+		}
+		public String getAttributeParam() {
+			return attributeParam;
+		}
+		public void setAttributeParam(String attributeParam) {
+			this.attributeParam = attributeParam;
+		}
+		public String getOperator() {
+			return operator;
+		}
+		public void setOperator(String operator) {
+			this.operator = operator;
+		}
+		public String getPredicate() {
+			return predicate;
+		}
+		public void setPredicate(String predicate) {
+			this.predicate = predicate;
+		}
+		
+		
+		
 	}
 	private void calculateValues(WhereCalValues whereCalValues,HashMap<String, Object> dynamicParametersMap){
 		// Special scenarios, be careful when you change this

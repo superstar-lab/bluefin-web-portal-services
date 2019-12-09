@@ -9,9 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mcmcg.ico.bluefin.model.User;
 
-import lombok.Data;
-
-@Data
 @JsonIgnoreProperties({ "password", "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled",
 		"email", "authorities" })
 public class SecurityUser implements UserDetails {
@@ -53,7 +50,7 @@ public class SecurityUser implements UserDetails {
 	public boolean isAccountNonExpired() {
 		return this.getAccountNonExpired();
 	}
-
+	
 	@Override
 	public boolean isAccountNonLocked() {
 		return !("INACTIVE".equals(user.getStatus()) || "LOCKED".equals(user.getStatus()));
@@ -68,4 +65,59 @@ public class SecurityUser implements UserDetails {
 	public boolean isEnabled() {
 		return "ACTIVE".equals(user.getStatus());
 	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public Boolean getAccountNonExpired() {
+		return accountNonExpired;
+	}
+
+	public void setAccountNonExpired(Boolean accountNonExpired) {
+		this.accountNonExpired = accountNonExpired;
+	}
+
+	public Boolean getAccountNonLocked() {
+		return accountNonLocked;
+	}
+
+	public void setAccountNonLocked(Boolean accountNonLocked) {
+		this.accountNonLocked = accountNonLocked;
+	}
+
+	public Boolean getCredentialsNonExpired() {
+		return credentialsNonExpired;
+	}
+
+	public void setCredentialsNonExpired(Boolean credentialsNonExpired) {
+		this.credentialsNonExpired = credentialsNonExpired;
+	}
+
+	public Boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public Date getExpires() {
+		return expires;
+	}
+
+	public void setExpires(Date expires) {
+		this.expires = expires;
+	}
+
+	public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
+	
+	
+	
 }

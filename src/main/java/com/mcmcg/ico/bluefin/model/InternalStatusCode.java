@@ -13,10 +13,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import lombok.Data;
-
 // Associated Table : InternalStatusCode_Lookup
-@Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "internalStatusCodeId")
 public class InternalStatusCode implements Serializable {
 
@@ -66,4 +63,87 @@ public class InternalStatusCode implements Serializable {
 				" , Category="+this.internalStatusCategory + " , category_abbr="+this.internalStatusCategoryAbbr +
 				" , No Of Childs="+this.getPaymentProcessorInternalStatusCodes().size();
 	}
+
+	public Long getInternalStatusCodeId() {
+		return internalStatusCodeId;
+	}
+
+	public void setInternalStatusCodeId(Long internalStatusCodeId) {
+		this.internalStatusCodeId = internalStatusCodeId;
+	}
+
+	public String getInternalStatusCodeValue() {
+		return internalStatusCodeValue;
+	}
+
+	public void setInternalStatusCodeValue(String internalStatusCodeValue) {
+		this.internalStatusCodeValue = internalStatusCodeValue;
+	}
+
+	public String getInternalStatusCodeDescription() {
+		return internalStatusCodeDescription;
+	}
+
+	public void setInternalStatusCodeDescription(String internalStatusCodeDescription) {
+		this.internalStatusCodeDescription = internalStatusCodeDescription;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	public String getInternalStatusCategoryAbbr() {
+		return internalStatusCategoryAbbr;
+	}
+
+	public void setInternalStatusCategoryAbbr(String internalStatusCategoryAbbr) {
+		this.internalStatusCategoryAbbr = internalStatusCategoryAbbr;
+	}
+
+	public String getInternalStatusCategory() {
+		return internalStatusCategory;
+	}
+
+	public void setInternalStatusCategory(String internalStatusCategory) {
+		this.internalStatusCategory = internalStatusCategory;
+	}
+
+	public DateTime getModifiedDate() {
+		return modifiedDate;
+	}
+
+	public void setModifiedDate(DateTime modifiedDate) {
+		this.modifiedDate = modifiedDate;
+	}
+
+	public String getTransactionTypeName() {
+		return transactionTypeName;
+	}
+
+	public void setTransactionTypeName(String transactionTypeName) {
+		this.transactionTypeName = transactionTypeName;
+	}
+
+	public DateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(DateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public List<PaymentProcessorInternalStatusCode> getPaymentProcessorInternalStatusCodes() {
+		return paymentProcessorInternalStatusCodes;
+	}
+
+	public void setPaymentProcessorInternalStatusCodes(
+			List<PaymentProcessorInternalStatusCode> paymentProcessorInternalStatusCodes) {
+		this.paymentProcessorInternalStatusCodes = paymentProcessorInternalStatusCodes;
+	}
+	
+	
 }

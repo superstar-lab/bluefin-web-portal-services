@@ -5,9 +5,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
-
-@Data
 public class ReconciliationStatus extends Common implements Serializable {
 
 	private static final long serialVersionUID = 4957286211246187153L;
@@ -38,5 +35,30 @@ public class ReconciliationStatus extends Common implements Serializable {
 	public int hashCode() {
 		return Objects.hash(reconciliationStatusId, reconciliationStatusValue, description);
 	}
+
+	public Long getReconciliationStatusId() {
+		return reconciliationStatusId;
+	}
+
+	public void setReconciliationStatusId(Long reconciliationStatusId) {
+		this.reconciliationStatusId = reconciliationStatusId;
+	}
+
+	public String getReconciliationStatusValue() {
+		return reconciliationStatusValue;
+	}
+
+	public void setReconciliationStatusValue(String reconciliationStatusValue) {
+		this.reconciliationStatusValue = reconciliationStatusValue;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	
 }

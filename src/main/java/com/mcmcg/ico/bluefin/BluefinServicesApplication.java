@@ -7,12 +7,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.MultipartConfigFactory;
+import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
+import org.springframework.util.unit.DataSize;
 
 @SpringBootApplication
 public class BluefinServicesApplication {
@@ -24,7 +25,7 @@ public class BluefinServicesApplication {
     private String bindbJndiName;
     
     @Value("${spring.bluefin.muti.file.upload.size}")
-    private String multiFileSize;
+    private DataSize multiFileSize;
 
     private JndiDataSourceLookup lookup = new JndiDataSourceLookup();
     

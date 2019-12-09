@@ -19,7 +19,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -33,7 +33,7 @@ import com.mcmcg.ico.bluefin.rest.resource.BasicPaymentProcessorResource;
 import com.mcmcg.ico.bluefin.util.TestUtilClass;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = BluefinServicesApplication.class)
+@SpringBootTest(classes = BluefinServicesApplication.class)
 @WebAppConfiguration
 public class PaymentProcessorServiceTest {
 
