@@ -93,14 +93,15 @@ public class BatchUploadRestController {
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
-			@ApiImplicitParam(name = "LegalEntityName", value = "Legal Entity", required = true, dataType = "string", paramType = "form") })
+			@ApiImplicitParam(name = "LegalEntityName", value = "Legal Entity", required = true, dataType = "string", paramType = "form"),
+			@ApiImplicitParam(name = "request", value = "request", required = true, paramType = "body") })
 	@ResponseStatus(HttpStatus.CREATED)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = BatchUpload.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public BatchUpload upload(MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
+	public BatchUpload upload(@ApiIgnore MultipartHttpServletRequest request, @ApiIgnore Authentication authentication) {
 		LOGGER.debug("Uploading new ACF file {}", request.getFileMap());
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
