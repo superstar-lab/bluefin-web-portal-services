@@ -73,7 +73,8 @@ public class InternalResponseCodeRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public InternalResponseCode createInternalResponseCodes(
-            @Valid @RequestBody InternalCodeResource internalResponseCodeResource, @ApiIgnore Errors errors,Authentication auth) {
+            @Valid @RequestBody InternalCodeResource internalResponseCodeResource, @ApiIgnore Errors errors,@ApiIgnore Authentication auth) {
+    	validateAuthentication(auth);
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -142,4 +143,10 @@ public class InternalResponseCodeRestController {
 
         return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
+    
+    private void validateAuthentication(Authentication authentication){
+		if (authentication == null) {
+			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+		}
+	}
 }
