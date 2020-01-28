@@ -30,6 +30,7 @@ import com.mcmcg.ico.bluefin.model.BatchUpload;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -40,6 +41,7 @@ import com.mcmcg.ico.bluefin.service.util.ApplicationUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -102,14 +104,16 @@ public class ReportRestController {
 	
 	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
 	@RequestMapping(method = RequestMethod.POST, value = "/transactions")
-	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiImplicitParams({
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
+	@ApiImplicitParam(name = "request", value = "request", required = true, paramType = "body") })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ResponseEntity<String> getTransactionsReport(MultipartHttpServletRequest request,
+	public ResponseEntity<String> getTransactionsReport(@ApiIgnore MultipartHttpServletRequest request,
 			@RequestParam(value = "search", required = true) String search,
 			@RequestParam(value = "timeZone", required = true) String timeZone,
 			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
@@ -120,6 +124,9 @@ public class ReportRestController {
 		LOGGER.debug("search ={} ",search);
 		Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
+        if (filesArray.length != 1) {
+			throw new CustomBadRequestException("A file must be uploded");
+		}
 		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
 		if(accountList.size()==0){
 	    	LOGGER.error("There is no record exist for this file");
