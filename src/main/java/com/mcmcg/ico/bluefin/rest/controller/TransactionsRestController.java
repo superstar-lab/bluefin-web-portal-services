@@ -27,6 +27,7 @@ import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
@@ -35,6 +36,7 @@ import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -107,14 +109,16 @@ public class TransactionsRestController {
 	
 	@ApiOperation(value = "getTransactions", nickname = "getTransactions")
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
-	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiImplicitParams({
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
+	@ApiImplicitParam(name = "request", value = "request", required = true, paramType = "body") })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public String post(MultipartHttpServletRequest request,@RequestParam(value = "search", required = true) String search,
+	public String post(@ApiIgnore MultipartHttpServletRequest request,@RequestParam(value = "search", required = true) String search,
 			@RequestParam(value = "page", required = true) Integer page,
 			@RequestParam(value = "size", required = true) Integer size,
 			@RequestParam(value = "sort", required = false) String sort, @ApiIgnore Authentication authentication)
@@ -126,6 +130,9 @@ public class TransactionsRestController {
 		LOGGER.debug("get Transactions servive");
 		Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
+        if (filesArray.length != 1) {
+			throw new CustomBadRequestException("A file must be uploded");
+		}
 		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
 		if(accountList.size()==0){
 	    	LOGGER.error("There is no record exist for this file");

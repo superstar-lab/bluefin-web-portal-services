@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.configuration;
 
+import java.util.Optional;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -18,15 +20,17 @@ public class AuditingConfiguration {
     }
 
     class SpringSecurityAuditorAware implements AuditorAware<String> {
+
     	@Override
-        public String getCurrentAuditor() {
+        public Optional<String> getCurrentAuditor() {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (authentication == null || !authentication.isAuthenticated()) {
-                return null;
+                return Optional.empty();
             }
 
-            return ((SecurityUser) authentication.getPrincipal()).getUser().getUsername();
+            return Optional.of(((SecurityUser) authentication.getPrincipal()).getUser().getUsername());
         }
+		 
     }
 }

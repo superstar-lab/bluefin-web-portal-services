@@ -2,9 +2,6 @@ package com.mcmcg.ico.bluefin.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import lombok.Data;
-
-@Data
 public class ApplicationProperty extends Common {
 
 	@JsonProperty("applicationPropertyId")
@@ -23,4 +20,54 @@ public class ApplicationProperty extends Common {
 	public ApplicationProperty() {
 		// Default Constructor
 	}
+
+	public Long getPropertyId() {
+		return propertyId;
+	}
+
+	public void setPropertyId(Long propertyId) {
+		this.propertyId = propertyId;
+	}
+
+	public String getPropertyName() {
+		return propertyName;
+	}
+
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
+	}
+
+	public String getPropertyValue() {
+		return propertyValue;
+	}
+
+	public void setPropertyValue(String propertyValue) {
+		this.propertyValue = propertyValue;
+	}
+
+	public String getApplicationDataType() {
+		return applicationDataType;
+	}
+
+	public void setApplicationDataType(String applicationDataType) {
+		this.applicationDataType = applicationDataType;
+	}
+
+	public String getApplicationDescription() {
+		return applicationDescription;
+	}
+
+	public void setApplicationDescription(String applicationDescription) {
+		this.applicationDescription = applicationDescription;
+	}
+
+	public String getModifiedByUser() {
+		return modifiedByUser;
+	}
+
+	public void setModifiedByUser(String modifiedByUser) {
+		this.modifiedByUser = modifiedByUser;
+	}
+	
+	
 }

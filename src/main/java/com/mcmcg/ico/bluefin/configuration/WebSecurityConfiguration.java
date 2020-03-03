@@ -23,7 +23,6 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.ApplicationGenericExcepti
 import com.mcmcg.ico.bluefin.security.AuthenticationTokenFilter;
 import com.mcmcg.ico.bluefin.security.CustomAccessDeniedHandler;
 import com.mcmcg.ico.bluefin.security.EntryPointUnauthorizedHandler;
-import com.mcmcg.ico.bluefin.security.service.SecurityService;
 
 @Configuration
 @EnableWebSecurity
@@ -39,8 +38,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
 
-    @Autowired
-    private SecurityService securityService;
+	/*
+	 * @Autowired private SecurityService securityService;
+	 */
+	 
     
     @Value(("${csp.header}"))
     private String cspHeader;
@@ -72,10 +73,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return authenticationTokenFilter;
     }
 
-    @Bean
-    public SecurityService securityService() {
-        return this.securityService;
-    }
+	/*
+	 * @Bean public SecurityService securityService() { return this.securityService;
+	 * }
+	 */
     
    /** @Bean
     public ServletContextInitializer servletContextInitializer(@Value("${secure.cookie}") final boolean secure) {
@@ -119,11 +120,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.authenticationEntryPoint(this.unauthorizedHandler).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers(HttpMethod.GET, "/").permitAll()
-				.antMatchers(HttpMethod.GET, "**/*.html", "**/*.css", "**/*.js", "**/*.ico", "/assets/**").permitAll()
+				.antMatchers(HttpMethod.GET, "**/*.html", "**/*.css", "**/*.js", "**/*.ico", "/assets/**", "/csrf/**").permitAll()
 
 				// Swagger
-				.antMatchers("/swagger-ui.html", "/webjars/springfox-swagger-ui/**", "/swagger-resources",
-						"/v2/api-docs", "/configuration/**", "/images/**")
+				.antMatchers("/swagger-ui.html/**", "/webjars/springfox-swagger-ui/**", "/swagger-resources/**",
+						"/v2/api-docs/**", "/configuration/**", "/images/**")
 				.permitAll()
 
 				.and().authorizeRequests()

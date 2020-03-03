@@ -11,8 +11,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-@Data
 public class User extends Common implements Serializable {
 
 	private static final long serialVersionUID = -8557780879103606219L;
@@ -218,4 +216,6 @@ public class User extends Common implements Serializable {
 	public void setAccountLockedOn(DateTime accountLockedOn) {
 		this.accountLockedOn = accountLockedOn;
 	}
+	
+	
 }

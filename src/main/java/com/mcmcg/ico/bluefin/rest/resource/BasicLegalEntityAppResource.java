@@ -2,15 +2,11 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 
-import lombok.Data;
-
-@Data
 public class BasicLegalEntityAppResource implements Serializable {
     private static final long serialVersionUID = 8649893596541033808L;
 
@@ -30,4 +26,38 @@ public class BasicLegalEntityAppResource implements Serializable {
         legalEntityApp.setIsActiveForBatchUpload(isActiveForBatchUpload);
         return legalEntityApp;
     }
+
+	public String getLegalEntityAppName() {
+		return legalEntityAppName;
+	}
+
+	public void setLegalEntityAppName(String legalEntityAppName) {
+		this.legalEntityAppName = legalEntityAppName;
+	}
+
+	public String getPrNumber() {
+		return prNumber;
+	}
+
+	public void setPrNumber(String prNumber) {
+		this.prNumber = prNumber;
+	}
+
+	public Short getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Short isActive) {
+		this.isActive = isActive;
+	}
+
+	public Short getIsActiveForBatchUpload() {
+		return isActiveForBatchUpload;
+	}
+
+	public void setIsActiveForBatchUpload(Short isActiveForBatchUpload) {
+		this.isActiveForBatchUpload = isActiveForBatchUpload;
+	}
+    
+    
 }

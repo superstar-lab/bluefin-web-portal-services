@@ -3,9 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-import lombok.Data;
-
-@Data
 public class OriginPaymentFrequency extends Common implements Serializable {
 
 	private static final long serialVersionUID = -1783098456734566961L;
@@ -35,5 +32,30 @@ public class OriginPaymentFrequency extends Common implements Serializable {
 	public int hashCode() {
 		return Objects.hash(originPaymentFrequencyId, origin, paymentFrequency);
 	}
+
+	public Long getOriginPaymentFrequencyId() {
+		return originPaymentFrequencyId;
+	}
+
+	public void setOriginPaymentFrequencyId(Long originPaymentFrequencyId) {
+		this.originPaymentFrequencyId = originPaymentFrequencyId;
+	}
+
+	public String getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(String origin) {
+		this.origin = origin;
+	}
+
+	public String getPaymentFrequency() {
+		return paymentFrequency;
+	}
+
+	public void setPaymentFrequency(String paymentFrequency) {
+		this.paymentFrequency = paymentFrequency;
+	}
+	
 	
 }

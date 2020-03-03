@@ -9,9 +9,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.Data;
-
-@Data
 public class RefundTransaction extends CommonTransaction implements Serializable {
 
 	private static final long serialVersionUID = -4788942891015146177L;
@@ -51,4 +48,86 @@ public class RefundTransaction extends CommonTransaction implements Serializable
 	public int hashCode() {
 		return Objects.hash(refundTransactionId, saleTransactionId, approvalCode, processor);
 	}
+
+	public Long getRefundTransactionId() {
+		return refundTransactionId;
+	}
+
+	public void setRefundTransactionId(Long refundTransactionId) {
+		this.refundTransactionId = refundTransactionId;
+	}
+
+	public String getSaleTransactionId() {
+		return saleTransactionId;
+	}
+
+	public void setSaleTransactionId(String saleTransactionId) {
+		this.saleTransactionId = saleTransactionId;
+	}
+
+	public String getApprovalCode() {
+		return approvalCode;
+	}
+
+	public void setApprovalCode(String approvalCode) {
+		this.approvalCode = approvalCode;
+	}
+
+	public String getProcessor() {
+		return processor;
+	}
+
+	public void setProcessor(String processor) {
+		this.processor = processor;
+	}
+
+	public BigDecimal getRefundAmount() {
+		return refundAmount;
+	}
+
+	public void setRefundAmount(BigDecimal refundAmount) {
+		this.refundAmount = refundAmount;
+	}
+
+	public Long getReconciliationStatusId() {
+		return reconciliationStatusId;
+	}
+
+	public void setReconciliationStatusId(Long reconciliationStatusId) {
+		this.reconciliationStatusId = reconciliationStatusId;
+	}
+
+	public DateTime getReconciliationDate() {
+		return reconciliationDate;
+	}
+
+	public void setReconciliationDate(DateTime reconciliationDate) {
+		this.reconciliationDate = reconciliationDate;
+	}
+
+	public Long getEtlRunId() {
+		return etlRunId;
+	}
+
+	public void setEtlRunId(Long etlRunId) {
+		this.etlRunId = etlRunId;
+	}
+
+	public String getTransactionType() {
+		return transactionType;
+	}
+
+	public void setTransactionType(String transactionType) {
+		this.transactionType = transactionType;
+	}
+
+	public SaleTransaction getSaleTransaction() {
+		return saleTransaction;
+	}
+
+	public void setSaleTransaction(SaleTransaction saleTransaction) {
+		this.saleTransaction = saleTransaction;
+	}
+	
+	
 }

@@ -6,9 +6,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.Data;
-
-@Data
 public class Common {
 	@JsonIgnore
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -24,5 +21,31 @@ public class Common {
 	public Common() {
 		// Default Constructor
 	}
+
+	public DateTime getDateCreated() {
+		return dateCreated;
+	}
+
+	public void setDateCreated(DateTime dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+
+	public DateTime getDateModified() {
+		return dateModified;
+	}
+
+	public void setDateModified(DateTime dateModified) {
+		this.dateModified = dateModified;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+	
+	
 
 }

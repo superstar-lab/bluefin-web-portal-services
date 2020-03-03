@@ -3,8 +3,6 @@ package com.mcmcg.ico.bluefin.model;
 import java.io.Serializable;
 import java.util.Objects;
 
-import lombok.Data;
-@Data
 public class Permission extends Common implements Serializable {
 
 	private static final long serialVersionUID = -5655934914808632512L;
@@ -33,5 +31,30 @@ public class Permission extends Common implements Serializable {
 	public int hashCode() {
 		return Objects.hash(permissionId, permissionName, description);
 	}
+
+	public Long getPermissionId() {
+		return permissionId;
+	}
+
+	public void setPermissionId(Long permissionId) {
+		this.permissionId = permissionId;
+	}
+
+	public String getPermissionName() {
+		return permissionName;
+	}
+
+	public void setPermissionName(String permissionName) {
+		this.permissionName = permissionName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
 	
 }

@@ -12,9 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-import lombok.Data;
-
-@Data
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorId")
 public class PaymentProcessor implements Serializable {
     private static final long serialVersionUID = 655003466748410661L;
@@ -86,4 +83,94 @@ public class PaymentProcessor implements Serializable {
     	returnObj.setPaymentProcessorId(this.getPaymentProcessorId());
     	return returnObj;
     }
+
+	public Long getPaymentProcessorId() {
+		return paymentProcessorId;
+	}
+
+	public void setPaymentProcessorId(Long paymentProcessorId) {
+		this.paymentProcessorId = paymentProcessorId;
+	}
+
+	public String getProcessorName() {
+		return processorName;
+	}
+
+	public void setProcessorName(String processorName) {
+		this.processorName = processorName;
+	}
+
+	public Collection<PaymentProcessorMerchant> getPaymentProcessorMerchants() {
+		return paymentProcessorMerchants;
+	}
+
+	public void setPaymentProcessorMerchants(Collection<PaymentProcessorMerchant> paymentProcessorMerchants) {
+		this.paymentProcessorMerchants = paymentProcessorMerchants;
+	}
+
+	public Collection<PaymentProcessorRule> getPaymentProcessorRules() {
+		return paymentProcessorRules;
+	}
+
+	public void setPaymentProcessorRules(Collection<PaymentProcessorRule> paymentProcessorRules) {
+		this.paymentProcessorRules = paymentProcessorRules;
+	}
+
+	public String getLastModifiedBy() {
+		return lastModifiedBy;
+	}
+
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
+
+	public Short getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Short isActive) {
+		this.isActive = isActive;
+	}
+
+	public Time getRemitTransactionOpenTime() {
+		return remitTransactionOpenTime;
+	}
+
+	public void setRemitTransactionOpenTime(Time remitTransactionOpenTime) {
+		this.remitTransactionOpenTime = remitTransactionOpenTime;
+	}
+
+	public Time getRemitTransactionCloseTime() {
+		return remitTransactionCloseTime;
+	}
+
+	public void setRemitTransactionCloseTime(Time remitTransactionCloseTime) {
+		this.remitTransactionCloseTime = remitTransactionCloseTime;
+	}
+
+	public DateTime getModifiedDate() {
+		return modifiedDate;
+	}
+
+	public void setModifiedDate(DateTime modifiedDate) {
+		this.modifiedDate = modifiedDate;
+	}
+
+	public DateTime getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(DateTime createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public boolean isReadyToBeActivated() {
+		return readyToBeActivated;
+	}
+
+	public void setReadyToBeActivated(boolean readyToBeActivated) {
+		this.readyToBeActivated = readyToBeActivated;
+	}
+    
+    
 }

@@ -2,11 +2,8 @@ package com.mcmcg.ico.bluefin.rest.resource;
 
 import java.io.Serializable;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
-import lombok.Data;
-
-@Data
 public class BasicToken implements Serializable {
 
     private static final long serialVersionUID = 4045833355784335235L;
@@ -18,4 +15,13 @@ public class BasicToken implements Serializable {
         this.token = token;
     }
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+    
 }
