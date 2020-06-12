@@ -8,10 +8,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
@@ -37,7 +40,7 @@ public class ApplicationPropertyLookupController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationPropertyLookupController.class);
 
 	@ApiOperation(value = "getApplicationProperties", nickname = "getApplicationProperties")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ApplicationProperty.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -52,7 +55,7 @@ public class ApplicationPropertyLookupController {
 	}
 	
 	@ApiOperation(value = "updateApplicationProperties", nickname = "updateApplicationProperties")
-	@RequestMapping(method = RequestMethod.PUT, consumes = "application/json", produces = "application/json")
+	@PutMapping(consumes = "application/json", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ApplicationProperty.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -65,24 +68,25 @@ public class ApplicationPropertyLookupController {
 		
 		String logArg1 = "Application Properties Update Request";
 		
+		String message = LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+		
 		if (authentication == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
+			LOGGER.error(message);
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
-		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), " For the property", BluefinWebPortalConstants.SEPARATOR, applicationProperty.getPropertyName())) ;
+		message = LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), " For the property", BluefinWebPortalConstants.SEPARATOR, applicationProperty.getPropertyName());
+		LOGGER.info(message) ;
 
 		if(applicationProperty.getPropertyId()==null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR),
-					"Applicaton id can't be null for update operation");
+			message = LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,"Applicaton id can't be null for update operation");
+			LOGGER.error(message);
 			throw new CustomException("Applicaton id cann't be null for update operation");
 		}
 		return propertyService.updateProperty(applicationProperty, authentication.getName());
 	}
 	
 	@ApiOperation(value = "insertApplicationProperties", nickname = "insertApplicationProperties")
-	@RequestMapping(method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	@PostMapping(consumes = "application/json", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ApplicationProperty.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -91,16 +95,16 @@ public class ApplicationPropertyLookupController {
 			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ApplicationProperty insertApplicationProperties(@RequestBody ApplicationProperty applicationProperty, @ApiIgnore Authentication authentication) {
-		
-		LOGGER.info(LoggingUtil.adminAuditInfo("Application Property Insertion Request", BluefinWebPortalConstants.SEPARATOR,
+		String message = LoggingUtil.adminAuditInfo("Application Property Insertion Request", BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				"Applicaton Property Name : ", applicationProperty.getPropertyName()));
+				"Applicaton Property Name : ", applicationProperty.getPropertyName());
+		LOGGER.info(message);
 
 		return propertyService.saveApplicationProperty(applicationProperty);
 	}
 	
 	@ApiOperation(value = "deleteApplicationProperties", nickname = "deleteApplicationProperties")
-	@RequestMapping(method = RequestMethod.DELETE, value = "/{applicationPropertyId}", produces = "application/json")
+	@DeleteMapping(value = "/{applicationPropertyId}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -111,17 +115,19 @@ public class ApplicationPropertyLookupController {
 	public String deleteApplicationProperties(@PathVariable String applicationPropertyId, @ApiIgnore Authentication authentication) {
 		
 		String logArg1 = "Application Properties Deletion Request";
+		String name="";
+		if(authentication!=null) {
+			name = authentication.getName();
+		}
+		String message = LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR,BluefinWebPortalConstants.REQUESTEDBY, name, BluefinWebPortalConstants.SEPARATOR,"Applicaton Property Id can't be null for delete operation");
 		
 		if(StringUtils.isBlank(applicationPropertyId)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-					"Applicaton Property Id can't be null for delete operation"));
+			LOGGER.error(message);
 			
 			throw new CustomException("Applicaton id cann't be null for delete operation");
 		}
-		LOGGER.info(LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, 
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				"Applicaton Property Id : ", applicationPropertyId));
+		message = LoggingUtil.adminAuditInfo(logArg1, BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDBY,name, BluefinWebPortalConstants.SEPARATOR,"Applicaton Property Id : ", applicationPropertyId);
+		LOGGER.info(message);
 		
 		return propertyService.deleteApplicationProperty(applicationPropertyId);
 	}

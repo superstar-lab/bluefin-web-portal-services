@@ -3,9 +3,9 @@ package com.mcmcg.ico.bluefin.rest.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,7 +37,7 @@ public class PaymentProcessorRemittanceRestController {
 	private PaymentProcessorRemittanceService paymentProcessorRemittanceService;
 
 	@ApiOperation(value = "getTransaction", nickname = "getTransaction")
-	@RequestMapping(method = RequestMethod.GET, value = "/{transactionId}", produces = "application/json")
+	@GetMapping(value = "/{transactionId}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -56,7 +56,7 @@ public class PaymentProcessorRemittanceRestController {
 	}
 
 	@ApiOperation(value = "getPaymentProcessorRemittances", nickname = "getPaymentProcessorRemittances")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
@@ -78,7 +78,7 @@ public class PaymentProcessorRemittanceRestController {
 		String searchValue;
 		if ("notReconciled".equals(reconciliationStatusId)) {
 			String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
-			searchValue = search.replaceAll("notReconciled", id);
+			searchValue = search.replace("notReconciled", id);
 			negate = true;
 		} else {
 			searchValue = search;

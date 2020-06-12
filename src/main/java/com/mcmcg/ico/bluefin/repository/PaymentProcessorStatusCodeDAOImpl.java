@@ -156,14 +156,18 @@ public class PaymentProcessorStatusCodeDAOImpl implements PaymentProcessorStatus
 
 	@Override
 	public boolean isProcessorStatusCodeMapped(String transactionTypeName, PaymentProcessor paymentProcessor) {
+		try {
 		Integer count = jdbcTemplate.queryForObject(Queries.ISPROCESSORSTATUSCODEMAPPED,new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },Integer.class);
 
-		if (count != null && count.intValue() > 0) {
+		if (count.intValue() > 0) {
 			LOGGER.debug("Processor status code mapped, count= {}",count);
 			return true;
 		} else {
 			LOGGER.debug("Found payment processor ={} statuscode not found for transaction type = {}: ", transactionTypeName ,
 					paymentProcessor.getPaymentProcessorId());
+		}
+		}catch(Exception ex) {
+			LOGGER.error("isProcessorStatusCodeMapped count cannot be NULL {}",ex.getMessage());
 		}
 		return false;
 	}

@@ -159,8 +159,9 @@ public class UserService {
 	public UserResource registerNewUserAccount(RegisterUserResource userResource) {
 		final String username = userResource.getUsername();
 		if (existUsername(username)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
-					"Unable to create the account, this username already exists : ", username));
+			String message = LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to create the account, this username already exists : ", username);
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException(
 					"Unable to create the account, this username already exists: " + username);
@@ -310,8 +311,9 @@ public class UserService {
 		LOGGER.debug("userToUpdate ={}",userToUpdate);
 		// User wants to clear roles from user
 		if (rolesIds.isEmpty()) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", username, " must have at least one role assign to him."));
+			String message = LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"User : ", username, " must have at least one role assign to him.");
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException("User MUST have at least one role assign to him.");
 		}
@@ -465,20 +467,21 @@ public class UserService {
 	 */
 	public boolean hasPermissionToManageAllUsers(Authentication authentication) {
 		Boolean hasPermission = false;
-		LOGGER.debug("authentication ={} "
-				, authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
-		if (authentication != null) {
-			for (GrantedAuthority authority : authentication.getAuthorities()) {
-				String userAuthority = authority.getAuthority();
-				if ("ADMINISTRATIVE".equals(userAuthority) || "MANAGE_ALL_USERS".equals(userAuthority)) {
-					hasPermission = true;
+		try {
+			LOGGER.debug("authentication ={} ",authentication.getAuthorities().size());
+				for (GrantedAuthority authority : authentication.getAuthorities()) {
+					String userAuthority = authority.getAuthority();
+					if ("ADMINISTRATIVE".equals(userAuthority) || "MANAGE_ALL_USERS".equals(userAuthority)) {
+						hasPermission = true;
+					}
+					if (Boolean.TRUE.equals(hasPermission)) {
+						break;
+					}
 				}
-				if (hasPermission) {
-					break;
-				}
-			}
+			LOGGER.debug("hasPermission ={} ",hasPermission);
+		}catch(Exception ex) {
+			LOGGER.error("hasPermissionToManageAllUsers authentication cannot be NULL {}",ex.getMessage());
 		}
-		LOGGER.debug("hasPermission ={} ",hasPermission);
 		return hasPermission;
 	}
 
@@ -575,7 +578,7 @@ public class UserService {
 		if (tokenType.equals(TokenType.REGISTER_USER.name())) {
 			userToUpdate.setStatus("ACTIVE");
 		}
-		if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus() == "NEW") {
+		if (tokenType.equals(TokenType.FORGOT_PASSWORD.name()) && userToUpdate.getStatus().contentEquals("NEW")){
 			userToUpdate.setStatus("ACTIVE");
 		}
 	}
@@ -697,9 +700,10 @@ public class UserService {
 	
 	public List<Object> validateUserName(String tokenType, User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
 		if (usernameVal == null || tokenType == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+			String message = LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
 					"Password updation failed for User: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"An authorization token is required to request this resource.."));
+					"An authorization token is required to request this resource..");
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
@@ -710,9 +714,10 @@ public class UserService {
 	public List<Object> validateUserNameAuthentication(String tokenType, User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR, 
+			String message = LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR, 
 					"Password updation failed for User:: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"The old password is incorrect..."));
+					"The old password is incorrect...");
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
@@ -758,9 +763,11 @@ public class UserService {
 		}
 		
 		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
+			
+			String message = LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
 					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
-					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords."));
+					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords.");
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
 		}

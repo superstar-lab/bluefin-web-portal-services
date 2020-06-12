@@ -199,18 +199,6 @@ public class SessionRestControllerTest {
 		Mockito.verifyNoMoreInteractions(sessionService);
 	}
 
-	// Refresh token
-
-	/**
-	 * Test a successful response with a valid user and password
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testRefreshTokenSuccess() throws Exception {// 200
-
-		mockMvc.perform(put(API).header("X-Auth-Token", TOKEN).contentType(MediaType.APPLICATION_JSON));
-	}
 
 	/**
 	 * Test errors when a token is not supplied

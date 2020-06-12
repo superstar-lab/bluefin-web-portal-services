@@ -42,6 +42,8 @@ public class LegalEntityAppService {
 	@Autowired
 	private UserService userService;
 	
+	private static final String USER_NOT_FOUND = "User not found, then we need to return an empty list.  Details: username = [{}]";
+	
 	@Autowired
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 
@@ -50,8 +52,7 @@ public class LegalEntityAppService {
 		
 
 		if (user == null) {
-			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
-					authentication.getName());
+			LOGGER.warn(USER_NOT_FOUND,	authentication.getName());
 			return new ArrayList<>();
 		}
 
@@ -80,8 +81,7 @@ public class LegalEntityAppService {
 		
 
 		if (user == null) {
-			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
-					authentication.getName());
+			LOGGER.warn(USER_NOT_FOUND,authentication.getName());
 			return new ArrayList<>();
 		}
 
@@ -109,9 +109,6 @@ public class LegalEntityAppService {
 		}
 	}
 	
-	
-	
-	
 
 	/**
 	 * This method will find a legal entity by its id, not found exception if it
@@ -136,24 +133,26 @@ public class LegalEntityAppService {
 		final String newLegalEntityAppName = legalEntityResource.getLegalEntityAppName();
 		final Short activeStatus =legalEntityResource.getIsActive();
 		final Short activeForBatchUpload =legalEntityResource.getIsActiveForBatchUpload();
-
+		String message = "";
 		if (existLegalEntityAppName(newLegalEntityAppName)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Creation Service Request", BluefinWebPortalConstants.SEPARATOR,
+			message = LoggingUtil.adminAuditInfo("Legal Entity App Creation Service Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload), BluefinWebPortalConstants.SEPARATOR,
-					"Legal Entity App Name already exists."));
+					"Legal Entity Application Name already exists.");
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException(
 					String.format("Legal entity app name = [%s] already exists.", newLegalEntityAppName));
 		}
 		if(isInValidStatus(activeStatus) || isInValidStatus(activeForBatchUpload)){
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App create service Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)));
+			 message = LoggingUtil.adminAuditInfo("Legal Entity App create service Request", BluefinWebPortalConstants.SEPARATOR,
+						BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
+						BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
+						BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
+						BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload));
+			LOGGER.error(message);
         	throw new CustomBadRequestException(
 					String.format("Invalid Active/In-active status value= [%s] Or Invalid Active/In-Active for batch value = [%s], value should be 0 Or 1", activeStatus, activeForBatchUpload));
         }
@@ -165,23 +164,26 @@ public class LegalEntityAppService {
 		LegalEntityApp legalEntityAppToUpdate = legalEntityAppDAO.findByLegalEntityAppId(id);
         final Short activeStatus =legalEntityAppResource.getIsActive();
         final Short activeForBatchUpload=legalEntityAppResource.getIsActiveForBatchUpload();
+        String message = "";
 		LOGGER.debug("legalEntityAppToUpdate ={} ",legalEntityAppToUpdate);
 		if (legalEntityAppToUpdate == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+			message = LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload), BluefinWebPortalConstants.SEPARATOR,
-					"Unable to find legal entity app with id : ", String.valueOf(id)));
+					"Unable to find legal entity app with id : ", String.valueOf(id));
+			LOGGER.error(message);
 			
 			throw new CustomNotFoundException(String.format("Unable to find legal entity app with id = [%s]", id));
 		}
 		if(isInValidStatus(activeStatus) || isInValidStatus(activeForBatchUpload)){
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
+			message =LoggingUtil.adminAuditInfo("Legal Entity App Update Request", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, modifiedBy, BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.LEGALENTITYNAME, legalEntityAppResource.getLegalEntityAppName(), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.ACTIVESTATUS, String.valueOf(activeStatus), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload)));
+            		BluefinWebPortalConstants.ACTIVEFORBATCHUPLOAD, String.valueOf(activeForBatchUpload));
+			LOGGER.error(message);
         	throw new CustomBadRequestException(
 					String.format("Invalid Active/In-active status value= [%s] Or Invalid Active/In-Active for batch value = [%s], value should be 0 Or 1", activeStatus, activeForBatchUpload));
         }
@@ -196,10 +198,10 @@ public class LegalEntityAppService {
 
 	public void deleteLegalEntityApp(Long id) {
 		LegalEntityApp legalEntityAppToDelete = legalEntityAppDAO.findByLegalEntityAppId(id);
-
 		if (legalEntityAppToDelete == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Legal Entity App Deletion Request", BluefinWebPortalConstants.SEPARATOR,
-					"Unable to find Legal Entity with Id : ", String.valueOf(id)));
+			String message = LoggingUtil.adminAuditInfo("Legal Entity App Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Legal Entity with Id : ", String.valueOf(id));
+			LOGGER.error(message);
 			throw new CustomNotFoundException(String.format("Unable to find legal entity with id = [%s]", id));
 		}
 		try {
@@ -255,7 +257,11 @@ public class LegalEntityAppService {
 	}
 
 	private boolean existLegalEntityAppName(String legalEntityAppName) {
-		return legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName) == null ? false : true;
+		boolean exist = false;
+		if(legalEntityAppDAO.findByLegalEntityAppName(legalEntityAppName) != null) {
+			exist=true;
+		}
+		return  exist;
 	}
 	
 	public LegalEntityApp getLegalEntityAppName(String legalEntityAppName) {
@@ -266,8 +272,7 @@ public class LegalEntityAppService {
 
 		User user = userDAO.findByUsername(authentication.getName());
 		if (user == null) {
-			LOGGER.warn("User not found, then we need to return an empty list.  Details: username = [{}]",
-					authentication.getName());
+			LOGGER.warn(USER_NOT_FOUND,authentication.getName());
 			return new ArrayList<>();
 		}
 

@@ -30,7 +30,8 @@ public class UserResource extends CommonUserResource implements Serializable {
 	private String status;
 
 	public UserResource() {
-		/** Default Constructor */
+		roles = new HashSet<>();
+		legalEntityApps = new HashSet<>();
 	}
 
 	public UserResource(User user) {
@@ -40,7 +41,7 @@ public class UserResource extends CommonUserResource implements Serializable {
 		this.setStatus(user.getStatus());
 		this.setEmail(user.getEmail());
 		this.setSelectedTimeZone(user.getSelectedTimeZone());
-		this.setRoles(new HashSet<>());
+		roles = new HashSet<>();
 		if(user.getRoles() != null) {
 			for (UserRole role : user.getRoles()) {
 				Role roleObj = new Role();
@@ -48,7 +49,7 @@ public class UserResource extends CommonUserResource implements Serializable {
 				this.getRoles().add(roleObj);
 			}
 		}
-		this.setLegalEntityApps(new HashSet<>());
+		legalEntityApps = new HashSet<>();
 		if (user.getLegalEntities() != null) {
 			for (UserLegalEntityApp legalEntity : user.getLegalEntities()) {
 				LegalEntityApp userLegal = new LegalEntityApp();

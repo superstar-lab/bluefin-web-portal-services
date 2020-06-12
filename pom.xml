@@ -45,15 +45,13 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>12</java.version>
+		<java.version>1.8</java.version>
 		<io.springfox.version>2.9.2</io.springfox.version>
 		<querydsl.version>3.7.2</querydsl.version>
 		<org.powermock.version>1.6.2</org.powermock.version>
-		<!-- <endpoint.email.wsdl.base.url>http://phxiowasq34.internal.mcmcg.com</endpoint.email.wsdl.base.url> -->
 		<endpoint.email.wsdl.base.url>http://emailservice.internal.mcmcg.com</endpoint.email.wsdl.base.url>
 		<endpoint.email.wsdl.uri>${endpoint.email.wsdl.base.url}/MailManagerEJBHttpRouter/services/EmailRequestor</endpoint.email.wsdl.uri>
 		<springdata.commons>1.11.4.RELEASE</springdata.commons>
-		<!-- <sonar.host.url>http://localhost:9000/</sonar.host.url> -->
 		<cxf.version>2.2.3</cxf.version>
 	</properties>
 
@@ -80,12 +78,6 @@
         <artifactId>cxf-rt-transports-http</artifactId>
         <version>${cxf.version}</version>
     </dependency>
-        <!-- Jetty is needed if you're are not using the CXFServlet 
-    <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-transports-http-jetty</artifactId>
-        <version>${cxf.version}</version>
-    </dependency> -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-log4j2</artifactId>
@@ -321,8 +313,7 @@
 		<dependency>
     		<groupId>org.glassfish.jaxb</groupId>
     		<artifactId>jaxb-runtime</artifactId>
-    		<version>2.3.2</version>
-		</dependency>
+    		</dependency>
 		
 		<dependency>
     		<groupId>com.sun.xml.bind</groupId>
@@ -338,18 +329,15 @@
     		<groupId>javax.xml.ws</groupId>
     		<artifactId>jaxws-api</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven.surefire/surefire-testng -->
 		<dependency>
     		<groupId>org.apache.maven.surefire</groupId>
     		<artifactId>surefire-testng</artifactId>
     		<version>2.22.0</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
 		<dependency>
     		<groupId>com.fasterxml.jackson.core</groupId>
     		<artifactId>jackson-databind</artifactId>
-    		<version>2.9.9.1</version>
-		</dependency>
+    		</dependency>
 	</dependencies>
 
 	<!-- Required because we have two parent poms -->
@@ -359,7 +347,7 @@
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.1.6.RELEASE</version>
+				<version>2.2.4.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -413,11 +401,11 @@
 								</wsdlOption>
 							</wsdlOptions>
 							<defaultOptions>
-    <extraargs>
-        <extraarg>-frontend</extraarg>
-        <extraarg>jaxws21</extraarg>
-    </extraargs>
-</defaultOptions>
+							    <extraargs>
+							        <extraarg>-frontend</extraarg>
+							        <extraarg>jaxws21</extraarg>
+							    </extraargs>
+							</defaultOptions>
 						</configuration>
 						<goals>
 							<goal>wsdl2java</goal>
@@ -459,25 +447,7 @@
 				<configuration>
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
-			</plugin>
-			<!-- <plugin>
-				<groupId>com.mysema.maven</groupId>
-				<artifactId>apt-maven-plugin</artifactId>
-				<version>1.1.3</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>process</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
-							<processor>com.mysema.query.apt.jpa.JPAAnnotationProcessor</processor>
-							<showWarnings>true</showWarnings>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin> -->
-			
+			</plugin>			
 			<plugin>
     			<groupId>org.codehaus.mojo</groupId>
     			<artifactId>versions-maven-plugin</artifactId>

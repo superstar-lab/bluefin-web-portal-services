@@ -197,11 +197,15 @@ public class PaymentProcessorInternalResponseCodeDAOImpl implements PaymentProce
 			valuesToCheck.put("ids", paymentProcessorResponseCodeIds);
 			NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 			List<Long> idsFetched = namedJDBCTemplate.queryForList(Queries.INTERNALRESPONSECODEIDSMAPPEDWITHPAYMENTPROCESSORRESPONSECODEIDS,valuesToCheck,Long.class);
-			if (idsFetched != null && !idsFetched.isEmpty()) {
-				// Need to return only unique ids
-				Set<Long> idsFetchedAndReturnedUnique = new HashSet<>();
-				idsFetchedAndReturnedUnique.addAll(idsFetched);
-				return idsFetchedAndReturnedUnique;
+			try {
+				if (!idsFetched.isEmpty()) {
+					// Need to return only unique ids
+					Set<Long> idsFetchedAndReturnedUnique = new HashSet<>();
+					idsFetchedAndReturnedUnique.addAll(idsFetched);
+					return idsFetchedAndReturnedUnique;
+				}
+			}catch(Exception ex) {
+				logger.error("fetchInternalResponseCodeIdsMappedForPaymentProcessorResponseCodeIds idsFetched cannot be NULL {}",ex.getMessage());
 			}
 		}
 		return Collections.emptySet();

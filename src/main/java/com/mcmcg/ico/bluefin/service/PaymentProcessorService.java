@@ -209,37 +209,32 @@ public class PaymentProcessorService {
 	 * @throws CustomNotFoundException
 	 *             when payment processor not found
 	 */
-	public PaymentProcessor updatePaymentProcessorMerchants(final long id,
-			Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
+	public PaymentProcessor updatePaymentProcessorMerchants(final long id,Set<PaymentProcessorMerchantResource> paymentProcessorMerchants) {
 
-		// Verify if payment processor exists
-		PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
-
-		LOGGER.debug("paymentProcessorToUpdate : {}"
-				,paymentProcessorToUpdate==null ? null : paymentProcessorToUpdate.getPaymentProcessorMerchants() == null ? null : paymentProcessorToUpdate.getPaymentProcessorMerchants().size());
-		// User wants to clear payment processor merchants from payment
-		// processor
-		if (paymentProcessorMerchants.isEmpty()) {
-			if (paymentProcessorToUpdate != null) {
-				paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
-				// Deleting PaymentProcessorMerchant from DB for specific payment
-				// processor id.
-				paymentProcessorMerchantDAO
-					.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId()); 
+		try {
+			// Verify if payment processor exists
+			PaymentProcessor paymentProcessorToUpdate = getPaymentProcessorById(id);
+			LOGGER.debug("paymentProcessorToUpdate : {}",paymentProcessorToUpdate.getPaymentProcessorMerchants().size());
+			// User wants to clear payment processor merchants from payment
+			// processor
+			if (paymentProcessorMerchants.isEmpty()) {
+					paymentProcessorToUpdate.getPaymentProcessorMerchants().clear();
+					// Deleting PaymentProcessorMerchant from DB for specific payment
+					// processor id.
+					paymentProcessorMerchantDAO
+						.deletPaymentProcessorMerchantByProcID(paymentProcessorToUpdate.getPaymentProcessorId());
+				return paymentProcessorToUpdate;
+			} else {
+				setPaymentProcessors(paymentProcessorToUpdate);
 			}
-			return paymentProcessorToUpdate;
-		} else {
-			setPaymentProcessors(paymentProcessorToUpdate);
-		}
-
-		// New payment processor merchants that need to be created or updated
-		Map<Long, PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants
-				.stream().collect(Collectors.toMap(
-						PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
-
-		// Temporal list of legal entity app ids already updated
-		Set<Long> paymentProcessorMerchantsToKeep = new HashSet<>();
-		if (paymentProcessorToUpdate != null) {
+	
+			// New payment processor merchants that need to be created or updated
+			Map<Long, PaymentProcessorMerchantResource> newMapOfPaymentProcessorMerchants = paymentProcessorMerchants
+					.stream().collect(Collectors.toMap(
+							PaymentProcessorMerchantResource::getLegalEntityAppId, p -> p));
+	
+			// Temporal list of legal entity app ids already updated
+			Set<Long> paymentProcessorMerchantsToKeep = new HashSet<>();
 			// Update information from current payment processor merchants
 			Iterator<PaymentProcessorMerchant> iter = paymentProcessorToUpdate
 					.getPaymentProcessorMerchants().iterator();
@@ -255,14 +250,16 @@ public class PaymentProcessorService {
 				}
 				
 			}
+		
+			// Add the new payment processor merchants
+			addPaymentProcessorMerchants(paymentProcessorToUpdate,paymentProcessorMerchantsToKeep,newMapOfPaymentProcessorMerchants);
+			
+			finallyUpdatePaymentProcessor(paymentProcessorToUpdate);
+			return paymentProcessorToUpdate;
+		}catch(Exception ex) {
+			LOGGER.error("updatePaymentProcessorMerchants PaymentProcessor cannot be NULL {}",ex.getMessage());
 		}
-
-		// Add the new payment processor merchants
-		addPaymentProcessorMerchants(paymentProcessorToUpdate,paymentProcessorMerchantsToKeep,newMapOfPaymentProcessorMerchants);
-		
-		finallyUpdatePaymentProcessor(paymentProcessorToUpdate);
-		
-		return paymentProcessorToUpdate;
+		return null;
 	}
 	
 	private void setPaymentProcessors(PaymentProcessor paymentProcessorToUpdate){
@@ -373,7 +370,14 @@ public class PaymentProcessorService {
 
 	private boolean existPaymentProcessorName(String processorName) {
 		LOGGER.info("existPaymentProcessorName ");
-		return paymentProcessorDAO.getPaymentProcessorByProcessorName(processorName) == null ? false : true;
+		boolean paymentExist = false;
+		try {
+			if(paymentProcessorDAO.getPaymentProcessorByProcessorName(processorName) != null)
+				paymentExist = true;
+		}catch(Exception ex) {
+			LOGGER.error("existPaymentProcessorName processorName cannot be NULL {}",ex.getMessage());
+		}
+		return paymentExist;
 	}
 
 	/**
@@ -455,7 +459,7 @@ public class PaymentProcessorService {
 	private boolean hasCodesAssociated(List<ItemStatusCodeResource> statusCodeItems) {
 		LOGGER.debug("statusCodeItems size ={} ",statusCodeItems.size());
 		for (ItemStatusCodeResource statusCodeItem : statusCodeItems) {
-			if (!statusCodeItem.getCompleted()) {
+			if (Boolean.FALSE.equals(statusCodeItem.getCompleted())) {
 				return false;
 			}
 		}

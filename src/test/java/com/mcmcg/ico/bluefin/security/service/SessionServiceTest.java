@@ -485,160 +485,12 @@ public class SessionServiceTest {
 
 		AuthenticationResponse response = sessionService.generateToken("omonge");
 
-		Assert.assertEquals(response.getFirstName(), "Monge");
-		Assert.assertEquals(response.getLastName(), "Vega");
-		Assert.assertEquals(response.getUsername(), "omonge");
+		Assert.assertEquals("Monge",response.getFirstName());
+		Assert.assertEquals( "Vega",response.getLastName());
+		Assert.assertEquals("omonge",response.getUsername());
 		Assert.assertNotNull(response.getToken());
 	}
 
-	/**
-	 * Get login response by username
-	 * 
-	 * @throws Exception
-	 */
-	// @Test
-	// public void getLoginResponseSuccess() throws Exception {
-	// User user = createValidUser();
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
-	// AuthenticationResponse response =
-	// sessionService.getLoginResponse("omonge");
-	//
-	// Assert.assertEquals(user.getFirstName(), response.getFirstName());
-	// Assert.assertEquals(user.getLastName(), response.getLastName());
-	// Assert.assertEquals(user.getUsername(), response.getUsername());
-	// List<Permission> permissionsResult = new ArrayList<Permission>();
-	// for (UserRole role : user.getRoles()) {
-	// for (RolePermission permission : role.getRole().getRolePermissions()) {
-	// permissionsResult.add(permission.getPermission());
-	// }
-	// }
-	// Assert.assertTrue(permissionsResult.equals(response.getPermissions()));
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	// @Test(expected = java.lang.NullPointerException.class)
-	// public void getLoginResponseNoUserFound() throws Exception {
-	// User user = createValidUser();
-	// Mockito.when(userDAO.findByUsername(user.getUsername())).thenReturn(user);
-	//
-	// sessionService.getLoginResponse("omonge1");
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	/**
-	 * Test if roles are null, NullPointerException is thrown
-	 * 
-	 * @throws Exception
-	 */
-	// @Test(expected = java.lang.NullPointerException.class)
-	// public void getLoginResponseNoRoles() throws Exception {
-	// User user = createValidUser();
-	// user.setRoles(null);
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
-	// sessionService.getLoginResponse("omonge");
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	/**
-	 * Test roles as null, NullPointerException is thrown
-	 * 
-	 * @throws Exception
-	 */
-	// @Test(expected = java.lang.NullPointerException.class)
-	// public void getLoginResponseNoPermission() throws Exception {
-	// User user = createValidUser();
-	// user.getRoles().forEach(userRole -> userRole.setRole(null));
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(user);
-	// sessionService.getLoginResponse("omonge");
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	/**
-	 * Test as a user null attempting to access property, NullPointerException
-	 * is thrown
-	 * 
-	 * @throws Exception
-	 */
-	// @Test(expected = java.lang.NullPointerException.class)
-	// public void getLoginResponseNullUserName() throws Exception {
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(null);
-	// sessionService.getLoginResponse(null);
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	/**
-	 * Get login response by username but Transaction Exception
-	 * 
-	 * @throws Exception
-	 */
-
-	// @Test(expected =
-	// org.springframework.transaction.CannotCreateTransactionException.class)
-	// public void getLoginResponseErrorTransaction() throws Exception {
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-	// .thenThrow(new
-	// org.springframework.transaction.CannotCreateTransactionException(""));
-	//
-	// sessionService.getLoginResponse("omonge");
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	/**
-	 * Get login response by username but Data Access Exception
-	 * 
-	 * @throws Exception
-	 */
-
-	// @Test(expected =
-	// org.springframework.dao.DataAccessResourceFailureException.class)
-	// public void getLoginResponseErrorDataAccess() throws Exception {
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-	// .thenThrow(new
-	// org.springframework.dao.DataAccessResourceFailureException(""));
-	//
-	// sessionService.getLoginResponse("omonge");
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
-
-	/**
-	 * Get login response by username but JDBC Connection Exception
-	 * 
-	 * @throws Exception
-	 */
-
-	// @Test(expected = DataAccessResourceFailureException.class)
-	// public void getLoginResponseErrorJDBC() throws Exception {
-	// Mockito.when(userDAO.findByUsername(Mockito.anyString()))
-	// .thenThrow(new DataAccessResourceFailureException("",
-	// null));
-	//
-	// sessionService.getLoginResponse("omonge");
-	//
-	// Mockito.verify(userDAO,
-	// Mockito.times(1)).findByUsername(Mockito.anyString());
-	// Mockito.verifyNoMoreInteractions(userDAO);
-	// }
 
 	/**
 	 * Test the happy way of refreshing a given token
@@ -660,13 +512,7 @@ public class SessionServiceTest {
 		Assert.assertEquals(user.getLastName(), response.getLastName());
 		Assert.assertEquals(user.getUsername(), response.getUsername());
 		List<Permission> permissionsResult = new ArrayList<Permission>();
-		// for (UserRole userRole : user.getRoles()) {
-		// for (RolePermission rolePermission :
-		// userRole.getRole().getRolePermissions()) {
-		// permissionsResult.add(rolePermission.getPermission());
-		// }
-		// }
-		// Assert.assertTrue(permissionsResult.equals(response.getPermissions()));
+		
 		Assert.assertFalse(response.getToken().equals(TOKEN));
 		Assert.assertTrue(response.getToken().equals(NEW_TOKEN));
 
@@ -710,47 +556,6 @@ public class SessionServiceTest {
 		userRole.setUserRoleId(0L);
 		// userRole.setRole(createValidRole());
 		return userRole;
-	}
-
-	private LegalEntityApp createValidLegalEntityApp() {
-		LegalEntityApp validLegalEntity = new LegalEntityApp();
-		UserLegalEntityApp validUserLegalEntity = new UserLegalEntityApp();
-		Set<UserLegalEntityApp> validUserLegalEntityList = new HashSet<UserLegalEntityApp>();
-		validUserLegalEntityList.add(validUserLegalEntity);
-		// validLegalEntity.setUserLegalEntities(validUserLegalEntityList);
-		validLegalEntity.setLegalEntityAppName("legalEntity1");
-		validLegalEntity.setLegalEntityAppId(4321L);
-		return validLegalEntity;
-	}
-
-	private List<RolePermission> createRolePermissions() {
-		List<RolePermission> rolesPermissions = new ArrayList<RolePermission>();
-		RolePermission rp = new RolePermission();
-		rp.setDateCreated(new DateTime());
-		rp.setRolePermissionId(234l);
-		Permission permission = new Permission();
-		// rp.setPermission(permission);
-		rolesPermissions.add(rp);
-		return rolesPermissions;
-	}
-
-	private Role createValidRole() {
-		Role validRole = new Role();
-		UserRole validUserRole = new UserRole();
-		Role role = new Role();
-
-		// role.setRolePermissions(createRolePermissions());
-
-		// validUserRole.setRole(role);
-		List<UserRole> validUserRoleList = new ArrayList<UserRole>();
-
-		validUserRoleList.add(validUserRole);
-		// validRole.setUserRoles(validUserRoleList);
-		validRole.setRoleName("ROLE_TESTING");
-		validRole.setDescription("role description");
-		validRole.setRoleId(1234L);
-		// validRole.setRolePermissions(createRolePermissions());
-		return validRole;
 	}
 
 	private SecurityUser createValidSecurityUser() {

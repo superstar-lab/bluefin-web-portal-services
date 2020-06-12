@@ -128,7 +128,7 @@ public class PropertyDAOImpl implements PropertyDAO {
 			return ps;
 		}, holder);
 		long noOfRecordsInserted = holder.getKey().longValue();
-		applicationProperty.setPropertyId(noOfRecordsInserted);;
+		applicationProperty.setPropertyId(noOfRecordsInserted);
 		LOGGER.debug("Saved UserPreference - id ={} ", noOfRecordsInserted);
 		
 		if(noOfRecordsInserted>0){

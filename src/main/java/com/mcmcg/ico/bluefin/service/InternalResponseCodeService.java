@@ -73,8 +73,9 @@ public class InternalResponseCodeService {
 
 	private void validateInternalResponseCode(InternalResponseCode internalResponseCode){
 		if (internalResponseCode != null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
-					"Internal response code already exists and is assigned to this transaction type."));
+			String message = LoggingUtil.adminAuditInfo("Response Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
+					"Internal response code already exists and is assigned to this transaction type.");
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException(
 					"Internal response code already exists and is assigned to this transaction type.");
@@ -83,8 +84,9 @@ public class InternalResponseCodeService {
 	
 	private void validateInternalResponseCodeUpdate(InternalResponseCode internalResponseCode,Long internalResponseCodeIdToModify){
 		if (internalResponseCode == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
-					"Internal Response Code does not exist : ", String.valueOf(internalResponseCodeIdToModify)));
+			String message = LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+					"Internal Response Code does not exist : ", String.valueOf(internalResponseCodeIdToModify));
+			LOGGER.error(message);
 			
 			throw new CustomNotFoundException("Internal Response Code does not exist: " + internalResponseCodeIdToModify);
 		}
@@ -236,8 +238,9 @@ public class InternalResponseCodeService {
 					.findByInternalResponseCodeAndTransactionTypeName(internalResponseCodeResource.getCode(),
 							internalResponseCodeResource.getTransactionTypeName());
 			if (existingInternalResponseCode != null) {
-				LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
-						"Another Internal response code already exists and is assigned to this transaction type : ", String.valueOf(existingInternalResponseCode)));
+				String message = LoggingUtil.adminAuditInfo("Response Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+						"Another Internal response code already exists and is assigned to this transaction type : ", String.valueOf(existingInternalResponseCode));
+				LOGGER.error(message);
 				
 				throw new CustomBadRequestException(
 						"Another Internal response code already exists and is assigned to this transaction type.");
@@ -459,8 +462,9 @@ public class InternalResponseCodeService {
 		InternalResponseCode internalResponseCodeToDelete = internalResponseCodeDAO.findOne(internalResponseCodeId);
 
 		if (internalResponseCodeToDelete == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Response Codes Deletion Request", BluefinWebPortalConstants.SEPARATOR,
-					"Unable to find  Internal Code Id : ", String.valueOf(internalResponseCodeId)));
+			String message = LoggingUtil.adminAuditInfo("Response Codes Deletion Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find  Internal Code Id : ", String.valueOf(internalResponseCodeId));
+			LOGGER.error(message);
 			
 			throw new CustomNotFoundException(
 					String.format("Unable to find internal response code with id = [%s]", internalResponseCodeId));

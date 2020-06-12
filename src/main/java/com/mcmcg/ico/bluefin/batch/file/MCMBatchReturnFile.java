@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -93,9 +94,11 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 			
 			FileCopyUtils.copy(inputStream, response.getOutputStream());
 			LOGGER.debug(deleteTempFile, downloadFile.getName());
-			boolean deleted = downloadFile.delete();
+			boolean deleted = Files.deleteIfExists(downloadFile.toPath());
 			LOGGER.debug("File deleted ? {}",deleted);
+			
 			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
+			
 		} catch(Exception e) {
 			LOGGER.error("An error occured to during getRemittanceTransactionsReport file= "+e);
 			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
@@ -111,7 +114,7 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 		}
 		
 	}
-
+	
 	@Override
 	public Map<String, BatchFileObjects> createFile(Map<String, Object[]> fileHeadersMap, String legalEntityName, 
 			String reportPath, Map<String, BatchFileObjects> batchFileObjectsMap, Map.Entry<String,Object[]> headerObj, Long batchUploadId) throws IOException {
@@ -135,22 +138,23 @@ public class MCMBatchReturnFile extends BatchReturnFile {
 		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 		// initialize FileWriter object
 		FileWriter fileWriter = new FileWriter(file);
-		@SuppressWarnings("resource")
-		CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
-		csvFilePrinter.printRecord(headerObj.getValue());
 
-		// Create the CSVFormat object with "\n" as a record delimiter
-		csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withRecordSeparator(NEW_LINE_SEPARATOR);
+		try (CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat)){
+			csvFilePrinter.printRecord(headerObj.getValue());
+	
+			// Create the CSVFormat object with "\n" as a record delimiter
+			csvFileFormat = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.ALL).withRecordSeparator(NEW_LINE_SEPARATOR);
+				
+			BatchFileObjects batchFileObjects = new BatchFileObjects();
+			batchFileObjects.setFile(file);
+			batchFileObjects.setCsvFileFormat(csvFileFormat);
+			batchFileObjects.setFileWriter(fileWriter);
+			batchFileObjects.setCsvFilePrinter(csvFilePrinter);
 			
-		BatchFileObjects batchFileObjects = new BatchFileObjects();
-		batchFileObjects.setFile(file);
-		batchFileObjects.setCsvFileFormat(csvFileFormat);
-		batchFileObjects.setFileWriter(fileWriter);
-		batchFileObjects.setCsvFilePrinter(csvFilePrinter);
-		
-		batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
-		
-		return batchFileObjectsMap;
+			batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
+			
+			return batchFileObjectsMap;
+		}
 		
 	}
 	

@@ -18,9 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,7 +56,7 @@ public class BatchUploadRestController {
 	private LegalEntityAppService legalEntityAppService;
 
 	@ApiOperation(value = "getBatchUpload", nickname = "getBatchUpload")
-	@RequestMapping(method = RequestMethod.GET, value = "{id}", produces = "application/json")
+	@GetMapping(value = "{id}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = BatchUpload.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -69,7 +70,7 @@ public class BatchUploadRestController {
 	}
 
 	@ApiOperation(value = "getBatchUploads", nickname = "getBatchUploads")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
@@ -90,7 +91,7 @@ public class BatchUploadRestController {
 	}
 
 	@ApiOperation(value = "createBatchUpload", nickname = "createBatchUpload")
-	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
+	@PostMapping(produces = "application/json")
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
 			@ApiImplicitParam(name = "LegalEntityName", value = "Legal Entity", required = true, dataType = "string", paramType = "form"),
@@ -116,7 +117,7 @@ public class BatchUploadRestController {
 		Map<String, MultipartFile> filesMap = request.getFileMap();
 		MultipartFile[] filesArray = getFilesArray(filesMap);
 		if (filesArray.length != 1) {
-			throw new CustomBadRequestException("A file must be uploded");
+			throw new CustomBadRequestException("A file must be uploaded");
 		}
 		MultipartFile file = filesArray[0];
 

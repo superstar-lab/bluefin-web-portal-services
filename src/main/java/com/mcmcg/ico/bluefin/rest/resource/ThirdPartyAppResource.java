@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import javax.validation.constraints.Pattern;
 
-import org.hibernate.validator.constraints.NotBlank;
+import javax.validation.constraints.NotBlank; 
 
 public class ThirdPartyAppResource implements Serializable {
 

@@ -30,13 +30,12 @@ public class HttpsUtil {
 	    HttpEntity<BatchFileRequest> requestFinal = new HttpEntity<>(request, headers);
 	    
 	    ResponseEntity<BatchUpload> response = restTemplate.exchange(requestUrl, HttpMethod.POST, requestFinal, BatchUpload.class);
-	    
-	    if(response != null && response.getBody()!=null) {
+	    try{
+
 	    	return response.getBody();
-	    }
-	    
-	    LOGGER.error("Unable to get service response..");
-	    throw new CustomException("Unable to get service response.");
-	    
+	    }catch(Exception ex) {
+	    	LOGGER.error("Unable to get service response..");
+	   	    throw new CustomException("Unable to get service response.");
+	    }	    
     }
 }

@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.model.OriginPaymentFrequency;
@@ -30,7 +30,7 @@ public class OriginPaymentFrequencyRestController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OriginPaymentFrequencyRestController.class);
 
 	@ApiOperation(value = "getOriginPaymentFrequencies", nickname = "Get Origin Payment Frequencies")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = OriginPaymentFrequency.class, responseContainer = "List"),

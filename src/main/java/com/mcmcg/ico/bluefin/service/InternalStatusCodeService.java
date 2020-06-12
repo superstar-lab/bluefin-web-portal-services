@@ -451,12 +451,13 @@ public class InternalStatusCodeService {
 		InternalStatusCode internalStatusCodeToDelete = internalStatusCodeDAO.findOne(internalStatusCodeId);
 
 		if (internalStatusCodeToDelete == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Status Codes Delete Request", BluefinWebPortalConstants.SEPARATOR,
-					"Unable to find Internal Status Code Id : ", String.valueOf(internalStatusCodeId)));
+			String message = LoggingUtil.adminAuditInfo("Status Codes Delete Request", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Internal Status Code Id : ", String.valueOf(internalStatusCodeId));
+			LOGGER.error(message);
 			
 			throw new CustomNotFoundException(String.format("Unable to find internal Status code with id = [%s]", internalStatusCodeId));
 		}
-		// need to find all payment processor status code ids which used by payment processor internal status code of requested internalStatusCodeId to delete
+		// need to find all payment processor status code id's which used by payment processor internal status code of requested internalStatusCodeId to delete
 		List<Long> paymentProcessorStatusCodeIds = paymentProcessorInternalStatusCodeDAO.findPaymentProcessorStatusCodeIdsForInternalStatusCodeId(internalStatusCodeId);
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("deleteing paymentProcessorStatusCodeIds size : {}",paymentProcessorStatusCodeIds.size());

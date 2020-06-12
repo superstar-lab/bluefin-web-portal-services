@@ -67,8 +67,13 @@ public class InternalStatusCodeDAOImpl implements InternalStatusCodeDAO {
 			fetchedInternalStatusCodeByTransactionTypeList = jdbcTemplate.query( Queries.FINDALLINTERNALSTATUSCODEBYTRANSACTIONTYPE, new Object[] {transactionTypeName },
 					new InternalStatusCodeRowMapper());
 		}
+		int fetchedInternalStatusCodeByTransactionTypeListSize=0;
+		try {
+			fetchedInternalStatusCodeByTransactionTypeListSize=fetchedInternalStatusCodeByTransactionTypeList.size();
+		}catch(Exception ex) {
+			LOGGER.info("findByTransactionTypeNameOrderByInternalStatusCodeAsc fetchedInternalStatusCodeByTransactionTypeList collection is NULL {}",ex.getMessage());
+		}
 		
-		int fetchedInternalStatusCodeByTransactionTypeListSize = fetchedInternalStatusCodeByTransactionTypeList != null ? fetchedInternalStatusCodeByTransactionTypeList.size() : 0;
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Total number of internal status code size = {} for transaction type=",fetchedInternalStatusCodeByTransactionTypeListSize,transactionTypeName);
 		}

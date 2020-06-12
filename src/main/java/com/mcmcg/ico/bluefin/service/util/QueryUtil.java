@@ -95,10 +95,9 @@ public class QueryUtil {
 		List<Order> orderList = getOrderList(sort);
 		LOGGER.debug("orderList ={} ",orderList.size());
 		if (orderList.isEmpty()) {
-			return new PageRequest(page, size);
+			return PageRequest.of(page, size);
 		} else {
-			Sort finalSort = new Sort(orderList);
-			return new PageRequest(page, size, finalSort);
+			return PageRequest.of(page, size, Sort.by(orderList));
 		}
 	}
 
@@ -246,7 +245,7 @@ public class QueryUtil {
 			}
 		}
 
-		if (!validSearch) {
+		if (Boolean.FALSE.equals(validSearch)) {
 			LOGGER.error("Unable to parse value of legalEntity, correct format example: [XXXXX,YYYYYY,ZZZZZ]");
 			throw new CustomBadRequestException(
 					"Unable to parse value of legalEntity, correct format example [XXXXX,YYYYYY,ZZZZZ]");
@@ -275,7 +274,7 @@ public class QueryUtil {
 			}
 		}
 
-		if (!validSearch) {
+		if (Boolean.FALSE.equals(validSearch)) {
 			LOGGER.error("Unable to parse value of transactionId");
 			throw new CustomBadRequestException("Unable to parse value of transactionI");
 		}

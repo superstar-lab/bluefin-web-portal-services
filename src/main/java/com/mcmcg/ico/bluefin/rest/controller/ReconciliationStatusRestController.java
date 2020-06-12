@@ -5,9 +5,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
@@ -29,7 +29,7 @@ public class ReconciliationStatusRestController {
 	private ReconciliationStatusService reconciliationStatusService;
 
 	@ApiOperation(value = "getReconciliationStatus", nickname = "getReconciliationStatus")
-	@RequestMapping(method = RequestMethod.GET, value = "{id}", produces = "application/json")
+	@GetMapping(value = "{id}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ReconciliationStatus.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -43,7 +43,7 @@ public class ReconciliationStatusRestController {
 	}
 
 	@ApiOperation(value = "getReconciliationStatuses", nickname = "getReconciliationStatuses")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = ReconciliationStatus.class, responseContainer = "List"),

@@ -52,30 +52,46 @@ public class PaymentProcessor implements Serializable {
     }
 
     public void addPaymentProcessorMerchant(PaymentProcessorMerchant paymentProcessorMerchant) {
-        if (paymentProcessorMerchants == null) {
-            this.paymentProcessorMerchants = new HashSet<>();
-        }
+
         if (paymentProcessorMerchant != null) {
+        	
+        	this.paymentProcessorMerchants = new HashSet<>();
         	paymentProcessorMerchant.setPaymentProcessorId(this.paymentProcessorId);
-        }
-        if (paymentProcessorMerchants != null) {
         	paymentProcessorMerchants.add(paymentProcessorMerchant);
         }
+        
     }
 
     @JsonIgnore
     public boolean isActive() {
-        return isActive.equals((short) 1) ? true : false;
+    	boolean activeState = false;
+    	
+    	if(isActive.equals((short) 1)) {
+    		activeState = true;
+    	}
+    	
+        return activeState;
     }
 
     @JsonIgnore
     public boolean hasMerchantsAssociated() {
-        return paymentProcessorMerchants == null || paymentProcessorMerchants.isEmpty() ? false : true;
+    	boolean merchantsAssociated = true;
+    	
+        if(paymentProcessorMerchants == null || paymentProcessorMerchants.isEmpty() ) {
+        	merchantsAssociated = false;
+        }
+        
+        return merchantsAssociated;
     }
 
     @JsonIgnore
     public boolean hasRulesAssociated() {
-        return paymentProcessorRules == null || paymentProcessorRules.isEmpty() ? false : true;
+    	boolean rulesAssociated = true;
+    	
+        if( paymentProcessorRules == null || paymentProcessorRules.isEmpty() ) {
+        	rulesAssociated = false;
+        }
+        return	rulesAssociated;
     }
 
     public PaymentProcessor createPaymentProcessor(){

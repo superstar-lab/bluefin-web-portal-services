@@ -13,10 +13,13 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,7 +54,7 @@ public class InternalStatusCodeRestController {
     private InternalStatusCodeService internalStatusCodeService;
 
     @ApiOperation(value = "getInternalStatusCodesByTransactionType", nickname = "getInternalStatusCodesByTransactionType")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = InternalStatusCode.class, responseContainer = "List"),
@@ -69,7 +72,7 @@ public class InternalStatusCodeRestController {
         }
         LOGGER.info("Getting internal status code list");
         ObjectWriter objectWriter;
-        if (extended) {
+        if (Boolean.TRUE.equals(extended)) {
             objectWriter = objectMapper.writerWithView(Views.Extend.class);
         } else {
             objectWriter = objectMapper.writerWithView(Views.Summary.class);
@@ -79,7 +82,7 @@ public class InternalStatusCodeRestController {
     }
 
     @ApiOperation(value = "createInternalStatusCodes", nickname = "createInternalStatusCodes")
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @PostMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "OK", response = InternalStatusCode.class, responseContainer = "List"),
@@ -90,29 +93,33 @@ public class InternalStatusCodeRestController {
     public InternalStatusCode createInternalStatusCodes(
             @Valid @RequestBody InternalCodeResource internalStatusCodeResource, @ApiIgnore Errors errors,@ApiIgnore Authentication auth) {
     	validateAuthentication(auth);
+    	String message = "";
+    	String userName = "";
+    	try {
+    		userName =  auth.getName();
+    	}catch(Exception ex) {
+    		LOGGER.error("createInternalStatusCodes Authentication object cannot be NULL {}", ex.getMessage());
+    	}
         // First checks if all required data is given
         if (errors.hasErrors()) {
         	String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
-        	
-        	LOGGER.error(LoggingUtil.adminAuditInfo("Status Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, (auth == null ? null : auth.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		errorDescription));
+        	message = LoggingUtil.adminAuditInfo("Status Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY,userName, BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription);
+        	LOGGER.error(message);
         	
             throw new CustomBadRequestException(errorDescription);
         }
-        String currentLoginUserName = null;
-        if (auth != null) {
-        	currentLoginUserName = auth.getName();
-        }
-        LOGGER.info(LoggingUtil.adminAuditInfo("Status Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, currentLoginUserName));
+        message = LoggingUtil.adminAuditInfo("Status Codes Creation Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, userName);
+        LOGGER.info(message);
         
-        return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource,currentLoginUserName);
+        return internalStatusCodeService.createInternalStatusCodes(internalStatusCodeResource,userName);
     }
 
     @ApiOperation(value = "updateInternalStatusCodes", nickname = "updateInternalStatusCodes")
-    @RequestMapping(method = RequestMethod.PUT, produces = "application/json")
+    @PutMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = InternalStatusCode.class, responseContainer = "List"),
@@ -123,38 +130,44 @@ public class InternalStatusCodeRestController {
     public InternalStatusCode upsertInternalStatusCodes(
             @Valid @RequestBody UpdateInternalCodeResource updateInternalStatusCodeResource, @ApiIgnore Errors errors,@ApiIgnore Authentication auth) {
     	validateAuthentication(auth);
+    	String message= "";
+    	String userName = "";
+    	try {
+    		userName =  auth.getName();
+    	}catch(Exception ex) {
+    		LOGGER.error("createInternalStatusCodes Authentication object cannot be NULL {}", ex.getMessage());
+    	}
         // First checks if all required data is given
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             
-            LOGGER.error(LoggingUtil.adminAuditInfo("Status Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, (auth == null ? null : auth.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		errorDescription));
+            message= LoggingUtil.adminAuditInfo("Status Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY, userName, BluefinWebPortalConstants.SEPARATOR,
+            		errorDescription);
+            LOGGER.error(message);
             
             throw new CustomBadRequestException(errorDescription);
         }
-        String currentLoginUserName = null;
-        if (auth != null) {
-        	currentLoginUserName = auth.getName();
-        }
-        LOGGER.info(LoggingUtil.adminAuditInfo("Status Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, currentLoginUserName));
+        message = LoggingUtil.adminAuditInfo("Status Codes Update Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, userName);
+        LOGGER.info(message);
         
-        return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource,currentLoginUserName);
+        return internalStatusCodeService.updateInternalStatusCode(updateInternalStatusCodeResource,userName);
     }
 
     @ApiOperation(value = "deleteInternalStatusCode", nickname = "deleteInternalStatusCode")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    @DeleteMapping(value = "/{id}")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id) {
-    	LOGGER.info(LoggingUtil.adminAuditInfo("Status Codes Delete Request", BluefinWebPortalConstants.SEPARATOR,
-    			"Internal Status Code Id : ", String.valueOf(id)));
+    	String message = LoggingUtil.adminAuditInfo("Status Codes Delete Request", BluefinWebPortalConstants.SEPARATOR,
+    			"Internal Status Code Id : ", String.valueOf(id));
+    	LOGGER.info(message);
     	
         internalStatusCodeService.deleteInternalStatusCode(id);
         LOGGER.debug("Internal Status Code {} has been deleted.", id);
@@ -162,14 +175,10 @@ public class InternalStatusCodeRestController {
         return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
     }
     
-    /**
-     * Dheeraj : I created this method for temp purpose to get all values for one particular record
-     * @param id
-     * @return
-     */
+   
     @ApiOperation(value = "deleteInternalStatusCode", nickname = "deleteInternalStatusCode")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}")
+    @GetMapping(value = "/{id}")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),

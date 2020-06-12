@@ -18,10 +18,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,7 +63,7 @@ public class UserRestController {
 	private TokenUtils tokenUtils;
 	
 	@ApiOperation(value = "getUser", nickname = "getUser")
-	@RequestMapping(method = RequestMethod.GET, value = "/{username:.*}", produces = "application/json")
+	@GetMapping(value = "/{username:.*}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -90,7 +92,7 @@ public class UserRestController {
 	}
 
 	@ApiOperation(value = "getUsers", nickname = "getUsers")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = User.class, responseContainer = "List"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -130,7 +132,7 @@ public class UserRestController {
 	}
 
 	@ApiOperation(value = "createUser", nickname = "createUser")
-	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
+	@PostMapping( produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = UserResource.class),
@@ -141,17 +143,17 @@ public class UserRestController {
 	public ResponseEntity<UserResource> create(@Valid @RequestBody RegisterUserResource newUser,
 			@ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
 		validateAuthentication(authentication);
-
+		String message = "";
 		LOGGER.debug("newUser ={}",newUser);
 		// First checks if all required data is given
 		if (errors.hasErrors()) {
 			String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
 					.collect(Collectors.joining("<br /> "));
-			
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request-Error", BluefinWebPortalConstants.SEPARATOR,
+			message = LoggingUtil.adminAuditInfo("User Creation Request-Error", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDFOR, newUser.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-					errorDescription));
+					errorDescription);
+			LOGGER.error(message);
 			
 			throw new CustomBadRequestException(errorDescription);
 		}
@@ -159,16 +161,16 @@ public class UserRestController {
 		// Checks if the Legal Entities given are valid according with the
 		// LegalEntities owned
 		hasUserPrivilegesOverLegalEntities(authentication,newUser.getLegalEntityApps());
-
-		LOGGER.info(LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
+		message = LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDFOR, newUser.getUsername()));
+				BluefinWebPortalConstants.REQUESTEDFOR, newUser.getUsername());
+		LOGGER.info(message);
 		LOGGER.debug("Creating new account for user: {}", newUser.getUsername());
 		return new ResponseEntity<>(userService.registerNewUserAccount(newUser), HttpStatus.CREATED);
 	}
 
 	@ApiOperation(value = "updateUserProfile", nickname = "updateUserProfile")
-	@RequestMapping(method = RequestMethod.PUT, value = "/{username:.*}", produces = "application/json")
+	@PutMapping(value = "/{username:.*}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -178,15 +180,16 @@ public class UserRestController {
 	public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
 			@Valid @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
 		validateAuthentication(authentication);
-		
+		String message = "";
 		LOGGER.info("update User Profile service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
 		} else {
 			if (!userService.hasPermissionToManageAllUsers(authentication)) {
-				LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request:", BluefinWebPortalConstants.SEPARATOR,
-						"UserName : ", String.valueOf(authentication.getName()), " does not have sufficient permissions for this profile."));
+				message= LoggingUtil.adminAuditInfo("User Profile Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+						"UserName : ", String.valueOf(authentication.getName()), " does not have sufficient permissions for this profile.");
+				LOGGER.error(message);
 				throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 			}
 		}
@@ -205,15 +208,16 @@ public class UserRestController {
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
 		}
 		validateErrors(errors);
-		LOGGER.info(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
+		message = LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDFOR, usernameValue));
+				BluefinWebPortalConstants.REQUESTEDFOR, usernameValue);
+		LOGGER.info(message);
 		LOGGER.debug("Updating account for user: {}", usernameValue);
 		return userService.updateUserProfile("me".equals(usernameValue) ? authentication.getName() : usernameValue, userToUpdate, authentication.getName());
 	}
 
 	@ApiOperation(value = "updateUserRoles", nickname = "updateUserRoles")
-	@RequestMapping(method = RequestMethod.PUT, value = "/{username}/roles", produces = "application/json")
+	@PutMapping(value = "/{username}/roles", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -222,9 +226,11 @@ public class UserRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource updateUserRoles(@PathVariable String username, @RequestBody Set<Long> roles,
 			@ApiIgnore Authentication authentication) {
+		String message = "";
 		if (authentication == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
+			message = LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+			LOGGER.error(message);
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 		LOGGER.debug("roles size ={}",roles.size());
@@ -232,21 +238,22 @@ public class UserRestController {
 		// that will be updated
 		if (!userService.belongsToSameLegalEntity(authentication,
 				"me".equals(username) ? authentication.getName() : username)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
-					"User:: ", String.valueOf(authentication.getName()), " doesn't have permission to add/remove roles to this user."));
+			message = LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
+					"User:: ", String.valueOf(authentication.getName()), " doesn't have permission to add/remove roles to this user.");
+			LOGGER.error(message);
 			throw new AccessDeniedException("User doesn't have permission to add/remove roles to this user.");
 		}
 		LOGGER.debug("Updating roles for user: {}", username);
-
-		LOGGER.info(LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDFOR, username));
+		message = LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
+		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+		BluefinWebPortalConstants.REQUESTEDFOR, username);
+		LOGGER.info(message);
 		return new UserResource(
 				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles, authentication.getName()));
 	}
 
 	@ApiOperation(value = "updateUserLegalEntities", nickname = "updateUserLegalEntities")
-	@RequestMapping(method = RequestMethod.PUT, value = "/{username}/legal-entities", produces = "application/json")
+	@PutMapping(value = "/{username}/legal-entities", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -255,9 +262,11 @@ public class UserRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody Set<Long> legalEntities,
 			@ApiIgnore Authentication authentication) {
+		String message = "";
 		if (authentication == null) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Legal Entities Updation Request:", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
+			message =LoggingUtil.adminAuditInfo("User Legal Entities Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+			LOGGER.error(message);
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 
@@ -266,28 +275,30 @@ public class UserRestController {
 		// that will be updated and checks if the Legal Entities given are valid
 		// according with the LegalEntities owned
 		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, legalEntities)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Legal Entities Updation Request::", BluefinWebPortalConstants.SEPARATOR,
-					"User doesn't have permission over the given list of legal entities"));
+			message = LoggingUtil.adminAuditInfo("User Legal Entities Updation Request::", BluefinWebPortalConstants.SEPARATOR,
+					"User doesn't have permission over the given list of legal entities");
+			LOGGER.error(message);
 			throw new AccessDeniedException("User doesn't have permission over the given list of legal entities");
 		}
 
 		if (!userService.belongsToSameLegalEntity(authentication,
 				"me".equals(username) ? authentication.getName() : username)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Legal Entities Updation Request-", BluefinWebPortalConstants.SEPARATOR,
-					"UserName: ", String.valueOf(authentication.getName()), " doesn't have permission to add/remove legal entities to this user."));
+			message = LoggingUtil.adminAuditInfo("User Legal Entities Updation Request-", BluefinWebPortalConstants.SEPARATOR,
+					"UserName: ", String.valueOf(authentication.getName()), " doesn't have permission to add/remove legal entities to this user.");
+			LOGGER.error(message);
 			throw new AccessDeniedException("User doesn't have permission to add/remove legal entities to this user.");
 		}
-
-		LOGGER.info(LoggingUtil.adminAuditInfo("User Legal Entities Updation Request", BluefinWebPortalConstants.SEPARATOR,
+		message = LoggingUtil.adminAuditInfo("User Legal Entities Updation Request", BluefinWebPortalConstants.SEPARATOR,
 				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.REQUESTEDFOR, username));
+				BluefinWebPortalConstants.REQUESTEDFOR, username);
+		LOGGER.info(message);
 		LOGGER.debug("Updating legalEntities for user: {}", username);
 		return new UserResource(userService
 				.updateUserLegalEntities("me".equals(username) ? authentication.getName() : username, legalEntities, authentication.getName()));
 	}
 
 	@ApiOperation(value = "updateUserPassword", nickname = "updateUserPassword")
-	@RequestMapping(method = RequestMethod.PUT, value = "/{username}/password", produces = "application/json")
+	@PutMapping(value = "/{username}/password", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = UserResource.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -298,15 +309,16 @@ public class UserRestController {
 			@Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
 			HttpServletRequest request, @ApiIgnore Authentication authentication) {
 		validateErrors(errors);
-		
+		String message = "";
 		LOGGER.info("update User Password service");
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
-					"Password updation failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG));
+			message = LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+			"Password updation failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+			BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
+			LOGGER.error(message);
 			throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 		}
 		if(usernameValue != null && usernameValue.isEmpty()) {
@@ -316,9 +328,10 @@ public class UserRestController {
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token ={} ",token);
 		if (token != null) {
-			LOGGER.info(LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR,
+			message = LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDFOR, username));
+					BluefinWebPortalConstants.REQUESTEDFOR, username);
+			LOGGER.info(message);
 			userService.updateUserPassword(usernameValue, updatePasswordResource, token);
 			User user = userService.findByUsername(usernameValue);
 			if ( user != null ) {
@@ -327,14 +340,15 @@ public class UserRestController {
 			}
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
-		LOGGER.error(LoggingUtil.adminAuditInfo("User Password Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
+		message = LoggingUtil.adminAuditInfo("User Password Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
 				"Password updation failed for User : ", String.valueOf(authentication.getPrincipal()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
+				BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+		LOGGER.error(message);
 		throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 	}
 
 	@ApiOperation(value = "updateUserActivation", nickname = "updateUserActivation")
-	@RequestMapping(method = RequestMethod.PUT, value = "/status", produces = "application/json")
+	@PutMapping(value = "/status", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -345,8 +359,9 @@ public class UserRestController {
 			HttpServletRequest request, @ApiIgnore Authentication authentication) {
 
 		if (!userService.hasPermissionToManageAllUsers(authentication)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Status Updation Request:", BluefinWebPortalConstants.SEPARATOR,
-					"UserName=: ", String.valueOf(authentication.getName()), " does not have sufficient permissions for this profile."));
+			String message = LoggingUtil.adminAuditInfo("User Status Updation Request:", BluefinWebPortalConstants.SEPARATOR,
+					"UserName=: ", String.valueOf(authentication.getName()), " does not have sufficient permissions for this profile.");
+			LOGGER.error(message);
 			throw new AccessDeniedException("User does not have sufficient permissions to perform the operation.");
 		}
 
@@ -354,24 +369,27 @@ public class UserRestController {
 		final String token = request.getHeader(propertyService.getPropertyValue("TOKEN_HEADER"));
 		LOGGER.debug("token: ={} ",token);
 		if (token != null) {
-			String users = "";
+			StringBuilder users = new StringBuilder();
 			for(String userName : activationResource.getUsernames()) {
 				if(StringUtils.isNotEmpty(users)) {
-					users = users + "," +userName;
+					users.append("," +userName);
 				}
 				else {
-					users = userName;
+					users.append(userName);
 				}
 			}
-			LOGGER.info(LoggingUtil.adminAuditInfo("User Status Updation Request::", BluefinWebPortalConstants.SEPARATOR,
-					BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()),
-					BluefinWebPortalConstants.SEPARATOR, BluefinWebPortalConstants.REQUESTEDFOR, users));
+			String message = LoggingUtil.adminAuditInfo("User Status Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
+					"Status Updation Request failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+			
+			LOGGER.info(message);
 			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
-		LOGGER.error(LoggingUtil.adminAuditInfo("User Status Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
+		String message = LoggingUtil.adminAuditInfo("User Status Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
 				"Status Updation Request failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG));
+				BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
+		LOGGER.error(message);
 		throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 	}
 
@@ -406,8 +424,9 @@ public class UserRestController {
 	
 	private void hasUserPrivilegesOverLegalEntities(Authentication authentication,Set<Long> legalEntityApps){ 
 		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, legalEntityApps)) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("User Creation Request for access", BluefinWebPortalConstants.SEPARATOR,
-					"User : ", String.valueOf(authentication.getName()), " doesn't have access to add by legal entity restriction."));
+			String message = LoggingUtil.adminAuditInfo("User Creation Request for access", BluefinWebPortalConstants.SEPARATOR,
+					"User : ", String.valueOf(authentication.getName()), " doesn't have access to add by legal entity restriction.");
+			LOGGER.error(message);
 			throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
 		}
 	}

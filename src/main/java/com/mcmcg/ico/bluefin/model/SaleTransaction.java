@@ -194,7 +194,7 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime reconciliationDate;
-	/*private DateTime reconciliationDate = new DateTime();*/
+
 
 	@JsonView({ Views.Extend.class, Views.Summary.class })
 	private Long batchUploadId;
@@ -283,10 +283,12 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 		this.lastName = lastName;
 	}
 
+	@Override
 	public String getProcessUser() {
 		return processUser;
 	}
 
+	@Override
 	public void setProcessUser(String processUser) {
 		this.processUser = processUser;
 	}
@@ -395,18 +397,22 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 		this.accountId = accountId;
 	}
 
+	@Override
 	public String getApplicationTransactionId() {
 		return applicationTransactionId;
 	}
 
+	@Override
 	public void setApplicationTransactionId(String applicationTransactionId) {
 		this.applicationTransactionId = applicationTransactionId;
 	}
 
+	@Override
 	public String getMerchantId() {
 		return merchantId;
 	}
 
+	@Override
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
@@ -419,10 +425,12 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 		this.processor = processor;
 	}
 
+	@Override
 	public String getApplication() {
 		return application;
 	}
 
+	@Override
 	public void setApplication(String application) {
 		this.application = application;
 	}
@@ -435,18 +443,22 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 		this.origin = origin;
 	}
 
+	@Override
 	public String getProcessorTransactionId() {
 		return processorTransactionId;
 	}
 
+	@Override
 	public void setProcessorTransactionId(String processorTransactionId) {
 		this.processorTransactionId = processorTransactionId;
 	}
 
+	@Override
 	public DateTime getTransactionDateTime() {
 		return transactionDateTime;
 	}
 
+	@Override
 	public void setTransactionDateTime(DateTime transactionDateTime) {
 		this.transactionDateTime = transactionDateTime;
 	}
@@ -475,90 +487,112 @@ public class SaleTransaction extends CommonTransaction implements Serializable {
 		this.tokenized = tokenized;
 	}
 
+	@Override
 	public String getPaymentProcessorStatusCode() {
 		return paymentProcessorStatusCode;
 	}
 
+	@Override
 	public void setPaymentProcessorStatusCode(String paymentProcessorStatusCode) {
 		this.paymentProcessorStatusCode = paymentProcessorStatusCode;
 	}
 
+	@Override
 	public String getPaymentProcessorStatusCodeDescription() {
 		return paymentProcessorStatusCodeDescription;
 	}
 
+	@Override
 	public void setPaymentProcessorStatusCodeDescription(String paymentProcessorStatusCodeDescription) {
 		this.paymentProcessorStatusCodeDescription = paymentProcessorStatusCodeDescription;
 	}
 
+	@Override
 	public String getPaymentProcessorResponseCode() {
 		return paymentProcessorResponseCode;
 	}
 
+	@Override
 	public void setPaymentProcessorResponseCode(String paymentProcessorResponseCode) {
 		this.paymentProcessorResponseCode = paymentProcessorResponseCode;
 	}
 
+	@Override
 	public String getPaymentProcessorResponseCodeDescription() {
 		return paymentProcessorResponseCodeDescription;
 	}
 
+	@Override
 	public void setPaymentProcessorResponseCodeDescription(String paymentProcessorResponseCodeDescription) {
 		this.paymentProcessorResponseCodeDescription = paymentProcessorResponseCodeDescription;
 	}
 
+	@Override
 	public String getInternalStatusCode() {
 		return internalStatusCode;
 	}
 
+	@Override
 	public void setInternalStatusCode(String internalStatusCode) {
 		this.internalStatusCode = internalStatusCode;
 	}
 
+	@Override
 	public String getInternalStatusDescription() {
 		return internalStatusDescription;
 	}
 
+	@Override
 	public void setInternalStatusDescription(String internalStatusDescription) {
 		this.internalStatusDescription = internalStatusDescription;
 	}
 
+	@Override
 	public String getInternalResponseCode() {
 		return internalResponseCode;
 	}
 
+	@Override
 	public void setInternalResponseCode(String internalResponseCode) {
 		this.internalResponseCode = internalResponseCode;
 	}
 
+	@Override
 	public String getInternalResponseDescription() {
 		return internalResponseDescription;
 	}
 
+	@Override
 	public void setInternalResponseDescription(String internalResponseDescription) {
 		this.internalResponseDescription = internalResponseDescription;
 	}
 
+	@Override
 	public Long getPaymentProcessorInternalStatusCodeId() {
 		return paymentProcessorInternalStatusCodeId;
 	}
 
+	@Override
 	public void setPaymentProcessorInternalStatusCodeId(Long paymentProcessorInternalStatusCodeId) {
 		this.paymentProcessorInternalStatusCodeId = paymentProcessorInternalStatusCodeId;
 	}
 
+	@Override
 	public Long getPaymentProcessorInternalResponseCodeId() {
 		return paymentProcessorInternalResponseCodeId;
 	}
 
+	@Override
 	public void setPaymentProcessorInternalResponseCodeId(Long paymentProcessorInternalResponseCodeId) {
 		this.paymentProcessorInternalResponseCodeId = paymentProcessorInternalResponseCodeId;
 	}
 
+	@Override
 	public DateTime getDateCreated() {
 		return dateCreated;
 	}
 
+	@Override
 	public void setDateCreated(DateTime dateCreated) {
 		this.dateCreated = dateCreated;
 	}

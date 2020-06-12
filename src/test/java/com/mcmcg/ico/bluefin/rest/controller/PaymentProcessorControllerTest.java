@@ -337,29 +337,6 @@ public class PaymentProcessorControllerTest {
         return paymentProcessorResource;
     }
 
-    private List<PaymentProcessor> getValidPaymentProcessorList() {
-        List<PaymentProcessor> paymentProcessorList = new ArrayList<PaymentProcessor>();
-        paymentProcessorList.add(createValidPaymentProcessor());
-
-        PaymentProcessor paymentProcessor = createValidPaymentProcessor();
-        paymentProcessor.setPaymentProcessorId(2L);
-        paymentProcessor.setProcessorName("JETPAY");
-        paymentProcessorList.add(paymentProcessor);
-
-        paymentProcessor = createValidPaymentProcessor();
-        paymentProcessor.setPaymentProcessorId(3L);
-        paymentProcessor.setProcessorName("ACI");
-        paymentProcessorList.add(paymentProcessor);
-
-        return paymentProcessorList;
-    }
-
-    private PaymentProcessor createValidPaymentProcessor() {
-        PaymentProcessor paymentProcessor = new PaymentProcessor();
-        paymentProcessor.setPaymentProcessorId(1L);
-        paymentProcessor.setProcessorName("PAYSCOUT");
-        return paymentProcessor;
-    }
 
     public static byte[] convertObjectToJsonBytes(Object object) throws IOException {
         ObjectMapper mapper = new ObjectMapper();

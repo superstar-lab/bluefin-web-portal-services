@@ -14,6 +14,7 @@ public class CommonTransaction implements Transaction {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime transactionDateTime = new DateTime();
+	private DateTime dateCreated = new DateTime();
 	private String applicationTransactionId;
 	private String application;
 	private String processUser;
@@ -28,9 +29,6 @@ public class CommonTransaction implements Transaction {
 	private String internalResponseDescription;
 	private Long paymentProcessorInternalStatusCodeId;
 	private Long paymentProcessorInternalResponseCodeId;
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime dateCreated = new DateTime();
 	@JsonView({ Views.Summary.class })
 	private Long binDBId;
 	@JsonProperty("bindb-detail")

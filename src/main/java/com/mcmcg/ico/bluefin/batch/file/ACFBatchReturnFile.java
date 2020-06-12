@@ -116,7 +116,6 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 	            inputStream.close();
 	        }
 	        zippedOut.finish();
-	        zippedOut.close();
 	        for(String filePath : fileNames) {
 	            Files.deleteIfExists(Paths.get(filePath));
 	        }
@@ -155,22 +154,23 @@ public class ACFBatchReturnFile extends BatchReturnFile {
 		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 		// initialize FileWriter object
 		FileWriter fileWriter = new FileWriter(file);
-		@SuppressWarnings("resource")
-		CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
-		csvFilePrinter.printRecord(headerObj.getValue());
-
-		// Create the CSVFormat object with "\n" as a record delimiter
-		csvFileFormat = CSVFormat.DEFAULT.withTrim();
-		
-		BatchFileObjects batchFileObjects = new BatchFileObjects();
-		batchFileObjects.setFile(file);
-		batchFileObjects.setCsvFileFormat(csvFileFormat);
-		batchFileObjects.setFileWriter(fileWriter);
-		batchFileObjects.setCsvFilePrinter(csvFilePrinter);
+		try (CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat)) {
+			csvFilePrinter.printRecord(headerObj.getValue());
+	
+			// Create the CSVFormat object with "\n" as a record delimiter
+			csvFileFormat = CSVFormat.DEFAULT.withTrim();
 			
-		batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
+			BatchFileObjects batchFileObjects = new BatchFileObjects();
+			batchFileObjects.setFile(file);
+			batchFileObjects.setCsvFileFormat(csvFileFormat);
+			batchFileObjects.setFileWriter(fileWriter);
+			batchFileObjects.setCsvFilePrinter(csvFilePrinter);
+			
+			batchFileObjectsMap.put(headerObj.getKey(), batchFileObjects);
 		
-		return batchFileObjectsMap;
+	
+			return batchFileObjectsMap;
+		}
 		
 	}
 	

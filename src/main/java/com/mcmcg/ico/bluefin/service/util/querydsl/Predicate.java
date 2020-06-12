@@ -122,7 +122,7 @@ class Predicate {
     }
 
     private BooleanExpression getNumericPredicate(PathBuilder<?> entityPath) {
-        if (NumberUtils.isNumber(criteria.getValue().toString())) {
+        if (NumberUtils.isCreatable(criteria.getValue().toString())) {
             NumberPath<BigDecimal> path = entityPath.getNumber(criteria.getKey(), BigDecimal.class);
             BigDecimal value = new BigDecimal(criteria.getValue().toString());
             if (":".equalsIgnoreCase(criteria.getOperation())) {
@@ -139,7 +139,7 @@ class Predicate {
     }
 
     private BooleanExpression getLongNumericPredicate(PathBuilder<?> entityPath) {
-        if (NumberUtils.isNumber(criteria.getValue().toString())) {
+        if (NumberUtils.isCreatable(criteria.getValue().toString())) {
             NumberPath<Long> path = entityPath.getNumber(criteria.getKey(), Long.class);
             Long value = new Long(criteria.getValue().toString());
             if (":".equalsIgnoreCase(criteria.getOperation())) {

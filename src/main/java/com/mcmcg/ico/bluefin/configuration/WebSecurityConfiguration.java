@@ -38,10 +38,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
 
-	/*
-	 * @Autowired private SecurityService securityService;
-	 */
-	 
     
     @Value(("${csp.header}"))
     private String cspHeader;
@@ -72,22 +68,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         authenticationTokenFilter.setAuthenticationManager(authenticationManagerBean());
         return authenticationTokenFilter;
     }
-
-	/*
-	 * @Bean public SecurityService securityService() { return this.securityService;
-	 * }
-	 */
-    
-   /** @Bean
-    public ServletContextInitializer servletContextInitializer(@Value("${secure.cookie}") final boolean secure) {
-        return new ServletContextInitializer() {
-
-            @Override
-            public void onStartup(final ServletContext servletContext) throws ServletException {
-                servletContext.getSessionCookieConfig().setSecure(secure);
-            }
-        };
-    }*/
 
 
     @Override

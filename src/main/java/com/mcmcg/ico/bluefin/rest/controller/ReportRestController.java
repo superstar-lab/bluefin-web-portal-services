@@ -15,8 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,9 +65,11 @@ public class ReportRestController {
 	private PaymentProcessorRemittanceService paymentProcessorRemittanceService;
 	@Autowired
 	BatchReturnFileObjectFactory batchReturnFileObjectFactory;
+	
+	private static final String ACCESS_DENIED_ERROR = "An authorization token is required to request this resource";
 
 	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
-	@RequestMapping(method = RequestMethod.GET, value = "/transactions")
+	@GetMapping(value = "/transactions")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
@@ -78,7 +81,7 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone,
 			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(ACCESS_DENIED_ERROR);
 		}
 		
 		LOGGER.debug("search ={} ",search);
@@ -103,7 +106,7 @@ public class ReportRestController {
 	}
 	
 	@ApiOperation(value = "getTransactionsReport", nickname = "getTransactionsReport")
-	@RequestMapping(method = RequestMethod.POST, value = "/transactions")
+	@PostMapping(value = "/transactions")
 	@ApiImplicitParams({
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
 	@ApiImplicitParam(name = "request", value = "request", required = true, paramType = "body") })
@@ -118,7 +121,7 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone,
 			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(ACCESS_DENIED_ERROR);
 		}
 		
 		LOGGER.debug("search ={} ",search);
@@ -128,7 +131,7 @@ public class ReportRestController {
 			throw new CustomBadRequestException("A file must be uploded");
 		}
 		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
-		if(accountList.size()==0){
+		if(accountList.isEmpty()){
 	    	LOGGER.error("There is no record exist for this file");
 			throw new CustomException("There is no record exist for this file.");
 	    }
@@ -152,7 +155,7 @@ public class ReportRestController {
 	}
 
 	@ApiOperation(value = "getRemittanceTransactionsReport", nickname = "getRemittanceTransactionsReport")
-	@RequestMapping(method = RequestMethod.GET, value = "/payment-processor-remittances")
+	@GetMapping(value = "/payment-processor-remittances")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = PaymentProcessorRemittance.class, responseContainer = "List"),
@@ -166,7 +169,7 @@ public class ReportRestController {
 			@RequestParam(value = "timeZone", required = true) String timeZone,
 			@ApiIgnore Authentication authentication, HttpServletResponse response) throws IOException {
 		if (authentication == null) {
-			throw new AccessDeniedException("An authorization token is required to request this resource");
+			throw new AccessDeniedException(ACCESS_DENIED_ERROR);
 		}
 		LOGGER.debug("search {} , sort {} ",search,sort);
 		String searchVal;
@@ -184,7 +187,7 @@ public class ReportRestController {
 		LOGGER.debug("reconciliationStatusId : {}",reconciliationStatusId);
 		if ("notReconciled".equals(reconciliationStatusId)) {
 			String id = paymentProcessorRemittanceService.getReconciliationStatusId("Reconciled");
-			searchVal = searchVal.replaceAll("notReconciled", id);
+			searchVal = searchVal.replace("notReconciled", id);
 			negate = true;
 		}
 		try {
@@ -199,7 +202,7 @@ public class ReportRestController {
 	}
 
 	@ApiOperation(value = "getBatchUploadsReport", nickname = "getBatchUploadsReport")
-	@RequestMapping(method = RequestMethod.GET, value = "/batch-uploads", produces = "application/json")
+	@GetMapping(value = "/batch-uploads", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),
@@ -224,7 +227,7 @@ public class ReportRestController {
 	}
 
 	@ApiOperation(value = "getBatchUploadTransactionsReport", nickname = "getBatchUploadTransactionsReport")
-	@RequestMapping(method = RequestMethod.GET, value = "/batch-upload-transactions", produces = "application/json")
+	@GetMapping(value = "/batch-upload-transactions", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = BatchUpload.class, responseContainer = "List"),

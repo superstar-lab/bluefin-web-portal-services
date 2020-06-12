@@ -15,16 +15,6 @@ public class CustomCorsRegistration extends CorsRegistration {
         super(pathPattern);
     }
 
-    @Override
-    public String getPathPattern() {
-        return super.getPathPattern();
-    }
-
-    @Override
-    public CorsConfiguration getCorsConfiguration() {
-        return super.getCorsConfiguration();
-    }
-
     /**
      * Holds the CORS global configurations.
      * 

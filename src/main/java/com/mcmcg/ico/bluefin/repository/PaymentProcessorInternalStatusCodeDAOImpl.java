@@ -218,11 +218,15 @@ public class PaymentProcessorInternalStatusCodeDAOImpl implements PaymentProcess
 			valuesToCheck.put("ids", paymentProcessorStatusCodeIds);
 			NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 			List<Long> idsFetched = namedJDBCTemplate.queryForList(Queries.INTERNALSTATUSCODEIDSMAPPEDWITHPAYMENTPROCESSORSTATUSCODEIDS,valuesToCheck,Long.class);
-			if (idsFetched != null && !idsFetched.isEmpty()) {
-				// Need to return only unique ids
-				Set<Long> idsFetchedAndReturnedUnique = new HashSet<>();
-				idsFetchedAndReturnedUnique.addAll(idsFetched);
-				return idsFetchedAndReturnedUnique;
+			try {	
+				if (!idsFetched.isEmpty()) {
+					// Need to return only unique ids
+					Set<Long> idsFetchedAndReturnedUnique = new HashSet<>();
+					idsFetchedAndReturnedUnique.addAll(idsFetched);
+					return idsFetchedAndReturnedUnique;
+				}
+			}catch(Exception ex) {
+				logger.error("fetchInternalStatusCodeIdsMappedForPaymentProcessorStatusCodeIds idsFetched cannot be NULL {}",ex.getMessage());
 			}
 		}
 		return Collections.emptySet();

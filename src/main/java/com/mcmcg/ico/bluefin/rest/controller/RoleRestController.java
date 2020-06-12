@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mcmcg.ico.bluefin.model.Role;
@@ -31,7 +31,7 @@ public class RoleRestController {
     private RoleService roleService;
 
     @ApiOperation(value = "getRoleById", nickname = "Get role by id")
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = "application/json")
+    @GetMapping(value = "/{id}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Role.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -45,7 +45,7 @@ public class RoleRestController {
     }
 
     @ApiOperation(value = "getRoles", nickname = "Get roles")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Role.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),

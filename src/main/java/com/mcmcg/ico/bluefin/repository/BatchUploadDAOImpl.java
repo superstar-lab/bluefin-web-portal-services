@@ -80,7 +80,13 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
     public List<BatchUpload> findAll() {
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDALLBATCHUPLOADS, new BatchUploadRowMapper());
         if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("findAll() : Number of rows: {}",batchUploads != null ? batchUploads.size() : 0);
+            int size=0;
+            try {
+            	size = batchUploads.size();
+            }catch(Exception ex) {
+            	LOGGER.error(ex.getMessage());
+            }
+        	LOGGER.debug("findAll() : Number of rows: {}",size);
         }
         return batchUploads;
     }
@@ -140,13 +146,19 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
                 new Object[] { dateBeforeNoofdays, firstResult, lastResult }, new BatchUploadRowMapper());
         
         if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: {}" , batchUploads != null ? batchUploads.size() : 0);
+            int size=0;
+            try {
+            	size = batchUploads.size();
+            }catch(Exception ex) {
+            	LOGGER.error(ex.getMessage());
+            }
+        	LOGGER.debug("findByDateUploadedAfterOrderByDateUploadedDesc() : Number of rows: {}" , size);
         }
         
         batchUploads = getLegalEntityNameById(batchUploads);
         
         
-        return new PageImpl(batchUploads, pageRequest,
+        return new PageImpl<BatchUpload>(batchUploads, pageRequest,
                 batchUploadCount);
     }
 
@@ -158,14 +170,19 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
 
         List<BatchUpload> batchUploads = jdbcTemplate.query(Queries.FINDALLBATCHUPLOADSBYORDERBYDATEUPLOADEDDESC,
                 new Object[] { firstResult, lastResult }, new BatchUploadRowMapper());
+        int size=0;
+        try {
+        	size = batchUploads.size();
+        }catch(Exception ex) {
+        	LOGGER.error(ex.getMessage());
+        }
         if (LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Number of rows: ={}",  batchUploads != null ? batchUploads.size() : 0 );
+        	LOGGER.debug("Number of rows: ={}", size );
         }
         
         batchUploads = getLegalEntityNameById(batchUploads);
-        
-        return new PageImpl(batchUploads, pageRequest,
-                batchUploadCount);
+        return new PageImpl<BatchUpload>(batchUploads,pageRequest,batchUploadCount);
+   
     }
 
     class BatchUploadRowMapper implements RowMapper<BatchUpload> {
@@ -197,8 +214,8 @@ public class BatchUploadDAOImpl implements BatchUploadDAO {
     	for(BatchUpload batchUpload : batchUploads) {
         	LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppId(batchUpload.getLegalEntityAppId());
     		if (legalEntityApp == null) {
-    			LOGGER.debug(LoggingUtil.adminAuditInfo("Legal Entity name not found at batch upload dao", BluefinWebPortalConstants.SEPARATOR,
-    					"Unable to find Legal Entity with Id at batch upload dao : ", String.valueOf(batchUpload.getLegalEntityAppId())));
+    			String message= LoggingUtil.adminAuditInfo("Legal Entity name not found at batch upload dao", BluefinWebPortalConstants.SEPARATOR,"Unable to find Legal Entity with Id at batch upload dao : ", String.valueOf(batchUpload.getLegalEntityAppId()));
+    			LOGGER.debug(message);
     			batchUpload.setLegalEntityName("Not Available");
     		}
     		else {

@@ -101,29 +101,29 @@ public class SessionService {
 		userLoginHistory.setPassword(passwordEncoder.encode(password));
 		
 		DateTime currentTimeUTC = new DateTime(DateTimeZone.UTC);
-
+		String message="";
 		LOGGER.debug("user is ={} ",user);
 		if (user == null) {
-			
-			LOGGER.error(LoggingUtil.invalidLoginAttempts("User: ", username, BluefinWebPortalConstants.SEPARATOR,
-					"Reason : User NOT FOUND"));
+			message = LoggingUtil.invalidLoginAttempts("User: ", username, BluefinWebPortalConstants.SEPARATOR,
+					"Reason : User NOT FOUND");
+			LOGGER.error(message);
 			
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
 			throw new CustomUnauthorizedException("Invalid credentials");
 		}
 		userLoginHistory.setUserId(user.getUserId());
 		if ("NEW".equals(user.getStatus())) {
-			
-			LOGGER.error(LoggingUtil.invalidLoginAttempts("UserName: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-					"Reason : User is: ", UserStatus.NEW.getStatus()));
+			message = LoggingUtil.invalidLoginAttempts("UserName: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+					"Reason : User is: ", UserStatus.NEW.getStatus());
+			LOGGER.error(message);
 			
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account is not activated yet.");
 		}
 		if ("INACTIVE".equals(user.getStatus())) {
-			
-			LOGGER.error(LoggingUtil.invalidLoginAttempts("User:: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-					"Reason : User is:: ", UserStatus.INACTIVE.getStatus()));
+			message = LoggingUtil.invalidLoginAttempts("User:: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+					"Reason : User is:: ", UserStatus.INACTIVE.getStatus());
+			LOGGER.error(message);
 			
 			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
 			throw new AccessDeniedException("Account was deactivated.");
@@ -310,15 +310,17 @@ public class SessionService {
 	public boolean sessionHasPermissionToManageAllLegalEntities(Authentication authentication) {
 		LOGGER.info("Entering to session Has Permission To Manage All LegalEntities");
 		Boolean hasPermission = false;
-		LOGGER.debug("authentication size is ={}", authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
-		if (authentication != null) {
+		try {
+			LOGGER.debug("authentication size is ={}", authentication.getAuthorities().size());
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
 				hasPermission = "ADMINISTRATIVE".equals(authority.getAuthority());
 				LOGGER.debug("hasPermission ={} ",hasPermission);
-				if (hasPermission) {
+				if (Boolean.TRUE.equals(hasPermission)) {
 					break;
 				}
 			}
+		}catch(Exception ex) {
+			LOGGER.error("sessionHasPermissionToManageAllLegalEntities authentication cannot be NULL {}",ex.getMessage());
 		}
 		LOGGER.info("Exit from session Has Permission To Manage All LegalEntities");
 		return hasPermission;
@@ -426,8 +428,9 @@ public class SessionService {
 				user.setStatus(UserStatus.ACTIVE.getStatus());
 				user.setAccountLockedOn(null);
 			} else {
-				LOGGER.error(LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-						"Reason : User is ", UserStatus.LOCKED.getStatus()));
+				String message = LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+						"Reason : User is ", UserStatus.LOCKED.getStatus());
+				LOGGER.error(message);
 				
 				saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_IS_LOCKED.getValue());
 				throw new AccessDeniedException("Account is Locked.");
@@ -438,6 +441,7 @@ public class SessionService {
 	private Integer checkUserPasswordMatches(String password, User user, UserLoginHistory userLoginHistory, DateTime currentTimeUTC) {
 		Integer wrongPasswordCounterNextVal = 0;
 		String wrongPasswordMaxLimit;
+		String message = "";
 		int wrongPasswordMaxLimitVal;
 		if (!passwordEncoder.matches(password, user.getPassword())) {
 			
@@ -455,16 +459,17 @@ public class SessionService {
 			if (wrongPasswordCounterNextVal >= wrongPasswordMaxLimitVal) {
 				user.setStatus(UserStatus.LOCKED.getStatus());
 				user.setAccountLockedOn(currentTimeUTC);
-				
-				LOGGER.error(LoggingUtil.invalidLoginAttempts("User: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+				message = LoggingUtil.invalidLoginAttempts("User: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
 						"Reason : ", "PASSWORD IS INVALID", BluefinWebPortalConstants.SEPARATOR,
 						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal), BluefinWebPortalConstants.SEPARATOR,
-						"User is LOCKED"));
+						"User is LOCKED");
+				LOGGER.error(message);
 				
 			} else {
-				LOGGER.error(LoggingUtil.invalidLoginAttempts("User:: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
+				message = LoggingUtil.invalidLoginAttempts("User:: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
 						"Reason : ", "PASSWORD IS INVALID", BluefinWebPortalConstants.SEPARATOR,
-						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal)));
+						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal));
+				LOGGER.error(message);
 			}
 			
 			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
@@ -499,15 +504,17 @@ public class SessionService {
 	public boolean hasPermissionToManageAllUser(Authentication authentication) {
 		LOGGER.info("Entering to Has Permission To Manage All User");
 		Boolean hasPermission = false;
-		LOGGER.debug("authentication size to manage all user is ={}", authentication == null ? null : (authentication.getAuthorities() == null ? null : authentication.getAuthorities().size()));
-		if (authentication != null) {
+		try {
+			LOGGER.debug("authentication size to manage all user is ={}", authentication.getAuthorities().size());
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
 				hasPermission = "MANAGE_ALL_USERS".equals(authority.getAuthority());
 				LOGGER.debug("hasPermission value ={} ",hasPermission);
-				if (hasPermission) {
+				if (Boolean.TRUE.equals(hasPermission)) {
 					break;
 				}
 			}
+		}catch(Exception ex) {
+			LOGGER.error("hasPermissionToManageAllUser authentication cannot be NULL {}",ex.getMessage());
 		}
 		LOGGER.info("Exit from Has Permission To Manage All User");
 		return hasPermission;

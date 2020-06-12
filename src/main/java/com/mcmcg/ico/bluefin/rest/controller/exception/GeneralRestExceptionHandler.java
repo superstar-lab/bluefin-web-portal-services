@@ -96,7 +96,10 @@ public class GeneralRestExceptionHandler extends ResponseEntityExceptionHandler 
 
     private boolean hasDevelopmentProfileHeader(final WebRequest request) {
         final String profile = request.getHeader(CUSTOM_HEADER_PROFILE);
-
-        return profile == null ? false : profile.equalsIgnoreCase(DEVELOPMENT_PROFILE);
+        boolean hasDevelopmentProf = false;
+        if(profile != null) {
+        	hasDevelopmentProf =  profile.equalsIgnoreCase(DEVELOPMENT_PROFILE);
+        }
+        return hasDevelopmentProf;
     }
 }

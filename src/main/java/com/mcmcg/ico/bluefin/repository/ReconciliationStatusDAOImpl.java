@@ -32,9 +32,16 @@ public class ReconciliationStatusDAOImpl implements ReconciliationStatusDAO {
 
 	@Override
 	public List<ReconciliationStatus> findAll() {
-		List<ReconciliationStatus> list = jdbcTemplate.query(Queries.FINDALLRECONCILIATIONSTATUSES,
+		List<ReconciliationStatus> list;
+		try {
+		list = jdbcTemplate.query(Queries.FINDALLRECONCILIATIONSTATUSES,
 				new ReconciliationStatusRowMapper());
-		LOGGER.debug("Number of rows ={} ", list != null ? list.size() : 0);
+		LOGGER.debug("Number of rows ={} ",list.size());
+		return list;
+		}catch(Exception ex) {
+			LOGGER.error("fetchInternalResponseCodeIdsMappedForPaymentProcessorResponseCodeIds idsFetched cannot be NULL {}",ex.getMessage());
+			list = new ArrayList<ReconciliationStatus>();
+		}
 		return list;
 	}
 

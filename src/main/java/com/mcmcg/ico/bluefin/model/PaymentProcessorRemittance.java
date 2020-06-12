@@ -471,10 +471,6 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 		this.transactionType = transactionType;
 	}
 
-	public DateTime getTransactionTime() {
-		return transactionTime;
-	}
-
 	public void setTransactionTime(DateTime transactionTime) {
 		this.transactionTime = transactionTime;
 	}
@@ -1097,5 +1093,9 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 
 	public void setSaleChargeAmount(BigDecimal saleChargeAmount) {
 		this.saleChargeAmount = saleChargeAmount;
+	}
+
+	public DateTime getTransactionTime() {
+		return transactionTime;
 	}
 }

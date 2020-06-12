@@ -13,7 +13,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.YearMonth;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -51,6 +50,11 @@ public class PaymentProcessorRuleService {
     
     @Autowired
     private PaymentProcessorRuleTrendsDAO paymentProcessorRuleTrendsDAO;
+    
+    private static final String WEEKLY = "WEEKLY";
+    private static final String DAILY = "DAILY";
+    private static final String MONTHLY = "MONTHLY";
+    		
 
     /**
      * Create new payment processor rule
@@ -95,7 +99,8 @@ public class PaymentProcessorRuleService {
 		LOGGER.info("Entering to get Payment Processor Rule ");
     	PaymentProcessorRule paymentProcessorRule = paymentProcessorRuleDAO.findOne(id);
         if (paymentProcessorRule == null) {
-        	LOGGER.error(LoggingUtil.adminAuditInfo("Unable to find payment processor rule with id : ", String.valueOf(id)));
+        	String message = LoggingUtil.adminAuditInfo("Unable to find payment processor rule with id : ", String.valueOf(id));
+        	LOGGER.error(message);
         	
             throw new CustomNotFoundException(
                     String.format("Unable to find payment processor rule with id = [%s]", id));
@@ -161,9 +166,6 @@ public class PaymentProcessorRuleService {
     }
     
     private void validateprocessorRuleInputData(PaymentProcessorRuleResource paymentProcessorRuleResource){
-    	PaymentProcessorRule paymentProcessorRule = null;
-    	BigDecimal consumedPercentage;
-    	BigDecimal oldTargetPercentage;
     	BigDecimal hundred = new BigDecimal(100);
     	Map<Long, String> processorWithCardTypeMap = new HashMap<>();
     	
@@ -205,7 +207,7 @@ public class PaymentProcessorRuleService {
                 	if((targetPercentage.compareTo(BigDecimal.ONE)) < 0 || (targetPercentage.compareTo(hundred) > 0)) {
                 		throw new CustomBadRequestException("Target percentage limit must exists in between 1 to 100");
                 	}
-                	if((processRuleResource.getMaximumMonthlyAmount()).compareTo(BigDecimal.ZERO) == -1) {
+                	if((processRuleResource.getMaximumMonthlyAmount()).compareTo(BigDecimal.ZERO) < 0) {
                 		throw new CustomBadRequestException("Monthly maximum amount can't be less than zero");
                 	}
                 	if((processRuleResource.getNoMaximumMonthlyAmountFlag())<0 || (processRuleResource.getNoMaximumMonthlyAmountFlag())>1) {
@@ -273,11 +275,11 @@ public class PaymentProcessorRuleService {
 
 		// Payment processor must has merchants associate to it
 		if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request",
+			String message = LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request",
 					BluefinWebPortalConstants.SEPARATOR,
 					"Unable to create payment processor rule. Payment processor must have at least one merchant associated. Payment processor id : ",
-					String.valueOf(loadedPaymentProcessor.getPaymentProcessorId())));
-
+					String.valueOf(loadedPaymentProcessor.getPaymentProcessorId()));
+			LOGGER.error(message);
 			throw new CustomNotFoundException(String.format(
 					"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
 					loadedPaymentProcessor.getPaymentProcessorId()));
@@ -298,10 +300,11 @@ public class PaymentProcessorRuleService {
 
 		// Payment processor must has merchants associate to it
 		if (!loadedPaymentProcessor.hasMerchantsAssociated()) {
-			LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request",
+			String message = LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request",
 					BluefinWebPortalConstants.SEPARATOR,
 					"Unable to create payment processor rule. Payment processor must have at least one merchant associated. Payment processor id : ",
-					String.valueOf(loadedPaymentProcessor.getPaymentProcessorId())));
+					String.valueOf(loadedPaymentProcessor.getPaymentProcessorId()));
+			LOGGER.error(message);
 
 			throw new CustomNotFoundException(String.format(
 					"Unable to create payment processor rule.  Payment processor [%s] MUST has at least one merchant associated.",
@@ -402,10 +405,7 @@ public class PaymentProcessorRuleService {
 				paymentProcessorRuleDateWiseTrends = new PaymentProcessorRuleDateWiseTrends();
 				paymentProcessorRuleDateWiseTrends.setPaymentProcessorRule(processorRuleTrendsList);
 				paymentProcessorRuleDateWiseTrends.setHistroyDateCreation(histroyDate);
-				if(histroyDate!=null){
-				manageTrendsDateHeaderByFrequency(paymentProcessorRuleDateWiseTrends, paymentProcessorRuleTrendsRequest,
-						format);
-				}
+				manageTrendsDateHeaderByFrequency(paymentProcessorRuleDateWiseTrends, paymentProcessorRuleTrendsRequest,format);
 				processorruleDatewiseTrendsList.add(paymentProcessorRuleDateWiseTrends);
 				histroyDate = lst.getHistoryCreationDate();
 				processorRuleTrendsList = new ArrayList<>();
@@ -429,25 +429,25 @@ public class PaymentProcessorRuleService {
 	public PaymentProcessorRuleTrendsRequest getDateFilterByFrequency(
 			PaymentProcessorRuleTrendsRequest paymentProcessorRuleTrendsRequest, DateTimeFormatter formatter,
 			Format format) {
-
+		
 		LOGGER.info("Setting StartDate for {} frequency type", paymentProcessorRuleTrendsRequest.getFrequencyType());
 		switch (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
 				? paymentProcessorRuleTrendsRequest.getFrequencyType().toUpperCase()
 				: paymentProcessorRuleTrendsRequest.getFrequencyType()) {
-		case "DAILY":
-			paymentProcessorRuleTrendsRequest.setFrequencyType("DAILY");
+		case DAILY:
+			paymentProcessorRuleTrendsRequest.setFrequencyType(DAILY);
 			break;
-		case "WEEKLY":
+		case WEEKLY:
 			manageStartDateforWeeklyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
-			paymentProcessorRuleTrendsRequest.setFrequencyType("WEEKLY");
+			paymentProcessorRuleTrendsRequest.setFrequencyType(WEEKLY);
 			break;
-		case "MONTHLY":
+		case MONTHLY:
 			manageStartDateforMonthlyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
-			paymentProcessorRuleTrendsRequest.setFrequencyType("MONTHLY");
+			paymentProcessorRuleTrendsRequest.setFrequencyType(MONTHLY);
 			break;
 		default:
 			manageStartDateforMonthlyFrequency(paymentProcessorRuleTrendsRequest, formatter, format);
-			paymentProcessorRuleTrendsRequest.setFrequencyType("MONTHLY");
+			paymentProcessorRuleTrendsRequest.setFrequencyType(MONTHLY);
 			break;
 		}
 		return paymentProcessorRuleTrendsRequest;
@@ -558,13 +558,13 @@ public class PaymentProcessorRuleService {
 		switch (StringUtils.isNotBlank(paymentProcessorRuleTrendsRequest.getFrequencyType())
 				? paymentProcessorRuleTrendsRequest.getFrequencyType().toUpperCase()
 				: paymentProcessorRuleTrendsRequest.getFrequencyType()) {
-		case "DAILY":
+		case DAILY:
 			setTrendsDateHeaderForDailyFrequency(paymentProcessorRuleDateWiseTrends, format);
 			break;
-		case "WEEKLY":
+		case WEEKLY:
 			setTrendsDateHeaderForWeeklyFrequency(paymentProcessorRuleDateWiseTrends, format);
 			break;
-		case "MONTHLY":
+		case MONTHLY:
 			setTrendsDateHeaderForMonthlyFrequency(paymentProcessorRuleDateWiseTrends);
 			break;
 		default:

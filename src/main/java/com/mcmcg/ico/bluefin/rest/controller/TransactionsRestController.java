@@ -11,9 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,7 +55,7 @@ public class TransactionsRestController {
 	private SessionService sessionService;
 
 	@ApiOperation(value = "getTransaction", nickname = "getTransaction")
-	@RequestMapping(method = RequestMethod.GET, value = "/{transactionId}", produces = "application/json")
+	@GetMapping(value = "/{transactionId}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class),
 			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -71,7 +72,7 @@ public class TransactionsRestController {
 	}
 
 	@ApiOperation(value = "getTransactions", nickname = "getTransactions")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
@@ -108,7 +109,7 @@ public class TransactionsRestController {
 	}
 	
 	@ApiOperation(value = "getTransactions", nickname = "getTransactions")
-	@RequestMapping(method = RequestMethod.POST, produces = "application/json")
+	@PostMapping(produces = "application/json")
 	@ApiImplicitParams({
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
 	@ApiImplicitParam(name = "request", value = "request", required = true, paramType = "body") })
@@ -134,7 +135,7 @@ public class TransactionsRestController {
 			throw new CustomBadRequestException("A file must be uploded");
 		}
 		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
-		if(accountList.size()==0){
+		if(accountList.isEmpty()){
 	    	LOGGER.error("There is no record exist for this file");
 			throw new CustomException("There is no record exist for this file.");
 	    }

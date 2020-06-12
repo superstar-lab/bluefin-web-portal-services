@@ -1,15 +1,10 @@
 package com.mcmcg.ico.bluefin.service;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.math.BigDecimal;
-import java.nio.file.Files;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -276,7 +271,7 @@ public class TransactionService {
 		transactionDataRecord.add(transaction.getCountry());
 		transactionDataRecord.add(transaction.getCardNumberLast4Char());
 		transactionDataRecord.add(transaction.getCardType());
-		if(transaction!=null && StringUtils.isNotBlank(transaction.getToken())){
+		if(StringUtils.isNotBlank(transaction.getToken())){
 		transactionDataRecord.add("'"+transaction.getToken()+"'");
 		}
 		else{
@@ -555,9 +550,7 @@ public class TransactionService {
 		    	accountList.add(value);
 		    	}
 		    }
-		if(input!=null){
 			input.close();
-		}
 		
 		    return accountList;
 	}

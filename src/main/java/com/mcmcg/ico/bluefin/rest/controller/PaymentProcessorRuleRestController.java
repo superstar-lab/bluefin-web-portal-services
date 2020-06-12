@@ -12,10 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,7 +44,7 @@ public class PaymentProcessorRuleRestController {
     private PaymentProcessorRuleService paymentProcessorRuleService;
 
     @ApiOperation(value = "Get payment processor rule by id", nickname = "getPaymentProcessorRule")
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = "application/json")
+    @GetMapping(value = "/{id}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -56,7 +57,7 @@ public class PaymentProcessorRuleRestController {
     }
 
     @ApiOperation(value = "Get payment processor rules", nickname = "getPaymentProcessorRules")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class, responseContainer = "List"),
@@ -70,7 +71,7 @@ public class PaymentProcessorRuleRestController {
     }
 
     @ApiOperation(value = "Get payment processor rule transaction types", nickname = "getPaymentProcessorTransactionTypes")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json", value = "/transaction-types")
+    @GetMapping(produces = "application/json", value = "/transaction-types")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = PaymentProcessorRule.class, responseContainer = "List"),
@@ -83,7 +84,7 @@ public class PaymentProcessorRuleRestController {
     }
 
     @ApiOperation(value = "Create payment processor rule", nickname = "createPaymentProcessorRule")
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @PostMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = PaymentProcessorRule.class, responseContainer = "List"),
@@ -95,18 +96,20 @@ public class PaymentProcessorRuleRestController {
             @Validated @RequestBody PaymentProcessorRuleResource paymentProcessorRuleResource,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         // First checks if all required fields are set
+    	String message="";
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
-            
-            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
+            message = LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		errorDescription));
+            		errorDescription);
+            LOGGER.error(message);
             
             throw new CustomBadRequestException(errorDescription);
         }
-        LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName())));
+        message = LoggingUtil.adminAuditInfo("Payment Processor Rule Creation Request", BluefinWebPortalConstants.SEPARATOR,
+        		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()));
+        LOGGER.info(message);
         
         paymentProcessorRuleService.validatePaymentProcessorRuleData(paymentProcessorRuleResource);
         

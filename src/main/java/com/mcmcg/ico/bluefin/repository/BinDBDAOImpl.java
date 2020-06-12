@@ -31,9 +31,9 @@ public class BinDBDAOImpl implements BinDBDAO {
 		LOGGER.info("Fetching all records of bin db count");
 		Map<String,List<String>> cardNumbersMap = new HashMap<>();
 		cardNumbersMap.put("bins", cardNumbers);
-		List<BinDBDetails> binDBDetails = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_MULTIPLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
-		if (binDBDetails != null && !binDBDetails.isEmpty()) {
-			binDBDetails.forEach(binObj -> binObj.updateNullValuesToBlank());
+		List<BinDBDetails> binDBDetails = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_MULTIPLE, cardNumbersMap, new BeanPropertyRowMapper<BinDBDetails>(BinDBDetails.class));
+		if (!binDBDetails.isEmpty()) {
+			binDBDetails.forEach(BinDBDetails::updateNullValuesToBlank);
 		}
 		return binDBDetails;
 	}
@@ -42,8 +42,8 @@ public class BinDBDAOImpl implements BinDBDAO {
 	public BinDBDetails fetchBinDBDetailForCardNumber(String cardFirst6Char){
 		Map<String,String> cardNumbersMap = new HashMap<>();
 		cardNumbersMap.put("bin", cardFirst6Char);
-		List<BinDBDetails> allRecords = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_SINGLE, cardNumbersMap, new BeanPropertyRowMapper(BinDBDetails.class));
-		if (allRecords != null && !allRecords.isEmpty()) {
+		List<BinDBDetails> allRecords = jdbcTemplate.query(Queries.FETCHBINDBFORBINS_SINGLE, cardNumbersMap, new BeanPropertyRowMapper<BinDBDetails>(BinDBDetails.class));
+		if (!allRecords.isEmpty()) {
 			BinDBDetails binDBDetails = DataAccessUtils.singleResult(allRecords);
 			if (binDBDetails != null) {
 				binDBDetails.updateNullValuesToBlank();

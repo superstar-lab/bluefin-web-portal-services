@@ -32,7 +32,6 @@ public class PaymentProcessorRuleResource implements Serializable {
             rule.setMaximumMonthlyAmount(processRuleRes.getMaximumMonthlyAmount());
             rule.setIsRuleDeleted(processRuleRes.getIsRuleDeleted());
             rule.setIsRuleActive(processRuleRes.getIsRuleActive());
-          //  rule.setPaymentProcessor(processRuleRes.getPaymentProces);
             paymentProcessorRuleList.add(rule);
     	}
         return paymentProcessorRuleList;

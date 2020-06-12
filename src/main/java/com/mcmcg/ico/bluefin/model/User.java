@@ -24,9 +24,9 @@ public class User extends Common implements Serializable {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime lastLogin = new DateTime();
 	@JsonIgnore
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 	private DateTime dateUpdated = new DateTime();
+	@JsonIgnore
+	private DateTime accountLockedOn;
 	private String email;
 	@JsonIgnore
 	private String password;
@@ -38,10 +38,7 @@ public class User extends Common implements Serializable {
 	private Collection<UserLegalEntityApp> legalEntities;
 	@JsonIgnore
 	private Integer wrongPasswordCounter;
-	@JsonIgnore
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-	private DateTime accountLockedOn;
+	
 
 	public User() {
 		// Default Constructor

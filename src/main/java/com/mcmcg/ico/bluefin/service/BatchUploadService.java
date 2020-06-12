@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.web.client.RestTemplate;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
@@ -79,8 +79,9 @@ public class BatchUploadService {
 
 		LegalEntityApp legalEntityApp = legalEntityAppDAO.findByLegalEntityAppId(batchUpload.getLegalEntityAppId());
 		if (legalEntityApp == null) {
-			LOGGER.debug(LoggingUtil.adminAuditInfo("Legal Entity name not found", BluefinWebPortalConstants.SEPARATOR,
-					"Unable to find Legal Entity with Id : ", String.valueOf(batchUpload.getLegalEntityAppId())));
+			String message= LoggingUtil.adminAuditInfo("Legal Entity name not found", BluefinWebPortalConstants.SEPARATOR,
+					"Unable to find Legal Entity with Id : ", String.valueOf(batchUpload.getLegalEntityAppId()));
+			LOGGER.debug(message);
 			batchUpload.setLegalEntityName("Not Found");
 		}
 		else {
@@ -234,7 +235,7 @@ public class BatchUploadService {
 			
 			FileCopyUtils.copy(inputStream, response.getOutputStream());
 			LOGGER.debug(deleteTempFile, downloadFile.getName());
-			boolean deleted = downloadFile.delete();
+			boolean deleted = Files.deleteIfExists(downloadFile.toPath());
 			LOGGER.debug("File deleted ? {}",deleted);
 			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 		} catch(Exception e) {

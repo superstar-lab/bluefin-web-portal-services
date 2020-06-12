@@ -3,8 +3,8 @@ package com.mcmcg.ico.bluefin.rest.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +27,7 @@ public class PaymentProcessorRuleReportController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentProcessorRuleReportController.class);
 
 	@ApiOperation(value = "Get payment processor rules trends", nickname = "getPaymentProcessorRulesTrends")
-	@RequestMapping(method = RequestMethod.GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "OK", response = PaymentProcessorRuleTrends.class),

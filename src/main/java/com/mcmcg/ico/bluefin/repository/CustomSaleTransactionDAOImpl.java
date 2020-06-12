@@ -56,6 +56,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	private static final String EQUALS = " = ";
 	private static final String LOE = " <= ";
 	private static final String GOE = " >= ";
+	private static final String ACCOUNT_NUM= "accountNumber";
 	
 	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
@@ -82,7 +83,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	/**
-	 * Loads the predicates mapping the elements in the saletransaction entity
+	 * Loads the predicates mapping the elements in the sale transaction entity
 	 */
 	private void loadSaleTransactionMappings() {
 		logger.info("Loading Predicates");
@@ -102,8 +103,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		predicatesHashMapping.put("lastName", ":prefix.LastName LIKE :lastNameParam1");
 		predicatesHashMapping.put("cardType", ":prefix.CardType = :cardTypeParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.LEGALENTITY, ":prefix.LegalEntityApp IN (:legalEntityParam1)");
-		predicatesHashMapping.put("accountNumber", ":prefix.AccountId in (:accountNumberParam1)");
-//		predicatesHashMapping.put("accountList", ":prefix.AccountId in (:accountListParam1)");
+		predicatesHashMapping.put(ACCOUNT_NUM, ":prefix.AccountId in (:accountNumberParam1)");
 		predicatesHashMapping.put("application", ":prefix.Application = :applicationParam1");
 		predicatesHashMapping.put("processUser", ":prefix.ProcessUser = :processUserParam1");
 		predicatesHashMapping.put(BluefinWebPortalConstants.BATCHUPLOADID, ":prefix.BatchUploadID = :batchUploadIdParam1"); // This is ONLY for sale
@@ -142,7 +142,13 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.debug("Query to execute={}",finalQueryToExecute);
 		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		List<SaleTransaction> tr = namedJDBCTemplate.query(finalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-		logger.debug("Total number of rows={}", tr != null ? tr.size() :0);
+		try {	
+			logger.debug("Total number of rows={}", tr.size());
+		}catch(Exception ex)
+		{
+			logger.debug("Total number of rows= 0 = 0 Error:{} ",ex.getMessage());
+			tr = new ArrayList<>();
+		}	
 		transationBinDBDetailsService.setBinDBDetailsForTransactions(tr);
 		return tr;
 	}
@@ -171,7 +177,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			query = query + BluefinWebPortalConstants.LIMIT + transactionsReportMaxSize;
 		}
 		logger.debug("RRR***-Result Data Query to execute ={}",query);
-		@SuppressWarnings("unchecked")
 		List<RemittanceSale> tr = jdbcTemplate.query(query,new CustomSalePaymentProcessorRemittanceExtractor());
 		logger.debug("Total number of rows={}", tr != null ? tr.size() : 0);
 		return tr;
@@ -228,13 +233,16 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			logger.debug("Result Data Query to execute: ={}",resultFinalQueryToExecute);
 			logger.debug("Query Parameter Map-placeholder={}",result.getParametersMap());
 			List<SaleTransaction> tr = namedJDBCTemplate.query(resultFinalQueryToExecute,result.getParametersMap(),new SaleTransactionRowMapper());
-			logger.debug("Count Rows Result {}, Data Query Result {}",countResult, tr != null ? tr.size() :0 );
-			if (tr == null) {
+			try {
+				logger.debug("Count Rows Result {}, Data Query Result {}",countResult,tr.size());
+			}catch(Exception ex)
+			{
+				logger.debug("Count Rows Result 0, Error: {}",ex.getMessage());
 				tr = new ArrayList<>();
-			}
-			list = new TransactionPageImpl(tr,page,countResult,transationBinDBDetailsService.fetchBinDBDetailsForTransactions(tr)); 
+			}	
+			list = new TransactionPageImpl<SaleTransaction>(tr,page,countResult,transationBinDBDetailsService.fetchBinDBDetailsForTransactions(tr)); 
 		} else {
-			list = new TransactionPageImpl( new ArrayList<>(),page,countResult,null);
+			list = new TransactionPageImpl<SaleTransaction>( new ArrayList<>(),page,countResult,null);
 		} 
 		return list;
 	}
@@ -269,16 +277,18 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.debug("Count Query to execute = {}",queryForCount);
 		
 		// Brings the data and transform it into a Page value list
-		@SuppressWarnings("unchecked")
 		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
-		if (tr == null) {
-			tr = new ArrayList<>();
-		} else {
+		try {
+			
 			logger.debug("Number of records fetched ={} successfully", tr.size());
-		}
+		}catch(Exception ex)
+		{
+			logger.debug("Number of records fetched = 0 Error:{} ",ex.getMessage());
+			tr = new ArrayList<>();
+		}	
 		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
 		logger.info("Count Rows Result {}, Data Query Result {}",countResult,tr.size());
-		return new PageImpl(tr, page, countResult);
+		return new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 	}
 	
 	private String getQueryByCriteria(String search, List<String> accountList, HashMap<String, Object> dynamicParametersMap) {
@@ -412,7 +422,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
                 calculateValues(whereCalValues,dynamicParametersMap);
 
 				statement.add(whereCalValues.getPredicate().replace(":prefix", whereCalValues.getPrefix()));
-				dynamicParametersMap.put(whereCalValues.getAttributeParam(),(attribute.equals("accountNumber") && !whereCalValues.getAccountList().isEmpty()) ? whereCalValues.getAccountList() : whereCalValues.getValue());	
+				dynamicParametersMap.put(whereCalValues.getAttributeParam(),(attribute.equals(ACCOUNT_NUM) && !whereCalValues.getAccountList().isEmpty()) ? whereCalValues.getAccountList() : whereCalValues.getValue());	
 			}
 		}
 		return prepareStatementWithWhere(statement);
@@ -440,14 +450,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		public String getAttribute() {
 			return attribute;
 		}
-		public void setAttribute(String attribute) {
-			this.attribute = attribute;
-		}
+		
 		public String getPrefix() {
 			return prefix;
-		}
-		public void setPrefix(String prefix) {
-			this.prefix = prefix;
 		}
 		public String getValue() {
 			return value;
@@ -458,9 +463,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		public List<String> getAccountList() {
 			return accountList;
 		}
-		public void setAccountList(List<String> accountList) {
-			this.accountList = accountList;
-		}
 		public String getAttributeParam() {
 			return attributeParam;
 		}
@@ -469,9 +471,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		public String getOperator() {
 			return operator;
-		}
-		public void setOperator(String operator) {
-			this.operator = operator;
 		}
 		public String getPredicate() {
 			return predicate;
@@ -499,7 +498,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		} else if (BluefinWebPortalConstants.PAYMENTPROCESSORID.equalsIgnoreCase(whereCalValues.getAttribute()) && isPrefixAsSale(whereCalValues.getPrefix())) {
 				// Processor name, not ID, is used in sale, refund, and
 				// void tables.
-			whereCalValues.setAttributeParam(whereCalValues.getAttributeParam().replaceAll(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME) );
+			whereCalValues.setAttributeParam(whereCalValues.getAttributeParam().replace(BluefinWebPortalConstants.PAYMENTPROCESSORID, BluefinWebPortalConstants.PROCESSORNAME) );
 			whereCalValues.setValue(getPaymentProcessorName(whereCalValues.getValue()));
 			whereCalValues.setPredicate(whereCalValues.getPredicate().replace(BluefinWebPortalConstants.PAYMENTPROCESSORIDVAL, "Processor"));
 			whereCalValues.setPredicate(whereCalValues.getPredicate().replace(whereCalValues.getAttribute(), BluefinWebPortalConstants.PROCESSORNAME));
@@ -546,14 +545,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			this.queryAsString = queryAsStringVal;
 		}
 		
-		public int getPageNumber() {
-			return pageNumber;
-		}
 		public void setPageNumber(int pageNumber) {
 			this.pageNumber = pageNumber;
-		}
-		public int getPageSize() {
-			return pageSize;
 		}
 		public void setPageSize(int pageSize) {
 			this.pageSize = pageSize;
@@ -568,14 +561,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		public Map<String,Object> getParametersMap(){
 			return this.parametersMap;
 		}
-		public String getQueryAsString() {
-			return queryAsString;
-		}
-
-		public void setQueryAsString(String queryAsString) {
-			this.queryAsString = queryAsString;
-		}
-		
 		public void setParameter(String paramName,Object paramVal){
 			parametersMap.put(paramName, paramVal);
 		}
@@ -584,7 +569,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			String query = this.queryAsString + ( this.sort != null ? addSort(this.sort) : "" );
 			if ( isPagination() ) {
 				if ( pageSize < 1 ) {
-					// in case request param contains page size 0 or negative then use default value = 15
+					// in case request parameter contains page size 0 or negative then use default value = 15
 					pageSize = 15;
 				}
 				if ( pageNumber < 0 ) {
@@ -595,9 +580,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			return query;
 		}
 		
-		public Sort getSort() {
-			return sort;
-		}
 		public void setSort(Sort sort) {
 			this.sort = sort;
 		}
@@ -626,8 +608,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 					result.append(" ");
 				}
 			}
-			logger.debug("result ={} ",result.toString());
-			return result.toString();
+			String query = result.toString();
+			logger.debug("result ={} ",query);
+			return query;
 		}
 	}
 	
@@ -643,7 +626,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				queryTotalCustomQuery.setParameter(entry.getKey(), new BigDecimal((String)entry.getValue()));
 			} else if (entry.getKey().contains("transactionDateTimeParam")
 					|| (entry.getKey().contains(BluefinWebPortalConstants.REMITTANCECREATIONDATEVAL))) {
-				if (!validFormatDate((String)entry.getValue())) {
+				boolean validFormat = validFormatDate((String)entry.getValue());
+				if (!validFormat) {
 					throw new CustomNotFoundException(
 							"Unable to process find transaction, due an error with date formatting");
 				}
@@ -764,8 +748,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	}
 	
 	private void populateRefundOrVoidTypeAttributesFilterNames(){
-		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountNumber"));
-	//	refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("accountList"));
+		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(ACCOUNT_NUM));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.AMOUNT));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase("cardType"));
 		refundOrVoidTypeAttributesFilterNames.add(StringUtils.upperCase(BluefinWebPortalConstants.LEGALENTITY));
@@ -1117,8 +1100,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 				valuesToReturn[2] = parameterArray[1];
 			}
 			if (parameter.startsWith("merchantId")) {
-				String temp = parameter.replaceAll("merchantId:", "");
-				String values = temp.replaceAll("\\[|\\]", "");
+				String temp = parameter.replace("merchantId:", "");
+				String values = temp.replace("\\[|\\]", "");
 				valuesToReturn[3] = values;
 			}
 			if (parameter.startsWith(BluefinWebPortalConstants.RECONCILIATIONSTATUSID)) {
@@ -1290,7 +1273,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 
 	private String finalQuery(StringBuilder querySb,boolean negate){
 		if (negate) {
-			return querySb.toString().replaceAll("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
+			return querySb.toString().replace("ReconciliationStatus_ID = 1", "ReconciliationStatus_ID != 1");
 		}else{
 			return querySb.toString();
 		}
@@ -1369,7 +1352,6 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		querySb.append(
 				"NULL AS SaleAddress2,NULL AS SaleCity,NULL AS SaleState,NULL AS SalePostalCode,NULL AS SaleCountry,NULL AS SaleCardNumberFirst6Char,");
 		querySb.append(
-				/*"st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,CAST(NULL AS DATETIME) AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");*/
 	            "st1.CardNumberLast4Char AS SaleCardNumberLast4Char,st1.CardType AS SaleCardType,st1.ExpiryDate AS SaleExpiryDate,NULL AS SaleToken,st1.ChargeAmount AS SaleChargeAmount,");
 		querySb.append(
 				"st1.LegalEntityApp AS SaleLegalEntityApp,st1.AccountId AS SaleAccountId,rt.ApplicationTransactionID AS SaleApplicationTransactionID,rt.MerchantID AS SaleMerchantID,");

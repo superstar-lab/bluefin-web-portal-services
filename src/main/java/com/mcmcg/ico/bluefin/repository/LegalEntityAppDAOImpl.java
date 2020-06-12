@@ -38,7 +38,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(LegalEntityAppDAOImpl.class);
 	private final DateTimeFormatter dateCreatedDateFormat = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
-	
+	private static final String ROW_COUNT= "Number of rows = {}";
 	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -99,7 +99,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPS,
 				new LegalEntityAppRowMapper());
 
-		LOGGER.debug("Number of rows ={}", legalEntityApps.size());
+		LOGGER.debug(ROW_COUNT, legalEntityApps.size());
 
 		return legalEntityApps;
 	}
@@ -110,7 +110,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = jdbcTemplate.query(Queries.FINDALLACTIVELEGALENTITYAPPS,
 				new LegalEntityAppRowMapper());
 
-		LOGGER.debug("Number of rows ={}", legalEntityApps.size());
+		LOGGER.debug(ROW_COUNT, legalEntityApps.size());
 
 		return legalEntityApps;
 	}
@@ -122,7 +122,7 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		List<LegalEntityApp> legalEntityApps = namedParameterJdbcTemplate.query(Queries.FINDALLLEGALENTITYAPPSBYIDS,
 				map, new LegalEntityAppRowMapper());
 
-		LOGGER.debug("Number of rows ={}",legalEntityApps.size());
+		LOGGER.debug(ROW_COUNT,legalEntityApps.size());
 
 		return legalEntityApps;
 	}

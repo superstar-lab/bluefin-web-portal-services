@@ -13,10 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,7 +48,7 @@ public class PaymentProcessorRestController {
     private PaymentProcessorService paymentProcessorService;
 
     @ApiOperation(value = "getPaymentProcessor", nickname = "getPaymentProcessor")
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}", produces = "application/json")
+    @GetMapping(value = "/{id}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -58,7 +61,7 @@ public class PaymentProcessorRestController {
     }
 
     @ApiOperation(value = "getPaymentProcessors", nickname = "getPaymentProcessors")
-    @RequestMapping(method = RequestMethod.GET, produces = "application/json")
+    @GetMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class, responseContainer = "List"),
@@ -71,7 +74,7 @@ public class PaymentProcessorRestController {
     }
 
     @ApiOperation(value = "getPaymentProcessorStatus", nickname = "getPaymentProcessorStatus")
-    @RequestMapping(method = RequestMethod.GET, value = "/{id}/status", produces = "application/json")
+    @GetMapping(value = "/{id}/status", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessorStatusResource.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -84,7 +87,7 @@ public class PaymentProcessorRestController {
     }
 
     @ApiOperation(value = "createPaymentProcessor", nickname = "createPaymentProcessor")
-    @RequestMapping(method = RequestMethod.POST, produces = "application/json")
+    @PostMapping(produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = { @ApiResponse(code = 201, message = "Created", response = PaymentProcessor.class),
@@ -95,27 +98,29 @@ public class PaymentProcessorRestController {
     public ResponseEntity<PaymentProcessor> create(
             @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorResource, @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
         // First checks if all required data is given
+    	 String message = "";
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
-            
-            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Creation Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorResource.getProcessorName()),
-            		errorDescription);
+           message = LoggingUtil.adminAuditInfo("Payment Processor Creation Request", BluefinWebPortalConstants.SEPARATOR,
+           		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+           		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorResource.getProcessorName(),
+           		errorDescription);
+            LOGGER.error(message);
             
             throw new CustomBadRequestException(errorDescription);
         }
-        LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Creation Request", BluefinWebPortalConstants.SEPARATOR,
+        message = LoggingUtil.adminAuditInfo("Payment Processor Creation Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorResource.getProcessorName()));
+        		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorResource.getProcessorName());
+        LOGGER.info(message);
         
         return new ResponseEntity<>(
                 paymentProcessorService.createPaymentProcessor(paymentProcessorResource), HttpStatus.CREATED);
     }
 
     @ApiOperation(value = "updatePaymentProcessor", nickname = "updatePaymentProcessor")
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}", produces = "application/json")
+    @PutMapping(value = "/{id}", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -124,26 +129,28 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public PaymentProcessor update(@PathVariable Long id,
             @Validated @RequestBody BasicPaymentProcessorResource paymentProcessorToUpdate, @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
-        if (errors.hasErrors()) {
+       String message = "";
+    	if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
-            
-            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Update Request", BluefinWebPortalConstants.SEPARATOR,
+            message = LoggingUtil.adminAuditInfo("Payment Processor Update Request", BluefinWebPortalConstants.SEPARATOR,
             		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorToUpdate.getProcessorName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorToUpdate.getProcessorName(), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
+            LOGGER.error(message);
             
             throw new CustomBadRequestException(errorDescription);
         }
-        LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Update Request", BluefinWebPortalConstants.SEPARATOR,
+    	message = LoggingUtil.adminAuditInfo("Payment Processor Update Request", BluefinWebPortalConstants.SEPARATOR,
         		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-        		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorToUpdate.getProcessorName()));
+        		BluefinWebPortalConstants.PAYMENTPROCESSORNAME, paymentProcessorToUpdate.getProcessorName());
+        LOGGER.info(message);
         
         return paymentProcessorService.updatePaymentProcessor(id, paymentProcessorToUpdate);
     }
 
     @ApiOperation(value = "Update payment processor merchants from payment processor", nickname = "updatePaymentProcessorMerchantsFromPaymentProcessor")
-    @RequestMapping(method = RequestMethod.PUT, value = "/{id}/payment-processor-merchants", produces = "application/json")
+    @PutMapping(value = "/{id}/payment-processor-merchants", produces = "application/json")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = PaymentProcessor.class),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -153,18 +160,19 @@ public class PaymentProcessorRestController {
     public PaymentProcessor updatePaymentProcessorMerchants(@PathVariable Long id,
             @Validated @RequestBody Set<PaymentProcessorMerchantResource> paymentProcessorMerchants,
             @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
-    	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
+    	String message = LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
     			BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-    			BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id)));
+    			BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id));
+    	LOGGER.info(message);
     	
         if (errors.hasErrors()) {
             String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
-            
-            LOGGER.error(LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-            		BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id)), BluefinWebPortalConstants.SEPARATOR,
+            message = LoggingUtil.adminAuditInfo("Payment Processor Merchants Update Request", BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.REQUESTEDBY,String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+            		BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id), BluefinWebPortalConstants.SEPARATOR,
             		errorDescription);
+            LOGGER.error(message);
             
             throw new CustomBadRequestException(errorDescription);
         }
@@ -172,7 +180,7 @@ public class PaymentProcessorRestController {
     }
 
     @ApiOperation(value = "deletePaymentProcessor", nickname = "deletePaymentProcessor")
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{id}")
+    @DeleteMapping(value = "/{id}")
     @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
     @ApiResponses(value = { @ApiResponse(code = 204, message = "Success"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
@@ -180,10 +188,10 @@ public class PaymentProcessorRestController {
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
     public ResponseEntity<String> delete(@PathVariable Long id, @ApiIgnore Authentication authentication) {
-    	
-    	LOGGER.info(LoggingUtil.adminAuditInfo("Payment Processor Delete Request", BluefinWebPortalConstants.SEPARATOR,
+    	String message = LoggingUtil.adminAuditInfo("Payment Processor Delete Request", BluefinWebPortalConstants.SEPARATOR,
     			BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication==null ? "":authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-    			BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id)));
+    			BluefinWebPortalConstants.PAYMENTPROCESSORIDLOG, String.valueOf(id));
+    	LOGGER.info(message);
     	
         paymentProcessorService.deletePaymentProcessor(id);
         LOGGER.debug("Payment Processor {} has been deleted.", id);

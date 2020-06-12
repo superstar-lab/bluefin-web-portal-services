@@ -159,7 +159,7 @@ public class PaymentProcessorResponseCodeDAOImpl implements PaymentProcessorResp
 	public boolean isProcessorResponseCodeMapped(String transactionTypeName,PaymentProcessor paymentProcessor) {
 		Integer count = jdbcTemplate.queryForObject(Queries.ISPROCESSORRESPONSECODEMAPPED,new Object[] { transactionTypeName, paymentProcessor.getPaymentProcessorId() },Integer.class);
 
-		if (count != null && count.intValue() > 0) {
+		if (count.intValue() > 0) {
 			LOGGER.debug("Processor response code mapped, count= {}",count);
 			return true;
 		} else {

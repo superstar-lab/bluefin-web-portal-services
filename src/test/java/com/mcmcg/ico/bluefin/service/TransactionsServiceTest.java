@@ -125,77 +125,8 @@ public class TransactionsServiceTest {
 	}
 
 	/****** Ends GetTransactionInformation ******/
-	/****** Starts GetTransactions ******/
 
-	@Test
-	public void testGetTransactionsSuccess() {
-		/*
-		 * List<SaleTransaction> resultList = new ArrayList<SaleTransaction>();
-		 * resultList.add(new SaleTransaction());
-		 * 
-		 * Page<SaleTransaction> result = new
-		 * PageImpl<SaleTransaction>(resultList);
-		 * 
-		 * Mockito.when(saleTransactionDAO.findAll(Mockito.any(Predicate.
-		 * class), Mockito.any(Pageable.class))) .thenReturn(result);
-		 * 
-		 * Iterable<SaleTransaction> transactions = transactionsService
-		 * .getTransactions(QueryDSLUtil.createExpression("search",
-		 * SaleTransaction.class), 1, 1, null);
-		 * 
-		 * Assert.assertNotNull(transactions);
-		 * 
-		 * Mockito.verify(saleTransactionDAO,
-		 * Mockito.times(1)).findAll(Mockito.any(Predicate.class),
-		 * Mockito.any(Pageable.class));
-		 * 
-		 * Mockito.verifyNoMoreInteractions(saleTransactionDAO);
-		 */
-
-	}
-
-	/*
-	 * @Test(expected = CustomNotFoundException.class) public void
-	 * testGetTransactionsNotFound() {
-	 * 
-	 * List<SaleTransaction> resultList = new ArrayList<SaleTransaction>();
-	 * Page<SaleTransaction> result = new PageImpl<SaleTransaction>(resultList);
-	 * 
-	 * Mockito.when(saleTransactionDAO.findAll(Mockito.any(Predicate. class),
-	 * Mockito.any(Pageable.class))) .thenReturn(result);
-	 * 
-	 * transactionsService.getTransactions(QueryDSLUtil.createExpression(
-	 * "search", SaleTransaction.class), 2, 1, null);
-	 * 
-	 * Mockito.verify(saleTransactionDAO,
-	 * Mockito.times(1)).findAll(Mockito.any(Predicate.class),
-	 * Mockito.any(Pageable.class));
-	 * 
-	 * Mockito.verifyNoMoreInteractions(saleTransactionDAO); }
-	 */
-
-	/*
-	 * @Test(expected =
-	 * org.springframework.transaction.CannotCreateTransactionException.class)
-	 * public void testGetTransactionsDBFail() {
-	 * 
-	 * Mockito.when(saleTransactionDAO.findAll(Mockito.any(Predicate. class),
-	 * Mockito.any(Pageable.class))) .thenThrow(new
-	 * org.springframework.transaction.CannotCreateTransactionException(""));
-	 * 
-	 * transactionsService.getTransactions(QueryDSLUtil.createExpression(
-	 * "search", SaleTransaction.class), 2, 1, null);
-	 * 
-	 * Mockito.verify(saleTransactionDAO,
-	 * Mockito.times(1)).findAll(Mockito.any(Predicate.class),
-	 * Mockito.any(Pageable.class));
-	 * 
-	 * Mockito.verifyNoMoreInteractions(saleTransactionDAO);
-	 * 
-	 * }
-	 */
-
-	/****** Ends GetTransactions ******/
+	
 	/****** Starts GetLegalEntitiesFromUser ******/
 
 	@Test
