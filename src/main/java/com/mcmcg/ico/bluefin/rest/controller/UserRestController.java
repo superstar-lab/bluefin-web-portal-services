@@ -39,6 +39,7 @@ import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.UserResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
+import com.mcmcg.ico.bluefin.security.PasswordUtils;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.UserService;
 import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
@@ -439,25 +440,17 @@ public class UserRestController {
 		}
 	}
 	
+	/**
+	 * Here is validated provided password strength, throwing an exception in case it doesn't fulfill required rules
+	 * @author modified by SA to fulfill PCI password requirements
+	 * @param userName
+	 * @param password
+	 */
 	private void validatePasswordCriteria(String userName, String password){
-		//As per Dheeraj code review suggestion
-		if(StringUtils.isBlank(userName)) {
-			throw new CustomBadRequestException("UserName can not be null");	
-		}
-		if(StringUtils.isBlank(password)) {
-			throw new CustomBadRequestException("Password can not null");	
-		}
-		int passwordLength = password.length();
-		String passwordTrimVal = password.trim();
-		int passwordTrimLength = passwordTrimVal.trim().length();
-		if(passwordLength!=passwordTrimLength || StringUtils.containsWhitespace(passwordTrimVal.trim())) {
-			throw new CustomBadRequestException("Password must not contain space");
-		}
-		if(password.length()<8 || password.length()>16) {
-			throw new CustomBadRequestException("Password must be between 8 to 16 characters in length");
-		}
-		if(userName.equals(password)) {
-			throw new CustomBadRequestException("username and password must not be same");
+		if(PasswordUtils.containsUsername(userName, password) || !PasswordUtils.validatePasswordStrength(password)) {
+			throw new CustomBadRequestException(
+					"The password must be more than 10 characters long and must contain at least one uppercase letter, " +
+					"one lowercase letter, one decimal digit, a special symbol, and the username cannot be part of the password.");
 		}
 	}
 }
