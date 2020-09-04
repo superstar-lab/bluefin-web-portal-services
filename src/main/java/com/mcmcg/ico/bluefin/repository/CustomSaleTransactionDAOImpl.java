@@ -34,9 +34,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.bindb.service.TransationBinDBDetailsService;
+import com.mcmcg.ico.bluefin.mapper.RemittanceSaleRefundRowMapper;
 import com.mcmcg.ico.bluefin.model.PaymentProcessor;
 import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
 import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
@@ -57,6 +59,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	private static final String LOE = " <= ";
 	private static final String GOE = " >= ";
 	private static final String ACCOUNT_NUM= "accountNumber";
+	private static final String WHERE_COND = "WHERE";
 	
 	@Qualifier(BluefinWebPortalConstants.BLUEFIN_WEB_PORTAL_JDBC_TEMPLATE)
 	@Autowired
@@ -168,7 +171,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	public List<RemittanceSale> findRemittanceSaleRefundTransactionsReport(String search,boolean negate)
 			throws ParseException {
 		logger.debug("Search Value {}",search);
-		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
+		Map<String,String> queryParameters = new HashMap<>();
+		String query = getNativeQueryForRemittanceSaleRefund(search,negate, queryParameters);
 		CustomQuery queryObj = new CustomQuery(query);
 		query = queryObj.getFinalQueryToExecute();
 		
@@ -177,7 +181,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			query = query + BluefinWebPortalConstants.LIMIT + transactionsReportMaxSize;
 		}
 		logger.debug("RRR***-Result Data Query to execute ={}",query);
-		List<RemittanceSale> tr = jdbcTemplate.query(query,new CustomSalePaymentProcessorRemittanceExtractor());
+		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
+		List<RemittanceSale> tr = namedJDBCTemplate.query(query,queryParameters,new CustomSalePaymentProcessorRemittanceExtractor());
 		logger.debug("Total number of rows={}", tr != null ? tr.size() : 0);
 		return tr;
 	}
@@ -252,8 +257,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	@Override
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search,PageRequest page,boolean negate) throws ParseException  {
 		logger.debug("Search  Value {} , Page {}, negate {}",search,page,negate); 
+		Map<String,String> queryParameters = new HashMap<>();
 		// Creates the query for the total and for the retrieved data
-		String query = getNativeQueryForRemittanceSaleRefund(search,negate);
+		String query = getNativeQueryForRemittanceSaleRefund(search,negate, queryParameters);
 		logger.debug("Query Prepared={}",query);
 		CustomQuery queryObj = new CustomQuery(query);
 		if ( page != null ) {
@@ -276,8 +282,9 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		logger.debug("Result Data Query to execute={}",query);
 		logger.debug("Count Query to execute = {}",queryForCount);
 		
+		NamedParameterJdbcTemplate namedJDBCTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 		// Brings the data and transform it into a Page value list
-		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query);
+		List<PaymentProcessorRemittance> tr = fetchPaymentProcessorRemittanceCustomMappingResult(query,queryParameters,namedJDBCTemplate);
 		try {
 			
 			logger.debug("Number of records fetched ={} successfully", tr.size());
@@ -286,7 +293,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			logger.debug("Number of records fetched = 0 Error:{} ",ex.getMessage());
 			tr = new ArrayList<>();
 		}	
-		int countResult = jdbcTemplate.queryForObject(queryForCount, Integer.class);
+		 
+		int countResult = namedJDBCTemplate.queryForObject(queryForCount,queryParameters,Integer.class);
 		logger.info("Count Rows Result {}, Data Query Result {}",countResult,tr.size());
 		return new PageImpl<PaymentProcessorRemittance>(tr, page, countResult);
 	}
@@ -892,8 +900,8 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return transactionTypeAll;
 	}
 
-	private List<PaymentProcessorRemittance> fetchPaymentProcessorRemittanceCustomMappingResult(String query){
-		return jdbcTemplate.query( query, new PaymentProcessorRemittanceRowMapper());
+	private List<PaymentProcessorRemittance> fetchPaymentProcessorRemittanceCustomMappingResult(String query, Map<String,String> queryParameters, NamedParameterJdbcTemplate namedJDBCTemplate){
+		return namedJDBCTemplate.query(query,queryParameters,new RemittanceSaleRefundRowMapper());
 	}
 	
 	class PaymentProcessorRemittanceRowMapper implements RowMapper<PaymentProcessorRemittance> {
@@ -985,7 +993,7 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 			record.setSaleBatchUploadId(rs.getLong(BluefinWebPortalConstants.SALEBATCHUPLOADID));
 			record.setSaleIsVoided(rs.getInt(BluefinWebPortalConstants.SALEISVOIDED));
 			record.setSaleIsRefunded(rs.getInt(BluefinWebPortalConstants.SALEISREFUNDED));
-			record.setMerchantId(rs.getString("MID"));
+			record.setMerchantId(rs.getString("MID"));// MID
 			record.setRecondProcessorName(rs.getString(BluefinWebPortalConstants.PROCESSORNAMEVAL1));
 			record.setReconReconciliationStatusId(rs.getString(BluefinWebPortalConstants.RECONCILIATIONSTATUSIDVAL1));
 			return record;
@@ -1081,36 +1089,35 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		}
 		return searchValue;
 	}
-	
-	private String[] evaluateSearchParam(String searchValue){
+	/**
+	 * This method is used to split the data that comes in the search parameter
+	 * 
+	 * @param searchValue, this values comes with the filter data selected in the UI
+	 * @return Map<String, String> with those values splitted
+	 * */
+	private Map<String, String> evaluateSearchParam(String searchValue) {
 		String[] searchArray = searchValue.split("\\$\\$");
-		logger.debug("Search Array Values= {} and size of searchArray {}",Arrays.asList(searchArray),searchArray.length);
-		String[] valuesToReturn = new String[]{null,null,null,null,null};
+		logger.debug("Search Array Values= {} and size of searchArray {}", Arrays.asList(searchArray), searchArray.length);
+		Map<String, String> paramValues = new HashMap<>();	
+
 		for (String parameter : searchArray) {
-			if (parameter.startsWith("remittanceCreationDate>")) {
-				String[] parameterArray = parameter.split(">");
-				valuesToReturn[0] = parameterArray[1];
+			// split: second parameter set to 2, because when we split the date time we
+			// don't want that the time be splitted
+			String[] parameterArray = parameter.split(":|<|>", 2);
+			if (parameter.contains(">")) {
+				parameterArray[0] = BluefinWebPortalConstants.REMITTANCECREATIONDATEBEGIN;
+			} else if (parameter.contains("<")) {
+				parameterArray[0] = BluefinWebPortalConstants.REMITTANCECREATIONDATEEND;
+			} else if (BluefinWebPortalConstants.MERCHANTIDPARAM.equals(parameterArray[0])) {
+				parameterArray[1] = parameterArray[1].replaceAll("\\[|\\]", "");
 			}
-			if (parameter.startsWith("remittanceCreationDate<")) {
-				String[] parameterArray = parameter.split("<");
-				valuesToReturn[1] = parameterArray[1];
-			}
-			if (parameter.startsWith(BluefinWebPortalConstants.PROCESSORNAME)) {
-				String[] parameterArray = parameter.split(":");
-				valuesToReturn[2] = parameterArray[1];
-			}
-			if (parameter.startsWith("merchantId")) {
-				String temp = parameter.replace("merchantId:", "");
-				String values = temp.replace("\\[|\\]", "");
-				valuesToReturn[3] = values;
-			}
-			if (parameter.startsWith(BluefinWebPortalConstants.RECONCILIATIONSTATUSID)) {
-				String[] parameterArray = parameter.split(":");
-				valuesToReturn[4] = parameterArray[1];
-			}
+			
+			paramValues.put(parameterArray[0], parameterArray[1]);
 		}
-		return valuesToReturn;
+
+		return paramValues;
 	}
+
 	private String[] getMerchantIdArray(String values){
 		return values != null ? values.split(",") : null;
 	}
@@ -1124,50 +1131,31 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 	 * 
 	 * @return SQL query
 	 */
-	private String getNativeQueryForRemittanceSaleRefund(String search,boolean negate) {
+	private String getNativeQueryForRemittanceSaleRefund(String search,boolean negate, Map<String,String> queryParameters) {
 		String searchValue = getSearchValue(search);
-		String[] evaluatedValues = evaluateSearchParam(searchValue);
-		String remittanceCreationDateBegin = evaluatedValues[0];
-		String remittanceCreationDateEnd = evaluatedValues[1];
-		String processorName = evaluatedValues[2];
-		String[] merchantIdArray = getMerchantIdArray(evaluatedValues[3]);
-		String reconciliationStatusId = evaluatedValues[4];
+		
+		Map<String, String> evaluatedValues = evaluateSearchParam(searchValue);
+		boolean dataFiltered = !CollectionUtils.isEmpty(evaluatedValues);
+		String remittanceCreationDateBegin = evaluatedValues.get(BluefinWebPortalConstants.REMITTANCECREATIONDATEBEGIN);
+		String remittanceCreationDateEnd = evaluatedValues.get(BluefinWebPortalConstants.REMITTANCECREATIONDATEEND);
 
-		StringBuilder querySb = new StringBuilder();
 		String testOrProd = propertyDAO.getPropertyValue("TEST_OR_PROD");
-		StringBuilder querySbPart1 = new StringBuilder();
+		
 		// Get reconciliationStatudId for "Missing from Remit"
 		ReconciliationStatus reconciliationStatus = reconciliationStatusDAO.findByReconciliationStatus("Missing from Remit");
 		String statusId = reconciliationStatus != null ? String.valueOf(reconciliationStatus.getReconciliationStatusId()) : "";
-		appendQueryForPPR(querySbPart1,remittanceCreationDateBegin,remittanceCreationDateEnd,testOrProd);
+		
+		StringBuilder querySbPart1 = appendQueryForPPR();
+		StringBuilder querySbPart2 = appendSaleWhereCondQuery();
+		
+		queryParameters.put("remittanceCreationDateBegin", remittanceCreationDateBegin);
+		queryParameters.put("remittanceCreationDateEnd", remittanceCreationDateEnd);
+		queryParameters.put("testOrProd", testOrProd);
+		queryParameters.put("statusId", statusId);
 
-		StringBuilder querySbPart2 = appendSaleWhereCondQuery(remittanceCreationDateBegin,statusId);
+		StringBuilder querySbPart3 = appendWhereConditionsToMainSelect(dataFiltered,evaluatedValues,queryParameters);
 
-		StringBuilder querySbPart3 = new StringBuilder();
-
-		int numberOfFilters = processNumberOfFilters(querySbPart3,remittanceCreationDateBegin,processorName,merchantIdArray,reconciliationStatusId);
-		
-		StringBuilder afterWhereClauseSB= new StringBuilder();
-		appendProcessName(processorName,afterWhereClauseSB);
-		
-		processMerchantIdArr(merchantIdArray,afterWhereClauseSB);
-		
-		appendReconcilationStatusId(reconciliationStatusId,afterWhereClauseSB);
-		
-		afterWhereClauseSB.replace(0, 4, " ");
-		
-		appendWhereClause(querySbPart3,afterWhereClauseSB);
-		
-		querySbPart3.append("ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
-
-		appendQueryBasedOnFilterNumbers(querySb,"SELECT * FROM (",numberOfFilters);
-		
-		querySb.append(querySbPart1);
-		querySb.append(querySbPart2);
-		
-		appendQueryBasedOnFilterNumbers(querySb,")",numberOfFilters);
-		
-		querySb.append(querySbPart3);
+		StringBuilder querySb = appendSeparateQueriesIntoConciseQuery(querySbPart1,querySbPart2,querySbPart3,dataFiltered);
 		
 		/**
 		 *  Currently this is only used if the user selects 'Not Reconcilied' on
@@ -1177,98 +1165,180 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return finalQuery(querySb,negate);
 	}
 	
-	private void appendQueryForPPR(StringBuilder querySbPart1,String remittanceCreationDateBegin,String remittanceCreationDateEnd,String testOrProd){
-		querySbPart1.append(getPaymentProcessorRemittanceAndSaleQuery());
-		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+	private StringBuilder appendQueryForPPR(){
+		StringBuilder querySbPart1 = new StringBuilder();
+		querySbPart1.append(getappendPPRAndSaleQuery());
+		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= :remittanceCreationDateBegin ");
+		querySbPart1.append("AND ppr.RemittanceCreationDate <= :remittanceCreationDateEnd ");
 		querySbPart1.append("AND (ppr.TransactionType in ('SALE', 'settle')) ");
-		querySbPart1.append("AND (st.TestMode = " + testOrProd + " OR st.TestMode IS NULL) ");
+		querySbPart1.append("AND (st.TestMode = :testOrProd OR st.TestMode IS NULL) ");
 		querySbPart1.append(BluefinWebPortalConstants.UNION);
-		querySbPart1.append(getPaymentProcessorRemittanceAndRefundQuery());
-		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= '" + remittanceCreationDateBegin + "' ");
-		querySbPart1.append("AND ppr.RemittanceCreationDate <= '" + remittanceCreationDateEnd + "' ");
+		querySbPart1.append(getappendPPRAndRefundQuery());
+		querySbPart1.append("WHERE ppr.RemittanceCreationDate >= :remittanceCreationDateBegin ");
+		querySbPart1.append("AND ppr.RemittanceCreationDate <= :remittanceCreationDateEnd ");
 		querySbPart1.append("AND (ppr.TransactionType in ('REFUND')) ");
-		querySbPart1.append("AND (st1.TestMode = " + testOrProd + " OR st1.TestMode IS NULL) ");
+		querySbPart1.append("AND (st1.TestMode = :testOrProd OR st1.TestMode IS NULL) ");
 		logger.debug("Query (part 1): {} " , querySbPart1);
+		return querySbPart1;
 	}
 	
-	private StringBuilder appendSaleWhereCondQuery(String remittanceCreationDateBegin,String statusId){
+	
+	//SELECT #1 + FROM
+	private String getappendPPRAndSaleQuery() {
+		StringBuilder querySb = new StringBuilder();
+		querySb.append("SELECT ppr.ReconciliationStatusID, ppr.TransactionAmount , ppr.TransactionType, ppr.TransactionTime, ppr.AccountID,");
+		querySb.append("ppr.Application AS Application, ppr.ProcessorTransactionID, ppr.MerchantID, ppr.PaymentProcessorID,");
+		querySb.append("ppl.ProcessorName AS ProcessorName, st.SaleTransactionID AS SaleTransactionID, st.TransactionType AS SaleTransactionType, st.CardNumberLast4Char AS SaleCardNumberLast4Char,");
+		querySb.append("st.CardType AS SaleCardType , st.AccountId AS SaleAccountId ,st.ChargeAmount AS SaleChargeAmount ,  st.ApplicationTransactionID AS SaleApplicationTransactionID,");
+		querySb.append("st.MerchantID AS SaleMerchantID, st.Processor AS SaleProcessor , st.Application AS SaleApplication , st.ProcessorTransactionID AS SaleProcessorTransactionID, ");
+		querySb.append("st.TransactionDateTime AS SaleTransactionDateTime, st.ReconciliationStatusID AS SaleReconciliationStatusID , ppr.MerchantID AS MID, ppl.ProcessorName AS Processor_Name, ppr.ReconciliationStatusID AS ReconciliationStatus_ID ");
+	
+		querySb.append("FROM PaymentProcessor_Remittance ppr ");							
+		querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID) ");
+		querySb.append("JOIN (SELECT ppr2.PaymentProcessorRemittanceID AS PaymentProcessorRemittanceID2 , st2.* FROM PaymentProcessor_Remittance ppr2 ");
+		querySb.append("LEFT JOIN Sale_Transaction st2 ON ppr2.ProcessorTransactionID = st2.ProcessorTransactionID ");
+		querySb.append("WHERE ppr2.RemittanceCreationDate >= :remittanceCreationDateBegin ");
+		querySb.append("AND ppr2.RemittanceCreationDate <= :remittanceCreationDateEnd ");
+		querySb.append("AND (ppr2.TransactionType in ('SALE', 'settle')) ");
+		querySb.append("AND (st2.TestMode = :testOrProd OR st2.TestMode IS NULL) ");
+		querySb.append(") as st ON ppr.PaymentProcessorRemittanceID = st.PaymentProcessorRemittanceID2 ");
+		return querySb.toString();
+	}
+	
+	
+	//SELECT #2 + FROM
+	private String getappendPPRAndRefundQuery() {
+		StringBuilder querySb = new StringBuilder();
+		querySb.append("SELECT ppr.ReconciliationStatusID, ppr.TransactionAmount, ppr.TransactionType, ppr.TransactionTime, ppr.AccountID, ");
+		querySb.append(" ppr.Application AS Application, ppr.ProcessorTransactionID, ppr.MerchantID, ppr.PaymentProcessorID, ");
+		querySb.append(" ppl.ProcessorName AS ProcessorName , rt.SaleTransactionID AS SaleTransactionID ,'REFUND' AS SaleTransactionType, st1.CardNumberLast4Char AS SaleCardNumberLast4Char, ");
+		querySb.append(" st1.CardType AS SaleCardType, st1.AccountId AS SaleAccountId, st1.ChargeAmount AS SaleChargeAmount, rt.ApplicationTransactionID AS SaleApplicationTransactionID,");
+		querySb.append(" rt.MerchantID AS SaleMerchantID, rt.Processor AS SaleProcessor, rt.Application AS SaleApplication, rt.ProcessorTransactionID AS SaleProcessorTransactionID, ");
+		querySb.append(" rt.TransactionDateTime AS SaleTransactionDateTime , rt.ReconciliationStatusID AS SaleReconciliationStatusID, ");
+		querySb.append(" ppr.MerchantID AS MID, ppl.ProcessorName AS Processor_Name, ppr.ReconciliationStatusID AS ReconciliationStatus_ID ");
+			
+		querySb.append("FROM PaymentProcessor_Remittance ppr ");
+		querySb.append("JOIN PaymentProcessor_Lookup ppl ON (ppr.PaymentProcessorID = ppl.PaymentProcessorID)");
+		querySb.append("INNER JOIN (SELECT ppr2.PaymentProcessorRemittanceID AS PaymentProcessorRemittanceID2 , rt2.* ");
+		querySb.append("FROM PaymentProcessor_Remittance ppr2 ");
+		querySb.append("LEFT JOIN Refund_Transaction rt2 ON ppr2.ProcessorTransactionID = rt2.ProcessorTransactionID ");
+		querySb.append("WHERE ppr2.RemittanceCreationDate >= :remittanceCreationDateBegin ");
+		querySb.append("AND ppr2.RemittanceCreationDate <= :remittanceCreationDateEnd ");
+		querySb.append(" AND (ppr2.TransactionType in ('REFUND'))");
+		querySb.append(") as rt ON ppr.PaymentProcessorRemittanceID = rt.PaymentProcessorRemittanceID2 ");
+		querySb.append(" LEFT JOIN Sale_Transaction st1 ON (rt.SaleTransactionId = st1.SaleTransactionId) ");
+		return querySb.toString();
+		}
+	
+
+	private StringBuilder appendSaleWhereCondQuery(){
 		StringBuilder querySbPart2 = new StringBuilder();
 		querySbPart2.append(BluefinWebPortalConstants.UNION);
 		querySbPart2.append(getSaleQuery());
-		querySbPart2.append("WHERE SALE.TransactionDateTime >= DATE_ADD(CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
-		querySbPart2.append("AND SALE.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
+		querySbPart2.append("WHERE SALE.TransactionDateTime >= DATE_ADD(CAST( :remittanceCreationDateBegin "
+				+ " AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
+		querySbPart2.append("AND SALE.TransactionDateTime <= DATE_ADD(CAST( :remittanceCreationDateBegin "
+				+ " AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
 		querySbPart2.append("AND SALE.InternalStatusCode = '1' ");
 		querySbPart2.append("AND (SALE.TransactionType = 'SALE') ");
-		querySbPart2.append("AND SALE.ReconciliationStatusID = " + statusId + " ");
+		querySbPart2.append("AND SALE.ReconciliationStatusID = :statusId ");
 		querySbPart2.append(BluefinWebPortalConstants.UNION);
 		querySbPart2.append(getRefundQuery());
-		querySbPart2.append("WHERE REFUND.TransactionDateTime >= DATE_ADD(CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
-		querySbPart2.append("AND REFUND.TransactionDateTime <= DATE_ADD(CAST('" + remittanceCreationDateBegin
-				+ "' AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
+		querySbPart2.append("WHERE REFUND.TransactionDateTime >= DATE_ADD(CAST( :remittanceCreationDateBegin "
+				+ " AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -2 DAY) ");
+		querySbPart2.append("AND REFUND.TransactionDateTime <= DATE_ADD(CAST( :remittanceCreationDateBegin "
+				+ " AS DATETIME) + CAST(ppl.RemitTransactionCloseTime AS TIME),INTERVAL -1 DAY) ");
 		querySbPart2.append("AND REFUND.InternalStatusCode = '1' ");
-		querySbPart2.append("AND REFUND.ReconciliationStatusID = " + statusId + " ");
+		querySbPart2.append("AND REFUND.ReconciliationStatusID = :statusId ");
 		logger.debug("query (part 2): {}" , querySbPart2);
 		return querySbPart2;
 	}
-	
-	private int processNumberOfFilters(StringBuilder querySbPart3,String remittanceCreationDateBegin,String processorName,String[] merchantIdArray,String reconciliationStatusId){
-		int numberOfFilters=0;
-		if (remittanceCreationDateBegin != null) {
-			numberOfFilters++;
-		}
-		
-		if (processorName != null) {
-			numberOfFilters++;
-		}
-		if (merchantIdArray != null) {
-			numberOfFilters++;
-		}
-		if (reconciliationStatusId != null) {
-			numberOfFilters++;
-		}
-		if (numberOfFilters != 0) {
-			querySbPart3.append("ReconDate ");
-		}
-		return numberOfFilters;
-	}
-	
-	private void appendProcessName(String processorName,StringBuilder afterWhereClauseSB){
-		if (processorName != null) {
-			afterWhereClauseSB.append(" AND  ReconDate.Processor_Name = '" + processorName + "' ");
-		}
-	}
-	private void processMerchantIdArr(String[] merchantIdArray,StringBuilder afterWhereClauseSB){
-		if (merchantIdArray != null) {
-			afterWhereClauseSB.append(" AND  (ReconDate.MID IN (");
-			for (int i = 0; i < merchantIdArray.length; i++) {
-				afterWhereClauseSB.append("'" + merchantIdArray[i] + "'");
-				if (i != (merchantIdArray.length - 1)) {
-					afterWhereClauseSB.append(", ");
+	/**
+	 * This method appends where conditions to main select if there is any filter applied
+	 * 
+	 * @param dataFiltered, if some filter data was sent
+	 * @param evaluatedValues, the filters that were selected in the UI
+	 * @param queryParamenters, to save the parameters for the query
+	 * @return StringBuilder with the where clauses to append in the main select
+	 */
+	private StringBuilder appendWhereConditionsToMainSelect(boolean dataFiltered, Map<String, String> evaluatedValues,Map<String, String> queryParameters) {
+		StringBuilder sb = new StringBuilder();
+		StringJoiner sj = new StringJoiner("AND", WHERE_COND, "");
+		sj.setEmptyValue("");// "WHERE" is append as default value, if we do not have extra filters we do not append anything
+
+		if (dataFiltered) {
+			sb.append(" ReconDate ");
+
+			Iterator<Map.Entry<String, String>> itr = evaluatedValues.entrySet().iterator();
+
+			while (itr.hasNext()) {
+				Map.Entry<String, String> entry = itr.next();
+
+				switch (entry.getKey()) {
+				case BluefinWebPortalConstants.PROCESSORNAME:
+					String processorName = evaluatedValues.get(BluefinWebPortalConstants.PROCESSORNAME);
+					sj.add(" ReconDate.Processor_Name = :RDProcessorName ");
+					queryParameters.put("RDProcessorName", processorName);
+					break;
+
+				case BluefinWebPortalConstants.MERCHANTIDPARAM:
+					StringBuilder midSB = new StringBuilder();
+					String[] merchantIdArray = getMerchantIdArray(evaluatedValues.get(BluefinWebPortalConstants.MERCHANTIDPARAM));
+					midSB.append(" (ReconDate.MID IN (");
+					for (int i = 0; i < merchantIdArray.length; i++) {
+						midSB.append(" :RDMerchantId" + i);
+						queryParameters.put("RDMerchantId" + i, merchantIdArray[i]);
+						if (i != (merchantIdArray.length - 1)) {
+							midSB.append(", ");
+						}
+					}
+					midSB.append(")) ");
+					sj.add(midSB);
+					break;
+
+				case BluefinWebPortalConstants.RECONCILIATIONSTATUSID:
+					String reconciliationStatusId = evaluatedValues.get(BluefinWebPortalConstants.RECONCILIATIONSTATUSID);
+					sj.add(" ReconDate.ReconciliationStatus_ID = :RDReconciliationStatusId ");
+					queryParameters.put("RDReconciliationStatusId", reconciliationStatusId);
+					break;
+					
+				default:// default is empty since cases required are considered
+					break;
 				}
 			}
-			afterWhereClauseSB.append(")) ");
+			
+			sb.append(sj);
 		}
+
+		sb.append(" ORDER BY Processor_Name ASC, MID ASC, ReconciliationStatus_ID ASC");
+
+		return sb;
 	}
-	private void appendReconcilationStatusId(String reconciliationStatusId,StringBuilder afterWhereClauseSB){
-		if (reconciliationStatusId != null) {
-			afterWhereClauseSB.append(" AND  ReconDate.ReconciliationStatus_ID = " + reconciliationStatusId + " ");
+	/**
+	 * This method appends the different built parts of the query into one more concise one
+	 * 
+	 * @param querySbPart1, part 1 of the query
+	 * @param querySbPart2, part 2 of the query
+	 * @param querySbPart3, part 3 of the query
+	 * @param dataFiltered, if some filter data was sent
+	 * @return StringBuilder, a united/more concise query
+	 */
+	private StringBuilder appendSeparateQueriesIntoConciseQuery(StringBuilder querySbPart1, StringBuilder querySbPart2, StringBuilder querySbPart3, boolean dataFiltered) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(querySbPart1);
+		sb.append(querySbPart2);
+
+		if (dataFiltered) {
+			StringJoiner sj = new StringJoiner(sb);
+			sj.add("SELECT * FROM ("); // append the select at the beginning
+			sj.add(")");			   // append the close parenthesis at the end
+			sb = new StringBuilder(sj.toString());
 		}
-	}
-	
-	private void appendWhereClause(StringBuilder querySbPart3,StringBuilder afterWhereClauseSB){
-		if(StringUtils.isNotEmpty(afterWhereClauseSB.toString().trim())){
-			querySbPart3.append("  Where ");
-			querySbPart3.append(afterWhereClauseSB);
-		}
-	}
-	private void appendQueryBasedOnFilterNumbers(StringBuilder querySb,String queryToAppend,int numberOfFilters){
-		if (numberOfFilters != 0) {
-			querySb.append(queryToAppend);
-		}
+
+		sb.append(querySbPart3);
+
+		return sb;
 	}
 
 	private String finalQuery(StringBuilder querySb,boolean negate){
@@ -1387,76 +1457,33 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
 		return querySb.toString();
 	}
 
+	//Select #3 + FROM
 	private String getSaleQuery() {
 		StringBuilder querySb = new StringBuilder();
-		querySb.append(
-				"SELECT NULL AS PaymentProcessorRemittanceID,NULL AS DateCreated,NULL AS ReconciliationStatusID,NULL AS ReconciliationDate,");
-		querySb.append(
-				"NULL AS PaymentMethod,NULL AS TransactionAmount,NULL AS TransactionType,NULL AS TransactionTime,NULL AS AccountID,");
-		querySb.append(
-				"NULL AS Application,NULL AS ProcessorTransactionID,NULL AS MerchantID,NULL AS TransactionSource,NULL AS FirstName,NULL AS LastName,");
-		querySb.append(
-				"NULL AS RemittanceCreationDate,NULL AS PaymentProcessorID,NULL AS ProcessorName,SALE.SaleTransactionID,SALE.FirstName,SALE.LastName,");
-		querySb.append(
-				"SALE.ProcessUser,SALE.TransactionType,SALE.Address1,SALE.Address2,SALE.City,SALE.State,SALE.PostalCode,SALE.Country,SALE.CardNumberFirst6Char,");
-		querySb.append(
-				"SALE.CardNumberLast4Char,SALE.CardType,SALE.ExpiryDate,SALE.Token,SALE.ChargeAmount,SALE.LegalEntityApp,SALE.AccountId,");
-		querySb.append(
-				"SALE.ApplicationTransactionID,SALE.MerchantID,SALE.Processor AS SaleProcessor,SALE.Application AS Application,SALE.Origin,SALE.ProcessorTransactionID,SALE.TransactionDateTime,");
-		querySb.append(
-				"SALE.TestMode,SALE.ApprovalCode,SALE.Tokenized,SALE.PaymentProcessorStatusCode,SALE.PaymentProcessorStatusCodeDescription,");
-		querySb.append(
-				"SALE.PaymentProcessorResponseCode,SALE.PaymentProcessorResponseCodeDescription,SALE.InternalStatusCode,SALE.InternalStatusDescription,");
-		querySb.append(
-				"SALE.InternalResponseCode,SALE.InternalResponseDescription,SALE.PaymentProcessorInternalStatusCodeID,SALE.PaymentProcessorInternalResponseCodeID,");
-		querySb.append(
-				"SALE.DateCreated,SALE.PaymentProcessorRuleID,SALE.RulePaymentProcessorID,SALE.RuleCardType,SALE.RuleMaximumMonthlyAmount,");
-		querySb.append(
-				"SALE.RuleNoMaximumMonthlyAmountFlag,SALE.RulePriority,SALE.AccountPeriod,SALE.Desk,SALE.InvoiceNumber,SALE.UserDefinedField1,");
-		querySb.append(
-				"SALE.UserDefinedField2,SALE.UserDefinedField3,SALE.ReconciliationStatusID,SALE.ReconciliationDate,SALE.BatchUploadID,");
-		querySb.append(BluefinWebPortalConstants.SALEVOIDREFUNDCONST);
-		querySb.append(
-				"SALE.MerchantID AS MID,SALE.Processor AS Processor_Name,SALE.ReconciliationStatusID AS ReconciliationStatus_ID ");
+		querySb.append(" SELECT NULL AS ReconciliationStatusID, NULL AS TransactionAmount, NULL AS TransactionType, NULL AS TransactionTime,");
+		querySb.append(" NULL AS AccountID, NULL AS Application, NULL AS ProcessorTransactionID, NULL AS MerchantID, ");
+		querySb.append(" NULL AS PaymentProcessorID, NULL AS ProcessorName, SALE.SaleTransactionID, ");
+		querySb.append(" SALE.TransactionType, SALE.CardNumberLast4Char, SALE.CardType, SALE.AccountId, ");
+		querySb.append(" SALE.ChargeAmount, SALE.ApplicationTransactionID, SALE.MerchantID,");
+		querySb.append(" SALE.Processor   AS SaleProcessor, SALE.Application AS Application, SALE.ProcessorTransactionID, SALE.TransactionDateTime, SALE.ReconciliationStatusID,");
+		querySb.append(" SALE.MerchantID AS MID , SALE.Processor AS Processor_Name, SALE.ReconciliationStatusID AS ReconciliationStatus_ID ");
+		
 		querySb.append("FROM Sale_Transaction SALE ");
 		querySb.append("JOIN PaymentProcessor_Lookup ppl ON (SALE.Processor = ppl.ProcessorName) ");
 		return querySb.toString();
 	}
-
+	
+	//Select #4 + FROM
 	private String getRefundQuery() {
 		StringBuilder querySb = new StringBuilder();
-		querySb.append(
-				"SELECT NULL AS PaymentProcessorRemittanceID,NULL AS DateCreated,NULL AS ReconciliationStatusID,NULL AS ReconciliationDate,NULL AS PaymentMethod,");
-		querySb.append(
-				"NULL AS TransactionAmount,NULL AS TransactionType,NULL AS TransactionTime,NULL AS AccountID,NULL AS Application,NULL AS ProcessorTransactionID,");
-		querySb.append(
-				"NULL AS MerchantID,NULL AS TransactionSource,NULL AS FirstName,NULL AS LastName,NULL AS RemittanceCreationDate,NULL AS PaymentProcessorID,");
-		querySb.append(
-				"NULL AS ProcessorName,REFUND.SaleTransactionID,NULL AS RefundFirstName,NULL AS RefundLastName,NULL AS RefundProcessUser,'REFUND' AS RefundTransactionType,");
-		querySb.append(
-				"NULL AS RefundAddress1,NULL AS RefundAddress2,NULL AS RefundCity,NULL AS RefundState,NULL AS RefundPostalCode,NULL AS RefundCountry,");
-		querySb.append(
-				"NULL AS RefundCardNumberFirst6Char,st2.CardNumberLast4Char AS RefundCardNumberLast4Char,st2.CardType AS RefundCardType,NULL AS RefundExpiryDate,NULL AS RefundToken,");
-		querySb.append(
-				"st2.ChargeAmount AS RefundChargeAmount,st2.LegalEntityApp AS RefundLegalEntityApp,st2.AccountId AS RefundAccountId,REFUND.ApplicationTransactionID,REFUND.MerchantID,");
-		querySb.append(
-				"REFUND.Processor AS SaleProcessor,REFUND.Application AS Application,NULL AS RefundOrigin,REFUND.ProcessorTransactionID,REFUND.TransactionDateTime,NULL AS RefundTestMode,");
-		querySb.append(
-				"REFUND.ApprovalCode,NULL AS RefundTokenized,REFUND.PaymentProcessorStatusCode,REFUND.PaymentProcessorStatusCodeDescription,");
-		querySb.append(
-				"REFUND.PaymentProcessorResponseCode,REFUND.PaymentProcessorResponseCodeDescription,REFUND.InternalStatusCode,REFUND.InternalStatusDescription,");
-		querySb.append(
-				"REFUND.InternalResponseCode,REFUND.InternalResponseDescription,REFUND.PaymentProcessorInternalStatusCodeID,REFUND.PaymentProcessorInternalResponseCodeID,");
-		querySb.append(
-				"REFUND.DateCreated,NULL AS RefundPaymentProcessorRuleID,NULL AS RefundRulePaymentProcessorID,NULL AS RefundRuleCardType,");
-		querySb.append(
-				"NULL AS RefundRuleMaximumMonthlyAmount,NULL AS RefundRuleNoMaximumMonthlyAmountFlag,NULL AS RefundRulePriority,NULL AS RefundAccountPeriod,");
-		querySb.append(
-				"NULL AS RefundDesk,NULL AS RefundInvoiceNumber,NULL AS RefundUserDefinedField1,NULL AS RefundUserDefinedField2,NULL AS RefundUserDefinedField3,");
-		querySb.append(
-				"REFUND.ReconciliationStatusID,REFUND.ReconciliationDate,NULL AS RefundBatchUploadID,0 AS REFUNDIsVoided,0 AS REFUNDIsRefunded,");
-		querySb.append(
-				"REFUND.MerchantID AS MID,REFUND.Processor AS Processor_Name,REFUND.ReconciliationStatusID AS ReconciliationStatus_ID ");
+		querySb.append(" SELECT NULL AS ReconciliationStatusID, NULL AS TransactionAmount, NULL AS TransactionType, NULL AS TransactionTime, ");
+		querySb.append(" NULL AS AccountID, NULL AS Application, NULL AS ProcessorTransactionID, NULL AS MerchantID,");
+		querySb.append(" NULL AS PaymentProcessorID, NULL AS ProcessorName, REFUND.SaleTransactionID,");
+		querySb.append("'REFUND' AS RefundTransactionType, st2.CardNumberLast4Char AS RefundCardNumberLast4Char, st2.CardType AS RefundCardType, st2.AccountId AS RefundAccountId, ");
+		querySb.append("st2.ChargeAmount AS RefundChargeAmount , REFUND.ApplicationTransactionID, REFUND.MerchantID, REFUND.Processor AS SaleProcessor, ");
+		querySb.append(" REFUND.Application AS Application , REFUND.ProcessorTransactionID, REFUND.TransactionDateTime, REFUND.ReconciliationStatusID,");
+		querySb.append(" REFUND.MerchantID AS MID, REFUND.Processor AS Processor_Name, REFUND.ReconciliationStatusID AS ReconciliationStatus_ID ");
+		
 		querySb.append("FROM Refund_Transaction REFUND ");
 		querySb.append("JOIN Sale_Transaction st2 on (REFUND.SaleTransactionId = st2.SaleTransactionId) ");
 		querySb.append("JOIN PaymentProcessor_Lookup ppl ON (REFUND.Processor = ppl.ProcessorName) ");
@@ -1515,31 +1542,17 @@ class CustomSalePaymentProcessorRemittanceExtractor implements ResultSetExtracto
 			RemittanceSale remittanceSale = new RemittanceSale();
 
 			PaymentProcessorRemittance ppr = new PaymentProcessorRemittance();
-			ppr.setPaymentProcessorRemittanceId(rs.getLong(BluefinWebPortalConstants.PAYMENTPROCESSORREMITTANCEID));
-			Timestamp ts;
-			if (rs.getString(BluefinWebPortalConstants.DATECREATED) != null){
-				ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.DATECREATED));
-				ppr.setDateCreated(new DateTime(ts));
-			}
+		
 			// Mitul overrides this with ReconciliationStatus_ID
 			ppr.setReconciliationStatusId(rs.getLong(BluefinWebPortalConstants.RECONCILIATIONSTATUSIDVAL));
-			ppr.setReconciliationDate(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.RECONCILIATIONDATE)));
-			ppr.setPaymentMethod(rs.getString(BluefinWebPortalConstants.PAYMENTMETHOD));
 			ppr.setTransactionAmount(rs.getBigDecimal(BluefinWebPortalConstants.TRANSACTIONAMOUNT));
-			ppr.setTransactionType(rs.getString(BluefinWebPortalConstants.TRANSACTIONTYPE));
+			ppr.setTransactionType(rs.getString(BluefinWebPortalConstants.TRANSACTIONTYPE)); 
 			ppr.setTransactionTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.TRANSACTIONTIME)));
 			ppr.setAccountId(rs.getString(BluefinWebPortalConstants.ACCOUNTIDVAL));
 			ppr.setApplication(rs.getString(BluefinWebPortalConstants.APPLICATION));
 			ppr.setProcessorTransactionId(rs.getString(BluefinWebPortalConstants.PROCESSORTRANSACTIONID));
 			// Mitul overrides this with MID
 			ppr.setMerchantId(rs.getString(BluefinWebPortalConstants.MERCHANTID));
-			ppr.setTransactionSource(rs.getString(BluefinWebPortalConstants.TRANSACTIONSOURCE));
-			ppr.setFirstName(rs.getString(BluefinWebPortalConstants.FIRSTNAME));
-			ppr.setLastName(rs.getString(BluefinWebPortalConstants.LASTNAME));
-			if (rs.getString(BluefinWebPortalConstants.REMITTANCECREATIONDATE) != null){
-				ts = Timestamp.valueOf(rs.getString(BluefinWebPortalConstants.REMITTANCECREATIONDATE));
-				ppr.setRemittanceCreationDate(new DateTime(ts));
-			}
 			ppr.setPaymentProcessorId(rs.getLong(BluefinWebPortalConstants.PAYMENTPROCESSORIDVAL));
 			// Final value (ORDER BY)
 			ppr.setMerchantId(rs.getString("MID"));
@@ -1551,62 +1564,18 @@ class CustomSalePaymentProcessorRemittanceExtractor implements ResultSetExtracto
 			// Mitul overrides this with Processor_Name
 			st.setProcessor(rs.getString(BluefinWebPortalConstants.PROCESSORNAMEVAL));
 			st.setSaleTransactionId(rs.getLong(BluefinWebPortalConstants.SALETRANSACTIONID));
-			st.setFirstName(rs.getString(BluefinWebPortalConstants.SALEFIRSTNAME));
-			st.setLastName(rs.getString(BluefinWebPortalConstants.SALELASTNAME));
-			st.setProcessUser(rs.getString(BluefinWebPortalConstants.SALEPROCESSUSER));
 			st.setTransactionType(rs.getString(BluefinWebPortalConstants.SALETRANSACTIONTYPE));
-			st.setAddress1(rs.getString(BluefinWebPortalConstants.SALEADDRESS1));
-			st.setAddress2(rs.getString(BluefinWebPortalConstants.SALEADDRESS2));
-			st.setCity(rs.getString(BluefinWebPortalConstants.SALECITY));
-			st.setState(rs.getString(BluefinWebPortalConstants.SALESTATE));
-			st.setPostalCode(rs.getString(BluefinWebPortalConstants.SALEPOSTALCODE));
-			st.setCountry(rs.getString(BluefinWebPortalConstants.SALECOUNTRY));
-			st.setCardNumberFirst6Char(rs.getString(BluefinWebPortalConstants.SALECARDNUMBERFIRST6CHAR));
 			st.setCardNumberLast4Char(rs.getString(BluefinWebPortalConstants.SALECARDNUMBERLAST4CHAR));
 			st.setCardType(rs.getString(BluefinWebPortalConstants.SALECARDTYPE));
-			st.setExpiryDate(rs.getTimestamp(BluefinWebPortalConstants.SALEEXPIRYDATE));
-			st.setToken(rs.getString(BluefinWebPortalConstants.SALETOKEN));
 			st.setChargeAmount(rs.getBigDecimal(BluefinWebPortalConstants.SALECHARGEAMOUNT));
-			st.setLegalEntityApp(rs.getString(BluefinWebPortalConstants.SALELEGALENTITYAPP));
 			st.setAccountId(rs.getString(BluefinWebPortalConstants.SALEACCOUNTID));
 			st.setApplicationTransactionId(rs.getString(BluefinWebPortalConstants.SALEAPPLICATIONTRANSACTIONID));
 			st.setMerchantId(rs.getString(BluefinWebPortalConstants.SALEMERCHANTID));
 			st.setProcessor(rs.getString(BluefinWebPortalConstants.SALEPROCESSOR));
 			st.setApplication(rs.getString(BluefinWebPortalConstants.SALEAPPLICATION));
-			st.setOrigin(rs.getString(BluefinWebPortalConstants.SALEORIGIN));
 			st.setProcessorTransactionId(rs.getString(BluefinWebPortalConstants.SALEPROCESSORTRANSACTIONID));
 			st.setTransactionDateTime(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.SALETRANSACTIONDATETIME)));
-			st.setTestMode(rs.getShort(BluefinWebPortalConstants.SALETESTMODE));
-			st.setApprovalCode(rs.getString(BluefinWebPortalConstants.SALEAPPROVALCODE));
-			st.setTokenized(rs.getShort(BluefinWebPortalConstants.SALETOKENIZED));
-			st.setPaymentProcessorStatusCode(rs.getString(BluefinWebPortalConstants.SALEPAYMENTPROCESSORSTATUSCODE));
-			st.setPaymentProcessorStatusCodeDescription(rs.getString(BluefinWebPortalConstants.SALEPAYMENTPROCESSORSTATUSCODEDESCRIPTION));
-			st.setPaymentProcessorResponseCode(rs.getString(BluefinWebPortalConstants.SALEPAYMENTPROCESSORRESPONSECODE));
-			st.setPaymentProcessorResponseCodeDescription(rs.getString(BluefinWebPortalConstants.SALEPAYMENTPROCESSORRESPONSECODEDESCRIPTION));
-			st.setInternalStatusCode(rs.getString(BluefinWebPortalConstants.SALEINTERNALSTATUSCODE));
-			st.setInternalStatusDescription(rs.getString(BluefinWebPortalConstants.SALEINTERNALSTATUSCODEDESCRIPTION));
-			st.setInternalResponseCode(rs.getString(BluefinWebPortalConstants.SALEINTERNALRESPONSECODE));
-			st.setInternalResponseDescription(rs.getString(BluefinWebPortalConstants.SALEINTERNALRESPONSECODEDESCRIPTION));
-			st.setPaymentProcessorInternalStatusCodeId(rs.getLong(BluefinWebPortalConstants.SALEPAYMENTPROCESSORINTERNALSTATUSCODEID));
-			st.setPaymentProcessorInternalResponseCodeId(rs.getLong(BluefinWebPortalConstants.SALEPAYMENTPROCESSORINTERNALRESPONSECODEID));
-			st.setDateCreated(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.SALEDATECREATED)));
-			st.setPaymentProcessorRuleId(rs.getLong(BluefinWebPortalConstants.SALEPAYMENTPROCESSORRULEID));
-			st.setRulePaymentProcessorId(rs.getLong(BluefinWebPortalConstants.SALERULEPAYMENTPROCESSORID));
-			st.setRuleCardType(rs.getString(BluefinWebPortalConstants.SALERULECARDTYPE));
-			st.setRuleMaximumMonthlyAmount(rs.getBigDecimal(BluefinWebPortalConstants.SALERULEMAXIMUMMONTHLYAMOUNT));
-			st.setRuleNoMaximumMonthlyAmountFlag(rs.getShort(BluefinWebPortalConstants.SALERULEMAXIMUMMONTHLYAMOUNTFLAG));
-			st.setRulePriority(rs.getShort(BluefinWebPortalConstants.SALERULEPRIORITY));
-			st.setAccountPeriod(rs.getString(BluefinWebPortalConstants.SALEACCOUNTPERIOD));
-			st.setDesk(rs.getString(BluefinWebPortalConstants.SALEDESK));
-			st.setInvoiceNumber(rs.getString(BluefinWebPortalConstants.SALEINVOICENUMBER));
-			st.setUserDefinedField1(rs.getString(BluefinWebPortalConstants.SALEUSERDEFINEDFIELD1));
-			st.setUserDefinedField2(rs.getString(BluefinWebPortalConstants.SALEUSERDEFINEDFIELD2));
-			st.setUserDefinedField3(rs.getString(BluefinWebPortalConstants.SALEUSERDEFINEDFIELD3));
 			st.setReconciliationStatusId(rs.getLong(BluefinWebPortalConstants.SALERECONCILIATIONSTATUSID));
-			st.setReconciliationDate(new DateTime(rs.getTimestamp(BluefinWebPortalConstants.SALERECONCILIATIONDATE)));
-			st.setBatchUploadId(rs.getLong(BluefinWebPortalConstants.SALEBATCHUPLOADID));
-			st.setIsVoided(rs.getInt(BluefinWebPortalConstants.SALEISVOIDED));
-			st.setIsRefunded(rs.getInt(BluefinWebPortalConstants.SALEISREFUNDED));
 			// Final value (ORDER BY)
 			st.setProcessor(rs.getString(BluefinWebPortalConstants.PROCESSORNAMEVAL1));
 			remittanceSale.setSaleTransaction(st);
@@ -1616,6 +1585,5 @@ class CustomSalePaymentProcessorRemittanceExtractor implements ResultSetExtracto
 
 		return list;
 	}
-	
 	
 }

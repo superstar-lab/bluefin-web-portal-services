@@ -90,7 +90,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	
 	
 	@JsonProperty("remittance.processorName")
-	private String processorName; 
+	private String processorName;
 	
 	
     @JsonProperty("sale.saleTransactionId")
@@ -98,7 +98,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	
 	
 	@JsonProperty("sale.transactionType")
-	private String saleTransactionType; 
+	private String saleTransactionType;
 	
 	
     @JsonProperty("sale.legalEntityApp")
@@ -106,11 +106,11 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	
 	
     @JsonProperty("sale.accountNumber")
-	private String saleAccountNumber; 
+	private String saleAccountNumber;
 	
 	
 	@JsonProperty("sale.applicationTransactionId")
-	private String saleApplicationTransactionId; 
+	private String saleApplicationTransactionId;
 	
 	
     @JsonProperty("sale.processorTransactionId")
@@ -138,7 +138,7 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
 	
 	
     @JsonProperty("sale.amount")
-	private BigDecimal saleAmount; 
+	private BigDecimal saleAmount;
 	
 	
     @JsonProperty("sale.expiryDate")
@@ -287,12 +287,12 @@ public class PaymentProcessorRemittance implements Serializable, Transaction {
     
     @JsonProperty("sale.processorName")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String saleProcessorName;
+    private String saleProcessorName;// processorName UI
 
     
     @JsonProperty("sale.application")
     @JsonView({ Views.Extend.class, Views.Summary.class })
-    private String saleApplication;
+    private String saleApplication;//application UI
 
     
     @JsonProperty("sale.origin")

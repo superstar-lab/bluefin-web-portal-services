@@ -13,6 +13,8 @@ public class BluefinWebPortalConstants {
 	public static final String DATECREATED = "DateCreated";
 	public static final String TRANSACTIONTIME = "TransactionTime";
 	public static final String REMITTANCECREATIONDATE = "RemittanceCreationDate";
+	public static final String REMITTANCECREATIONDATEBEGIN = "remittanceCreationDateBegin";
+	public static final String REMITTANCECREATIONDATEEND = "remittanceCreationDateEnd";
 	public static final String APPOCTSTREAM = "application/octet-stream";
 	public static final String CONTENTDISPOSITION = "Content-Disposition";
 	public static final String ATTACHMENTFILENAME = "attachment; filename=";
@@ -166,6 +168,7 @@ public class BluefinWebPortalConstants {
 	public static final String MCMLEGALENTITYPREFIX = "MCM";
 	public static final String ACFLEGALENTITYPREFIX = "ACF";
 	public static final String JPFLEGALENTITYPREFIX = "JPF";
+	public static final String MERCHANTIDPARAM = "merchantId";
 	
 	private BluefinWebPortalConstants(){
 		

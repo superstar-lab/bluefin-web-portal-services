@@ -460,7 +460,7 @@ public class TransactionService {
 
 		// Transaction Type
 		String transactionType = transaction.getSaleTransaction().getTransactionType();
-		getTransactionType(transactionType,transaction);
+		transactionType = getTransactionType(transactionType,transaction);
 		transactionDataRecord.add(transactionType);
 
 		// Bluefin information section
@@ -526,13 +526,7 @@ public class TransactionService {
 	}
 	
 	private String getTransactionType(String transactionType,RemittanceSale transaction){
-		String transactionTypeVal;
-		if (transactionType == null) {
-			transactionTypeVal = transaction.getPaymentProcessorRemittance().getTransactionType();
-		} else {
-			transactionTypeVal = transactionType;
-		}
-		return transactionTypeVal;
+		return transactionType == null ? transaction.getPaymentProcessorRemittance().getTransactionType() : transactionType;
 	}
 	
 	public List<String> getAccountListFromFile(MultipartFile[] filesArray) throws IOException { 
