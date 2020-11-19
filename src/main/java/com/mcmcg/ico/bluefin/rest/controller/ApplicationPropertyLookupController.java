@@ -39,6 +39,28 @@ public class ApplicationPropertyLookupController {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationPropertyLookupController.class);
 
+	/**
+	 * Return an object in json format which contains the properties defined into the system with corresponding
+	 * values. The properties to retrieve are defined in the parameters applicationPropertyList. If one or more of the 
+	 * properties specified are not defined into the system, the value to return will be null 
+	 * @param applicationPropertyList list of string values with the names of the properties to retrieve
+	 * @return
+	 */
+	@ApiOperation(value = "getApplicationPropertiesByName", nickname = "getApplicationPropertiesByName")
+	@GetMapping(produces = "application/json", value="/getApplicationPropertiesByName" )
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ApplicationProperty.class),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 404, message = "Not Found", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public String selectApplicationProperties(@RequestBody String[] applicationPropertyList) {
+		LOGGER.debug("select application properties by names endpoint");
+		LOGGER.info("select application properties by names endpoint");
+		return propertyService.getProperties(applicationPropertyList);
+	}
+	
 	@ApiOperation(value = "getApplicationProperties", nickname = "getApplicationProperties")
 	@GetMapping(produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")

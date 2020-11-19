@@ -75,6 +75,66 @@ public class PropertyDAOImpl implements PropertyDAO {
 
 		return propertylist;
 	}
+	
+	@Override
+	public String getProperties(String[] requiredProperties) {
+		if(requiredProperties.length == 0) return "{}";
+		String columns = prepareQueryColumns(requiredProperties);
+		String queryText =  String.format(Queries.FIND_PROPERTIES_BY_NAMES, columns);
+		LOGGER.info(queryText);
+		ArrayList<ApplicationProperty> activeProperties = (ArrayList<ApplicationProperty>) jdbcTemplate.query(queryText,
+				new RowMapperResultSetExtractor<ApplicationProperty>(new ApplicationPropertyRowMapper()));
+		if(activeProperties == null)	{
+			LOGGER.info("Query result: database return null value.");
+			return "{}";
+		}
+		return buildResponse(requiredProperties, activeProperties);
+	}
+	
+	private String prepareQueryColumns(String[] requiredProperties) {
+		StringBuilder result = new StringBuilder();
+		for(int index = 0; index<requiredProperties.length; index++) {
+			if(index > 0) result.append(',');
+			result.append('\'');
+			result.append(requiredProperties[index]);
+			result.append('\'');
+		}
+		return result.toString();
+	}
+	
+	private String buildResponse(String[] requiredProperties, ArrayList<ApplicationProperty> activeProperties) {
+		int size = activeProperties.size();
+		LOGGER.info(String.format("Active properties: {0}.", size));
+		StringBuilder result = new StringBuilder();
+		result.append('{');
+		for(int index = 0 ; index < size; index++) {
+			if(index > 0) result.append(',');
+			result.append('"');
+			result.append(activeProperties.get(index).getPropertyName());
+			result.append("\":\"");
+			result.append(activeProperties.get(index).getPropertyValue());
+			result.append('"');
+		}
+		// looking for fields that wasn't found in database, they should return null
+		for(int propIndex = 0; propIndex < requiredProperties.length; propIndex++ ) {
+			if(!findPropertyInList(requiredProperties[propIndex], activeProperties)) {
+				// next condition is > 1 because at this point if the database does not return value, result will have at least one curly bracket "{"
+				if(result.length() > 1) result.append(',');
+				result.append('"');
+				result.append(requiredProperties[propIndex]);
+				result.append("\": null");
+			}
+		}
+		result.append('}');
+		return result.toString();
+	}
+	
+	private boolean findPropertyInList(String name, ArrayList<ApplicationProperty> list) {
+		for(int index = 0 ; index < list.size(); index++) {
+			if(name.equalsIgnoreCase(list.get(index).getPropertyName())) return true;
+		}
+		return false;
+	}
 
 	@Override
 	public List<ApplicationProperty> getAllProperty() {

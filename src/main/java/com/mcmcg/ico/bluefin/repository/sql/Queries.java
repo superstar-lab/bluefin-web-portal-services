@@ -20,6 +20,7 @@ public class Queries {
 	public static final String FINDROLEPERMISSIONBYROLEID = "SELECT RolePermissionID, RoleID, PermissionID, DateCreated, DatedModified, ModifiedBy FROM Role_Permission WHERE RoleID = ?";
 	public static final String SAVEROLEPERMISSION = "INSERT INTO Role_Permission (RoleID, PermissionID, DateCreated, DatedModified, ModifiedBy) VALUES (?, ?, ?, ?, ?)";
 	public static final String FINDPROPERTYBYNAME = "SELECT ApplicationpropertyID, ApplicationPropertyName, ApplicationPropertyValue, DataType, Description, DateCreated, DateModified, ModifiedBy FROM ApplicationProperty_Lookup WHERE ApplicationPropertyName = ?";
+	public static final String FIND_PROPERTIES_BY_NAMES = "SELECT ApplicationpropertyID, ApplicationPropertyName, ApplicationPropertyValue, DataType, Description, DateCreated, DateModified, ModifiedBy FROM ApplicationProperty_Lookup WHERE ApplicationPropertyName IN (%s)";
 	public static final String FINDSECURITYTOKENBLACKLISTBYTOKENID = "SELECT TokenID, Token, Type, UserID, DateCreated FROM SecurityToken_Backlist WHERE TokenID = ?";
 	public static final String FINDSECURITYTOKENBLACKLISTBYTOKEN = "SELECT TokenID, Token, Type, UserID, DateCreated FROM SecurityToken_Backlist WHERE Token = ?";
 	public static final String FINDSECURITYTOKENBLACKLISTBYUSERIDANDTOKEN = "SELECT TokenID, Token, Type, UserID, DateCreated FROM SecurityToken_Backlist WHERE UserID = ? AND Token = ?";

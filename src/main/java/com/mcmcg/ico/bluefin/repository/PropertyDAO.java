@@ -10,6 +10,7 @@ public interface PropertyDAO {
 	public String getPropertyValue(String propertyName);
 	public List<ApplicationProperty> findAll();
 	public List<ApplicationProperty> getAllProperty();
+	public String getProperties(String[] applicationPropertyList);
 	public ApplicationProperty update(ApplicationProperty applicationProperty, String modifiedBy);
 	public ApplicationProperty updateProperty(ApplicationProperty applicationProperty, String modifiedBy);
 	public ApplicationProperty save(ApplicationProperty applicationProperty);

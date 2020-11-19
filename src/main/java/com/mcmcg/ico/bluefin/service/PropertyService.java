@@ -23,6 +23,18 @@ public class PropertyService {
 		return propertyDAO.getPropertyValue(propertyName);
 	}
 	
+	/**
+	 * With the given list of string names this will call the data access layer to obtain the
+	 * values and return the object to superior layers
+	 * @param applicationPropertyList
+	 * @return
+	 */
+	public String getProperties(String[] applicationPropertyList) {
+		LOGGER.debug("Entering to getProperties");
+		LOGGER.info("Entering to getProperties");
+		return propertyDAO.getProperties(applicationPropertyList);
+	}
+	
 	public List<ApplicationProperty> getAllProperty() {
 		LOGGER.debug("Entering to getAllProperties");
 		return propertyDAO.getAllProperty();

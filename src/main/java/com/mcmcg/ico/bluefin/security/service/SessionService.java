@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
+import org.joda.time.Hours;
+import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedExcepti
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.rest.resource.TokenResponse;
+import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
 import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
@@ -214,20 +218,106 @@ public class SessionService {
 		LOGGER.info("Sending token to blacklistExit");
 		tokenUtils.sendTokenToBlacklist(token, username);
 	}
+	
+	/**
+	 * Generates a password of the specified size with upper case letters, lower case letters, numbers and special symbols
+	 * @param size, of the password required to be return by the function
+	 * @return a string of the specified size with random characters
+	 */
+	private static String generateString(int size) {
+		String upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+        String numbers = "0123456789";
+        String symbols = "!^#$%*";
+        Random rand = new Random();
+        int[] order = new int[3];
+        
+        order[0] = rand.nextInt(3);
+        order[1] = order[0];
+        while(order[1]==order[0]) order[1] = rand.nextInt(3);
+        order[2] = order[0];
+        while(order[2]==order[0] || order[2]==order[1]) order[2] = rand.nextInt(3);
+        StringBuilder result = new StringBuilder();
+        while(result.length()<size-1) {
+            switch(order[result.length() % 3])
+            {
+                case 0:
+                    result.append(upperCaseLetters.charAt(rand.nextInt(upperCaseLetters.length())));
+                    break;
+                case 1:
+                    result.append(lowerCaseLetters.charAt(rand.nextInt(lowerCaseLetters.length())));
+                    break;
+                default:
+                    result.append(numbers.charAt(rand.nextInt(numbers.length())));
+                    break;
+            }
+        }
+        result.append(symbols.charAt(rand.nextInt(symbols.length())));
+        return result.toString();
+    }
 
 	public void resetPassword(final String username) {
 		LOGGER.info("Entering to reset Password");
 		User user = userService.getUser(username);
+		if (user == null) {
+			throw new UsernameNotFoundException(String.format("No user found with username '%s', reseting password.", username));
+		} 
+		List<UserPasswordHistory> userPasswordHistory = userService.getPasswordHistory(user.getUserId()); 
+		if(userPasswordHistory!=null && !userPasswordHistory.isEmpty()) {
+			DateTime modifiedDate = userPasswordHistory.get(0).getDateModified();
+			DateTime today = new DateTime(DateTimeZone.UTC);
+			DateTime todayMinus = today.minusHours(3);
+			
+			int hours = Hours.hoursBetween(modifiedDate, today).getHours();
+			int hours2 = Hours.hoursBetween(todayMinus, today).getHours();
+			if(hours <= 24) {
+				throw new CustomBadRequestException("Password being resent in less than 24 hours, modified date:" +
+						modifiedDate.toString() +
+						" today: " + today.toString() + 
+						" hours calculated " + hours +
+						" subtracted date " + todayMinus.toString() +
+						" hours with subtracted hours " + hours2);
+			}
+		}
 		LOGGER.debug("user is:- ={} ",user);
 		LOGGER.debug("Reseting password of user: {}", username);
+		final String newPassword = generateString(15);
 		final String link = "/api/users/" + username + "/password";
 		final String token = generateNewToken(username, TokenType.FORGOT_PASSWORD, link);
-		String content = "Please use the link below to reset your password: \n\n"
-				+ propertyService.getPropertyValue("RESET_PASSWORD_EMAIL_LINK") + "?token=" + token;
+		String name = user.getFirstName();
+		String lastName = user.getLastName();
+		// name will contain user full name. If this is found null on database will be used the username
+		name = name == null ? "" : name.trim();
+		lastName = lastName == null ? "" : lastName.trim();
+		name = name.length() > 0 && lastName.length() > 0 ? name + " " + lastName : name + lastName;
+		name = name.length() > 0 ? name : username;
+		// required following object to be able to update the password
+		UpdatePasswordResource userInfo = new UpdatePasswordResource();
+		userInfo.setOldPassword(user.getPassword());
+		userInfo.setNewPassword(newPassword);
+		// updating password
+		userService.updateUserPassword(username, userInfo, token);
+		// preparing for sending email
+		String subject = propertyService.getPropertyValue("RESET_PASSWORD_EMAIL_SUBJECT");
+		String content = propertyService.getPropertyValue("RESET_PASSWORD_EMAIL_BODY");
+		// preparing the content or body of the email 
+		if(content!=null) {
+			content = content.
+					replace("~u", username).
+					replace("~U", name).
+					replace("~p", newPassword).
+					replace("~n", "\n").
+					replace("~N", "\n\n");
+		}
 		// Send email
 		LOGGER.info("ready to send email");
-		emailService.sendEmail(user.getEmail(), "Bluefin web portal: Forgot password email", content);
-	}
+		
+		emailService.sendEmail(user.getEmail(),
+				subject!=null ? subject : "Bluefin web portal: Reset password email",
+				content!=null ? content : "Password reset complete for user " + username + ", new password is:\n\n" + newPassword + "\n\nBluefin web portal automated email");
+				
+		LOGGER.info("email sent.");
+    }
 
 	private AuthenticationResponse getLoginResponse(final User user, final String token) {
 		LOGGER.info("Entering to get Login Response");
