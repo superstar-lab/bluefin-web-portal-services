@@ -1,11 +1,9 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,9 +86,9 @@ public class TransactionsRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-		LOGGER.debug("get Transactions servive");
+		LOGGER.debug("get Transactions service");
 		String searchValue;
-		List<String> accountList= new ArrayList<>(); 
+		Map<String, List<String>> multipleValuesMap = new HashMap<>();
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
 			searchValue = QueryUtil.getValidSearchBasedOnLegalEntities(userLE, search);
@@ -105,7 +103,7 @@ public class TransactionsRestController {
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(searchValue,accountList, QueryUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(searchValue,multipleValuesMap, QueryUtil.getPageRequest(page, size, sort)));
 	}
 	
 	@ApiOperation(value = "getTransactions", nickname = "getTransactions")
@@ -128,17 +126,15 @@ public class TransactionsRestController {
 		if (authentication == null) {
 			throw new AccessDeniedException("An authorization token is required to request this resource");
 		}
-		LOGGER.debug("get Transactions servive");
+		LOGGER.debug("get Transactions service");
 		Map<String, MultipartFile> filesMap = request.getFileMap();
         MultipartFile[] filesArray = getFilesArray(filesMap);
-        if (filesArray.length != 1) {
-			throw new CustomBadRequestException("A file must be uploded");
+        if (filesArray.length == 0 || filesArray.length > 2) {
+			throw new CustomBadRequestException("A file must be uploaded");
 		}
-		List<String> accountList= transactionService.getAccountListFromFile(filesArray);
-		if(accountList.isEmpty()){
-	    	LOGGER.error("There is no record exist for this file");
-			throw new CustomException("There is no record exist for this file.");
-	    }
+
+		Map<String, List<String>> multipleValuesMap = transactionService.getValuesFromFiles(filesArray);
+
 		String searchValue;
 		if (!sessionService.sessionHasPermissionToManageAllLegalEntities(authentication)) {
 			List<LegalEntityApp> userLE = transactionService.getLegalEntitiesFromUser(authentication.getName());
@@ -154,7 +150,7 @@ public class TransactionsRestController {
 		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		
 		return objectMapper.writerWithView(Views.Summary.class).writeValueAsString(
-				transactionService.getTransactions(searchValue, accountList, QueryUtil.getPageRequest(page, size, sort)));
+				transactionService.getTransactions(searchValue, multipleValuesMap, QueryUtil.getPageRequest(page, size, sort)));
 	}
 	
 	 private MultipartFile[] getFilesArray(Map<String, MultipartFile> filesMap) {

@@ -239,8 +239,8 @@ public class BatchUploadService {
 			LOGGER.debug("File deleted ? {}",deleted);
 			return new ResponseEntity<>("{}", HttpStatus.NO_CONTENT);
 		} catch(Exception e) {
-			LOGGER.error("An error occured to during getRemittanceTransactionsReport file ",e);
-			throw new CustomException("An error occured to during getRemittanceTransactionsReport file.");
+			LOGGER.error("An error occurred when removing the report file",e);
+			throw new CustomException("An error occurred when removing the report file");
 		}
 		finally {
 		    	if(inputStream!=null) {

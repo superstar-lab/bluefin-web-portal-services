@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.repository;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,9 +13,9 @@ import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 
 public interface CustomSaleTransactionDAO  {
-	public Page<SaleTransaction> findTransaction(String search,List<String> accountList, PageRequest page) throws ParseException;
+	public Page<SaleTransaction> findTransaction(String search, Map<String, List<String>> multipleValuesMap, PageRequest page) throws ParseException;
 
-	public List<SaleTransaction> findTransactionsReport(String search,List<String> accountList) throws ParseException;
+	public List<SaleTransaction> findTransactionsReport(String search,Map<String, List<String>> multipleValuesMap) throws ParseException;
 
 	public Page<PaymentProcessorRemittance> findRemittanceSaleRefundTransactions(String search, PageRequest page,
 			boolean negate) throws ParseException ;

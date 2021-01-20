@@ -38,6 +38,7 @@ public class User extends Common implements Serializable {
 	private Collection<UserLegalEntityApp> legalEntities;
 	@JsonIgnore
 	private Integer wrongPasswordCounter;
+	private String roleName;
 	
 
 	public User() {
@@ -213,6 +214,12 @@ public class User extends Common implements Serializable {
 	public void setAccountLockedOn(DateTime accountLockedOn) {
 		this.accountLockedOn = accountLockedOn;
 	}
-	
-	
+
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
 }

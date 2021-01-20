@@ -51,4 +51,6 @@ public interface UserDAO {
 	 * @return
 	 */
 	public int updateUserStatus(User user, String modifiedBy);
+
+	List<User> findUsersReport(List<String> search, Map<String,String> filterMap);
 }

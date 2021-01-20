@@ -1,17 +1,11 @@
 package com.mcmcg.ico.bluefin.service;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.model.*;
+import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
+import com.mcmcg.ico.bluefin.repository.*;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -29,32 +23,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.mcmcg.ico.bluefin.model.BinDBDetails;
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
-import com.mcmcg.ico.bluefin.model.PaymentFrequency;
-import com.mcmcg.ico.bluefin.model.PaymentProcessor;
-import com.mcmcg.ico.bluefin.model.PaymentProcessorRemittance;
-import com.mcmcg.ico.bluefin.model.ReconciliationStatus;
-import com.mcmcg.ico.bluefin.model.RemittanceSale;
-import com.mcmcg.ico.bluefin.model.SaleTransaction;
-import com.mcmcg.ico.bluefin.model.Transaction;
-import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
-import com.mcmcg.ico.bluefin.model.User;
-import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
-import com.mcmcg.ico.bluefin.repository.CustomSaleTransactionDAO;
-import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
-import com.mcmcg.ico.bluefin.repository.PaymentProcessorDAO;
-import com.mcmcg.ico.bluefin.repository.PaymentProcessorRemittanceDAO;
-import com.mcmcg.ico.bluefin.repository.PropertyDAO;
-import com.mcmcg.ico.bluefin.repository.ReconciliationStatusDAO;
-import com.mcmcg.ico.bluefin.repository.RefundTransactionDAO;
-import com.mcmcg.ico.bluefin.repository.SaleTransactionDAO;
-import com.mcmcg.ico.bluefin.repository.UserDAO;
-import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
-import com.mcmcg.ico.bluefin.repository.VoidTransactionDAO;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.*;
 
 @Service
 public class TransactionService {
@@ -167,12 +142,10 @@ public class TransactionService {
 		return tranResult;
 	}
 
-	
-	
-	public Iterable<SaleTransaction> getTransactions(String search,List<String> accountList, PageRequest paging) {
+	public Iterable<SaleTransaction> getTransactions(String search, Map<String, List<String>> multipleValuesMap, PageRequest paging) {
 		Page<SaleTransaction> result;
 		try {
-			result = customSaleTransactionDAO.findTransaction(search, accountList, paging);
+			result = customSaleTransactionDAO.findTransaction(search, multipleValuesMap, paging);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
@@ -219,14 +192,14 @@ public class TransactionService {
 		}
 	}
 	
-	public File getTransactionsReport(String search,List<String> accountList, String timeZone) throws IOException {
+	public File getTransactionsReport(String search,Map<String, List<String>> multipleValuesMap, String timeZone) throws IOException {
 		List<SaleTransaction> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
 		LOGGER.debug("ReportPath : {}",reportPath);
 		File file;
 		try {
-			result = customSaleTransactionDAO.findTransactionsReport(search, accountList);
+			result = customSaleTransactionDAO.findTransactionsReport(search, multipleValuesMap);
 		} catch (ParseException e) {
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
@@ -528,25 +501,61 @@ public class TransactionService {
 	private String getTransactionType(String transactionType,RemittanceSale transaction){
 		return transactionType == null ? transaction.getPaymentProcessorRemittance().getTransactionType() : transactionType;
 	}
-	
-	public List<String> getAccountListFromFile(MultipartFile[] filesArray) throws IOException { 
-		if (filesArray.length != 1) {
-			throw new CustomBadRequestException("A file must be uploded");
-		}
-		MultipartFile multipartFile = filesArray[0];
+
+	private List<String> getAccountListFromFile(Optional<MultipartFile> accountsFile) throws IOException {
 		List<String> accountList = new ArrayList<>();
-		 InputStreamReader  input = new InputStreamReader(multipartFile.getInputStream());  
-		    CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);  
-		    for(CSVRecord csvRecord:parser){
-		    	String value= csvRecord.get("AccountNumber");
-		    	value = value.replaceAll("\'","");
-		    	if(StringUtils.isNotBlank(value)){
-		    	accountList.add(value);
-		    	}
-		    }
+
+		if (accountsFile.isPresent()) {
+			InputStreamReader input = new InputStreamReader(accountsFile.get().getInputStream());
+			CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);
+			for (CSVRecord csvRecord : parser) {
+				String value = csvRecord.get("AccountNumber");
+				value = value.replaceAll("\'", "");
+				if (StringUtils.isNotBlank(value)) {
+					accountList.add(value);
+				}
+			}
 			input.close();
-		
-		    return accountList;
+		}
+
+		return accountList;
+	}
+
+	private List<String> getIdListFromFile(Optional<MultipartFile> idsFile) throws IOException {
+		List<String> tranIdList = new ArrayList<>();
+
+		if (idsFile.isPresent()) {
+			InputStreamReader input = new InputStreamReader(idsFile.get().getInputStream());
+			CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(input);
+			for (CSVRecord csvRecord : parser) {
+				String value = csvRecord.get("TranId");
+				if (StringUtils.isNotBlank(value)) {
+					tranIdList.add(value);
+				}
+			}
+			input.close();
+		}
+
+		return tranIdList;
+	}
+
+	public Map<String, List<String>> getValuesFromFiles(MultipartFile[] filesArray) throws IOException {
+		LOGGER.debug("Enter to getValuesFromFiles");
+		Map<String, List<String>> multipleValuesMap = new HashMap<>();
+
+		Optional<MultipartFile> accountsFile = Arrays.stream(filesArray).filter(x -> x.getName().equals(BluefinWebPortalConstants.ACCOUNTSFILE)).findFirst();
+		List<String> accountList= getAccountListFromFile(accountsFile);
+		Optional<MultipartFile> idsFile = Arrays.stream(filesArray).filter(x -> x.getName().equals(BluefinWebPortalConstants.IDSFILE)).findFirst();
+		List<String> tranIdList = getIdListFromFile(idsFile);
+		if(accountList.isEmpty() && tranIdList.isEmpty()){
+			LOGGER.error("There are no records for this/these file(s)");
+			throw new CustomException("There are no records for this/these file(s)");
+		}
+
+		multipleValuesMap.put(BluefinWebPortalConstants.ACCOUNT_NUM, accountList);
+		multipleValuesMap.put(BluefinWebPortalConstants.TRANSACTION_ID, tranIdList);
+
+		return multipleValuesMap;
 	}
 		    
 }

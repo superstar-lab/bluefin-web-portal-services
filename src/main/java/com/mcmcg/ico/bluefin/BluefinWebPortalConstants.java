@@ -169,6 +169,12 @@ public class BluefinWebPortalConstants {
 	public static final String ACFLEGALENTITYPREFIX = "ACF";
 	public static final String JPFLEGALENTITYPREFIX = "JPF";
 	public static final String MERCHANTIDPARAM = "merchantId";
+
+	public static final String ACCOUNTSFILE = "file";
+	public static final String IDSFILE = "fileIds";
+
+	public static final String ACCOUNT_NUM= "accountNumber";
+	public static final String TRANSACTION_ID= "transactionId";
 	
 	private BluefinWebPortalConstants(){
 		

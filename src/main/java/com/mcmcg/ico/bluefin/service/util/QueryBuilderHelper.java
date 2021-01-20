@@ -22,6 +22,15 @@ public class QueryBuilderHelper {
 		return bf;
 	}
 
+	public static StringBuilder buildUserReportQuery(Map<String,String> filterMap){
+		StringBuilder  bf = new StringBuilder(Queries.FIND_ALL_USERS_REPORT);
+		setLegaEntity(bf,filterMap);
+		setWhere(bf,filterMap);
+		bf.append(clauseAppenderUserReport(filterMap));
+		bf.append(" Order By UserName asc");
+		return bf;
+	}
+
 	public static String appendLimit(String query,int offset,int pageSize){
 		return query.concat(" LIMIT "+offset +", "+pageSize);
 	}
@@ -54,6 +63,19 @@ public class QueryBuilderHelper {
 		bf2.replace(0, 4, " ");
 		return bf2.toString();
 	}
+
+	private static String clauseAppenderUserReport(Map<String,String> filterMap){
+		StringBuilder bf2 = new StringBuilder();
+		processLegalEntities(bf2,filterMap);
+		processMultipleRoles(bf2,filterMap);
+		processUserName(bf2,filterMap);
+		processLastName(bf2,filterMap);
+		processFirstName(bf2,filterMap);
+		processEmail(bf2,filterMap);
+		processStatus(bf2,filterMap);
+		bf2.replace(0, 4, " ");
+		return bf2.toString();
+	}
 	
 	private static void processLegalEntities(StringBuilder bf2,Map<String,String> filterMap){
 		if(isValidFilter(filterMap,"legalEntities")) {
@@ -64,6 +86,12 @@ public class QueryBuilderHelper {
 	private static void processRoles(StringBuilder bf2,Map<String,String> filterMap){
 		if(isValidFilter(filterMap,"roles")) {
 			appendQuery(bf2," AND ur.RoleID=:roles ");
+		}
+	}
+
+	private static void processMultipleRoles(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"roles")) {
+			appendQuery(bf2," AND ur.RoleID IN (:roles) ");
 		}
 	}
 	

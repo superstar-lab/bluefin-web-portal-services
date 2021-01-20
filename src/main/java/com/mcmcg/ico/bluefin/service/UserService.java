@@ -1,20 +1,23 @@
 package com.mcmcg.ico.bluefin.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.mcmcg.ico.bluefin.model.*;
+import com.mcmcg.ico.bluefin.repository.*;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,19 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
-import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.model.User;
-import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
-import com.mcmcg.ico.bluefin.model.UserPasswordHistory;
-import com.mcmcg.ico.bluefin.model.UserPreference;
-import com.mcmcg.ico.bluefin.model.UserPreferenceEnum;
-import com.mcmcg.ico.bluefin.model.UserRole;
-import com.mcmcg.ico.bluefin.repository.LegalEntityAppDAO;
-import com.mcmcg.ico.bluefin.repository.UserDAO;
-import com.mcmcg.ico.bluefin.repository.UserLegalEntityAppDAO;
-import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
-import com.mcmcg.ico.bluefin.repository.UserRoleDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ActivationResource;
@@ -80,9 +70,13 @@ public class UserService {
 	private UserLegalEntityAppDAO userLegalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
+	@Autowired
+	private PropertyDAO propertyDAO;
 
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
+	private static final Object[] FILE_HEADER = { "#", "User Name", "First Name", "Last Name", "Role Name", "Email",
+			"Date Created", "Date Modified", "Last Login", "Status"};
 
 	/**
 	 * Get user information by username
@@ -127,7 +121,7 @@ public class UserService {
 			}
 		}
 		Page<User> result = userDAO.findAllWithDynamicFilter(search, QueryDSLUtil.getPageRequest(page, size, sort),filterMap);
-		if (page > result.getTotalPages() && page != 0) {
+ 		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
@@ -693,7 +687,7 @@ public class UserService {
 			filterMap.put(str1[0], str1[1]);
 			}
 			else{
-			filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));	
+			filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));
 			}
 		}
 	}
@@ -777,5 +771,98 @@ public class UserService {
 		passwordHistoryAndCount.add(lastPasswordCount);
 		
 		 return passwordHistoryAndCount;
+	}
+
+	public File getUsersReport(String search) throws IOException {
+		List<User> result;
+		File file;
+
+		String reportPath = propertyDAO.getPropertyValue("USERS_REPORT_PATH");
+		LOGGER.debug("ReportPath : {}",reportPath);
+
+		List<String> filterList = getFilterList(search);
+		Map<String, String> filterMap = getFilterValues(filterList);
+		result = userDAO.findUsersReport(filterList, filterMap);
+
+		// Create the CSVFormat object with "\n" as a record delimiter
+		CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator("\n");
+
+		file = createFileToPrepareReport(reportPath);
+		// initialize FileWriter object
+		try (FileWriter fileWriter = new FileWriter(file);
+			 CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);) {
+			// initialize CSVPrinter object
+
+			// Create CSV file header
+			csvFilePrinter.printRecord(FILE_HEADER);
+			Integer count = 1;
+			LOGGER.debug("Result size : ",result.size());
+			// Write a new transaction object list to the CSV file
+			for (User user : result) {
+				List<String> transactionDataRecord = prepareDataForUsersReport(user,String.valueOf(count));
+				csvFilePrinter.printRecord(transactionDataRecord);
+				count++;
+			}
+			LOGGER.info("CSV file report was created successfully !!!");
+		}
+		return file;
+	}
+
+	private List<String> getFilterList(String search) {
+		List<String> filterList = new ArrayList<>();
+
+		String[] searchArray = StringUtils.isNotBlank(search) ? search.split("\\$\\$") : null;
+		if (searchArray != null) {
+			filterList = Arrays.asList(searchArray);
+		}
+
+		return filterList;
+	}
+
+	private Map<String, String> getFilterValues(List<String> search) {
+		Map<String, String> filterMap = new HashMap<>();
+
+		if (search != null && !search.isEmpty()) {
+			for (String searchParam : search) {
+				checkUser(searchParam, filterMap);
+			}
+		}
+
+		return filterMap;
+	}
+
+	private File createFileToPrepareReport(String reportPath) {
+
+		try {
+			File dir = new File(reportPath);
+			dir.mkdirs();
+			File file = new File(dir, UUID.randomUUID() + ".csv");
+			boolean flag;
+			flag = file.createNewFile();
+			if (flag) {
+				LOGGER.info("Report file Created {}", file.getName());
+			}
+			return file;
+		} catch (Exception e) {
+			LOGGER.error("Error creating file: {}{}{}", reportPath, UUID.randomUUID(), ".csv", e);
+			throw new CustomException("Error creating file: " + reportPath + UUID.randomUUID() + ".csv");
+		}
+	}
+
+	private List<String> prepareDataForUsersReport(User user,String count){
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("MM/dd/yyyy hh:mm:ss.SSa");
+		List<String> userDataRecord = new ArrayList<>();
+		userDataRecord.add(count);
+		userDataRecord.add(user.getUsername());
+		userDataRecord.add(user.getFirstName());
+		userDataRecord.add(user.getLastName());
+		userDataRecord.add(user.getRoleName());
+		userDataRecord.add(user.getEmail());
+		userDataRecord.add(user.getDateCreated().toString());
+		userDataRecord.add(user.getDateModified().toString());
+		userDataRecord.add(user.getLastLogin().toString());
+		userDataRecord.add(user.getStatus());
+
+		return userDataRecord;
 	}
 }

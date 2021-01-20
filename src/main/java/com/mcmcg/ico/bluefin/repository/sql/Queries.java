@@ -178,6 +178,7 @@ public class Queries {
 	public static final String DELETEPWHISTORY = "DELETE FROM Password_History WHERE PasswordHistoryID = ? and UserID = ?";
 	public static final String UPDATE_USER_LOOKUP = "UPDATE User_Lookup SET WrongPasswordCounter = ?, Status = ?, AccountLockedOn = ?, LastLogin = ?, ModifiedBy = ?  WHERE UserID = ?";
 	public static final String UPDATEUSERSTATUS = "UPDATE User_Lookup SET UserName = ?, FirstName = ?, LastName = ?, IsActive = ?, LastLogin = ?, DateCreated = ?, DateUpdated = ?, Email = ?, UserPassword = ?, DateModified = ?, ModifiedBy = ?, Status = ?, AccountLockedOn = ?, WrongPasswordCounter = ? WHERE UserID = ?";
+	public static final String FIND_ALL_USERS_REPORT = "SELECT UserName, FirstName, LastName, RoleName, Email, ul.DateCreated, ul.DateModified, LastLogin, Status FROM User_Lookup ul join User_Role ur on ul.UserID=ur.UserID join Role_Lookup rl on rl.RoleID=ur.RoleID";
 	private Queries(){
 		// Default Constructor
 	}

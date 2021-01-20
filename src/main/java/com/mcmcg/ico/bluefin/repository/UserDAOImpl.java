@@ -5,10 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.mcmcg.ico.bluefin.mapper.UserReportRowMapper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -43,6 +42,7 @@ import com.mysema.query.types.expr.BooleanExpression;
 public class UserDAOImpl implements UserDAO {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserDAOImpl.class);
+	private static final String ROLES_PARAM = "roles";
 
 	DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 	
@@ -59,6 +59,9 @@ public class UserDAOImpl implements UserDAO {
 	@Qualifier(BluefinWebPortalConstants.BLUEFIN_NAMED_JDBC_TEMPLATE)
 	@Autowired
 	private NamedParameterJdbcTemplate namedJDBCTemplate;
+
+	@Autowired
+	private PropertyDAO propertyDAO;
 
 	@Override
 	public List<User> findAll() {
@@ -96,7 +99,7 @@ public class UserDAOImpl implements UserDAO {
 		
 		return new PageImpl<>(searchResultlist, pageRequest, countResult);
 	}
-	
+
 	@Override
 	public User findByUserId(long userId) {
 		ArrayList<User> list = (ArrayList<User>) jdbcTemplate.query(Queries.FINDUSERBYUSERID, new Object[] { userId },
@@ -399,6 +402,47 @@ public class UserDAOImpl implements UserDAO {
 		createLegalEntityApp(user);
 		return rows;
 	}
+
+	@Override
+	public List<User> findUsersReport(List<String> search, Map<String,String> filterMap) {
+		List<User> searchResultList = new ArrayList<>();
+		StringBuilder queryBuffer = QueryBuilderHelper.buildUserReportQuery(filterMap);
+
+		String query =  queryBuffer.toString();
+		try {
+			int reportMaxSize = Integer.parseInt(propertyDAO.getPropertyValue("USERS_REPORT_MAX_SIZE"));
+			if (reportMaxSize > 0) {
+				query = query + BluefinWebPortalConstants.LIMIT + reportMaxSize;
+			}
+			LOGGER.debug("Query for result = {}", query);
+
+			Map<String,Object> parameters = organizeParameters(filterMap);
+			searchResultList = namedJDBCTemplate.query(query, parameters, new UserReportRowMapper());
+			LOGGER.debug("Number of rows ={} ", searchResultList.size());
+		} catch (NumberFormatException nfe) {
+			LOGGER.debug("Failed to parse value {}");
+		} catch (Exception e) {
+			LOGGER.error(e.toString());
+		}
+
+		return searchResultList;
+	}
+
+	private Map<String,Object> organizeParameters(Map<String,String> filterMap) {
+		Map<String,Object> organizeParameters = new HashMap<>();
+
+		if (!filterMap.isEmpty()) {
+			organizeParameters.putAll(filterMap);
+			if (organizeParameters.containsKey(ROLES_PARAM)) {
+				List<String> roles = Arrays.asList(organizeParameters.get(ROLES_PARAM).toString().split(","));
+				if (!roles.isEmpty()) {
+					organizeParameters.put(ROLES_PARAM, roles);
+				}
+			}
+		}
+
+		return organizeParameters;
+	}
 }
 
 class UserRowMapper implements RowMapper<User> {
@@ -473,6 +517,5 @@ class PasswordHistoryRowMapper implements RowMapper<UserPasswordHistory> {
 			userPasswordHistory.setDateModified(new DateTime(ts));
 		}
 		return userPasswordHistory;
-		
 	}
 }

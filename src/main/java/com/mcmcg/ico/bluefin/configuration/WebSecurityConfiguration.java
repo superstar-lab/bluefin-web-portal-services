@@ -130,6 +130,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, reportsApiBaseURL + "/batch-upload-transactions",
 						reportsApiBaseURL + "/batch-upload-transactions/")
 				.hasAnyAuthority(BluefinWebPortalConstants.BATCHREPORTING)
+				.antMatchers(HttpMethod.GET, reportsApiBaseURL + "/users", reportsApiBaseURL + "/users/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGEALLUSERS)
 
 				// Session
 				.antMatchers(HttpMethod.POST, sessionApiBaseURL, sessionApiBaseURL + "/",
