@@ -9,7 +9,7 @@ public class CustomCorsRegistration extends CorsRegistration {
             "HEAD" };
     private static final String GLOBAL_MAPPING = "/**";
 
-    private static final String ALLOWED_HEADERS = "Origin, X-Requested-With, Content-Type, Accept, ";
+    private static final String ALLOWED_HEADERS = "Origin, X-Requested-With, Origin, Content-Type, Accept, Authorization";
 
     public CustomCorsRegistration(String pathPattern) {
         super(pathPattern);

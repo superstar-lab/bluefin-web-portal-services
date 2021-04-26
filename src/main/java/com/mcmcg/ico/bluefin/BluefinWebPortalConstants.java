@@ -175,7 +175,8 @@ public class BluefinWebPortalConstants {
 
 	public static final String ACCOUNT_NUM= "accountNumber";
 	public static final String TRANSACTION_ID= "transactionId";
-	
+
+	public static final String DECLINE_STATUS_CODE = "2";
 	private BluefinWebPortalConstants(){
 		
 	}

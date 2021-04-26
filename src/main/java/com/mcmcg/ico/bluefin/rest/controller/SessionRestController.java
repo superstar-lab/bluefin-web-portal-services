@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +29,6 @@ import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.SessionRequestResource;
 import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.rest.resource.TokenResponse;
-import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationRequest;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
@@ -59,21 +58,14 @@ public class SessionRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-    public AuthenticationResponse authentication(@Valid @RequestBody AuthenticationRequest authenticationRequest,
-            @ApiIgnore Errors errors) {
-        if (errors.hasErrors()) {
-            final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
-            throw new CustomBadRequestException(errorDescription);
-        }
+    public AuthenticationResponse authentication() {
+        UserDetails userDetails = ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        LOGGER.debug("Authenticating user: {}", userDetails.getUsername());
+        sessionService.authenticate(userDetails.getUsername(),
+                userDetails.getPassword());
 
-        LOGGER.debug("Authenticating user: {}", authenticationRequest.getUsername());
-        Authentication authentication = sessionService.authenticate(authenticationRequest.getUsername(),
-                authenticationRequest.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        LOGGER.debug("Generating token for user: {}", authenticationRequest.getUsername());
-        return sessionService.generateToken(authenticationRequest.getUsername());
+        LOGGER.debug("Generating token for user: {}", userDetails.getUsername());
+        return sessionService.generateToken(userDetails.getUsername());
     }
 
     @ApiOperation(value = "logoutUser", nickname = "logoutUser")

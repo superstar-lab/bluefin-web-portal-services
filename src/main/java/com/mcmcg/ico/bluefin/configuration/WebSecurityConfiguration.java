@@ -1,11 +1,13 @@
 package com.mcmcg.ico.bluefin.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,23 +40,37 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+	@Autowired
+	@Qualifier("authenticationProvider")
+	DaoAuthenticationProvider authenticationProvider;
     
     @Value(("${csp.header}"))
     private String cspHeader;
 
-    @Autowired
-    public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws ApplicationGenericException {
-        try {
+	@Autowired
+	public void configureAuthentication(AuthenticationManagerBuilder authenticationManagerBuilder) throws ApplicationGenericException {
+		try {
 			authenticationManagerBuilder.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
 		} catch (Exception e) {
 			throw new ApplicationGenericException(e);
 		}
-    }
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		authenticationProvider.setPasswordEncoder(passwordEncoder());
+		auth.authenticationProvider(authenticationProvider);
+	}
+
+	@Bean
+	public UserDetailsService userDetails() {
+		return this.userDetailsService;
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
     @Bean
     @Override
@@ -74,6 +90,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         final String apiBaseURL = "/api";
         final String transactionsApiBaseURL = apiBaseURL + "/transactions";
+		final String declinedTransactionsApiBaseURL = transactionsApiBaseURL + "/generateDeclinedReport";
+		final String topTranSummaryApiBaseURL = transactionsApiBaseURL + "/generateTopSummaryReport";
+		final String approvedTranSummaryApiBaseURL = transactionsApiBaseURL + "/generateApprovedReport";
         final String transactionTypesApiBaseURL = apiBaseURL + "/transaction-types";
         final String sessionApiBaseURL = apiBaseURL + "/session";
         final String usersApiBaseURL = apiBaseURL + "/users";
@@ -88,14 +107,20 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String reportsApiBaseURL = apiBaseURL + "/reports";
         final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
         final String applicationPropertyApiBaseURL = apiBaseURL + "/applicationProperties";
+
         /**CSP Code Starts Here*/
         cspHeader = cspHeader.replaceAll("\\s+", " ");
         httpSecurity.headers().addHeaderWriter(new StaticHeadersWriter("Content-Security-Policy",
         		"script-src 'self' 'unsafe-inline' 'unsafe-eval' " + cspHeader + " ; object-src 'self'" ));
         
         httpSecurity.headers().httpStrictTransportSecurity().includeSubDomains(true).maxAgeInSeconds(86400);
-        
-        // @formatter:off
+
+		httpSecurity.csrf().disable().authorizeRequests()
+				.antMatchers(HttpMethod.POST,sessionApiBaseURL, sessionApiBaseURL + "/")
+				.authenticated()
+				.and()
+				.httpBasic();
+
 		httpSecurity.csrf().disable().exceptionHandling().accessDeniedHandler(this.accessDeniedHandler)
 				.authenticationEntryPoint(this.unauthorizedHandler).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
@@ -113,6 +138,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, apiBaseURL + "/ping/", apiBaseURL + "/ping").permitAll()
 
 				// Transactions
+				.antMatchers(HttpMethod.GET, declinedTransactionsApiBaseURL, declinedTransactionsApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.GET, topTranSummaryApiBaseURL, topTranSummaryApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.GET, approvedTranSummaryApiBaseURL, approvedTranSummaryApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 				.antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/",
 						transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/")
 				.hasAnyAuthority("SEARCH_REPORTING")

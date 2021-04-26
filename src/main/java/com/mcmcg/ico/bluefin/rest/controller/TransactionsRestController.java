@@ -1,45 +1,42 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.mcmcg.ico.bluefin.dto.DeclinedTranSummaryDTO;
+import com.mcmcg.ico.bluefin.model.ApprovedTranSummary;
+import com.mcmcg.ico.bluefin.dto.TopTranSummaryDTO;
 import com.mcmcg.ico.bluefin.model.LegalEntityApp;
 import com.mcmcg.ico.bluefin.model.SaleTransaction;
 import com.mcmcg.ico.bluefin.model.Transaction;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
+import com.mcmcg.ico.bluefin.service.TransactionSummaryService;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
-
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import springfox.documentation.annotations.ApiIgnore;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/api/transactions")
@@ -51,6 +48,63 @@ public class TransactionsRestController {
 	private TransactionService transactionService;
 	@Autowired
 	private SessionService sessionService;
+	@Autowired
+	private TransactionSummaryService transactionSummaryService;
+
+	@ApiOperation(value = "Generate Top Transaction Summary")
+	@GetMapping(value = "/generateTopSummaryReport", produces = { "application/json" })
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = TopTranSummaryDTO.class, responseContainer = "Map"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<Map<String, List<TopTranSummaryDTO>>> generateTopSummaryReport(@RequestParam String top, @RequestParam String statusCode, @RequestParam String fromDate, @RequestParam String toDate) {
+		LOGGER.info("Generate Top Summary Report From: {} To: {}", fromDate, toDate);
+
+		Map<String, List<TopTranSummaryDTO>> topList = transactionSummaryService.topSummary(top, statusCode,fromDate,toDate);
+		if (topList.isEmpty()){
+			throw new CustomNotFoundException("Top Summary Report not found");
+		}
+		return new ResponseEntity<>(topList, HttpStatus.OK);
+	}
+
+
+	@ApiOperation(value = "Generate Declined Transaction Summary")
+	@GetMapping(value = "/generateDeclinedReport", produces = { "application/json" })
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = DeclinedTranSummaryDTO.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<List<DeclinedTranSummaryDTO>> generateDeclinedReport( @RequestParam String fromDate, @RequestParam String toDate) {
+		LOGGER.info("Generate Declined Report From: {} To: {}", fromDate, toDate);
+
+		List<DeclinedTranSummaryDTO> declineList = transactionSummaryService.declinedSummary(fromDate,toDate);
+		if (declineList.isEmpty()){
+			throw new CustomNotFoundException("Decline Summary not found");
+		}
+		return new ResponseEntity<>(declineList, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "Generate Approved Transaction Summary")
+	@GetMapping(value = "/generateApprovedReport", produces = { "application/json" })
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ApprovedTranSummary.class, responseContainer = "Map"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<Map<String, List<ApprovedTranSummary>>> generateApprovedReport(@RequestParam String fromDate, @RequestParam String toDate) {
+		LOGGER.info("Generate Approved Report From: {} To: {}", fromDate, toDate);
+
+		Map<String, List<ApprovedTranSummary>> approveList = transactionSummaryService.approvedSummary(fromDate,toDate);
+		if (approveList.isEmpty()){
+			throw new CustomNotFoundException("Approved Summary not found");
+		}
+		return new ResponseEntity<>(approveList, HttpStatus.OK);
+	}
 
 	@ApiOperation(value = "getTransaction", nickname = "getTransaction")
 	@GetMapping(value = "/{transactionId}", produces = "application/json")

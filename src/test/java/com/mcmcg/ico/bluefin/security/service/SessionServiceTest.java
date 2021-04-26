@@ -1,11 +1,8 @@
 package com.mcmcg.ico.bluefin.security.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,16 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.mcmcg.ico.bluefin.BluefinServicesApplication;
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
-import com.mcmcg.ico.bluefin.model.Permission;
-import com.mcmcg.ico.bluefin.model.Role;
-import com.mcmcg.ico.bluefin.model.RolePermission;
 import com.mcmcg.ico.bluefin.model.User;
 import com.mcmcg.ico.bluefin.model.UserLegalEntityApp;
 import com.mcmcg.ico.bluefin.model.UserLoginHistory;
@@ -60,8 +51,7 @@ public class SessionServiceTest {
 	private UserDetailsServiceImpl userDetailsServiceImpl;
 	@Mock
 	private UserLoginHistoryDAO userLoginHistoryDAO;
-	@Mock
-	private BCryptPasswordEncoder passwordEncoder;
+
 	private TokenUtils tokenUtils;
 
 	private final static String TOKEN = "eyJpZCI6MTIzNDUsInVzZXJuYW1lIjoib21vbmdlIiwiZXhwaXJlcyI6MTQ2NzAzMzAwMzg2NH0=.ZrRceEEB63+4jDcLIXVUSuuOkV82pqvdXcfFZkzG1DE=";
@@ -82,13 +72,8 @@ public class SessionServiceTest {
 	// @Test
 	public void testAuthenticateSuccess() {
 		Mockito.when(userDAO.findByUsername(Mockito.anyString())).thenReturn(createValidUser());
-		// Mockito.when(userLoginHistoryDAO.saveUserLoginHistory(Mockito.any(UserLoginHistory.class)))
-		// .thenReturn(new UserLoginHistory());
-		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = sessionService.authenticate("nquiros",
-				"pass123");
 
-		Assert.assertEquals("nquiros", usernamePasswordAuthenticationToken.getName());
-		Assert.assertEquals("pass123", usernamePasswordAuthenticationToken.getCredentials());
+		sessionService.authenticate("nquiros", "pass123");
 
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 		Mockito.verify(userLoginHistoryDAO, Mockito.times(1)).saveUserLoginHistory(Mockito.any(UserLoginHistory.class));
@@ -511,7 +496,6 @@ public class SessionServiceTest {
 		Assert.assertEquals(user.getFirstName(), response.getFirstName());
 		Assert.assertEquals(user.getLastName(), response.getLastName());
 		Assert.assertEquals(user.getUsername(), response.getUsername());
-		List<Permission> permissionsResult = new ArrayList<Permission>();
 		
 		Assert.assertFalse(response.getToken().equals(TOKEN));
 		Assert.assertTrue(response.getToken().equals(NEW_TOKEN));
@@ -520,7 +504,6 @@ public class SessionServiceTest {
 		Mockito.verify(tokenUtils, Mockito.times(1)).generateToken(Mockito.any(SecurityUser.class));
 		Mockito.verify(userDAO, Mockito.times(1)).findByUsername(Mockito.anyString());
 
-		// Mockito.verifyNoMoreInteractions(tokenUtils);
 		Mockito.verifyNoMoreInteractions(userDAO);
 	}
 

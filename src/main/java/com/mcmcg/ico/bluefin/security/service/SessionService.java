@@ -8,16 +8,15 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import com.mcmcg.ico.bluefin.service.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.Hours;
-import org.joda.time.Period;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -44,10 +43,8 @@ import com.mcmcg.ico.bluefin.repository.PermissionDAO;
 import com.mcmcg.ico.bluefin.repository.RoleDAO;
 import com.mcmcg.ico.bluefin.repository.RolePermissionDAO;
 import com.mcmcg.ico.bluefin.repository.UserDAO;
-import com.mcmcg.ico.bluefin.repository.UserLoginHistoryDAO;
 import com.mcmcg.ico.bluefin.repository.UserPreferenceDAO;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomUnauthorizedException;
 import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
 import com.mcmcg.ico.bluefin.rest.resource.ThirdPartyAppResource;
 import com.mcmcg.ico.bluefin.rest.resource.TokenResponse;
@@ -56,10 +53,6 @@ import com.mcmcg.ico.bluefin.security.TokenUtils;
 import com.mcmcg.ico.bluefin.security.model.SecurityUser;
 import com.mcmcg.ico.bluefin.security.rest.resource.AuthenticationResponse;
 import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
-import com.mcmcg.ico.bluefin.service.EmailService;
-import com.mcmcg.ico.bluefin.service.PropertyService;
-import com.mcmcg.ico.bluefin.service.RoleService;
-import com.mcmcg.ico.bluefin.service.UserService;
 import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
 
 @Service
@@ -75,8 +68,6 @@ public class SessionService {
 	private UserDetailsServiceImpl userDetailsService;
 	@Autowired
 	private TokenUtils tokenUtils;
-	@Autowired
-	private UserLoginHistoryDAO userLoginHistoryDAO;
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	@Autowired
@@ -95,69 +86,37 @@ public class SessionService {
 	private LegalEntityAppDAO legalEntityAppDAO;
 	@Autowired
 	private UserPreferenceDAO userPreferenceDAO;
+	@Autowired
+	private UserLoginHistoryRepoService userLoginHistoryRepoService;
+	@Autowired
+	private UserLookUpService userLookUpService;
 
 	@Transactional(propagation=Propagation.NOT_SUPPORTED)
-	public UsernamePasswordAuthenticationToken authenticate(final String username, final String password) {
+	public void authenticate(final String username, final String password) {
 		LOGGER.info("Entering to authenticate");
 		User user = userDAO.findByUsername(username);
 		UserLoginHistory userLoginHistory = new UserLoginHistory();
 		userLoginHistory.setUsername(username);
-		userLoginHistory.setPassword(passwordEncoder.encode(password));
+		userLoginHistory.setPassword(password);
 		
 		DateTime currentTimeUTC = new DateTime(DateTimeZone.UTC);
-		String message="";
 		LOGGER.debug("user is ={} ",user);
-		if (user == null) {
-			message = LoggingUtil.invalidLoginAttempts("User: ", username, BluefinWebPortalConstants.SEPARATOR,
-					"Reason : User NOT FOUND");
-			LOGGER.error(message);
-			
-			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_FOUND.getValue());
-			throw new CustomUnauthorizedException("Invalid credentials");
-		}
-		userLoginHistory.setUserId(user.getUserId());
-		if ("NEW".equals(user.getStatus())) {
-			message = LoggingUtil.invalidLoginAttempts("UserName: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-					"Reason : User is: ", UserStatus.NEW.getStatus());
-			LOGGER.error(message);
-			
-			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
-			throw new AccessDeniedException("Account is not activated yet.");
-		}
-		if ("INACTIVE".equals(user.getStatus())) {
-			message = LoggingUtil.invalidLoginAttempts("User:: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-					"Reason : User is:: ", UserStatus.INACTIVE.getStatus());
-			LOGGER.error(message);
-			
-			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_NOT_ACTIVE.getValue());
-			throw new AccessDeniedException("Account was deactivated.");
-		}
+
+		userLoginHistoryRepoService.saveUserLoginHistoryAuthentication(user, userLoginHistory, username);
 		
 		checkUserStatusForLock(user, userLoginHistory, currentTimeUTC);
 		
-		Integer wrongPasswordCounterNextVal = checkUserPasswordMatches(password, user, userLoginHistory, currentTimeUTC);
-		
 		if(isPasswordExpire(user, null)) {
-			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_PASSWORD_EXPIRED.getValue());
+			userLoginHistoryRepoService.saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_PASSWORD_EXPIRED.getValue());
 		}
 		else {
-			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
+			user.setWrongPasswordCounter(0);
 			user.setLastLogin(currentTimeUTC);
-			updateUserLookUp(user);
-			saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
+			userLookUpService.updateUserLookUp(user);
+			userLoginHistoryRepoService.saveUserLoginHistory(userLoginHistory, MessageCode.SUCCESS.getValue());
 		}
 		
 		LOGGER.info("Exit from authenticate");
-		return new UsernamePasswordAuthenticationToken(username, password);
-	}
-
-	private void saveUserLoginHistory(UserLoginHistory userLoginHistory, Integer messageCode) {
-		LOGGER.debug("userLoginHistory value is ={} ",userLoginHistory);
-		if (userLoginHistory != null) {
-			userLoginHistory.setMessageId(messageCode);
-			userLoginHistoryDAO.saveUserLoginHistory(userLoginHistory);
-		}
-		LOGGER.info("Exit from saveUserLoginHistory");
 	}
 
 	public AuthenticationResponse generateToken(final String username) {
@@ -430,18 +389,7 @@ public class SessionService {
 		LOGGER.info("Exit from validate Token");
 		return true;
 	}
-	
-	private void updateUserLookUp(User user) {
-		LOGGER.debug("Inside updateUserLookUp method for User Id : "+user.getUserId());
-		
-		try {	
-			userDAO.updateUserLookUp(user);
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(),e);
-		}
-		LOGGER.info("Exit from updateUserLookUp");
-	}
-	
+
 	private Role setUserRolePermission(String applicationRoleName) {
 		LOGGER.debug("Inside getUserRolePermission method for propertyName {} ", applicationRoleName);
 		
@@ -521,55 +469,13 @@ public class SessionService {
 				String message = LoggingUtil.invalidLoginAttempts("User : ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
 						"Reason : User is ", UserStatus.LOCKED.getStatus());
 				LOGGER.error(message);
-				
-				saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_IS_LOCKED.getValue());
+
+				userLoginHistoryRepoService.saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_USER_IS_LOCKED.getValue());
 				throw new AccessDeniedException("Account is Locked.");
 			}
 		}
 	}
-	
-	private Integer checkUserPasswordMatches(String password, User user, UserLoginHistory userLoginHistory, DateTime currentTimeUTC) {
-		Integer wrongPasswordCounterNextVal = 0;
-		String wrongPasswordMaxLimit;
-		String message = "";
-		int wrongPasswordMaxLimitVal;
-		if (!passwordEncoder.matches(password, user.getPassword())) {
-			
-			wrongPasswordCounterNextVal = user.getWrongPasswordCounter() + 1;
-			wrongPasswordMaxLimit = propertyService.getPropertyValue(BluefinWebPortalConstants.WRONGPWMAXLIMIT);
-			try {
-				wrongPasswordMaxLimitVal = wrongPasswordMaxLimit == null || "".equals(wrongPasswordMaxLimit.trim()) ? 
-						BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT : Integer.parseInt(wrongPasswordMaxLimit);
-				if(wrongPasswordMaxLimitVal < 0)
-					wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT;
-			} catch(NumberFormatException e) {
-				wrongPasswordMaxLimitVal = BluefinWebPortalConstants.WRONGPASSWORDMAXLIMITDEFAULT;
-			}
-			
-			if (wrongPasswordCounterNextVal >= wrongPasswordMaxLimitVal) {
-				user.setStatus(UserStatus.LOCKED.getStatus());
-				user.setAccountLockedOn(currentTimeUTC);
-				message = LoggingUtil.invalidLoginAttempts("User: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-						"Reason : ", "PASSWORD IS INVALID", BluefinWebPortalConstants.SEPARATOR,
-						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal), BluefinWebPortalConstants.SEPARATOR,
-						"User is LOCKED");
-				LOGGER.error(message);
-				
-			} else {
-				message = LoggingUtil.invalidLoginAttempts("User:: ", user.getUsername(), BluefinWebPortalConstants.SEPARATOR,
-						"Reason : ", "PASSWORD IS INVALID", BluefinWebPortalConstants.SEPARATOR,
-						"WRONG PASSWORD ATTEMPTS : ", String.valueOf(wrongPasswordCounterNextVal));
-				LOGGER.error(message);
-			}
-			
-			user.setWrongPasswordCounter(wrongPasswordCounterNextVal);
-			saveUserLoginHistory(userLoginHistory, MessageCode.ERROR_PASSWORD_NOT_FOUND.getValue());
-			updateUserLookUp(user);
-			throw new CustomUnauthorizedException("Invalid credentials");
-		}
-		return wrongPasswordCounterNextVal;
-	}
-	
+
 	public boolean checkPasswordExpire(int passwordExpireAfter, int passwordWarnWithIn, int daysDiff, AuthenticationResponse response) {
 		boolean isPasswordExpire = false;
 		if(passwordExpireAfter>=0 && passwordWarnWithIn>=0 && (passwordExpireAfter-passwordWarnWithIn)>=0) {

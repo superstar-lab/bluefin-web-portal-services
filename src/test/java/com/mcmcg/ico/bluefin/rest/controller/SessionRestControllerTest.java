@@ -1,5 +1,7 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
+import static org.mockito.Mockito.doThrow;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -62,8 +64,7 @@ public class SessionRestControllerTest {
 	 */
 	@Test
 	public void testAuthenticationRequest() throws Exception {// 200
-		Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(new UsernamePasswordAuthenticationToken("omonge", "test1234"));
+		doNothing().when(sessionService).authenticate(Mockito.anyString(), Mockito.anyString());
 		Mockito.when(sessionService.generateToken(Mockito.anyString())).thenReturn(createValidAuthenticationResponse());
 
 		mockMvc.perform(post(API).content(convertObjectToJsonBytes(createValidAuthentificationRequest()))
@@ -122,8 +123,9 @@ public class SessionRestControllerTest {
 		AuthenticationRequest request = createValidAuthentificationRequest();
 		request.setUsername("omonge1");
 
-		Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
-				.thenThrow(new DataAccessResourceFailureException(""));
+		doNothing().when(sessionService).authenticate(Mockito.anyString(), Mockito.anyString());
+
+		doThrow(new DataAccessResourceFailureException("")).when(sessionService).authenticate(Mockito.anyString(), Mockito.anyString());
 
 		mockMvc.perform(post(API).content(convertObjectToJsonBytes(request)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isForbidden());
@@ -144,8 +146,7 @@ public class SessionRestControllerTest {
 		request.setPassword("test1234");
 		request.setUsername("omonge");
 
-		Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
-				.thenThrow(new RuntimeException(""));
+		doThrow(new RuntimeException("")).when(sessionService).authenticate(Mockito.anyString(), Mockito.anyString());
 
 		mockMvc.perform(post(API).content(convertObjectToJsonBytes(request)).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isInternalServerError());
@@ -165,8 +166,8 @@ public class SessionRestControllerTest {
 	public void testGenerationTokenErrorCreatingResponse() throws Exception { // 404
 		AuthenticationRequest request = createValidAuthentificationRequest();
 
-		Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(new UsernamePasswordAuthenticationToken("omonge", "test1234"));
+		doNothing().when(sessionService).authenticate(Mockito.anyString(), Mockito.anyString());
+
 		Mockito.when(sessionService.generateToken(Mockito.anyString())).thenThrow(new CustomNotFoundException(""));
 
 		mockMvc.perform(post(API).content(convertObjectToJsonBytes(request)).contentType(MediaType.APPLICATION_JSON))
@@ -187,8 +188,8 @@ public class SessionRestControllerTest {
 	public void testGenerationTokenErrorLoadUserByUsername() throws Exception { // 500
 		AuthenticationRequest request = createValidAuthentificationRequest();
 
-		Mockito.when(sessionService.authenticate(Mockito.anyString(), Mockito.anyString()))
-				.thenReturn(new UsernamePasswordAuthenticationToken("omonge", "test1234"));
+		doNothing().when(sessionService).authenticate(Mockito.anyString(), Mockito.anyString());
+
 		Mockito.when(sessionService.generateToken(Mockito.anyString())).thenThrow(new RuntimeException(""));
 
 		mockMvc.perform(post(API).content(convertObjectToJsonBytes(request)).contentType(MediaType.APPLICATION_JSON))
@@ -306,7 +307,7 @@ public class SessionRestControllerTest {
 	 */
 	@Test
 	public void testUserLogoutRequestException() throws Exception { // 500
-		Mockito.doThrow(new RuntimeException("")).when(sessionService).deleteSession(Mockito.anyString());
+		doThrow(new RuntimeException("")).when(sessionService).deleteSession(Mockito.anyString());
 
 		mockMvc.perform(delete(API).header("X-Auth-Token", "tokenTest1234"))
 				.andExpect(status().isInternalServerError());
