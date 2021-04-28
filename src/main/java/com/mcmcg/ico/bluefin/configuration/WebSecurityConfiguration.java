@@ -93,6 +93,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		final String declinedTransactionsApiBaseURL = transactionsApiBaseURL + "/generateDeclinedReport";
 		final String topTranSummaryApiBaseURL = transactionsApiBaseURL + "/generateTopSummaryReport";
 		final String approvedTranSummaryApiBaseURL = transactionsApiBaseURL + "/generateApprovedReport";
+		final String transUpdatesApiBaseURL = transactionsApiBaseURL + "/update";
+		final String transUpdatesMetricsApiBaseURL = transUpdatesApiBaseURL + "/metrics";
+		final String transUpdateApiBaseURL = transUpdatesApiBaseURL + "/{\\d+}";
         final String transactionTypesApiBaseURL = apiBaseURL + "/transaction-types";
         final String sessionApiBaseURL = apiBaseURL + "/session";
         final String usersApiBaseURL = apiBaseURL + "/users";
@@ -143,6 +146,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, topTranSummaryApiBaseURL, topTranSummaryApiBaseURL + "/")
 				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 				.antMatchers(HttpMethod.GET, approvedTranSummaryApiBaseURL, approvedTranSummaryApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.POST, transUpdatesApiBaseURL, transUpdatesApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.POST, transUpdatesMetricsApiBaseURL, transUpdatesMetricsApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.antMatchers(HttpMethod.GET, transUpdateApiBaseURL, transUpdateApiBaseURL + "/")
 				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 				.antMatchers(HttpMethod.GET, transactionsApiBaseURL, transactionsApiBaseURL + "/",
 						transactionsApiBaseURL + "/{transactionId}", transactionsApiBaseURL + "/{transactionId}/")

@@ -176,7 +176,13 @@ public class BluefinWebPortalConstants {
 	public static final String ACCOUNT_NUM= "accountNumber";
 	public static final String TRANSACTION_ID= "transactionId";
 
+	public static final String APPROVE_STATUS_CODE = "1";
 	public static final String DECLINE_STATUS_CODE = "2";
+
+	public static final String APPROVED_TRANSACTIONS_METRIC = "Approved Transactions";
+	public static final String DECLINED_TRANSACTIONS_METRIC = "Declined Transactions";
+	public static final String REPORT_PATH = "REPORT_PATH";
+
 	private BluefinWebPortalConstants(){
 		
 	}

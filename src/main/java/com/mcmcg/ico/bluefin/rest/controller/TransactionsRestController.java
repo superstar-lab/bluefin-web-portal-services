@@ -5,24 +5,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.mcmcg.ico.bluefin.dto.DeclinedTranSummaryDTO;
-import com.mcmcg.ico.bluefin.model.ApprovedTranSummary;
+import com.mcmcg.ico.bluefin.dto.PageDTO;
 import com.mcmcg.ico.bluefin.dto.TopTranSummaryDTO;
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
-import com.mcmcg.ico.bluefin.model.SaleTransaction;
-import com.mcmcg.ico.bluefin.model.Transaction;
+import com.mcmcg.ico.bluefin.model.*;
 import com.mcmcg.ico.bluefin.model.TransactionType.TransactionTypeCode;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.rest.resource.Views;
 import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.BatchUploadService;
 import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.TransactionSummaryService;
+import com.mcmcg.ico.bluefin.service.TransactionUpdateService;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,11 +34,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.mcmcg.ico.bluefin.util.PageUtils.getPageRequest;
 
 @RestController
 @RequestMapping(value = "/api/transactions")
@@ -50,6 +55,10 @@ public class TransactionsRestController {
 	private SessionService sessionService;
 	@Autowired
 	private TransactionSummaryService transactionSummaryService;
+	@Autowired
+	private TransactionUpdateService transactionUpdateService;
+	@Autowired
+	private BatchUploadService batchUploadService;
 
 	@ApiOperation(value = "Generate Top Transaction Summary")
 	@GetMapping(value = "/generateTopSummaryReport", produces = { "application/json" })
@@ -218,6 +227,54 @@ public class TransactionsRestController {
 	            }
 	        }
 	        return fileArray;
+	}
 
-	    }
+	@ApiOperation(value = "Get Transactions from Updates")
+	@PostMapping(value = "/update", produces = { "application/json" })
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = String.class),
+			@ApiResponse(code = 204, message = "No Content"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<String> getTransactionsFromUpdates(@RequestBody List<UpdateInfo> updates, HttpServletResponse response) {
+		LOGGER.info("Get Transactions from Updates, updates: {}", updates);
+		try {
+			return transactionUpdateService.getTransactionsFromUpdateReport(updates, response);
+		} catch (Exception e) {
+			LOGGER.error("TransactionsRestController -> getTransactionsFromUpdates. An error occurred during downloading file: {}", e.getMessage());
+			throw new CustomException("An error occurred during downloading file.");
+		}
+	}
+
+	@ApiOperation(value = "Get Transactions Metrics from Updates")
+	@PostMapping(value = "/update/metrics", produces = { "application/json" })
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = Map.class, responseContainer = "Map"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<Map<String, Long>> getTransactionsMetricsFromUpdates(@RequestBody List<UpdateInfo> updates) {
+		LOGGER.info("Get Transactions Metrics from Updates, updates: {}", updates);
+		Map<String, Long> result =  transactionUpdateService.getTransactionsFromUpdatesMetrics(updates);
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
+	@ApiOperation(value = "Get Transactions from Update")
+	@GetMapping(value = "/update/{updateRequest}", produces = { "application/json" })
+	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = SaleTransactionInfo.class, responseContainer = "List"),
+			@ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
+			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
+			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
+			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+	public ResponseEntity<Page<SaleTransactionInfo>> getTransactionsFromUpdate(@PathVariable String updateRequest,
+																			  @RequestParam String application, @RequestParam String updateDate, PageDTO pageDTO) {
+		LOGGER.info("Get Transactions from Update, updateRequest: {}, application: {}, updateDate: {}, page: {}", updateRequest, application, updateDate, pageDTO);
+		Page<SaleTransactionInfo> result = transactionUpdateService.getTransactionsFromUpdate(updateRequest, application, updateDate,
+				getPageRequest(pageDTO.getPage(), pageDTO.getSize()));
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
 }
