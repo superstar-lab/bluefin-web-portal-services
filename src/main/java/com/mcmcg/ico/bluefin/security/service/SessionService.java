@@ -264,7 +264,7 @@ public class SessionService {
 			content = content.
 					replace("~u", username).
 					replace("~U", name).
-					replace("~p", newPassword).
+					replace("~t", token).
 					replace("~n", "\n").
 					replace("~N", "\n\n");
 		}
@@ -272,8 +272,8 @@ public class SessionService {
 		LOGGER.info("ready to send email");
 		
 		emailService.sendEmail(user.getEmail(),
-				subject!=null ? subject : "Bluefin web portal: Reset password email",
-				content!=null ? content : "Password reset complete for user " + username + ", new password is:\n\n" + newPassword + "\n\nBluefin web portal automated email");
+				subject!=null ? subject : "Bluefin web portal: password reset request",
+				content!=null ? content : "Password reset complete for user " + username + ", create new password using link bellow:\n\n" + "https://bluefin.mcmcg.com/login/reset?user=" + username + "&token=" + token + "\n\nBluefin web portal automated email");
 				
 		LOGGER.info("email sent.");
     }
