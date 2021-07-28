@@ -244,7 +244,8 @@ public class PaymentProcessorService {
 				PaymentProcessorMerchantResource ppmr = newMapOfPaymentProcessorMerchants
 						.get(element.getLegalEntityAppId());
 				if(ppmr!= null) {
-					element.setMerchantId(ppmr.getMerchantId());
+					element.setMerchantIdCredit(ppmr.getMerchantId_Credit());
+					element.setMerchantIdDebit(ppmr.getMerchantId_Debit());
 					element.setTestOrProd(ppmr.getTestOrProd());
 					paymentProcessorMerchantsToKeep.add(ppmr.getLegalEntityAppId());
 				}

@@ -10,13 +10,15 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorMechantId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paymentProcessorMerchantId")
 public class PaymentProcessorMerchant implements Serializable {
     private static final long serialVersionUID = 3038512746750300442L;
 
-    private Long paymentProcessorMechantId;
+    private Long paymentProcessorMerchantId;
 
-    private String merchantId;
+    private String merchantId_Debit;
+
+	private String merchantId_Credit;
 
     private Short testOrProd;
     
@@ -37,20 +39,28 @@ public class PaymentProcessorMerchant implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private DateTime createdDate;
 
-	public Long getPaymentProcessorMechantId() {
-		return paymentProcessorMechantId;
+	public Long getPaymentProcessorMerchantId() {
+		return paymentProcessorMerchantId;
 	}
 
-	public void setPaymentProcessorMechantId(Long paymentProcessorMechantId) {
-		this.paymentProcessorMechantId = paymentProcessorMechantId;
+	public void setPaymentProcessorMerchantId(Long paymentProcessorMerchantId) {
+		this.paymentProcessorMerchantId = paymentProcessorMerchantId;
 	}
 
-	public String getMerchantId() {
-		return merchantId;
+	public String getMerchantIdDebit() {
+		return merchantId_Debit;
 	}
 
-	public void setMerchantId(String merchantId) {
-		this.merchantId = merchantId;
+	public String getMerchantIdCredit() {
+		return merchantId_Credit;
+	}
+
+	public void setMerchantIdDebit(String merchantId) {
+		this.merchantId_Debit = merchantId;
+	}
+
+	public void setMerchantIdCredit(String merchantId) {
+		this.merchantId_Credit = merchantId;
 	}
 
 	public Short getTestOrProd() {

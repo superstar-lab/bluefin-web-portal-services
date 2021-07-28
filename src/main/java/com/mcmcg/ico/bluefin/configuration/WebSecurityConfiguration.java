@@ -102,6 +102,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String legalEntitiesApiBaseURL = apiBaseURL + "/legal-entities";
         final String reconciliationStatusApiBaseURL = apiBaseURL + "/reconciliation-status";
         final String rolesApiBaseURL = apiBaseURL + "/roles";
+		final String rolesAssignPerApiBaseURL = rolesApiBaseURL + "/assign-permissions";
         final String internalResponseCodesApiBaseURL = apiBaseURL + "/internal-response-codes";
         final String paymentProcessorApiBaseURL = apiBaseURL + "/payment-processors";
         final String paymentProcessorRulesApiBaseURL = apiBaseURL + "/payment-processor-rules";
@@ -110,6 +111,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         final String reportsApiBaseURL = apiBaseURL + "/reports";
         final String batchUploadApiBaseURL = apiBaseURL + "/batch-upload";
         final String applicationPropertyApiBaseURL = apiBaseURL + "/applicationProperties";
+		final String merchantApiBaseURL = apiBaseURL + "/merchant";
 
         /**CSP Code Starts Here*/
         cspHeader = cspHeader.replaceAll("\\s+", " ");
@@ -254,9 +256,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				// Roles
 				.antMatchers(HttpMethod.GET, rolesApiBaseURL, rolesApiBaseURL + "/").authenticated()
 				.antMatchers(HttpMethod.GET, rolesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", rolesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/").authenticated()
+				.antMatchers(HttpMethod.PUT, rolesAssignPerApiBaseURL, rolesAssignPerApiBaseURL + "/").hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
 
 				// Internal Response Codes
-				.antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/")
+				 .antMatchers(HttpMethod.GET, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/")
 				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
 				.antMatchers(HttpMethod.POST, internalResponseCodesApiBaseURL, internalResponseCodesApiBaseURL + "/")
 				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
@@ -264,6 +267,12 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
 				.antMatchers(HttpMethod.DELETE, internalResponseCodesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
 						internalResponseCodesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
+
+
+				.antMatchers(HttpMethod.GET, merchantApiBaseURL, merchantApiBaseURL + "/")
+				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
+				.antMatchers(HttpMethod.PUT, merchantApiBaseURL, merchantApiBaseURL + "/")
 				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
 
 				// Internal Status Codes
@@ -282,6 +291,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.hasAuthority("BATCH_UPLOAD")
 				.antMatchers(HttpMethod.GET, batchUploadApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", batchUploadApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.hasAuthority(BluefinWebPortalConstants.BATCHREPORTING)
+
+
+
 
 				// Application Property Lookup
 				.antMatchers(HttpMethod.GET, applicationPropertyApiBaseURL)

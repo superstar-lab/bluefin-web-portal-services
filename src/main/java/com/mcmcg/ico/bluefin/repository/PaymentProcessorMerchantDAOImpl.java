@@ -94,10 +94,11 @@ class PaymentProcessorInsertBatchPreparedStatement implements BatchPreparedState
 		Timestamp modifyDate = Timestamp.valueOf(dtf.print(utc2));
 		ps.setLong(1, paymentProcessorMerchant.getPaymentProcessorId());
 		ps.setShort(2, paymentProcessorMerchant.getTestOrProd());
-		ps.setString(3,paymentProcessorMerchant.getMerchantId() );
-		ps.setTimestamp(4, dateCreated);
-		ps.setTimestamp(5, modifyDate);
-		ps.setLong(6, paymentProcessorMerchant.getLegalEntityAppId());
+		ps.setString(3,paymentProcessorMerchant.getMerchantIdCredit() );
+		ps.setString(4,paymentProcessorMerchant.getMerchantIdDebit() );
+		ps.setTimestamp(5, dateCreated);
+		ps.setTimestamp(6, modifyDate);
+		ps.setLong(7, paymentProcessorMerchant.getLegalEntityAppId());
 	}
 	@Override
 	public int getBatchSize() {
@@ -109,8 +110,9 @@ class PaymentProcessorMerchantRowMapper implements RowMapper<PaymentProcessorMer
 	@Override
 	public PaymentProcessorMerchant mapRow(ResultSet rs, int row) throws SQLException {
 		PaymentProcessorMerchant paymentProcessorMerchant = new PaymentProcessorMerchant();
-		paymentProcessorMerchant.setMerchantId(rs.getString("MerchantID"));
-		paymentProcessorMerchant.setPaymentProcessorMechantId(rs.getLong("PaymentProcessorMerchantID"));
+		paymentProcessorMerchant.setMerchantIdDebit(rs.getString("MerchantID_Debit"));
+		paymentProcessorMerchant.setMerchantIdCredit(rs.getString("MerchantID_Credit"));
+		paymentProcessorMerchant.setPaymentProcessorMerchantId(rs.getLong("PaymentProcessorMerchantID"));
 		paymentProcessorMerchant.setLastModifiedBy(rs.getString("ModifiedBy"));
 		paymentProcessorMerchant.setTestOrProd(rs.getShort("TestOrProd"));
 		paymentProcessorMerchant.setModifiedDate(new DateTime(rs.getTimestamp("DatedModified")));
