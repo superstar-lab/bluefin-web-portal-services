@@ -31,7 +31,7 @@ public class TransactionSummaryDAOImpl implements TransactionSummaryDAO {
         log.info("TransactionSummaryDAOImpl -> declinedSummary, fromDate: {}, toDate : {} , statusCode : {}", fromDate, toDate, statusCode);
         List<DeclinedTranSummaryDTO> result = new ArrayList<>();
         try {
-            result = jdbcTemplate.query("CALL spTransactionStatusMetrics(?,?,?)", new Object[]{ fromDate, toDate, statusCode }, new DeclinedTransactionMapper());
+            result = jdbcTemplate.query("CALL spTransactionStatusMetrics(?,?,?)", new Object[]{ fromDate, toDate.concat(" 23:59:59"), statusCode }, new DeclinedTransactionMapper());
         } catch (Exception ex) {
             log.error("TransactionSummaryDAOImpl -> declinedSummary, Error while retrieving declined transactions. fromDate: {}, toDate : {} , statusCode : {} , Error: {}", fromDate, toDate, statusCode, ex.getMessage());
         }
@@ -43,7 +43,7 @@ public class TransactionSummaryDAOImpl implements TransactionSummaryDAO {
         log.info("TransactionSummaryDAOImpl -> approvedSummary, fromDate: {}, toDate : {}", fromDate, toDate);
         List<ApprovedTranSummary> result = new ArrayList<>();
         try {
-            result = jdbcTemplate.query("CALL spGetApprovedTransactionSummary(?,?)", new Object[]{ fromDate, toDate }, new ApprovedTranSummaryRowMapper());
+            result = jdbcTemplate.query("CALL spGetApprovedTransactionSummary(?,?)", new Object[]{ fromDate, toDate.concat(" 23:59:59") }, new ApprovedTranSummaryRowMapper());
         } catch (Exception ex) {
             log.error("TransactionSummaryDAOImpl -> approvedSummary, Error while retrieving approved transactions. fromDate: {}, toDate : {}, Error: {}", fromDate, toDate, ex.getMessage());
         }
@@ -54,7 +54,7 @@ public class TransactionSummaryDAOImpl implements TransactionSummaryDAO {
         log.info("TransactionSummaryDAOImpl -> topSummary, top : {},statusCode : {}, fromDate: {}, toDate : {} ", top, statusCode, fromDate, toDate);
         List<TopTranSummaryDTO> result = new ArrayList<>();
         try {
-            result = jdbcTemplate.query("CALL spTopTransactionStatus(?,?,?,?)", new Object[]{ top, statusCode, fromDate, toDate  }, new TopTransactionMapper());
+            result = jdbcTemplate.query("CALL spTopTransactionStatus(?,?,?,?)", new Object[]{ top, statusCode, fromDate, toDate.concat(" 23:59:59")  }, new TopTransactionMapper());
         } catch (Exception ex) {
             log.error("TransactionSummaryDAOImpl -> topSummary, Error while retrieving top summary transactions. top : {},statusCode : {}, fromDate: {}, toDate : {} , Error: {}", top, statusCode, fromDate, toDate, ex.getMessage());
         }
