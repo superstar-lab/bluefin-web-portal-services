@@ -23,6 +23,9 @@ public class BluefinServicesApplication {
 
     @Value("${spring.datasource.binddb.jndi-name}")
     private String bindbJndiName;
+
+	@Value("${spring.datasource.blueAccountValidation.jndi-name:jdbc/ACH}")
+	private String blueAccountValidationJndiName;
     
     @Value("${spring.bluefin.muti.file.upload.size}")
     private DataSize multiFileSize;
@@ -48,7 +51,18 @@ public class BluefinServicesApplication {
 	public DataSource binDBDataSource() {
 		return lookup.getDataSource(bindbJndiName);
 	}
-	
+
+
+	@Bean(name = BluefinWebPortalConstants.BLUEFIN_ACCOUNT_VALIDATION_DATA_SOURCE,destroyMethod = "")
+	public DataSource bluefinAccountValidationDataSource() {
+		return lookup.getDataSource(blueAccountValidationJndiName);
+	}
+
+	@Bean(name = BluefinWebPortalConstants.BLUEFIN_ACCOUNT_VALIDATION_JDBC_TEMPLATE)
+	JdbcTemplate bluefinAccountValidationJdbcTemplate(@Qualifier(value=BluefinWebPortalConstants.BLUEFIN_ACCOUNT_VALIDATION_DATA_SOURCE)  DataSource bluefinAccountValidationDataSource){
+		return new JdbcTemplate(bluefinAccountValidationDataSource);
+	}
+
 	/**@Bean(name = BluefinWebPortalConstants.BLUEFIN_BIN_DB_JDBC_TEMPLATE)
 	JdbcTemplate binJdbcTemplate(@Qualifier(BluefinWebPortalConstants.BLUEFIN_BIN_DB_DATA_SOURCE)  DataSource binDBDataSource){
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(binDBDataSource);

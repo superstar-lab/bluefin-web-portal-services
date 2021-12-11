@@ -1,13 +1,20 @@
 package com.mcmcg.ico.bluefin.rest.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
+import com.mcmcg.ico.bluefin.model.LegalEntityApp;
+import com.mcmcg.ico.bluefin.model.User;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
+import com.mcmcg.ico.bluefin.rest.resource.*;
+import com.mcmcg.ico.bluefin.security.PasswordUtils;
+import com.mcmcg.ico.bluefin.security.TokenUtils;
+import com.mcmcg.ico.bluefin.service.PropertyService;
+import com.mcmcg.ico.bluefin.service.UserService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,38 +25,15 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
-import com.mcmcg.ico.bluefin.model.LegalEntityApp;
-import com.mcmcg.ico.bluefin.model.User;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.resource.ActivationResource;
-import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
-import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
-import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
-import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
-import com.mcmcg.ico.bluefin.rest.resource.UserResource;
-import com.mcmcg.ico.bluefin.security.TokenUtils;
-import com.mcmcg.ico.bluefin.security.PasswordUtils;
-import com.mcmcg.ico.bluefin.service.PropertyService;
-import com.mcmcg.ico.bluefin.service.UserService;
-import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
-
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/users")
@@ -62,7 +46,7 @@ public class UserRestController {
 	private PropertyService propertyService;
 	@Autowired
 	private TokenUtils tokenUtils;
-	
+
 	@ApiOperation(value = "getUser", nickname = "getUser")
 	@GetMapping(value = "/{username:.*}", produces = "application/json")
 	@ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")
@@ -75,6 +59,7 @@ public class UserRestController {
 	public UserResource get(@PathVariable String username, @ApiIgnore Authentication authentication) {
 		validateAuthentication(authentication);
 		LOGGER.debug("service ={}",username);
+		LOGGER.info("authentication = {}", authentication);
 		String usernameValue="";
 		if ("me".equals(username) || username.equals(authentication.getName())) {
 			usernameValue = authentication.getName();
@@ -84,6 +69,7 @@ public class UserRestController {
 		if (usernameValue != null && usernameValue.isEmpty()) {
 			usernameValue = username;
 		}
+		LOGGER.info("username = {}", username);
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be requested
 		validateUserLegalEntity(authentication,usernameValue);
@@ -101,8 +87,8 @@ public class UserRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public Iterable<User> get(@RequestParam("search") String search, @RequestParam(value = "page") Integer page,
-			@RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
-			@ApiIgnore Authentication authentication) {
+							  @RequestParam(value = "size") Integer size, @RequestParam(value = "sort", required = false) String sort,
+							  @ApiIgnore Authentication authentication) {
 		if (authentication == null) {
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
@@ -127,7 +113,7 @@ public class UserRestController {
 		List<String>  filterList=  null;
 		if(searchArray!=null)
 			filterList = Arrays.asList(searchArray);
-		
+
 		LOGGER.debug("Generating report with the following filters: {}", searchValue);
 		return userService.getUsers(filterList, page, size, sort);
 	}
@@ -142,7 +128,7 @@ public class UserRestController {
 			@ApiResponse(code = 404, message = "Bad Request", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ResponseEntity<UserResource> create(@Valid @RequestBody RegisterUserResource newUser,
-			@ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
+											   @ApiIgnore Errors errors, @ApiIgnore Authentication authentication) {
 		validateAuthentication(authentication);
 		String message = "";
 		LOGGER.debug("newUser ={}",newUser);
@@ -155,7 +141,7 @@ public class UserRestController {
 					BluefinWebPortalConstants.REQUESTEDFOR, newUser.getUsername(), BluefinWebPortalConstants.SEPARATOR,
 					errorDescription);
 			LOGGER.error(message);
-			
+
 			throw new CustomBadRequestException(errorDescription);
 		}
 
@@ -179,7 +165,7 @@ public class UserRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource updateUserProfile(@PathVariable String username, @ApiIgnore Authentication authentication,
-			@Valid @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
+										  @Valid @RequestBody UpdateUserResource userToUpdate, @ApiIgnore Errors errors) {
 		validateAuthentication(authentication);
 		String message = "";
 		LOGGER.info("update User Profile service");
@@ -196,7 +182,7 @@ public class UserRestController {
 		}
 		if (usernameValue != null && usernameValue.isEmpty()) {
 			usernameValue = username;
-		}	
+		}
 		// Checks if the Legal Entities of the consultant user are in the user
 		// that will be updated
 		try {
@@ -205,7 +191,7 @@ public class UserRestController {
 			LOGGER.error("Error in profile updation"+e);
 			LOGGER.error(LoggingUtil.adminAuditInfo("User Profile Updation Request::", BluefinWebPortalConstants.SEPARATOR,
 					"UserName= : ", String.valueOf(authentication.getName()), " does not have access to add by legal entity restriction."));
-			
+
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
 		}
 		validateErrors(errors);
@@ -226,7 +212,7 @@ public class UserRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource updateUserRoles(@PathVariable String username, @RequestBody Set<Long> roles,
-			@ApiIgnore Authentication authentication) {
+										@ApiIgnore Authentication authentication) {
 		String message = "";
 		if (authentication == null) {
 			message = LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
@@ -246,8 +232,8 @@ public class UserRestController {
 		}
 		LOGGER.debug("Updating roles for user: {}", username);
 		message = LoggingUtil.adminAuditInfo("User Roles Updation Request", BluefinWebPortalConstants.SEPARATOR,
-		BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-		BluefinWebPortalConstants.REQUESTEDFOR, username);
+				BluefinWebPortalConstants.REQUESTEDBY, String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+				BluefinWebPortalConstants.REQUESTEDFOR, username);
 		LOGGER.info(message);
 		return new UserResource(
 				userService.updateUserRoles("me".equals(username) ? authentication.getName() : username, roles, authentication.getName()));
@@ -262,7 +248,7 @@ public class UserRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public UserResource updateUserLegalEntities(@PathVariable String username, @RequestBody Set<Long> legalEntities,
-			@ApiIgnore Authentication authentication) {
+												@ApiIgnore Authentication authentication) {
 		String message = "";
 		if (authentication == null) {
 			message =LoggingUtil.adminAuditInfo("User Legal Entities Updation Request:", BluefinWebPortalConstants.SEPARATOR,
@@ -307,8 +293,8 @@ public class UserRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ResponseEntity<String> updateUserPassword(@PathVariable String username,
-			@Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
-			HttpServletRequest request, @ApiIgnore Authentication authentication) {
+													 @Valid @RequestBody UpdatePasswordResource updatePasswordResource, @ApiIgnore Errors errors,
+													 HttpServletRequest request, @ApiIgnore Authentication authentication) {
 		validateErrors(errors);
 		String message = "";
 		LOGGER.info("update User Password service");
@@ -317,8 +303,8 @@ public class UserRestController {
 			usernameValue = authentication.getName();
 		} else if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			message = LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
-			"Password updation failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-			BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
+					"Password updation failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
+					BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 			LOGGER.error(message);
 			throw new AccessDeniedException(BluefinWebPortalConstants.USERINSUFFICIENTPERMISSIONMSG);
 		}
@@ -357,7 +343,7 @@ public class UserRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ResponseEntity<String> updateUserActivation(@Valid @RequestBody ActivationResource activationResource,
-			HttpServletRequest request, @ApiIgnore Authentication authentication) {
+													   HttpServletRequest request, @ApiIgnore Authentication authentication) {
 
 		if (!userService.hasPermissionToManageAllUsers(authentication)) {
 			String message = LoggingUtil.adminAuditInfo("User Status Updation Request:", BluefinWebPortalConstants.SEPARATOR,
@@ -382,7 +368,7 @@ public class UserRestController {
 			String message = LoggingUtil.adminAuditInfo("User Status Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
 					"Status Updation Request failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
-			
+
 			LOGGER.info(message);
 			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -396,7 +382,7 @@ public class UserRestController {
 
 	/**
 	 * Verifies if the given LE are owned by the consultant user
-	 * 
+	 *
 	 * @param userName
 	 * @param search
 	 * @return String with the verified search
@@ -410,20 +396,20 @@ public class UserRestController {
 		// exception if does not have access
 		return QueryDSLUtil.getValidSearchBasedOnLegalEntitiesById(legalEntities, search);
 	}
-	
+
 	private void validateAuthentication(Authentication authentication){
 		if (authentication == null) {
 			throw new AccessDeniedException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
 	}
-	
+
 	private void validateUserLegalEntity(Authentication authentication,String usernameValue){
 		if (!userService.belongsToSameLegalEntity(authentication, usernameValue)) {
 			throw new AccessDeniedException("User does not have access to add by legal entity restriction");
 		}
 	}
-	
-	private void hasUserPrivilegesOverLegalEntities(Authentication authentication,Set<Long> legalEntityApps){ 
+
+	private void hasUserPrivilegesOverLegalEntities(Authentication authentication,Set<Long> legalEntityApps){
 		if (!userService.hasUserPrivilegesOverLegalEntities(authentication, legalEntityApps)) {
 			String message = LoggingUtil.adminAuditInfo("User Creation Request for access", BluefinWebPortalConstants.SEPARATOR,
 					"User : ", String.valueOf(authentication.getName()), " doesn't have access to add by legal entity restriction.");
@@ -431,7 +417,7 @@ public class UserRestController {
 			throw new AccessDeniedException("User doesn't have access to add by legal entity restriction");
 		}
 	}
-	
+
 	private void validateErrors(Errors errors){
 		if (errors.hasErrors()) {
 			final String errorDescription = errors.getFieldErrors().stream().map(FieldError::getDefaultMessage)
@@ -439,7 +425,7 @@ public class UserRestController {
 			throw new CustomBadRequestException(errorDescription);
 		}
 	}
-	
+
 	/**
 	 * Here is validated provided password strength, throwing an exception in case it doesn't fulfill required rules
 	 * @author modified by SA to fulfill PCI password requirements
@@ -450,7 +436,7 @@ public class UserRestController {
 		if(PasswordUtils.containsUsername(userName, password) || !PasswordUtils.validatePasswordStrength(password)) {
 			throw new CustomBadRequestException(
 					"The password must be more than 10 characters long and must contain at least one uppercase letter, " +
-					"one lowercase letter, one decimal digit, a special symbol, and the username cannot be part of the password.");
+							"one lowercase letter, one decimal digit, a special symbol, and the username cannot be part of the password.");
 		}
 	}
 }

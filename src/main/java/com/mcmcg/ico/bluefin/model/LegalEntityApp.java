@@ -1,9 +1,13 @@
 package com.mcmcg.ico.bluefin.model;
 
+import lombok.Data;
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 import java.util.Objects;
 
-public class LegalEntityApp extends Common implements Serializable {
+@Data
+public class LegalEntityApp implements Serializable {
 
 	private static final long serialVersionUID = 3424245887382516199L;
 
@@ -15,6 +19,13 @@ public class LegalEntityApp extends Common implements Serializable {
 	private String prNumber;
 	
 	private Short isActiveForBatchUpload;
+
+	private DateTime dateCreated;
+
+	private DateTime datedModified;
+
+	private String modifiedBy;
+
 
 	public LegalEntityApp() {
 		// Default constructor
@@ -32,7 +43,7 @@ public class LegalEntityApp extends Common implements Serializable {
 			return false;
 		}
 		LegalEntityApp legalEntityApp = (LegalEntityApp) o;
-		return legalEntityAppId == legalEntityApp.legalEntityAppId
+		return legalEntityAppId.equals(legalEntityApp.legalEntityAppId)
 				&& Objects.equals(legalEntityAppName, legalEntityApp.legalEntityAppName);
 	}
 

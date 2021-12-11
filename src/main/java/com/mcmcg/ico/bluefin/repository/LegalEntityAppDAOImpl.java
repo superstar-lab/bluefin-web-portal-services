@@ -138,8 +138,8 @@ public class LegalEntityAppDAOImpl implements LegalEntityAppDAO {
 		// database.
 		// Convert this string to Timestamp, which is supported by
 		// PreparedStatement.
-		DateTime utc1 = legalEntityApp.getDateCreated().withZone(DateTimeZone.UTC);
-		DateTime utc2 = legalEntityApp.getDateModified().withZone(DateTimeZone.UTC);
+		DateTime utc1 = new DateTime().withZone(DateTimeZone.UTC);
+		DateTime utc2 =  new DateTime().withZone(DateTimeZone.UTC);
 		DateTimeFormatter dtf = DateTimeFormat.forPattern(BluefinWebPortalConstants.FULLDATEFORMAT);
 		Timestamp dateCreated = Timestamp.valueOf(dtf.print(utc1));
 		Timestamp dateModified = Timestamp.valueOf(dtf.print(utc2));
@@ -244,10 +244,10 @@ class LegalEntityAppRowMapper implements RowMapper<LegalEntityApp> {
 			ts = Timestamp.valueOf(rs.getString("DateCreated"));
 			legalEntityApp.setDateCreated(new DateTime(ts));
 		}
-		
+
 		if(rs.getString("DatedModified") != null) {
 			ts = Timestamp.valueOf(rs.getString("DatedModified"));
-			legalEntityApp.setDateModified(new DateTime(ts));
+			legalEntityApp.setDatedModified(new DateTime(ts));
 		}
 		legalEntityApp.setModifiedBy(rs.getString("ModifiedBy"));
 		legalEntityApp.setIsActive(rs.getShort("IsActive"));

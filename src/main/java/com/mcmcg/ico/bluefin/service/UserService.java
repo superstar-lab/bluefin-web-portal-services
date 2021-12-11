@@ -1,21 +1,21 @@
 package com.mcmcg.ico.bluefin.service;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.model.*;
 import com.mcmcg.ico.bluefin.repository.*;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomException;
+import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
+import com.mcmcg.ico.bluefin.rest.resource.*;
+import com.mcmcg.ico.bluefin.security.TokenUtils;
+import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
+import com.mcmcg.ico.bluefin.security.service.SessionService;
+import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
+import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -28,24 +28,17 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException;
-import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
-import com.mcmcg.ico.bluefin.rest.resource.ActivationResource;
-import com.mcmcg.ico.bluefin.rest.resource.RegisterUserResource;
-import com.mcmcg.ico.bluefin.rest.resource.UpdatePasswordResource;
-import com.mcmcg.ico.bluefin.rest.resource.UpdateUserResource;
-import com.mcmcg.ico.bluefin.rest.resource.UserResource;
-import com.mcmcg.ico.bluefin.security.TokenUtils;
-import com.mcmcg.ico.bluefin.security.rest.resource.TokenType;
-import com.mcmcg.ico.bluefin.security.service.SessionService;
-import com.mcmcg.ico.bluefin.service.util.LoggingUtil;
-import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class UserService {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
@@ -80,7 +73,7 @@ public class UserService {
 
 	/**
 	 * Get user information by username
-	 * 
+	 *
 	 * @param username
 	 * @return UserResource object
 	 * @throws CustomBadRequestException
@@ -92,7 +85,7 @@ public class UserService {
 
 	/**
 	 * Get user object by username
-	 * 
+	 *
 	 * @param username
 	 * @return user object
 	 * @throws CustomNotFoundException
@@ -109,6 +102,7 @@ public class UserService {
 		List<UserLegalEntityApp> userLegalEntityApps = userLegalEntityAppDAO.findByUserId(user.getUserId());
 		LOGGER.debug("userLegalEntityApps size :={} ",userLegalEntityApps != null ? userLegalEntityApps.size() : 0);
 		user.setLegalEntities(userLegalEntityApps);
+		user.setSelectedTimeZone(userPreferenceDAO.getSelectedTimeZone(user.getUserId()));
 		return user;
 	}
 
@@ -121,7 +115,7 @@ public class UserService {
 			}
 		}
 		Page<User> result = userDAO.findAllWithDynamicFilter(search, QueryDSLUtil.getPageRequest(page, size, sort),filterMap);
- 		if (page > result.getTotalPages() && page != 0) {
+		if (page > result.getTotalPages() && page != 0) {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
@@ -131,8 +125,8 @@ public class UserService {
 
 	/**
 	 * Gets the legal entities by user name
-	 * 
-	 * @param userName
+	 *
+	 * @param username
 	 * @return list of legal entities owned by the user with the user name given
 	 *         by parameter, empty list if user not found
 	 */
@@ -156,7 +150,7 @@ public class UserService {
 			String message = LoggingUtil.adminAuditInfo("User Creation Request", BluefinWebPortalConstants.SEPARATOR,
 					"Unable to create the account, this username already exists : ", username);
 			LOGGER.error(message);
-			
+
 			throw new CustomBadRequestException(
 					"Unable to create the account, this username already exists: " + username);
 		}
@@ -171,13 +165,13 @@ public class UserService {
 		UserResource newUserResource = new UserResource(getUser(username));
 
 		try{
-		//Create/Update User preference of time zone
-		newUser.setUserId(userId);
-		updaUserPrefernce(newUser);
+			//Create/Update User preference of time zone
+			newUser.setUserId(userId);
+			updaUserPrefernce(newUser);
 		}catch(Exception ex){
 			LOGGER.error("Error while update user prefrence time zone", ex);
 		}
-		
+
 		// Send email
 		final String link = BluefinWebPortalConstants.APIUSER + username + BluefinWebPortalConstants.PASSLINK;
 		final String token = sessionService.generateNewToken(username, TokenType.REGISTER_USER, link);
@@ -192,7 +186,7 @@ public class UserService {
 
 	/**
 	 * Get all legal entity app objects by the entered ids
-	 * 
+	 *
 	 * @param legalEntityAppsIds
 	 *            list of legal entity apps ids that we need to find
 	 * @return list of legal entity apps
@@ -229,9 +223,10 @@ public class UserService {
 
 	/**
 	 * Update the profile information of an already stored user
-	 * 
+	 *
 	 * @param username
-	 * @param updateUserResource
+	 * @param userResource
+	 * @param loginUserName
 	 * @return userResource with all the user information
 	 * @throws CustomNotFoundException
 	 */
@@ -252,10 +247,11 @@ public class UserService {
 		//We are setting empty collectionn object not  to update roles in case of password update
 		user.setRoles(Collections.emptyList());
 		user.setLegalEntities(Collections.emptyList());
-		if (StringUtils.equals(username, loginUserName)) {
-			updaUserPrefernce(user);
-		}
+		//	if (StringUtils.equals(username, loginUserName)) {
+		updaUserPrefernce(user);
+		//	}
 		userDAO.updateUser(user, modifiedBy);
+
 		//set user role and legalEntities in API response.
 		user.setRoles(userRoleList);
 		user.setLegalEntities(userLegalEntities);
@@ -270,7 +266,7 @@ public class UserService {
 		 */
 		UserPreference userPreference = userPreferenceDAO.findUserPreferenceIdByPreferenceId(user.getUserId(), preferenceId);
 		LOGGER.debug("userPreference ={} ",userPreference);
-		
+
 		if (userPreference != null && userPreference.getUserPrefeenceID() != null) {
 			userPreference.setPreferenceValue(user.getSelectedTimeZone());
 			userPreferenceDAO.updateUserTimeZonePreference(userPreference);
@@ -291,9 +287,10 @@ public class UserService {
 
 	/**
 	 * Update the roles of an already stored user
-	 * 
+	 *
 	 * @param username
-	 * @param roles
+	 * @param rolesIds
+	 * @param loginUser
 	 * @return userResource with all the user information
 	 * @throws CustomNotFoundException
 	 */
@@ -308,7 +305,7 @@ public class UserService {
 			String message = LoggingUtil.adminAuditInfo("User Profile Updation Request", BluefinWebPortalConstants.SEPARATOR,
 					"User : ", username, " must have at least one role assign to him.");
 			LOGGER.error(message);
-			
+
 			throw new CustomBadRequestException("User MUST have at least one role assign to him.");
 		}
 
@@ -340,7 +337,7 @@ public class UserService {
 		for (Entry<Long,Role> roleEntry : newMapOfRoles.entrySet()) {
 			if (!rolesToKeep.contains(roleEntry.getKey())) {
 				userToUpdate.addRole(roleEntry.getValue());
-			} 
+			}
 		}
 
 		userToUpdate.setDateUpdated(new DateTime());
@@ -351,7 +348,7 @@ public class UserService {
 		LOGGER.info("ready to update user ");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
-		
+
 	}
 	public User updateUserRoles(final String username, final Set<Long> rolesIds) {
 		return updateUserRoles(username, rolesIds, null);
@@ -364,9 +361,10 @@ public class UserService {
 
 	/**
 	 * Update the legalEntities of an already stored user
-	 * 
+	 *
 	 * @param username
-	 * @param legalEntities
+	 * @param legalEntityAppsIds
+	 * @param loginUser
 	 * @return user with all the user information
 	 * @throws CustomNotFoundException
 	 */
@@ -418,9 +416,9 @@ public class UserService {
 		LOGGER.debug("ready to update user");
 		userDAO.updateUser(userToUpdate, modifiedBy);
 		return getUser(username);
-	
+
 	}
-	
+
 	public User updateUserLegalEntities(final String username, final Set<Long> legalEntityAppsIds) {
 		return updateUserLegalEntities(username, legalEntityAppsIds, null);
 	}
@@ -434,9 +432,9 @@ public class UserService {
 	 * Validates if the current legal entities of the user that tries to get the
 	 * information are valid by checking the values of the request with the ones
 	 * owned by the user
-	 * 
-	 * @param legalEntityIds
-	 * @param userName
+	 *
+	 * @param authentication
+	 * @param legalEntitiesToVerify
 	 */
 	public boolean hasUserPrivilegesOverLegalEntities(Authentication authentication, Set<Long> legalEntitiesToVerify) {
 		if (hasPermissionToManageAllUsers(authentication)) {
@@ -454,24 +452,24 @@ public class UserService {
 
 	/**
 	 * Verify if user has authority to manage all user.
-	 * 
+	 *
 	 * @param authentication
-	 * 
+	 *
 	 * @return status
 	 */
 	public boolean hasPermissionToManageAllUsers(Authentication authentication) {
 		Boolean hasPermission = false;
 		try {
 			LOGGER.debug("authentication ={} ",authentication.getAuthorities().size());
-				for (GrantedAuthority authority : authentication.getAuthorities()) {
-					String userAuthority = authority.getAuthority();
-					if ("ADMINISTRATIVE".equals(userAuthority) || "MANAGE_ALL_USERS".equals(userAuthority)) {
-						hasPermission = true;
-					}
-					if (Boolean.TRUE.equals(hasPermission)) {
-						break;
-					}
+			for (GrantedAuthority authority : authentication.getAuthorities()) {
+				String userAuthority = authority.getAuthority();
+				if ("ADMINISTRATIVE".equals(userAuthority) || "MANAGE_ALL_USERS".equals(userAuthority)) {
+					hasPermission = true;
 				}
+				if (Boolean.TRUE.equals(hasPermission)) {
+					break;
+				}
+			}
 			LOGGER.debug("hasPermission ={} ",hasPermission);
 		}catch(Exception ex) {
 			LOGGER.error("hasPermissionToManageAllUsers authentication cannot be NULL {}",ex.getMessage());
@@ -482,8 +480,8 @@ public class UserService {
 	/**
 	 * This method will return true if both users have a common legal entity,
 	 * false in other case
-	 * 
-	 * @param username
+	 *
+	 * @param authentication
 	 * @param usernameToUpdate
 	 * @return true if the request user has related legal entities with the user
 	 *         he wants to CRUD
@@ -522,7 +520,7 @@ public class UserService {
 
 	/**
 	 * Update the password of an already stored user
-	 * 
+	 *
 	 * @param username
 	 * @param updatePasswordResource
 	 * @return user with all the user information
@@ -530,21 +528,21 @@ public class UserService {
 	 * @throws CustomBadRequestException
 	 */
 	public User updateUserPassword(String username, final UpdatePasswordResource updatePasswordResource,
-			final String token) {
+								   final String token) {
 		String usernameVal = "me".equals(username) ? tokenUtils.getUsernameFromToken(token) : username;
 		LOGGER.debug("Username : {}",usernameVal);
 		String tokenType = tokenUtils.getTypeFromToken(token);
 		LOGGER.debug("TokenType : {}",tokenType);
-		
+
 		User userToUpdate = getUser(usernameVal);
 		LOGGER.debug("UserToUpdate : {} ",userToUpdate.getUserId());
-		
+
 		List<Object> passwordHistoryAndLastCount = validateUserName(tokenType, userToUpdate, updatePasswordResource, usernameVal);
-		
+
 		@SuppressWarnings("unchecked")
 		List<UserPasswordHistory> passwordHistoryList = (List<UserPasswordHistory>) passwordHistoryAndLastCount.get(0);
 		int lastPasswordCount = (int) passwordHistoryAndLastCount.get(1);
-		
+
 		String userPreviousPasword = userToUpdate.getPassword();
 		setStatus(tokenType,userToUpdate);
 		userToUpdate.setPassword(passwordEncoder.encode(updatePasswordResource.getNewPassword()));
@@ -562,12 +560,12 @@ public class UserService {
 			if(!passwordHistoryList.isEmpty()) {
 				userDAO.updatePasswordHistory(passwordHistoryList.get(passwordHistoryList.size()-1).getPasswordHistoryID(),username,userPreviousPasword);
 			}
-			
+
 		}
 		LOGGER.info("Ready to find user by id");
 		return userDAO.findByUserId(userToUpdate.getUserId());
 	}
-	
+
 	private void setStatus(String tokenType,User userToUpdate){
 		if (tokenType.equals(TokenType.REGISTER_USER.name())) {
 			userToUpdate.setStatus("ACTIVE");
@@ -625,7 +623,7 @@ public class UserService {
 			// Why we need to update roles and LE while activating/deactivating user, so make Roles/LE list as empty.[Matloob]
 			userToUpdate.setRoles(Collections.emptyList());
 			userToUpdate.setLegalEntities(Collections.emptyList());
-			
+
 			LOGGER.info("ready to update user ");
 			long userId = userDAO.updateUserStatus(userToUpdate, modifiedBy);
 			LOGGER.debug("userId ",userId);
@@ -659,23 +657,23 @@ public class UserService {
 		LOGGER.info("Exiting from is Valid Old Password");
 		return passwordEncoder.matches(oldPassword, currentUserPassword);
 	}
-	
+
 	public User findByUsername(String userName){
 		return userDAO.findByUsername(userName);
 	}
-	
+
 	public List<UserPasswordHistory> getPasswordHistory(final Long userId) {
 		return userDAO.getPasswordHistoryById(userId);
 	}
-	
+
 	/**public ArrayList<UserPasswordHistory> getPasswordHistory(final Long userId, int limit) {
-		ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId, limit);
-		if (userList.size()<0) {
-			throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
-		}
-		return userList;
-	}*/
-	
+	 ArrayList<UserPasswordHistory> userList = userDAO.getPasswordHistoryById(userId, limit);
+	 if (userList.size()<0) {
+	 throw new CustomNotFoundException("Unable to find user by userID provided: " + userList.size());
+	 }
+	 return userList;
+	 }*/
+
 	public void checkUser(String searchParam, Map<String,String> filterMap) {
 		String[] str1 = searchParam.split(":");
 		if ("legalEntities".equalsIgnoreCase(str1[0]) || "roles".equalsIgnoreCase(str1[0]) ) {
@@ -684,42 +682,42 @@ public class UserService {
 			filterMap.put(str1[0], str1[1]);
 		} else {
 			if("status".equalsIgnoreCase(str1[0])){
-			filterMap.put(str1[0], str1[1]);
+				filterMap.put(str1[0], str1[1]);
 			}
 			else{
-			filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));
+				filterMap.put(str1[0], "%".concat(str1[1]).concat("%"));
 			}
 		}
 	}
-	
+
 	public List<Object> validateUserName(String tokenType, User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
 		if (usernameVal == null || tokenType == null) {
 			String message = LoggingUtil.adminAuditInfo("User Password Updation Request:", BluefinWebPortalConstants.SEPARATOR,
 					"Password updation failed for User: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
 					"An authorization token is required to request this resource..");
 			LOGGER.error(message);
-			
+
 			throw new CustomBadRequestException("An authorization token is required to request this resource");
 		}
-		
+
 		return validateUserNameAuthentication(tokenType,userToUpdate,updatePasswordResource,usernameVal);
 	}
-	
+
 	public List<Object> validateUserNameAuthentication(String tokenType, User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
 		if ((tokenType.equals(TokenType.AUTHENTICATION.name()) || tokenType.equals(TokenType.APPLICATION.name()))
 				&& !isValidOldPassword(updatePasswordResource.getOldPassword(), userToUpdate.getPassword())) {
-			String message = LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR, 
+			String message = LoggingUtil.adminAuditInfo("User Password Updation Request::", BluefinWebPortalConstants.SEPARATOR,
 					"Password updation failed for User:: ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
 					"The old password is incorrect...");
 			LOGGER.error(message);
-			
+
 			throw new CustomBadRequestException("The old password is incorrect.");
 		}
-		
+
 		return checkInPasswordHistory(userToUpdate,updatePasswordResource,usernameVal);
 	}
-	
-	public List<Object> checkInPasswordHistory(User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {		
+
+	public List<Object> checkInPasswordHistory(User userToUpdate, final UpdatePasswordResource updatePasswordResource, String usernameVal) {
 		boolean isPasswordDeleted = false;
 		List<UserPasswordHistory> passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
 		//delete old password from password history if password match count changed
@@ -736,15 +734,15 @@ public class UserService {
 				}
 			}
 			else {
-					break;
-				}
+				break;
+			}
 		}
-		
+
 		return checkPasswordMatch(isPasswordDeleted, passwordHistoryList, userToUpdate, updatePasswordResource, usernameVal, lastPasswordCount);
 	}
-	
-	public List<Object> checkPasswordMatch(boolean isPasswordDeleted, List<UserPasswordHistory> passwordHistoryList, User userToUpdate, 
-			final UpdatePasswordResource updatePasswordResource, String usernameVal, int lastPasswordCount) {
+
+	public List<Object> checkPasswordMatch(boolean isPasswordDeleted, List<UserPasswordHistory> passwordHistoryList, User userToUpdate,
+										   final UpdatePasswordResource updatePasswordResource, String usernameVal, int lastPasswordCount) {
 		boolean isPasswordMatch = false;
 		if(isPasswordDeleted) {
 			passwordHistoryList = getPasswordHistory(userToUpdate.getUserId());
@@ -755,22 +753,22 @@ public class UserService {
 				break;
 			}
 		}
-		
+
 		if (lastPasswordCount>0 && (passwordEncoder.matches(updatePasswordResource.getNewPassword(), userToUpdate.getPassword()) || isPasswordMatch)) {
-			
+
 			String message = LoggingUtil.adminAuditInfo("User Password Updation Request", BluefinWebPortalConstants.SEPARATOR,
 					"Password updation failed for User : ", usernameVal, BluefinWebPortalConstants.SEPARATOR,
 					"New password should be different from your last ", String.valueOf(lastPasswordCount), " passwords.");
 			LOGGER.error(message);
-			
+
 			throw new CustomBadRequestException("Your new password should be different from your last "+lastPasswordCount+" passwords");
 		}
-		
+
 		List<Object> passwordHistoryAndCount = new ArrayList<>();
 		passwordHistoryAndCount.add(passwordHistoryList);
 		passwordHistoryAndCount.add(lastPasswordCount);
-		
-		 return passwordHistoryAndCount;
+
+		return passwordHistoryAndCount;
 	}
 
 	public File getUsersReport(String search) throws IOException {

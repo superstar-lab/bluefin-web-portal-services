@@ -486,7 +486,8 @@ class UserRowMapper implements RowMapper<User> {
 		user.setStatus(rs.getString("Status"));
 		user.setWrongPasswordCounter(rs.getInt("WrongPasswordCounter"));
 		if (rs.getString("AccountLockedOn") != null) {
-			user.setAccountLockedOn(dtf.withZoneUTC().parseDateTime(rs.getString("AccountLockedOn")));
+            ts = Timestamp.valueOf(rs.getString("AccountLockedOn"));
+			user.setAccountLockedOn(new DateTime(ts));
 		}
 
 		return user;

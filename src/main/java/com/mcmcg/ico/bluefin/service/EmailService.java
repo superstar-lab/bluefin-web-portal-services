@@ -1,24 +1,35 @@
 package com.mcmcg.ico.bluefin.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mcmcg.ico.bluefin.dto.EmailDTO;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import com.mcmcg.ico.bluefin.ws.client.EmailRequestorWsConsumer;
-import com.mcmcg.mail.dataobject.MailData;
+import java.net.URI;
 
 @Service
 public class EmailService {
 
-    @Autowired
-    EmailRequestorWsConsumer emailRequestorWsConsumer;
+    @Value("${gateway.payment.util.url}${gateway.payment.util.email.endpoint}")
+    private String EMAIL_URL;
 
+
+    @SneakyThrows
     public void sendEmail(String recipientAddress, String subject, String content) {
-        // Send message to email
-        MailData data = new MailData();
-        data.setSubject(subject);
-        data.setContent(content);
-        data.setToAddress(recipientAddress);
-        data.setFromAddress("no-reply@mcmcg.com");
-        emailRequestorWsConsumer.dropMessage(data);
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpEntity<EmailDTO> request = new HttpEntity<>(
+                EmailDTO
+                        .builder()
+                        .subject(subject)
+                        .recipientAddress(recipientAddress)
+                        .body(content)
+                        .build()
+        );
+
+        restTemplate.postForObject(new URI(EMAIL_URL), request, String.class);
+
     }
 }
