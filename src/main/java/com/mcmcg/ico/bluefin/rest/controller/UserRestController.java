@@ -365,19 +365,15 @@ public class UserRestController {
 					users.append(userName);
 				}
 			}
+			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}else {
 			String message = LoggingUtil.adminAuditInfo("User Status Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
 					"Status Updation Request failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
 					BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
-
-			LOGGER.info(message);
-			userService.userActivation(activationResource, String.valueOf(authentication.getName()));
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			LOGGER.error(message);
+			throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 		}
-		String message = LoggingUtil.adminAuditInfo("User Status Updation Request:::", BluefinWebPortalConstants.SEPARATOR,
-				"Status Updation Request failed for User : ", String.valueOf(authentication.getName()), BluefinWebPortalConstants.SEPARATOR,
-				BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
-		LOGGER.error(message);
-		throw new CustomBadRequestException(BluefinWebPortalConstants.AUTHTOKENREQUIRERESOURCEMSG);
 	}
 
 	/**
