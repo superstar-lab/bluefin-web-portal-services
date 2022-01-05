@@ -5,6 +5,8 @@ import java.util.List;
 import com.mcmcg.ico.bluefin.model.Permission;
 
 public interface PermissionDAO {
+	List<Permission> findAllPermission();
+
 	Permission findByPermissionId(long permissionId);
 
 	Permission findByPermissionName(String permissionName);

@@ -42,6 +42,12 @@ public class UserReportRowMapper implements RowMapper<User> {
 
 		user.setStatus(rs.getString("Status"));
 
+		//Chance: Add the password last date modified to USER POJO.
+		if (rs.getString("PH_DatedModified") != null) {
+			ts = Timestamp.valueOf(rs.getString("PH_DatedModified"));
+			user.setLastDatePasswordModified(new DateTime(ts));
+		}
+
 		return user;
 	}
 	

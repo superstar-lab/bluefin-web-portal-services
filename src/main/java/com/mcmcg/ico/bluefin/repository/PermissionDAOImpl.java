@@ -37,13 +37,31 @@ public class PermissionDAOImpl implements PermissionDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
+	/**
+	 * @return results
+	 */
+	@Override
+	public List<Permission> findAllPermission() {
+		Permission permission;
+		ArrayList<Permission> results;
+		try {
+			results = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDALLPERMISSION,
+					new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
+			LOGGER.debug("Number of rows = {} ", results!=null ? results.size() : 0);
+		}catch (Exception e){
+			LOGGER.error(e.toString());
+			results = null;
+		}
+		return results;
+	}
+
 	@Override
 	public Permission findByPermissionId(long permissionId) {
 		Permission permission;
 
 		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONID,
 				new Object[] { permissionId }, new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
-		LOGGER.debug("Permission list ={} ", list.size());
+		LOGGER.debug("Permission list ={} ", list!=null ? list.size() : 0);
 		permission = DataAccessUtils.singleResult(list);
 
 		if (permission != null) {
@@ -61,7 +79,7 @@ public class PermissionDAOImpl implements PermissionDAO {
 		ArrayList<Permission> list = (ArrayList<Permission>) jdbcTemplate.query(Queries.FINDPERMISSIONBYPERMISSIONNAME,
 				new Object[] { permissionName },
 				new RowMapperResultSetExtractor<Permission>(new PermissionRowMapper()));
-		LOGGER.debug("Permission list ={} ", list.size());
+		LOGGER.debug("Permission list ={} ", list!=null ? list.size() : 0);
 		permission = DataAccessUtils.singleResult(list);
 
 		if (permission != null) {
@@ -101,9 +119,14 @@ public class PermissionDAOImpl implements PermissionDAO {
 				return ps;
 		}, holder);
 
-		Long id = holder.getKey().longValue();
-		permission.setPermissionId(id);
-		LOGGER.debug("Saved permission - id ={} ", id);
+		Long id = new Long(0);
+		try {
+			id = holder.getKey().longValue();
+			permission.setPermissionId(id);
+			LOGGER.debug("Saved permission - id ={} ", id);
+		}catch (Exception e){
+			LOGGER.error(e.toString());
+		}
 
 		return id;
 	}

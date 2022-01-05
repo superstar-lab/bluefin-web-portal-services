@@ -69,7 +69,7 @@ public class UserService {
 	private static final String REGISTER_USER_EMAIL_SUBJECT = "Bluefin web portal: Register user email";
 	private static final String DEACTIVATE_ACCOUNT_EMAIL_SUBJECT = "Bluefin web portal: Deactivated account";
 	private static final Object[] FILE_HEADER = { "#", "User Name", "First Name", "Last Name", "Role Name", "Email",
-			"Date Created", "Date Modified", "Last Login", "Status"};
+			"Date Created", "Date Modified", "Last Login", "Last Date Password Modified","Status"};
 
 	/**
 	 * Get user information by username
@@ -859,6 +859,7 @@ public class UserService {
 		userDataRecord.add(user.getDateCreated().toString());
 		userDataRecord.add(user.getDateModified().toString());
 		userDataRecord.add(user.getLastLogin().toString());
+		userDataRecord.add(user.getLastDatePasswordModified() != null ? user.getLastDatePasswordModified().toString() : "");
 		userDataRecord.add(user.getStatus());
 
 		return userDataRecord;

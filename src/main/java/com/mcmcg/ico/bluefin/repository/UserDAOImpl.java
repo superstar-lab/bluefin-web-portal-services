@@ -86,7 +86,7 @@ public class UserDAOImpl implements UserDAO {
 		int pageSize = pageRequest.getPageSize();
 		int offset=pageNumber*pageSize;
 		String query =  queryBuffer.toString();
-		String queryForTotalCount = queryBuffer.replace( queryBuffer.indexOf("SELECT",0)+7,queryBuffer.indexOf("FROM",160)-1, "count(ul.UserID)").toString();
+		String queryForTotalCount = queryBuffer.replace( queryBuffer.indexOf("SELECT",0)+7,queryBuffer.indexOf("FROM",160)-1, "count(UL.UserID)").toString();
 		LOGGER.debug("Query for result = {}",query);
 		LOGGER.debug("Query for count ={}",queryForTotalCount);
 		query  =  QueryBuilderHelper.appendLimit(query, offset, pageSize);

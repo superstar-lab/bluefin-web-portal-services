@@ -39,6 +39,7 @@ public class User extends Common implements Serializable {
 	@JsonIgnore
 	private Integer wrongPasswordCounter;
 	private String roleName;
+	private DateTime lastDatePasswordModified;
 	
 
 	public User() {
@@ -221,5 +222,13 @@ public class User extends Common implements Serializable {
 
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
+	}
+
+	public DateTime getLastDatePasswordModified() {
+		return lastDatePasswordModified;
+	}
+
+	public void setLastDatePasswordModified(DateTime lastDatePasswordModified) {
+		this.lastDatePasswordModified = lastDatePasswordModified;
 	}
 }

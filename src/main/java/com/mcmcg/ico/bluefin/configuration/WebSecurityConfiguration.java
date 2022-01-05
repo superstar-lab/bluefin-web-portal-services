@@ -206,11 +206,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/",
 						legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.authenticated().antMatchers(HttpMethod.POST, legalEntitiesApiBaseURL, legalEntitiesApiBaseURL + "/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.PUT, legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.DELETE, legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", legalEntitiesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 
 				// Reconciliation Status
 				.antMatchers(HttpMethod.GET, reconciliationStatusApiBaseURL, reconciliationStatusApiBaseURL + "/",
@@ -222,30 +222,30 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
 				.authenticated()
 				.antMatchers(HttpMethod.POST, paymentProcessorApiBaseURL, paymentProcessorApiBaseURL + "/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.PUT, paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
 						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/",
 						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/payment-processor-merchants",
 						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/payment-processor-merchants/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.DELETE, paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
 						paymentProcessorApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 
 				// Payment Processor Rules
 				.antMatchers(HttpMethod.GET, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/",
 						paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}", paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/",
 						paymentProcessorRulesApiBaseURL + "/transaction-types",
 						paymentProcessorRulesApiBaseURL + "/transaction-types/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.POST, paymentProcessorRulesApiBaseURL, paymentProcessorRulesApiBaseURL + "/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.PUT, paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
 						paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 				.antMatchers(HttpMethod.DELETE, paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}",
 						paymentProcessorRulesApiBaseURL + "/{"+BluefinWebPortalConstants.ID+"}/")
-				.hasAuthority(BluefinWebPortalConstants.ADMINISTRATIVE)
+				.hasAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION)
 
 				// Payment Processor Remittance
 				.antMatchers(HttpMethod.GET, paymentProcessorRemittanceApiBaseURL,
@@ -271,9 +271,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 
 				.antMatchers(HttpMethod.GET, merchantApiBaseURL, merchantApiBaseURL + "/")
-				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
+				.hasAnyAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION, BluefinWebPortalConstants.MANAGERESPONSECODES)
 				.antMatchers(HttpMethod.PUT, merchantApiBaseURL, merchantApiBaseURL + "/")
-				.hasAnyAuthority(BluefinWebPortalConstants.ADMINISTRATIVE, BluefinWebPortalConstants.MANAGERESPONSECODES)
+				.hasAnyAuthority(BluefinWebPortalConstants.PRODUCT_CONFIGURATION, BluefinWebPortalConstants.MANAGERESPONSECODES)
 
 				// Internal Status Codes
 				.antMatchers(HttpMethod.GET, internalStatusCodesApiBaseURL, internalStatusCodesApiBaseURL + "/")

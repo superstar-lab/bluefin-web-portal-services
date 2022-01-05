@@ -25,6 +25,7 @@ public class QueryBuilderHelper {
 	public static StringBuilder buildUserReportQuery(Map<String,String> filterMap){
 		StringBuilder  bf = new StringBuilder(Queries.FIND_ALL_USERS_REPORT);
 		setLegaEntity(bf,filterMap);
+		//setRoles(bf,filterMap);
 		setWhere(bf,filterMap);
 		bf.append(clauseAppenderUserReport(filterMap));
 		bf.append(" Order By UserName asc");
@@ -38,12 +39,12 @@ public class QueryBuilderHelper {
 	 
 	private static void setLegaEntity(StringBuilder  bf,Map<String,String> filterMap){
 		 if(filterMap.containsKey("legalEntities"))
-			 bf.append(" join User_LegalEntityApp  ule on ul.UserID=ule.UserID ");
+			 bf.append(" join User_LegalEntityApp  ule on UL.UserID=ule.UserID ");
 	}
 	
 	private static void setRoles(StringBuilder  bf,Map<String,String> filterMap){
 		 if(filterMap.containsKey("roles"))
-			 bf.append(" join User_Role ur on ul.UserID=ur.UserID ");
+			 bf.append(" join User_Role ur on UL.UserID=ur.UserID ");
 	}
 	
 	private static void setWhere(StringBuilder  bf,Map<String,String> filterMap){
@@ -91,14 +92,17 @@ public class QueryBuilderHelper {
 
 	private static void processMultipleRoles(StringBuilder bf2,Map<String,String> filterMap){
 		if(isValidFilter(filterMap,"roles")) {
-			appendQuery(bf2," AND ur.RoleID IN (:roles) ");
+			appendQuery(bf2," AND UR.RoleID IN (:roles) ");
 		}
 	}
 	
 	private static void processUserName(StringBuilder bf2,Map<String,String> filterMap){
+		if(isValidFilter(filterMap,"userName")) {
+			appendQuery(bf2," AND userName like :userName");
+		}
 		if(isValidFilter(filterMap,"username")) {
 			appendQuery(bf2," AND userName like :username");
-		}	
+		}
 	}
 	
 	private static void processLastName(StringBuilder bf2,Map<String,String> filterMap){

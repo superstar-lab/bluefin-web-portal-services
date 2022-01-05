@@ -277,7 +277,7 @@ public class ReportRestController {
 		try {
 			File downloadFile = userService.getUsersReport(search);
 
-			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
+ 			return batchUploadService.deleteTempFile(downloadFile, response, DELETETEMPFILE);
 
 		} catch(Exception e) {
 			LOGGER.error("An error occurred during downloading file="+e);
