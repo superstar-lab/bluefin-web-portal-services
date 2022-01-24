@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface MerchantDAO {
     List<Merchant> findByProcessorId(Long paymentProcessorID);
+    List<String> findAllMerchantsExtCreditDebit(String search);
     boolean save(Merchant merchant);
     boolean update(Merchant merchant);
 }

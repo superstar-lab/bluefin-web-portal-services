@@ -46,7 +46,7 @@ public class TransactionService {
 			"Payment Processor Status Code Description", "Payment Processor Response Code",
 			"Payment Processor Response Code Description", "Internal Status Code", "Internal Status Description",
 			"Internal Response Code", "Internal Response Description", "PaymentProcessorInternalStatusCodeID",
-			"PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk", "Invoice Number",
+			"PaymentProcessorInternalResponseCodeID", "Date Created", "Account Period", "Desk",
 			"User Defined Field 1", "User Defined Field 2", "User Defined Field 3", "Batch Upload ID",
 			"BIN","Brand","Bank","Type","Level","ISO Country","WWW","Phone","Info"};
 
@@ -304,9 +304,9 @@ public class TransactionService {
 		// RulePaymentProcessorId(), RuleCardType(),
 		// RuleMaximumMonthlyAmount(), RuleNoMaximumMonthlyAmountFlag(),
 		// RulePriority()
+		//Remove field: InvoiceNumber() from CSV 01-04-2022
 		transactionDataRecord.add(transaction.getAccountPeriod());
 		transactionDataRecord.add(transaction.getDesk());
-		transactionDataRecord.add(transaction.getInvoiceNumber());
 		transactionDataRecord.add(transaction.getUserDefinedField1());
 		transactionDataRecord.add(transaction.getUserDefinedField2());
 		transactionDataRecord.add(transaction.getUserDefinedField3());

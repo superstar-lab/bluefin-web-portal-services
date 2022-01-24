@@ -22,6 +22,10 @@ public class MerchantService {
         return merchantDAO.findByProcessorId(paymentProcessorID);
     }
 
+    public List<String> findAllMerchantsExtCreditDebit(String search){
+        return merchantDAO.findAllMerchantsExtCreditDebit(search);
+    }
+
     public boolean save(List<Merchant> merchants) {
         boolean result = false;
         for(final Merchant merch : merchants) {

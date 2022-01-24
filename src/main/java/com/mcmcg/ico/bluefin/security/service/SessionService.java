@@ -362,7 +362,7 @@ public class SessionService {
 		try {
 			LOGGER.debug("authentication size is ={}", authentication.getAuthorities().size());
 			for (GrantedAuthority authority : authentication.getAuthorities()) {
-				hasPermission = "ADMINISTRATIVE".equals(authority.getAuthority());
+				hasPermission = BluefinWebPortalConstants.PRODUCT_CONFIGURATION.equals(authority.getAuthority());
 				LOGGER.debug("hasPermission ={} ",hasPermission);
 				if (Boolean.TRUE.equals(hasPermission)) {
 					break;
