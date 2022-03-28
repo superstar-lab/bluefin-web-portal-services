@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +31,14 @@ public class AccountValidationDAOImpl implements AccountValidationDAO {
     }
 
     @Override
-    public Map<String, Object> findAllFilter(String search, PageRequest page) throws ParseException {
-        LOGGER.info("Fetching Account Validation Filtering, Search  Value {} , page {} ", search, page);
+    public Map<String, Object> findAllFilter(String startDate, String endDate, PageRequest page) {
+        LOGGER.info("Fetching Account Validation Filtering, Search  startDate {}, endDate {}, page {} ", startDate, endDate, page);
 
         int pageNumber = page != null ? page.getPageNumber() : 0;
         int pageSize = page != null ? page.getPageSize() : 0;
-        String ACCOUNT_VALIDATION_FILTER = "SELECT * FROM AccountValidation WHERE " + search + " ORDER BY `requestDateTime` DESC LIMIT " + pageNumber * pageSize + "," + pageSize;
-        String ACCOUNT_VALIDATION_COUNTS = "SELECT * FROM AccountValidation WHERE " + search;
 
-        List<AccountValidation> list = jdbcTemplate.query(ACCOUNT_VALIDATION_FILTER, new AccountValidationRowMapper());
-        List<AccountValidation> totalList = jdbcTemplate.query(ACCOUNT_VALIDATION_COUNTS, new AccountValidationRowMapper());
+        List<AccountValidation> list = jdbcTemplate.query(Queries.ACCOUNT_VALIDATION_FILTER_PAGE, new Object[]{startDate, endDate, (pageNumber * pageSize), pageSize}, new AccountValidationRowMapper());
+        List<AccountValidation> totalList = jdbcTemplate.query(Queries.ACCOUNT_VALIDATION_FILTER_ALL, new Object[]{startDate, endDate}, new AccountValidationRowMapper());
 
         Map<String, Object> map = new HashMap<>();
         map.put("totalCounts", totalList.size());

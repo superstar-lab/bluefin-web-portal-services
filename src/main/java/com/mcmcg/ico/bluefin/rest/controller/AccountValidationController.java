@@ -42,7 +42,7 @@ public class AccountValidationController {
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class)})
     public Iterable<AccountValidation> get(@ApiIgnore Authentication authentication)
             throws JsonProcessingException {
         if (authentication == null) {
@@ -57,14 +57,13 @@ public class AccountValidationController {
     @ApiOperation(value = "getAccountValidation", nickname = "getAccountValidations")
     @PostMapping(produces = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header"),
-            @ApiImplicitParam(name = "request", value = "request", required = true, paramType = "body") })
+            @ApiImplicitParam(name = "X-Auth-Token", value = "Authorization token", dataType = "string", paramType = "header")})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = SaleTransaction.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Bad Request", response = ErrorResource.class),
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
-            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
+            @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class)})
     public Map<String, Object> post(
             @RequestBody AccountValidationRequest accountValidationRequestFilter,
             @ApiIgnore Authentication authentication) throws IOException {
@@ -74,30 +73,20 @@ public class AccountValidationController {
         }
 
         LOGGER.debug("get Account Validation service");
-
-        LOGGER.info(" startDate = {}, page = {} ", accountValidationRequestFilter.getStartDate(), accountValidationRequestFilter.getPage() );
+        LOGGER.info(" startDate = {}, page = {} ", accountValidationRequestFilter.getStartDate(), accountValidationRequestFilter.getPage());
 
         Integer page = accountValidationRequestFilter.getPage();
         Integer size = accountValidationRequestFilter.getSize();
         String sort = accountValidationRequestFilter.getSort();
-        String timeZone = accountValidationRequestFilter.getTimeZone();
-
-        Date start = getParseDate(accountValidationRequestFilter.getStartDate());
-        Date end = getParseDate(accountValidationRequestFilter.getEndDate());
-
-//        DateTime started = start.withZone(DateTimeZone.forID(timeZone));
-//        DateTime ended = end.withZone(DateTimeZone.forID(timeZone));
-
-        String searchValue = "requestDateTime BETWEEN '" + accountValidationRequestFilter.getStartDate() + "' AND '" + accountValidationRequestFilter.getEndDate() + "'";
-
-        LOGGER.info("Generating Report with the following filters= {}", searchValue);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JodaModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        return accountValidationService.getAccountValidationFilter(searchValue, QueryUtil.getPageRequest(page, size, sort));
+        return accountValidationService.getAccountValidationFilter(accountValidationRequestFilter.getStartDate(),
+                accountValidationRequestFilter.getEndDate(), QueryUtil.getPageRequest(page, size, sort));
     }
+
     private static Date getParseDate(String date) {
         try {
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

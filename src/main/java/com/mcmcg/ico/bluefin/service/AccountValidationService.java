@@ -25,15 +25,15 @@ public class AccountValidationService {
         return accountValidationDAO.findAll();
     }
 
-    public Map<String, Object> getAccountValidationFilter(String search, PageRequest paging) {
+    public Map<String, Object> getAccountValidationFilter(String startDate, String endDate, PageRequest paging) {
         Map<String, Object> result;
         try {
-            result = accountValidationDAO.findAllFilter(search, paging);
+            result = accountValidationDAO.findAllFilter(startDate, endDate, paging);
         } catch (ParseException e) {
             throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
         }
 
-        LOGGER.debug("result :={} ",result);
+        LOGGER.debug("result :={} ", result);
         return result;
     }
 }

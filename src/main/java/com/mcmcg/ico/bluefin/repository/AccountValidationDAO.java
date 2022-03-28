@@ -9,6 +9,7 @@ import java.util.Map;
 
 public interface AccountValidationDAO {
     public List<AccountValidation> findAll();
-    public Map<String, Object> findAllFilter(String search, PageRequest page) throws ParseException;
+
+    public Map<String, Object> findAllFilter(String startDate, String endDate, PageRequest page) throws ParseException;
 
 }
