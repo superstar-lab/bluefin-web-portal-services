@@ -27,36 +27,36 @@ public class TransactionSummaryDAOImpl implements TransactionSummaryDAO {
     }
 
     @Override
-    public List<DeclinedTranSummaryDTO> declinedSummary(String fromDate, String toDate, String statusCode) {
-        log.info("TransactionSummaryDAOImpl -> declinedSummary, fromDate: {}, toDate : {} , statusCode : {}", fromDate, toDate, statusCode);
+    public List<DeclinedTranSummaryDTO> declinedSummary(String fromDatetime, String toDatetime, String statusCode) {
+        log.info("TransactionSummaryDAOImpl -> declinedSummary, fromDate: {}, toDatetime : {} , statusCode : {}", fromDatetime, toDatetime, statusCode);
         List<DeclinedTranSummaryDTO> result = new ArrayList<>();
         try {
-            result = jdbcTemplate.query("CALL spTransactionStatusMetrics(?,?,?)", new Object[]{ fromDate, toDate.concat(" 23:59:59"), statusCode }, new DeclinedTransactionMapper());
+            result = jdbcTemplate.query("CALL spTransactionStatusMetrics(?,?,?)", new Object[]{ fromDatetime, toDatetime, statusCode }, new DeclinedTransactionMapper());
         } catch (Exception ex) {
-            log.error("TransactionSummaryDAOImpl -> declinedSummary, Error while retrieving declined transactions. fromDate: {}, toDate : {} , statusCode : {} , Error: {}", fromDate, toDate, statusCode, ex.getMessage());
+            log.error("TransactionSummaryDAOImpl -> declinedSummary, Error while retrieving declined transactions. fromDate: {}, toDatetime : {}, statusCode : {} , Error: {}", fromDatetime, toDatetime, statusCode, ex.getMessage());
         }
         return result;
     }
 
     @Override
-    public List<ApprovedTranSummary> approvedSummary(String fromDate, String toDate) {
-        log.info("TransactionSummaryDAOImpl -> approvedSummary, fromDate: {}, toDate : {}", fromDate, toDate);
+    public List<ApprovedTranSummary> approvedSummary(String fromDatetime, String toDatetime) {
+        log.info("TransactionSummaryDAOImpl -> approvedSummary, fromDatetime: {}, toDatetime : {}", fromDatetime, toDatetime);
         List<ApprovedTranSummary> result = new ArrayList<>();
         try {
-            result = jdbcTemplate.query("CALL spGetApprovedTransactionSummary(?,?)", new Object[]{ fromDate, toDate.concat(" 23:59:59") }, new ApprovedTranSummaryRowMapper());
+            result = jdbcTemplate.query("CALL spGetApprovedTransactionSummary(?,?)", new Object[]{ fromDatetime, toDatetime }, new ApprovedTranSummaryRowMapper());
         } catch (Exception ex) {
-            log.error("TransactionSummaryDAOImpl -> approvedSummary, Error while retrieving approved transactions. fromDate: {}, toDate : {}, Error: {}", fromDate, toDate, ex.getMessage());
+            log.error("TransactionSummaryDAOImpl -> approvedSummary, Error while retrieving approved transactions. fromDatetime: {}, toDatetime : {}, Error: {}", fromDatetime, toDatetime, ex.getMessage());
         }
         return result;
     }
 
-    public List<TopTranSummaryDTO> topSummary(String top, String statusCode, String fromDate, String toDate) {
-        log.info("TransactionSummaryDAOImpl -> topSummary, top : {},statusCode : {}, fromDate: {}, toDate : {} ", top, statusCode, fromDate, toDate);
+    public List<TopTranSummaryDTO> topSummary(String top, String statusCode, String fromDatetime, String toDatetime) {
+        log.info("TransactionSummaryDAOImpl -> topSummary, top : {},statusCode : {}, fromDate: {}, toDatetime : {}", top, statusCode, fromDatetime, toDatetime);
         List<TopTranSummaryDTO> result = new ArrayList<>();
         try {
-            result = jdbcTemplate.query("CALL spTopTransactionStatus(?,?,?,?)", new Object[]{ top, statusCode, fromDate, toDate.concat(" 23:59:59")  }, new TopTransactionMapper());
+            result = jdbcTemplate.query("CALL spTopTransactionStatus(?,?,?,?)", new Object[]{ top, statusCode, fromDatetime, toDatetime }, new TopTransactionMapper());
         } catch (Exception ex) {
-            log.error("TransactionSummaryDAOImpl -> topSummary, Error while retrieving top summary transactions. top : {},statusCode : {}, fromDate: {}, toDate : {} , Error: {}", top, statusCode, fromDate, toDate, ex.getMessage());
+            log.error("TransactionSummaryDAOImpl -> topSummary, Error while retrieving top summary transactions. top : {},statusCode : {}, fromDate: {}, toDatetime : {}, Error: {}", top, statusCode, fromDatetime, toDatetime, ex.getMessage());
         }
         return result;
     }

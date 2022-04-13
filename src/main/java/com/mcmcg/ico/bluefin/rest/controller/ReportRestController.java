@@ -13,6 +13,7 @@ import com.mcmcg.ico.bluefin.security.service.SessionService;
 import com.mcmcg.ico.bluefin.service.*;
 import com.mcmcg.ico.bluefin.service.util.ApplicationUtil;
 import com.mcmcg.ico.bluefin.service.util.querydsl.QueryDSLUtil;
+import com.mcmcg.ico.bluefin.util.DateTimeUtil;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -295,10 +296,13 @@ public class ReportRestController {
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class)})
 	public ResponseEntity<String> generateTransactionSummaryReport(@RequestParam String top, @RequestParam String statusCode,
-																   @RequestParam String fromDate, @RequestParam String toDate, HttpServletResponse response) {
-		LOGGER.info("Generate Transaction Summary Excel Report Top: {} Status Code: {} From: {} To: {}", top, statusCode, fromDate, toDate);
+																   @RequestParam String fromDate, @RequestParam String toDate,
+																   @RequestParam String timeZone, HttpServletResponse response) {
+		LOGGER.info("Generate Transaction Summary Excel Report Top: {} Status Code: {} From: {} To: {} timeZone: {}", top, statusCode, fromDate, toDate, timeZone);
 
 		try {
+			fromDate = DateTimeUtil.datetimeToUTC(fromDate.concat(" 00:00:00"), timeZone);
+			toDate = DateTimeUtil.datetimeToUTC(toDate.concat(" 23:59:59"), timeZone);
 			File summaryReportList = transactionSummaryService.tranSummaryReport(top, statusCode, fromDate, toDate);
 
 			return batchUploadService.deleteTempFile(summaryReportList, response, DELETETEMPFILE);

@@ -20,6 +20,7 @@ import com.mcmcg.ico.bluefin.service.TransactionService;
 import com.mcmcg.ico.bluefin.service.TransactionSummaryService;
 import com.mcmcg.ico.bluefin.service.TransactionUpdateService;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
+import com.mcmcg.ico.bluefin.util.DateTimeUtil;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,10 +69,14 @@ public class TransactionsRestController {
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ResponseEntity<Map<String, List<TopTranSummaryDTO>>> generateTopSummaryReport(@RequestParam String top, @RequestParam String statusCode, @RequestParam String fromDate, @RequestParam String toDate) {
-		LOGGER.info("Generate Top Summary Report From: {} To: {}", fromDate, toDate);
+	public ResponseEntity<Map<String, List<TopTranSummaryDTO>>> generateTopSummaryReport(
+			@RequestParam String top, @RequestParam String statusCode, @RequestParam String fromDate, @RequestParam String toDate, @RequestParam String timeZone) {
+		LOGGER.info("Generate Top Summary Report From: {} To: {} TimeZone: {}", fromDate, toDate, timeZone);
 
-		Map<String, List<TopTranSummaryDTO>> topList = transactionSummaryService.topSummary(top, statusCode,fromDate,toDate);
+		fromDate = DateTimeUtil.datetimeToUTC(fromDate.concat(" 00:00:00"), timeZone);
+		toDate = DateTimeUtil.datetimeToUTC(toDate.concat(" 23:59:59"), timeZone);
+
+		Map<String, List<TopTranSummaryDTO>> topList = transactionSummaryService.topSummary(top, statusCode, fromDate, toDate);
 		if (topList.isEmpty()){
 			throw new CustomNotFoundException("Top Summary Report not found");
 		}
@@ -87,10 +92,14 @@ public class TransactionsRestController {
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ResponseEntity<List<DeclinedTranSummaryDTO>> generateDeclinedReport( @RequestParam String fromDate, @RequestParam String toDate) {
-		LOGGER.info("Generate Declined Report From: {} To: {}", fromDate, toDate);
+	public ResponseEntity<List<DeclinedTranSummaryDTO>> generateDeclinedReport(
+			@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String timeZone) {
+		LOGGER.info("Generate Declined Report From: {} To: {} TimeZone: {}", fromDate, toDate, timeZone);
 
-		List<DeclinedTranSummaryDTO> declineList = transactionSummaryService.declinedSummary(fromDate,toDate);
+		fromDate = DateTimeUtil.datetimeToUTC(fromDate.concat(" 00:00:00"), timeZone);
+		toDate = DateTimeUtil.datetimeToUTC(toDate.concat(" 23:59:59"), timeZone);
+
+		List<DeclinedTranSummaryDTO> declineList = transactionSummaryService.declinedSummary(fromDate, toDate);
 		if (declineList.isEmpty()){
 			throw new CustomNotFoundException("Decline Summary not found");
 		}
@@ -105,10 +114,14 @@ public class TransactionsRestController {
 			@ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
 			@ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
-	public ResponseEntity<Map<String, List<ApprovedTranSummary>>> generateApprovedReport(@RequestParam String fromDate, @RequestParam String toDate) {
-		LOGGER.info("Generate Approved Report From: {} To: {}", fromDate, toDate);
+	public ResponseEntity<Map<String, List<ApprovedTranSummary>>> generateApprovedReport(
+			@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String timeZone) {
+		LOGGER.info("Generate Approved Report From: {} To: {} TimeZone: {}", fromDate, toDate, timeZone);
 
-		Map<String, List<ApprovedTranSummary>> approveList = transactionSummaryService.approvedSummary(fromDate,toDate);
+		fromDate = DateTimeUtil.datetimeToUTC(fromDate.concat(" 00:00:00"), timeZone);
+		toDate = DateTimeUtil.datetimeToUTC(toDate.concat(" 23:59:59"), timeZone);
+
+		Map<String, List<ApprovedTranSummary>> approveList = transactionSummaryService.approvedSummary(fromDate, toDate);
 		if (approveList.isEmpty()){
 			throw new CustomNotFoundException("Approved Summary not found");
 		}
