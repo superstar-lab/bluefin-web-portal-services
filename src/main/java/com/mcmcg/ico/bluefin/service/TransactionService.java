@@ -142,11 +142,14 @@ public class TransactionService {
 		return tranResult;
 	}
 
-	public Iterable<SaleTransaction> getTransactions(String search, Map<String, List<String>> multipleValuesMap, PageRequest paging) {
+	public Iterable<SaleTransaction> getTransactions(String search, Map<String, List<String>> multipleValuesMap, PageRequest paging, String timeZone) {
+		LOGGER.info("Start getTransactions");
 		Page<SaleTransaction> result;
+
 		try {
-			result = customSaleTransactionDAO.findTransaction(search, multipleValuesMap, paging);
+			result = customSaleTransactionDAO.findTransaction(search, multipleValuesMap, paging, timeZone);
 		} catch (ParseException e) {
+			LOGGER.error("ERROR with: customSaleTransactionDAO.findTransaction");
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
 		final int page = paging.getPageNumber();
@@ -156,7 +159,20 @@ public class TransactionService {
 			throw new CustomNotFoundException("Unable to find the page requested");
 		}
 
-		LOGGER.debug("result :={} ",result);
+		if (result.getTotalElements() > 0) {
+			long elements = result.getTotalElements();
+			DateTimeZone dtzClient = DateTimeZone.forID(timeZone);
+
+			int y = 0;
+			for(SaleTransaction saleTransaction : result.getContent()) {
+				DateTime dateTimeUTC = saleTransaction.getTransactionDateTime().toDateTime(DateTimeZone.UTC);
+				DateTime dateTimeClient = dateTimeUTC.withZone(dtzClient);
+				result.getContent().get(y).setTransactionDateTime(dateTimeClient);
+				y++;
+			}
+		}
+
+		LOGGER.info("getTransactions result :={} ",result);
 		return result;
 	}
 
@@ -196,11 +212,12 @@ public class TransactionService {
 		List<SaleTransaction> result;
 		String reportPath = propertyDAO.getPropertyValue("TRANSACTIONS_REPORT_PATH");
 
-		LOGGER.debug("ReportPath : {}",reportPath);
+		LOGGER.info("ReportPath : {}",reportPath);
 		File file;
 		try {
 			result = customSaleTransactionDAO.findTransactionsReport(search, multipleValuesMap);
 		} catch (ParseException e) {
+			LOGGER.error("ERROR with: customSaleTransactionDAO.findTransactionsReport");
 			throw new CustomNotFoundException(FAILEDTOPROCESSDATEFORMATMSG);
 		}
 
