@@ -12,4 +12,10 @@ public class DateTimeUtil {
         DateTime date = DateTime.parse(datetime, fmt);
         return fmt.withZone(DateTimeZone.forID("UTC")).print(date);
     }
+
+    public static String datetimeToUTC(String datetime, String timeZone, String pattern){
+        DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern).withZone(DateTimeZone.forID(timeZone));
+        DateTime date = DateTime.parse(datetime, fmt);
+        return fmt.withZone(DateTimeZone.forID("UTC")).print(date);
+    }
 }

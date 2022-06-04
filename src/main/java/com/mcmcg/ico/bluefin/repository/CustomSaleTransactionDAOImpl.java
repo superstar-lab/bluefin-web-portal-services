@@ -9,6 +9,7 @@ import com.mcmcg.ico.bluefin.rest.controller.exception.CustomBadRequestException
 import com.mcmcg.ico.bluefin.rest.controller.exception.CustomNotFoundException;
 import com.mcmcg.ico.bluefin.rest.resource.TransactionPageImpl;
 import com.mcmcg.ico.bluefin.service.util.QueryUtil;
+import com.mcmcg.ico.bluefin.util.DateTimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -411,42 +412,10 @@ public class CustomSaleTransactionDAOImpl implements CustomSaleTransactionDAO {
                 String attributeParam = attribute + BluefinWebPortalConstants.PARAM1;
                 String predicate = getPropertyPredicate(attribute);
 
-				/*if ("transactionDateTime".equalsIgnoreCase(attribute)) {
-					*//*LocalDateTime transaction = Timestamp.valueOf(value).toLocalDateTime();
-					logger.info("Date and time value: {}", value);
-					logger.info("Transaction value: {}", transaction);
-
-					ZonedDateTime transactionWithTimezone = ZonedDateTime.parse(
-							transaction.atZone(clientTimeZone).format(
-									DateTimeFormatter.ofPattern(BluefinWebPortalConstants.FULLDATEFORMAT)));
-
-					ZonedDateTime transactionWithTimezone = transaction.atZone(clientTimeZone);
-					logger.info("Transaction with timezone value: {}", transactionWithTimezone);
-					logger.info("Transaction with timezone formatted value: {}", transactionWithTimezone.format(DateTimeFormatter.ofPattern(BluefinWebPortalConstants.FULLDATEFORMAT)));
-					logger.info("Transaction with timezone formatted ISO_INSTANT value: {}", transactionWithTimezone.format(DateTimeFormatter.ISO_INSTANT));
-
-					//value = transactionWithTimezone.format(DateTimeFormatter.ofPattern(BluefinWebPortalConstants.FULLDATEFORMAT));
-					value = transactionWithTimezone.format(DateTimeFormatter.ISO_INSTANT);*//*
-
-
-
-
-					*//*DateTime dateTimeUTC = DateTime.parse(value).toDateTime(DateTimeZone.UTC);
-					logger.info("dateTimeUTC value: {}", dateTimeUTC);
-
-					DateTimeZone dtzClient = DateTimeZone.forID(clientTimeZone);
-					logger.info("dtzClient value: {}", dtzClient);
-
-					DateTime dateTimeClient = dateTimeUTC.withZone(dtzClient);
-					logger.info("dateTimeClient value: {}", dateTimeClient);
-
-					value = dateTimeClient.toString();
-					logger.info("Value of value: {}", value);*//*
-
-					//new DateTime(value).toDateTime(DateTimeZone.UTC);
-					//DateTime dateTimeClient = dateTimeUTC.withZone(clientTimeZone);
-					//value = dateTimeClient.toString();
-				}*/
+				if ("transactionDateTime".equalsIgnoreCase(attribute)) {
+					value = DateTimeUtil.datetimeToUTC(value, clientTimeZone, "yyyy-MM-dd HH:mm:ss");
+					logger.info("Value of value: {}", value);
+				}
 
 				if (shouldContinue(attribute,prefix)) {
 					continue;

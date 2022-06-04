@@ -116,10 +116,11 @@ public class TransactionsRestController {
 			@ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class) })
 	public ResponseEntity<Map<String, List<ApprovedTranSummary>>> generateApprovedReport(
 			@RequestParam String fromDate, @RequestParam String toDate, @RequestParam String timeZone) {
-		LOGGER.info("Generate Approved Report From: {} To: {} TimeZone: {}", fromDate, toDate, timeZone);
 
 		fromDate = DateTimeUtil.datetimeToUTC(fromDate.concat(" 00:00:00"), timeZone);
 		toDate = DateTimeUtil.datetimeToUTC(toDate.concat(" 23:59:59"), timeZone);
+
+        LOGGER.info("Generate Approved Report From: {} To: {} TimeZone: {}", fromDate, toDate, timeZone);
 
         Map<String, List<ApprovedTranSummary>> approveList = transactionSummaryService.approvedSummary(fromDate, toDate);
         if (approveList.isEmpty()) {

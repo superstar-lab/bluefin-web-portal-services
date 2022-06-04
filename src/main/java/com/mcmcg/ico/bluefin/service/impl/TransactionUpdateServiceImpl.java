@@ -100,7 +100,8 @@ public class TransactionUpdateServiceImpl implements TransactionUpdateService {
             for (UpdateInfo update : updates) {
                 //Filter the potential valid transactions, depending on the info given
                 List<SaleTransactionInfo> transUpdate = trans.stream().filter(t ->
-                        update.getToken().equals(t.getToken()) && update.getApplication().equalsIgnoreCase(t.getApplication()) && update.getAccountNo().equalsIgnoreCase(t.getAccountNo())
+                        update.getToken().equals(t.getToken()) && update.getApplication().equalsIgnoreCase(t.getApplication())
+                                && update.getAccountNo().equalsIgnoreCase(t.getAccountNo())
                 ).collect(Collectors.toList());
 
                 //Set the update reason from the coming update to the potential valid transactions to return
