@@ -12,7 +12,7 @@ import java.util.Map;
 
 public interface TransactionUpdateService {
     Page<SaleTransactionInfo> getTransactionsFromUpdate(String updateRequest, String application, String updateDate, PageRequest page);
-    List<SaleTransactionInfo> getTransactionsFromUpdates(List<UpdateInfo> updates);
-    Map<String, Long> getTransactionsFromUpdatesMetrics(List<UpdateInfo> updates);
-    ResponseEntity<String> getTransactionsFromUpdateReport(List<UpdateInfo> updates, HttpServletResponse response);
+    List<SaleTransactionInfo> getTransactionsFromUpdates(List<UpdateInfo> updates, String fromDate, String timeZone);
+    Map<String, Long> getTransactionsFromUpdatesMetrics(List<UpdateInfo> updates, String fromDate, String timeZone);
+    ResponseEntity<String> getTransactionsFromUpdateReport(List<UpdateInfo> updates, String fromDate, String timeZone, HttpServletResponse response);
 }

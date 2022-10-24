@@ -2,6 +2,7 @@ package com.mcmcg.ico.bluefin.rest.controller;
 
 import java.util.List;
 
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mcmcg.ico.bluefin.model.Application;
 import com.mcmcg.ico.bluefin.rest.resource.ErrorResource;
 import com.mcmcg.ico.bluefin.service.ApplicationService;
-
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 
 @RestController
 @RequestMapping(value = "/api")

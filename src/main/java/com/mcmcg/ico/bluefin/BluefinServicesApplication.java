@@ -6,6 +6,7 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,7 @@ import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.util.unit.DataSize;
 
 @SpringBootApplication
+@EnableAutoConfiguration
 public class BluefinServicesApplication {
 
     @Value("${spring.datasource.bluefin.jndi-name}")

@@ -133,8 +133,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.GET, "**/*.html", "**/*.css", "**/*.js", "**/*.ico", "/assets/**", "/csrf/**").permitAll()
 
 				// Swagger
-				.antMatchers("/swagger-ui.html/**", "/webjars/springfox-swagger-ui/**", "/swagger-resources/**",
-						"/v2/api-docs/**", "/configuration/**", "/images/**")
+				.antMatchers("/swagger-ui/index.html","/swagger-ui/**", "/webjars/**", "/swagger-resources/**",
+						"/v2/api-docs","/v3/api-docs", "/configuration/**", "/images/**","/csrf/**")
 				.permitAll()
 
 				.and().authorizeRequests()

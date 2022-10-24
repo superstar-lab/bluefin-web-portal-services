@@ -8,6 +8,7 @@ import com.mcmcg.ico.bluefin.model.UpdateInfo;
 import com.mcmcg.ico.bluefin.repository.TransactionDAO;
 import com.mcmcg.ico.bluefin.service.PropertyService;
 import com.mcmcg.ico.bluefin.service.TransactionUpdateService;
+import com.mcmcg.ico.bluefin.util.DateTimeUtil;
 import com.mcmcg.ico.bluefin.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,9 @@ public class TransactionUpdateServiceImpl implements TransactionUpdateService {
     private static final String MCM_GEMINI = "MCM-GEMINI";
     private static final String ACCOUNT_ID = "accountID";
     private static final String CLIENT_ACCOUNT_ID = "clientAccountID";
+
+    private static final String DATE_STRING_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_STRING_PATTERN);
 
     public TransactionUpdateServiceImpl(TransactionDAO transactionDAO, PropertyService propertyService) {
         this.transactionDAO = transactionDAO;
@@ -88,55 +92,49 @@ public class TransactionUpdateServiceImpl implements TransactionUpdateService {
     }
 
     @Override
-    public List<SaleTransactionInfo> getTransactionsFromUpdates(List<UpdateInfo> updates) {
+    public List<SaleTransactionInfo> getTransactionsFromUpdates(List<UpdateInfo> updates, String fromDate, String timeZone) {
         log.info("TransactionUpdateServiceImpl -> getTransactionsFromUpdates. updates size: {}", updates.size());
-        List<SaleTransactionInfo> transactions = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        updates = updates.stream().distinct().collect(Collectors.toList());
+        log.info("TransactionUpdateServiceImpl -> getTransactionsFromUpdates. clear duplicates size: {}", updates.size());
+
+        String[] tokens = updates.stream().map(UpdateInfo::getToken).collect(Collectors.toList()).toArray(new String[0]);
 
         try {
-            String[] tokens = updates.stream().map(UpdateInfo::getToken).collect(Collectors.toList()).toArray(new String[0]);
-            List<SaleTransactionInfo> trans = transactionDAO.getTransactionsFromUpdates(tokens);
+            List<SaleTransactionInfo> transactions = new ArrayList<>();
+
+            String startDate = DateTimeUtil.datetimeToUTC(fromDate, timeZone);
+            List<SaleTransactionInfo> sales = transactionDAO.getTransactionsFromUpdates(tokens, startDate);
+            log.info("TransactionUpdateServiceImpl -> getTransactionsFromUpdates. Sales from DB, : {}", sales.size());
 
             for (UpdateInfo update : updates) {
-                //Filter the potential valid transactions, depending on the info given
-                List<SaleTransactionInfo> transUpdate = trans.stream().filter(t ->
-                        update.getToken().equals(t.getToken()) && update.getApplication().equalsIgnoreCase(t.getApplication())
-                                && update.getAccountNo().equalsIgnoreCase(t.getAccountNo())
-                ).collect(Collectors.toList());
 
-                //Set the update reason from the coming update to the potential valid transactions to return
-                transUpdate.stream().forEach(x -> x.setUpdateReason(update.getUpdateReason()));
+                LocalDateTime ensurebillUpdateDate = parseWithoutMillis(update.getUpdateDate());
 
-                String dateUpdate = update.getUpdateDate();
-                if (dateUpdate.contains(".")) {
-                    dateUpdate = dateUpdate.substring(0, dateUpdate.indexOf("."));
-                }
+                List<SaleTransactionInfo> salesUpdated =
+                        sales.stream()
+                        .filter(t -> update.getToken().equals(t.getToken()))
+                        .filter(t -> parseWithoutMillis(t.getTransactionDateTime()).isAfter(ensurebillUpdateDate))
+                                .collect(Collectors.toList());
 
-                LocalDateTime dateTimeUpdate = LocalDateTime.parse(dateUpdate, formatter);
-                //Add the valid transactions to the return variable, if the date of the transaction if after the date of the update
-                transactions.addAll(transUpdate.stream()
-                        .filter(t -> {
-                            String dateTran = t.getTransactionDateTime().substring(0, t.getTransactionDateTime().indexOf("."));
-                            LocalDateTime dateTimeTran = LocalDateTime.parse(dateTran, formatter);
-                            if (dateTimeTran.isAfter(dateTimeUpdate)) {
-                                return true;
-                            }
-                            return false;
-                        }).collect(Collectors.toList()));
+                salesUpdated.stream().forEach(x -> x.setUpdateReason(update.getUpdateReason()));
+                transactions.addAll(salesUpdated);
             }
+            return transactions;
         } catch (Exception e) {
             log.error("TransactionUpdateServiceImpl -> getTransactionsFromUpdates. Error getting the transactions, error: {}", e.toString());
+            throw new IllegalStateException(e);
         }
-
-        return transactions;
     }
 
     @Override
-    public Map<String, Long> getTransactionsFromUpdatesMetrics(List<UpdateInfo> updates) {
+    public Map<String, Long> getTransactionsFromUpdatesMetrics(List<UpdateInfo> updates, String fromDate, String timeZone) {
         log.info("TransactionUpdateServiceImpl -> getTransactionsFromUpdatesMetrics. updates size: {}", updates.size());
         Map<String, Long> metrics = new HashMap<>();
 
-        List<SaleTransactionInfo> transactions = getTransactionsFromUpdates(updates);
+        List<SaleTransactionInfo> transactions = getTransactionsFromUpdates(updates, fromDate, timeZone);
+        log.info("TransactionUpdateServiceImpl -> getTransactionsFromUpdatesMetrics. transactions size: {}", transactions.size());
+
         long approved = transactions.stream().filter(a -> BluefinWebPortalConstants.APPROVE_STATUS_CODE.equals(a.getInternalStatusCode())).count();
         long declined = transactions.stream().filter(a -> !BluefinWebPortalConstants.APPROVE_STATUS_CODE.equals(a.getInternalStatusCode())).count();
 
@@ -148,18 +146,18 @@ public class TransactionUpdateServiceImpl implements TransactionUpdateService {
     }
 
     @Override
-    public ResponseEntity<String> getTransactionsFromUpdateReport(List<UpdateInfo> updates, HttpServletResponse response) {
+    public ResponseEntity<String> getTransactionsFromUpdateReport(List<UpdateInfo> updates, String fromDate, String timeZone, HttpServletResponse response) {
         log.info("TransactionUpdateServiceImpl -> getTransactionsFromUpdateReport. updates size: {}", updates.size());
 
-        List<SaleTransactionInfo> transactions = getTransactionsFromUpdates(updates);
+        List<SaleTransactionInfo> transactions = getTransactionsFromUpdates(updates, fromDate, timeZone);
 
         String reportPath = propertyService.getPropertyValue(BluefinWebPortalConstants.REPORT_PATH);
-        File file = FileUtil.generateCSVFile(reportPath, FILE_HEADER, prepareDataForTransactionsReport(transactions));
+        File file = FileUtil.generateCSVFile(reportPath, FILE_HEADER, prepareDataForTransactionsReport(transactions, timeZone));
 
         return FileUtil.deleteTempFile(file, response);
     }
 
-    private Map<Integer, List<String>> prepareDataForTransactionsReport(List<SaleTransactionInfo> transactions) {
+    private Map<Integer, List<String>> prepareDataForTransactionsReport(List<SaleTransactionInfo> transactions, String timeZone) {
         log.info("Entering to TransactionServiceImpl -> prepareDataForTransactionsReport, transactions size: {}", transactions.size());
         Map<Integer, List<String>> data = new TreeMap<>();
         List<String> tranDataRecord;
@@ -173,7 +171,12 @@ public class TransactionUpdateServiceImpl implements TransactionUpdateService {
             tranDataRecord.add(transaction.getExpDate());
             tranDataRecord.add(transaction.getStatus());
             tranDataRecord.add("'".concat(transaction.getToken()));
-            tranDataRecord.add(transaction.getTransactionDateTime());
+
+            String dateTime = transaction.getTransactionDateTime();
+            dateTime = dateTime.contains(".") ? dateTime.substring(0, dateTime.indexOf(".")) : dateTime;
+            dateTime = DateTimeUtil.datetimeToUTC(dateTime,timeZone,DATE_STRING_PATTERN);
+
+            tranDataRecord.add(dateTime);
             tranDataRecord.add(transaction.getApplication());
             tranDataRecord.add(transaction.getUpdateReason());
 
@@ -184,4 +187,8 @@ public class TransactionUpdateServiceImpl implements TransactionUpdateService {
         return data;
     }
 
+    private LocalDateTime parseWithoutMillis(String textDate){
+        String withoutMillis = textDate.contains(".") ? textDate.substring(0, textDate.indexOf(".")) : textDate;
+        return LocalDateTime.parse(withoutMillis, FORMATTER);
+    }
 }

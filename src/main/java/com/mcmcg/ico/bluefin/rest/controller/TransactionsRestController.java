@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+import com.mcmcg.ico.bluefin.BluefinWebPortalConstants;
 import com.mcmcg.ico.bluefin.dto.DeclinedTranSummaryDTO;
 import com.mcmcg.ico.bluefin.dto.PageDTO;
 import com.mcmcg.ico.bluefin.dto.TopTranSummaryDTO;
@@ -49,6 +50,12 @@ import static com.mcmcg.ico.bluefin.util.PageUtils.getPageRequest;
 public class TransactionsRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionsRestController.class);
+
+    private static final  Map<String, Long> EMPTY_METRICS_RESPONSE =  new HashMap<String, Long>() {{
+        put(BluefinWebPortalConstants.APPROVED_TRANSACTIONS_METRIC, 0L);
+        put(BluefinWebPortalConstants.DECLINED_TRANSACTIONS_METRIC, 0L);
+        put("Total Transactions", 0L);
+    }};
 
     @Autowired
     private TransactionService transactionService;
@@ -260,10 +267,13 @@ public class TransactionsRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class)})
-    public ResponseEntity<String> getTransactionsFromUpdates(@RequestBody List<UpdateInfo> updates, HttpServletResponse response) {
+    public ResponseEntity<String> getTransactionsFromUpdates(
+            @RequestParam String fromDate,
+            @RequestParam String timeZone,
+            @RequestBody List<UpdateInfo> updates, HttpServletResponse response) {
         LOGGER.info("Get Transactions from Updates, updates: {}", updates);
         try {
-            return transactionUpdateService.getTransactionsFromUpdateReport(updates, response);
+            return transactionUpdateService.getTransactionsFromUpdateReport(updates, fromDate, timeZone, response);
         } catch (Exception e) {
             LOGGER.error("TransactionsRestController -> getTransactionsFromUpdates. An error occurred during downloading file: {}", e.getMessage());
             throw new CustomException("An error occurred during downloading file.");
@@ -278,9 +288,13 @@ public class TransactionsRestController {
             @ApiResponse(code = 401, message = "Unauthorized", response = ErrorResource.class),
             @ApiResponse(code = 403, message = "Forbidden", response = ErrorResource.class),
             @ApiResponse(code = 500, message = "Internal Server Error", response = ErrorResource.class)})
-    public ResponseEntity<Map<String, Long>> getTransactionsMetricsFromUpdates(@RequestBody List<UpdateInfo> updates) {
+    public ResponseEntity<Map<String, Long>> getTransactionsMetricsFromUpdates(
+            @RequestParam String fromDate,
+            @RequestParam String timeZone,
+            @RequestBody List<UpdateInfo> updates) {
         LOGGER.info("Get Transactions Metrics from Updates, updates: {}", updates);
-        Map<String, Long> result = transactionUpdateService.getTransactionsFromUpdatesMetrics(updates);
+        if(updates.isEmpty()) return new ResponseEntity<>(EMPTY_METRICS_RESPONSE, HttpStatus.OK);
+        Map<String, Long> result = transactionUpdateService.getTransactionsFromUpdatesMetrics(updates, fromDate, timeZone);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -77,7 +78,7 @@ public class TransactionDAOImpl implements TransactionDAO {
     }
 
     @Override
-    public List<SaleTransactionInfo> getTransactionsFromUpdates(String[] tokens) {
+    public List<SaleTransactionInfo> getTransactionsFromUpdates(String[] tokens, String startTime) {
         log.info("TransactionDAOImpl -> getTransactionsFromUpdates. tokens: {}", Arrays.toString(tokens));
         List<SaleTransactionInfo> result = new ArrayList<>();
 
@@ -86,6 +87,8 @@ public class TransactionDAOImpl implements TransactionDAO {
             query.append("SELECT ApplicationTransactionID, ExpiryDate, Token, ChargeAmount, AccountId, PaymentProcessorStatusCodeDescription, TransactionDateTime, LegalEntityApp, InternalStatusCode " +
                     "FROM Sale_Transaction WHERE Token in ( ");
             getTokenParams(query, tokens);
+            query.append(" AND TransactionDateTime >= '" + startTime + "'");
+            query.append(" AND InternalStatusCode in ('1','2')");
             query.append(" ORDER BY TransactionDateTime");
             result = jdbcTemplate.query(query.toString(), tokens, new TransactionRowMapper());
         } catch (Exception e) {
